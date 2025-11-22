@@ -12,6 +12,7 @@ export function createAppHeader({
     onImport, 
     onSave,
     onImageUpload,
+    onVideoAdd,
     onClear,
     onCanvasManager
 }) {
@@ -29,8 +30,8 @@ export function createAppHeader({
     const divider1 = document.createElement('div');
     divider1.className = 'header-divider';
     
-    // Mode selector (includes image button) - with labels
-    const modeSelector = createModeSelector(onModeChange, onImageUpload);
+    // Mode selector (includes image and video buttons) - with labels
+    const modeSelector = createModeSelector(onModeChange, onImageUpload, onVideoAdd);
     
     // Divider
     const divider2 = document.createElement('div');

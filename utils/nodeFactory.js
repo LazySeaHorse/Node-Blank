@@ -6,6 +6,8 @@ import { createMathNode } from '../components/organisms/MathNode.js';
 import { createTextNode } from '../components/organisms/TextNode.js';
 import { createGraphNode } from '../components/organisms/GraphNode.js';
 import { createImageNode } from '../components/organisms/ImageNode.js';
+import { createTableNode } from '../components/organisms/TableNode.js';
+import { createVideoNode } from '../components/organisms/VideoNode.js';
 
 export function createNode(x, y, type = appState.mode, content = "") {
     const id = `node-${Date.now()}-${Math.random().toString(36).substr(2,5)}`;
@@ -13,13 +15,27 @@ export function createNode(x, y, type = appState.mode, content = "") {
     // Default contents
     if (!content) {
         if (type === 'text') content = "Double click to edit.\n\nSupports **Markdown** and $LaTeX$ math like $E=mc^2$.";
-        if (type === 'graph') content = "x^2"; 
+        if (type === 'graph') content = "x^2";
+        if (type === 'table') content = JSON.stringify({
+            rows: 3,
+            cols: 3,
+            cells: Array(3).fill(null).map(() => Array(3).fill(''))
+        });
     }
 
     const nodeData = {
         id, x, y, type, content,
         zIndex: ++appState.zIndexCounter
     };
+    
+    // Add default dimensions for resizable nodes
+    if (type === 'image') {
+        nodeData.width = 300;
+        nodeData.height = 300;
+    } else if (type === 'video') {
+        nodeData.width = 560;
+        nodeData.height = 315;
+    }
 
     appState.fields.push(nodeData);
     return nodeData;
@@ -41,12 +57,23 @@ export function renderNode(data, world, selectNodeFn) {
         case 'image':
             nodeElement = createImageNode(data, selectNodeFn);
             break;
+        case 'table':
+            nodeElement = createTableNode(data, selectNodeFn);
+            break;
+        case 'video':
+            nodeElement = createVideoNode(data, selectNodeFn);
+            break;
         default:
             return;
     }
     
     // Add drag handlers
     nodeElement.addEventListener('mousedown', (e) => {
+        // Don't drag if clicking resize handle
+        if (e.target.classList.contains('resize-handle')) {
+            return;
+        }
+        
         // Check if we clicked an interactive child
         const targetTag = e.target.tagName.toLowerCase();
         const interactiveTags = ['input','textarea','math-field','button'];

@@ -19,3 +19,5 @@
 @import './organisms/app-header.css';
 @import './organisms/node.css';
 @import './organisms/canvas-world.css';
+@import './organisms/table-node.css';
+@import './organisms/video-node.css';

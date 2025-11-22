@@ -1,0 +1,21 @@
+/**
+ * Video Node Styles
+ */
+
+.node-video {
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    cursor: grab;
+    border: 4px solid transparent !important;
+}
+
+.node-video.selected {
+    border-color: var(--color-primary-light) !important;
+}
+
+.video-iframe {
+    display: block;
+    border: none;
+    border-radius: var(--radius-md, 0.5rem);
+}

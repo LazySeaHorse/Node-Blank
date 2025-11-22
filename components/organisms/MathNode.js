@@ -13,7 +13,7 @@ export function createMathNode(data, onSelect) {
     
     const mf = document.createElement('math-field');
     mf.value = data.content;
-    mf.virtualKeyboardMode = "manual";
+    //mf.virtualKeyboardMode = "manual";
     
     mf.addEventListener('input', () => { 
         data.content = mf.value; 

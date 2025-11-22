@@ -70,3 +70,36 @@
     border-radius: var(--radius-md); 
     border: 1px solid var(--color-slate-100);
 }
+
+/* Resize Handle */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 12px 12px;
+    border-color: transparent transparent var(--color-primary, #3b82f6) transparent;
+}
+
+.node.selected .resize-handle {
+    opacity: 1;
+}
+
+.node-image,
+.node-video {
+    cursor: grab;
+}

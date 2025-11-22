@@ -5,14 +5,15 @@ import { createModeButton } from '../molecules/ModeButton.js';
 import { appState } from '../../state/appState.js';
 import { createIconElement } from '../../utils/icons.js';
 
-export function createModeSelector(onModeChange, onImageUpload) {
+export function createModeSelector(onModeChange, onImageUpload, onVideoAdd) {
     const container = document.createElement('div');
     container.className = 'mode-selector';
     
     const modes = [
         { id: 'btn-mode-math', iconName: 'function', label: 'Math', mode: 'math' },
         { id: 'btn-mode-text', iconName: 'type', label: 'Text', mode: 'text' },
-        { id: 'btn-mode-graph', iconName: 'chart', label: 'Graph', mode: 'graph' }
+        { id: 'btn-mode-graph', iconName: 'chart', label: 'Graph', mode: 'graph' },
+        { id: 'btn-mode-table', iconName: 'table', label: 'Table', mode: 'table' }
     ];
     
     modes.forEach(({ id, iconName, label, mode }) => {
@@ -50,11 +51,24 @@ export function createModeSelector(onModeChange, onImageUpload) {
         container.appendChild(imageInput);
     }
     
+    // Video add button
+    if (onVideoAdd) {
+        const videoBtn = document.createElement('button');
+        videoBtn.className = 'mode-btn';
+        videoBtn.appendChild(createIconElement('video', 18));
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = 'Video';
+        videoBtn.appendChild(labelSpan);
+        videoBtn.addEventListener('click', () => onVideoAdd());
+        
+        container.appendChild(videoBtn);
+    }
+    
     return container;
 }
 
 export function updateModeSelector(mode) {
-    ['math', 'text', 'graph'].forEach(m => {
+    ['math', 'text', 'graph', 'table'].forEach(m => {
         const btn = document.getElementById(`btn-mode-${m}`);
         if (btn) {
             if (mode === m) {

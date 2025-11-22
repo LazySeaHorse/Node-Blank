@@ -14,6 +14,7 @@ export const appState = {
 export const interaction = {
     isDraggingCanvas: false,
     isDraggingNode: false,
+    isResizingNode: false,
     isSelecting: false,
     startPos: { x: 0, y: 0 },
     panStart: { x: 0, y: 0 },
@@ -21,7 +22,9 @@ export const interaction = {
     selectedIds: [],
     activeInput: null,
     selectionStart: { x: 0, y: 0 },
-    dragStartPositions: new Map()
+    dragStartPositions: new Map(),
+    resizeStartSize: { width: 0, height: 0 },
+    resizeNodeId: null
 };
 
 export function screenToWorld(x, y) {

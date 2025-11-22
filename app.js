@@ -44,6 +44,7 @@ class MathCanvasApp {
             onImport: (input) => this.handleImport(input),
             onSave: () => this.manualSave(),
             onImageUpload: (input) => this.addImage(input),
+            onVideoAdd: () => this.addVideo(),
             onClear: () => this.clearCanvas(),
             onCanvasManager: () => this.openCanvasManager()
         });
@@ -255,13 +256,47 @@ class MathCanvasApp {
         
         const reader = new FileReader();
         reader.onload = (e) => {
-            const cx = -appState.pan.x / appState.scale + 100;
-            const cy = -appState.pan.y / appState.scale + 100;
-            const nodeData = createNode(cx, cy, 'image', e.target.result);
-            renderNode(nodeData, this.world, selectNode);
+            // Load image to get natural dimensions
+            const img = new Image();
+            img.onload = () => {
+                const cx = -appState.pan.x / appState.scale + 100;
+                const cy = -appState.pan.y / appState.scale + 100;
+                
+                // Calculate dimensions (max 800px on longest side)
+                const maxSize = 800;
+                let width = img.naturalWidth;
+                let height = img.naturalHeight;
+                
+                if (width > maxSize || height > maxSize) {
+                    const ratio = width / height;
+                    if (width > height) {
+                        width = maxSize;
+                        height = maxSize / ratio;
+                    } else {
+                        height = maxSize;
+                        width = maxSize * ratio;
+                    }
+                }
+                
+                const nodeData = createNode(cx, cy, 'image', e.target.result);
+                nodeData.width = width;
+                nodeData.height = height;
+                renderNode(nodeData, this.world, selectNode);
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
         input.value = '';
+    }
+
+    addVideo() {
+        const url = prompt('Enter video URL:\n\n• YouTube: youtube.com/watch?v=...\n• Vimeo: vimeo.com/...\n• Or paste embed code');
+        if (!url || url.trim() === '') return;
+        
+        const cx = -appState.pan.x / appState.scale + 100;
+        const cy = -appState.pan.y / appState.scale + 100;
+        const nodeData = createNode(cx, cy, 'video', url.trim());
+        renderNode(nodeData, this.world, selectNode);
     }
 
     async clearCanvas() {

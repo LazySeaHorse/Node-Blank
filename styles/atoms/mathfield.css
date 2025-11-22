@@ -12,3 +12,9 @@ math-field {
 math-field::part(container) { 
     outline: none; 
 }
+
+/* Hide MathLive menu and keyboard buttons */
+math-field::part(menu-toggle),
+math-field::part(virtual-keyboard-toggle) {
+    display: none !important;
+}

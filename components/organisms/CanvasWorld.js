@@ -89,6 +89,29 @@ export function setupCanvasEvents(container, world) {
     
     // Mouse down - distinguish between left and middle button
     container.addEventListener('mousedown', (e) => {
+        // Check if clicking on resize handle
+        if (e.target.classList.contains('resize-handle')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const nodeId = e.target.dataset.nodeId;
+            const nodeData = appState.fields.find(f => f.id === nodeId);
+            
+            if (nodeData && (nodeData.type === 'image' || nodeData.type === 'video')) {
+                interaction.isResizingNode = true;
+                interaction.resizeNodeId = nodeId;
+                interaction.startPos = { x: e.clientX, y: e.clientY };
+                interaction.resizeStartSize = {
+                    width: nodeData.width || (nodeData.type === 'image' ? 300 : 560),
+                    height: nodeData.height || (nodeData.type === 'image' ? 300 : 315)
+                };
+                
+                // Calculate aspect ratio
+                interaction.aspectRatio = interaction.resizeStartSize.width / interaction.resizeStartSize.height;
+            }
+            return;
+        }
+        
         if (e.target === container || e.target === world) {
             // Middle button (1) or right button (2) - pan
             if (e.button === 1 || e.button === 2) {
@@ -122,6 +145,37 @@ export function setupCanvasEvents(container, world) {
     });
 
     window.addEventListener('mousemove', (e) => {
+        // Resize Node
+        if (interaction.isResizingNode) {
+            e.preventDefault();
+            const nodeData = appState.fields.find(f => f.id === interaction.resizeNodeId);
+            if (nodeData) {
+                const dx = (e.clientX - interaction.startPos.x) / appState.scale;
+                
+                // Calculate new width maintaining aspect ratio (minimum 50px)
+                const newWidth = Math.max(50, interaction.resizeStartSize.width + dx);
+                const newHeight = newWidth / interaction.aspectRatio;
+                
+                nodeData.width = newWidth;
+                nodeData.height = newHeight;
+                
+                // Update the DOM element
+                const el = document.getElementById(interaction.resizeNodeId);
+                if (el) {
+                    const mediaEl = el.querySelector('img, iframe');
+                    if (mediaEl) {
+                        mediaEl.style.width = `${newWidth}px`;
+                        mediaEl.style.height = `${newHeight}px`;
+                        // Disable pointer events on iframe during resize
+                        if (mediaEl.tagName === 'IFRAME') {
+                            mediaEl.style.pointerEvents = 'none';
+                        }
+                    }
+                }
+            }
+            return;
+        }
+        
         // Pan Canvas
         if (interaction.isDraggingCanvas) {
             const dx = e.clientX - interaction.startPos.x;
@@ -174,9 +228,22 @@ export function setupCanvasEvents(container, world) {
     });
 
     window.addEventListener('mouseup', () => {
+        // Re-enable pointer events on iframes after resize
+        if (interaction.isResizingNode) {
+            const el = document.getElementById(interaction.resizeNodeId);
+            if (el) {
+                const iframe = el.querySelector('iframe');
+                if (iframe) {
+                    iframe.style.pointerEvents = 'auto';
+                }
+            }
+        }
+        
         interaction.isDraggingCanvas = false;
         interaction.isDraggingNode = false;
+        interaction.isResizingNode = false;
         interaction.isSelecting = false;
+        interaction.resizeNodeId = null;
         interaction.dragStartPositions.clear();
         container.style.cursor = 'crosshair';
         selectionRect.style.display = 'none';
