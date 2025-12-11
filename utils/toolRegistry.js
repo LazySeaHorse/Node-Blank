@@ -45,10 +45,17 @@ export const TOOLS = {
         icon: 'video',
         type: 'action',
         description: 'Embed a video'
+    },
+    js: {
+        id: 'js',
+        label: 'Script',
+        icon: 'terminal',
+        type: 'mode',
+        description: 'Run JavaScript code'
     }
 };
 
 export const DEFAULT_TOOL_CONFIG = {
-    toolbar: ['math', 'text', 'graph', 'table', 'image', 'video'],
-    more: []
+    toolbar: ['math', 'text', 'image'],
+    more: ['js', 'table', 'video', 'graph']
 };

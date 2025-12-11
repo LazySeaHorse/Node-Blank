@@ -8,6 +8,7 @@ import { createGraphNode } from '../components/organisms/GraphNode.js';
 import { createImageNode } from '../components/organisms/ImageNode.js';
 import { createTableNode } from '../components/organisms/TableNode.js';
 import { createVideoNode } from '../components/organisms/VideoNode.js';
+import { createScriptNode } from '../components/organisms/ScriptNode.js';
 
 export function createNode(x, y, type = appState.mode, content = "") {
     const id = `node-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
@@ -21,6 +22,7 @@ export function createNode(x, y, type = appState.mode, content = "") {
             cols: 3,
             cells: Array(3).fill(null).map(() => Array(3).fill(''))
         });
+        if (type === 'js') content = "// JavaScript Sandbox\nconsole.log('Hello from the worker!');\n\n// Try some math:\nconst sum = [1, 2, 3, 4].reduce((a, b) => a + b, 0);\nconsole.log('Sum:', sum);";
     }
 
     const nodeData = {
@@ -35,6 +37,9 @@ export function createNode(x, y, type = appState.mode, content = "") {
     } else if (type === 'video') {
         nodeData.width = 560;
         nodeData.height = 315;
+    } else if (type === 'js') {
+        nodeData.width = 400;
+        nodeData.height = 350;
     }
 
     // Use immutable update for signals to detect change
@@ -63,6 +68,9 @@ export function renderNode(data, world, selectNodeFn) {
             break;
         case 'video':
             nodeElement = createVideoNode(data, selectNodeFn);
+            break;
+        case 'js':
+            nodeElement = createScriptNode(data, selectNodeFn);
             break;
         default:
             return;
