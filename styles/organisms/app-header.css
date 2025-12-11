@@ -52,7 +52,22 @@
     gap: 0.25rem;
 }
 
+
 .action-bar {
     display: flex;
     gap: 0.25rem;
+}
+
+@media (max-width: 556px) {
+
+    .mode-selector,
+    .more-tools-menu,
+    .header-divider {
+        display: none;
+    }
+
+    /* Hide Undo button (first child of action bar) */
+    .action-bar> :first-child {
+        display: none;
+    }
 }

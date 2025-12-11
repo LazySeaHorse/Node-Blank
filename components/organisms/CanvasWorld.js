@@ -64,6 +64,9 @@ export function createCanvasWorld() {
         z-index: 10000;
     `;
 
+    // Disable default touch actions to allow custom handling
+    container.style.touchAction = 'none';
+
     container.appendChild(world);
     container.appendChild(selectionRect);
 
@@ -321,4 +324,93 @@ export function setupCanvasEvents(container, world) {
             document.querySelectorAll('.md-editor:not(.hidden)').forEach(el => el.blur());
         }
     });
+
+    // Touch Events for Mobile (Pan & Zoom)
+    container.addEventListener('touchstart', (e) => {
+        // Allow interaction with UI elements (buttons, etc.)
+        if (e.target.closest('.app-header') || e.target.closest('.zoom-controls')) {
+            return;
+        }
+
+        // Prevent default browser zooming/scrolling for all touches in canvas
+        e.preventDefault();
+
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            interaction.isDraggingCanvas = true;
+            interaction.startPos = { x: touch.clientX, y: touch.clientY };
+            interaction.panStart = { ...appState.pan };
+        } else if (e.touches.length === 2) {
+            interaction.isZooming = true;
+
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+
+            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            const cx = (t1.clientX + t2.clientX) / 2;
+            const cy = (t1.clientY + t2.clientY) / 2;
+
+            interaction.pinchStartDist = dist;
+            interaction.pinchStartScale = appState.scale;
+            interaction.pinchStartCenter = { x: cx, y: cy };
+            interaction.panStart = { ...appState.pan };
+        }
+    }, { passive: false });
+
+    container.addEventListener('touchmove', (e) => {
+        // Prevent default processing
+        e.preventDefault();
+
+        if (e.touches.length === 1 && interaction.isDraggingCanvas) {
+            const touch = e.touches[0];
+            const dx = touch.clientX - interaction.startPos.x;
+            const dy = touch.clientY - interaction.startPos.y;
+            appState.pan = {
+                x: interaction.panStart.x + dx,
+                y: interaction.panStart.y + dy
+            };
+        } else if (e.touches.length === 2 && interaction.isZooming) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+
+            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            const cx = (t1.clientX + t2.clientX) / 2;
+            const cy = (t1.clientY + t2.clientY) / 2;
+
+            if (interaction.pinchStartDist > 0) {
+                const scaleFactor = dist / interaction.pinchStartDist;
+                let newScale = interaction.pinchStartScale * scaleFactor;
+                newScale = Math.min(5, Math.max(0.1, newScale));
+
+                // Calculate new pan to zoom around center
+                const rect = container.getBoundingClientRect();
+                const startCxRel = interaction.pinchStartCenter.x - rect.left;
+                const startCyRel = interaction.pinchStartCenter.y - rect.top;
+
+                const wx = (startCxRel - interaction.panStart.x) / interaction.pinchStartScale;
+                const wy = (startCyRel - interaction.panStart.y) / interaction.pinchStartScale;
+
+                const currCxRel = cx - rect.left;
+                const currCyRel = cy - rect.top;
+
+                appState.pan = {
+                    x: currCxRel - wx * newScale,
+                    y: currCyRel - wy * newScale
+                };
+                appState.scale = newScale;
+            }
+        }
+    }, { passive: false });
+
+    container.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            interaction.isZooming = false;
+        }
+        if (e.touches.length === 0) {
+            interaction.isDraggingCanvas = false;
+        }
+    });
+
+
+
 }
