@@ -261,9 +261,20 @@ class MathCanvasApp {
     async manualSave() {
         await this.saveCurrentCanvas();
         const btn = document.activeElement;
-        const originalText = btn.innerText;
-        btn.innerText = "Saved!";
-        setTimeout(() => btn.innerText = originalText, 1000);
+
+        // Don't interfere if it's not a button or doesn't have children (unexpected state)
+        if (!btn || btn.tagName !== 'BUTTON') return;
+
+        // Save original HTML content (including the SVG icon)
+        const originalContent = btn.innerHTML;
+
+        // Show "Saved!" message
+        btn.textContent = "Saved!";
+
+        // Restore original content (Icon + Tooltip/Label)
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+        }, 1000);
     }
 
     addImage(input) {
