@@ -55,14 +55,7 @@ export function createCanvasWorld() {
     // Selection rectangle
     const selectionRect = document.createElement('div');
     selectionRect.id = 'selection-rect';
-    selectionRect.style.cssText = `
-        position: absolute;
-        border: 2px solid #3b82f6;
-        background: rgba(59, 130, 246, 0.1);
-        pointer-events: none;
-        display: none;
-        z-index: 10000;
-    `;
+    selectionRect.className = 'selection-rect';
 
     // Disable default touch actions to allow custom handling
     container.style.touchAction = 'none';

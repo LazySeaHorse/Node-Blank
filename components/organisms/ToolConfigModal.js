@@ -13,7 +13,7 @@ export function createToolConfigModal({ onClose }) {
 
     // Create modal container
     const modal = document.createElement('div');
-    modal.className = 'bg-white rounded-lg shadow-xl w-[600px] max-w-[90vw] overflow-hidden flex flex-col max-h-[80vh]';
+    modal.className = 'tool-config-modal rounded-lg shadow-xl w-[600px] max-w-[90vw] overflow-hidden flex flex-col max-h-[80vh]';
     overlay.appendChild(modal);
 
     // Initial State (Copy of current config)
@@ -23,10 +23,10 @@ export function createToolConfigModal({ onClose }) {
 
     // Header
     const header = document.createElement('div');
-    header.className = 'px-6 py-4 border-b border-slate-200 flex justify-between items-center';
-    header.innerHTML = '<h2 class="text-lg font-bold text-slate-800">Customize Toolbar</h2>';
+    header.className = 'modal-header px-6 py-4 flex justify-between items-center';
+    header.innerHTML = '<h2 class="modal-title text-lg font-bold">Customize Toolbar</h2>';
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'text-slate-400 hover:text-slate-600';
+    closeBtn.className = 'modal-close';
     closeBtn.appendChild(createIconElement('x', 24));
     closeBtn.onclick = () => cleanup();
     header.appendChild(closeBtn);
@@ -42,32 +42,32 @@ export function createToolConfigModal({ onClose }) {
         container.className = 'flex-1 flex flex-col gap-2';
 
         const titleEl = document.createElement('h3');
-        titleEl.className = 'text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wide';
+        titleEl.className = 'list-area-title text-sm font-semibold mb-2 uppercase tracking-wide';
         titleEl.textContent = title;
         container.appendChild(titleEl);
 
         const listContainer = document.createElement('div');
-        listContainer.className = 'border border-slate-200 rounded-md bg-slate-50 p-2 flex-1 overflow-y-auto min-h-[250px]';
+        listContainer.className = 'list-container rounded-md p-2 flex-1 overflow-y-auto min-h-[250px]';
 
         items.forEach(itemId => {
             const tool = TOOLS[itemId];
             if (!tool) return;
 
             const itemEl = document.createElement('div');
-            itemEl.className = 'flex items-center justify-between p-3 mb-2 bg-white rounded shadow-sm border border-slate-100 group';
+            itemEl.className = 'tool-item flex items-center justify-between p-3 mb-2 rounded shadow-sm group';
 
             const left = document.createElement('div');
-            left.className = 'flex items-center gap-3';
+            left.className = 'flex items-center gap-3 tool-item-icon';
             left.appendChild(createIconElement(tool.icon, 18));
 
             const text = document.createElement('span');
             text.textContent = tool.label;
-            text.className = 'font-medium text-slate-700';
+            text.className = 'tool-item-label font-medium';
             left.appendChild(text);
             itemEl.appendChild(left);
 
             const actionBtn = document.createElement('button');
-            actionBtn.className = 'text-slate-400 hover:text-blue-500 p-1 rounded hover:bg-slate-100 transition-colors tooltip';
+            actionBtn.className = 'tool-action-btn p-1 rounded transition-colors tooltip';
             // Arrow icon based on direction
             const iconName = isToolbar ? 'arrow-right' : 'arrow-left';
             actionBtn.appendChild(createIconElement(iconName, 18));
@@ -107,15 +107,15 @@ export function createToolConfigModal({ onClose }) {
 
     // Footer
     const footer = document.createElement('div');
-    footer.className = 'px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3';
+    footer.className = 'modal-footer px-6 py-4 flex justify-end gap-3';
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-md transition-colors';
+    cancelBtn.className = 'btn-secondary px-4 py-2 font-medium rounded-md transition-colors';
     cancelBtn.textContent = 'Cancel';
     cancelBtn.onclick = () => cleanup();
 
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'px-4 py-2 bg-blue-600 text-white font-medium hover:bg-blue-700 rounded-md shadow-sm transition-colors';
+    saveBtn.className = 'btn-primary px-4 py-2 font-medium rounded-md shadow-sm transition-colors';
     saveBtn.textContent = 'Save Changes';
     saveBtn.onclick = () => {
         // Save to global state

@@ -21,24 +21,25 @@ export function createDropdown({
         position: fixed;
         top: ${top}px;
         left: ${left}px;
-        background: white;
-        border: 1px solid var(--color-slate-200, #e2e8f0);
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        z-index: 10000;
-        min-width: 180px;
-        padding: 0.5rem;
         animation: fadeIn 0.1s ease-out;
     `;
 
-    // Add simple animation
+    // Add simple animation styles only (structure moved to more-tools.css)
     const style = document.createElement('style');
-    if (!document.getElementById('dropdown-styles')) {
-        style.id = 'dropdown-styles';
+    if (!document.getElementById('dropdown-animation')) {
+        style.id = 'dropdown-animation';
         style.textContent = `
             @keyframes fadeIn {
                 from { opacity: 0; transform: translateY(-5px); }
                 to { opacity: 1; transform: translateY(0); }
+            }
+            .dropdown-menu {
+                min-width: 180px;
+                padding: 0.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+                border-radius: 0.5rem;
             }
             .dropdown-item {
                 display: flex;
@@ -46,22 +47,16 @@ export function createDropdown({
                 gap: 0.5rem;
                 width: 100%;
                 padding: 0.5rem 0.75rem;
-                background: transparent;
                 border: none;
                 border-radius: 0.375rem;
                 text-align: left;
                 font-size: 0.875rem;
-                color: #334155;
                 cursor: pointer;
-                transition: background 0.15s ease;
                 font-family: inherit;
-            }
-            .dropdown-item:hover {
-                background: #f1f5f9;
+                background: transparent;
             }
             .dropdown-separator {
                 height: 1px;
-                background: #e2e8f0;
                 margin: 0.5rem 0;
             }
         `;

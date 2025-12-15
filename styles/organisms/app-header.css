@@ -7,10 +7,10 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--color-white);
+    background: var(--bg-surface);
     padding: 0.5rem;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--color-slate-200);
+    border: 1px solid var(--border-base);
     box-shadow: var(--shadow-lg);
     z-index: 30;
 }
@@ -22,33 +22,34 @@
     padding: 0.5rem;
     background: transparent;
     border: none;
-    color: var(--color-slate-600);
+    color: var(--text-secondary);
     cursor: pointer;
     border-radius: var(--radius-md);
     transition: background 0.15s ease, color 0.15s ease;
 }
 
 .header-icon-btn:hover {
-    background: var(--color-slate-100);
-    color: var(--color-slate-900);
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
 }
 
 .header-icon-btn:active {
-    background: var(--color-slate-200);
+    background: var(--bg-surface-active);
 }
 
 .header-divider {
     height: 1.5rem;
     width: 1px;
-    background: var(--color-slate-200);
+    background: var(--border-base);
 }
 
 .mode-selector {
     display: flex;
-    background: var(--color-slate-100);
+    background: var(--bg-canvas);
+    /* Make it distinct from the header surface */
     padding: 0.25rem;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--color-slate-200);
+    border: 1px solid var(--border-base);
     gap: 0.25rem;
 }
 

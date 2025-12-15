@@ -11,6 +11,7 @@ import { createAppHeader } from './components/organisms/AppHeader.js';
 import { createCanvasWorld, setupCanvasEvents, updateTransform } from './components/organisms/CanvasWorld.js';
 import { createZoomControl } from './components/molecules/ZoomControl.js';
 import { createCanvasManager } from './components/organisms/CanvasManager.js';
+import { createThemeToggle } from './components/molecules/ThemeToggle.js';
 
 class MathCanvasApp {
     constructor() {
@@ -63,10 +64,27 @@ class MathCanvasApp {
             initialZoom: Math.round(appState.scale * 100)
         });
 
+        // Create theme toggle
+        const themeToggle = createThemeToggle();
+
+        // Create wrapper for bottom-right controls
+        const controlsWrapper = document.createElement('div');
+        controlsWrapper.style.position = 'absolute';
+        controlsWrapper.style.bottom = '1.25rem';
+        controlsWrapper.style.right = '1.25rem';
+        controlsWrapper.style.display = 'flex';
+        controlsWrapper.style.flexDirection = 'column';
+        controlsWrapper.style.alignItems = 'flex-end';
+        controlsWrapper.style.zIndex = '30';
+        controlsWrapper.style.pointerEvents = 'none'; // Allow clicking through spacing
+
+        controlsWrapper.appendChild(themeToggle);
+        controlsWrapper.appendChild(zoomControl);
+
         // Append to DOM
         appContainer.appendChild(container);
         container.appendChild(header);
-        container.appendChild(zoomControl);
+        container.appendChild(controlsWrapper);
 
         // Setup events
         setupCanvasEvents(container, world);

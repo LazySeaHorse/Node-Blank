@@ -63,32 +63,10 @@ export function createActionBar({ onUndo, onExport, onImport, onSave, iconOnly =
 }
 
 /**
- * Ensure dropdown styles line injected
+ * Ensure dropdown styles - managed via action-bar.css now
  */
 function ensureDropdownStyles() {
-    if (document.getElementById('action-bar-dropdown-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'action-bar-dropdown-styles';
-    style.textContent = `
-        .dropdown-item {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            background: transparent;
-            border: none;
-            border-radius: var(--radius-md);
-            text-align: left;
-            font-size: 0.875rem;
-            color: var(--color-slate-700);
-            cursor: pointer;
-            transition: background 0.15s ease;
-        }
-        .dropdown-item:hover {
-            background: var(--color-slate-100);
-        }
-    `;
-    document.head.appendChild(style);
+    // No-op as styles are loaded via CSS
 }
 
 /**
@@ -102,28 +80,11 @@ function showExportDialog(onExport, buttonElement) {
 
         // Position below the button
         const rect = buttonElement.getBoundingClientRect();
-        dropdown.style.cssText = `
-            position: fixed;
-            top: ${rect.bottom + 8}px;
-            left: ${rect.left}px;
-            background: white;
-            border: 1px solid var(--color-slate-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            z-index: 10000;
-            min-width: 180px;
-            padding: 0.5rem;
-        `;
+        dropdown.style.top = `${rect.bottom + 8}px`;
+        dropdown.style.left = `${rect.left}px`;
 
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-        `;
+        overlay.className = 'export-import-overlay';
 
         dropdown.innerHTML = `
             <button class="dropdown-item" id="export-nodes">Selected Nodes</button>
@@ -175,28 +136,11 @@ function showImportDialog(buttonElement) {
 
         // Position below the button
         const rect = buttonElement.getBoundingClientRect();
-        dropdown.style.cssText = `
-            position: fixed;
-            top: ${rect.bottom + 8}px;
-            left: ${rect.left}px;
-            background: white;
-            border: 1px solid var(--color-slate-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            z-index: 10000;
-            min-width: 180px;
-            padding: 0.5rem;
-        `;
+        dropdown.style.top = `${rect.bottom + 8}px`;
+        dropdown.style.left = `${rect.left}px`;
 
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-        `;
+        overlay.className = 'export-import-overlay';
 
         dropdown.innerHTML = `
             <button class="dropdown-item" id="import-nodes">Append Nodes</button>

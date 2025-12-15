@@ -1,0 +1,34 @@
+/* More Tools Menu */
+/* Container styling if needed */
+
+
+.more-tools-trigger {
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.more-tools-trigger:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface-hover);
+}
+
+.dropdown-menu {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-base);
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    transition: background 0.1s ease;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-surface-hover);
+}
+
+.dropdown-separator {
+    background: var(--border-base);
+}

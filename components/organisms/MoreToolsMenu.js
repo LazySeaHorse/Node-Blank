@@ -13,7 +13,7 @@ export function createMoreToolsMenu(handlers) {
     container.className = 'more-tools-menu ml-1';
 
     const triggerBtn = document.createElement('button');
-    triggerBtn.className = 'p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors';
+    triggerBtn.className = 'more-tools-trigger p-2 rounded-md transition-colors';
     triggerBtn.title = 'More Tools';
     triggerBtn.appendChild(createIconElement('more-horizontal', 20));
 

@@ -14,6 +14,7 @@
 @import './molecules/action-button.css';
 @import './molecules/markdown-editor.css';
 @import './molecules/zoom-control.css';
+@import './molecules/theme-toggle.css';
 
 /* Organisms */
 @import './organisms/app-header.css';
@@ -21,3 +22,9 @@
 @import './organisms/canvas-world.css';
 @import './organisms/table-node.css';
 @import './organisms/video-node.css';
+@import './organisms/canvas-manager.css';
+@import './organisms/more-tools.css';
+@import './organisms/tool-config.css';
+@import './organisms/script-node.css';
+@import './organisms/canvas-manager-buttons.css';
+@import './organisms/action-bar.css';

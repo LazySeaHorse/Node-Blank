@@ -2,15 +2,16 @@
 math-field {
     font-size: 1.25rem;
     background: transparent;
-    outline: none; 
+    outline: none;
     border: none;
     user-select: text;
     cursor: text;
     padding: var(--spacing-xs);
+    color: inherit;
 }
 
-math-field::part(container) { 
-    outline: none; 
+math-field::part(container) {
+    outline: none;
 }
 
 /* Hide MathLive menu and keyboard buttons */

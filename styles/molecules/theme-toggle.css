@@ -1,0 +1,37 @@
+/* Theme Toggle */
+.theme-toggle-btn {
+    padding: 0.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-base);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    /* Space above zoom controls */
+    pointer-events: auto;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-btn:active {
+    background: var(--bg-surface-active);
+    transform: translateY(0);
+}
+
+/* Icons */
+.theme-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* Highlight active state if desired, but toggle usually just swaps icon */

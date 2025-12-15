@@ -12,61 +12,25 @@ export function createScriptNode(data, onSelect) {
     div.style.zIndex = data.zIndex;
     div.style.width = `${data.width || 400}px`;
     div.style.height = `${data.height || 300}px`;
-    div.style.display = 'flex';
-    div.style.flexDirection = 'column';
-    div.style.backgroundColor = '#ffffff'; // White background
-    div.style.color = '#1e293b'; // Slate 800
-    div.style.borderRadius = '8px';
-    div.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-    div.style.overflow = 'hidden';
-    div.style.border = '1px solid #e2e8f0'; // Slate 200
 
     // Header
     const header = document.createElement('div');
-    header.style.padding = '8px 12px';
-    header.style.backgroundColor = '#f8fafc'; // Slate 50
-    header.style.borderBottom = '1px solid #e2e8f0';
-    header.style.display = 'flex';
-    header.style.justifyContent = 'space-between';
-    header.style.alignItems = 'center';
-    header.style.cursor = 'grab';
+    header.className = 'script-header';
 
     const title = document.createElement('span');
     title.innerHTML = 'JS Sandbox';
-    title.style.fontSize = '12px';
-    title.style.fontWeight = '600';
-    title.style.color = '#64748b'; // Slate 500
+    title.className = 'script-title';
 
     const controls = document.createElement('div');
-    controls.style.display = 'flex';
-    controls.style.gap = '8px';
+    controls.className = 'script-controls';
 
     const runBtn = document.createElement('button');
     runBtn.textContent = '▶ Run';
-    runBtn.style.backgroundColor = '#3b82f6'; // Blue 500
-    runBtn.style.color = 'white';
-    runBtn.style.border = 'none';
-    runBtn.style.padding = '4px 10px';
-    runBtn.style.borderRadius = '4px';
-    runBtn.style.fontSize = '12px';
-    runBtn.style.fontWeight = '500';
-    runBtn.style.cursor = 'pointer';
-    runBtn.style.transition = 'background 0.2s';
-    runBtn.onmouseover = () => runBtn.style.backgroundColor = '#2563eb';
-    runBtn.onmouseout = () => runBtn.style.backgroundColor = '#3b82f6';
+    runBtn.className = 'script-run-btn';
 
     const clearBtn = document.createElement('button');
     clearBtn.textContent = 'Clear';
-    clearBtn.style.backgroundColor = 'white';
-    clearBtn.style.color = '#64748b';
-    clearBtn.style.border = '1px solid #cbd5e1';
-    clearBtn.style.padding = '4px 10px';
-    clearBtn.style.borderRadius = '4px';
-    clearBtn.style.fontSize = '12px';
-    clearBtn.style.cursor = 'pointer';
-    clearBtn.style.transition = 'all 0.2s';
-    clearBtn.onmouseover = () => { clearBtn.style.background = '#f1f5f9'; clearBtn.style.borderColor = '#94a3b8'; };
-    clearBtn.onmouseout = () => { clearBtn.style.background = 'white'; clearBtn.style.borderColor = '#cbd5e1'; };
+    clearBtn.className = 'script-clear-btn';
 
     controls.appendChild(runBtn);
     controls.appendChild(clearBtn);
@@ -75,41 +39,17 @@ export function createScriptNode(data, onSelect) {
 
     // Body container
     const body = document.createElement('div');
-    body.style.display = 'flex';
-    body.style.flexDirection = 'column';
-    body.style.flex = '1';
-    body.style.padding = '0';
-    body.style.minHeight = '0'; // Important for flex scrolling
+    body.className = 'script-body';
 
     // Code Editor Area
     const editor = document.createElement('textarea');
     editor.value = data.content || "// console.log('Hello World');";
-    editor.className = 'script-editor mouse-interactive'; // standard class to prevent dragging if needed
-    editor.style.flex = '1';
-    editor.style.backgroundColor = '#ffffff';
-    editor.style.color = '#334155'; // Slate 700
-    editor.style.border = 'none';
-    editor.style.borderBottom = '1px solid #e2e8f0';
-    editor.style.padding = '12px';
-    editor.style.fontFamily = "'Fira Code', 'Roboto Mono', monospace";
-    editor.style.fontSize = '13px';
-    editor.style.lineHeight = '1.5';
-    editor.style.resize = 'none';
-    editor.style.outline = 'none';
+    editor.className = 'script-editor mouse-interactive';
     editor.placeholder = "// Write JavaScript here...";
 
     // Console Output Area
     const consoleOutput = document.createElement('div');
     consoleOutput.className = 'script-console mouse-interactive';
-    consoleOutput.style.height = '100px';
-    consoleOutput.style.backgroundColor = '#f8fafc'; // Slate 50
-    consoleOutput.style.color = '#475569'; // Slate 600
-    consoleOutput.style.fontFamily = "'Fira Code', 'Roboto Mono', monospace";
-    consoleOutput.style.fontSize = '12px';
-    consoleOutput.style.padding = '8px 12px';
-    consoleOutput.style.overflowY = 'auto';
-    consoleOutput.style.borderTop = '1px solid #e2e8f0';
-    consoleOutput.style.whiteSpace = 'pre-wrap';
 
     body.appendChild(editor);
     body.appendChild(consoleOutput);
@@ -145,17 +85,12 @@ export function createScriptNode(data, onSelect) {
 
     const logToConsole = (args, type = 'log') => {
         const line = document.createElement('div');
-        line.style.borderBottom = '1px solid #f1f5f9';
-        line.style.padding = '4px 0';
+        line.className = 'console-line';
 
         if (type === 'error') {
-            line.style.color = '#ef4444';
-            line.style.backgroundColor = '#fef2f2';
+            line.classList.add('console-error');
         } else if (type === 'warn') {
-            line.style.color = '#d97706';
-            line.style.backgroundColor = '#fffbeb';
-        } else {
-            line.style.color = '#334155';
+            line.classList.add('console-warn');
         }
 
         // Convert args to string representation

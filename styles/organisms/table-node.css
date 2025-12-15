@@ -3,9 +3,10 @@
  */
 
 .node-table {
-    background: white;
+    background: var(--bg-surface);
     padding: 12px;
     min-width: 200px;
+    color: var(--text-primary);
 }
 
 .table-controls {
@@ -18,8 +19,8 @@
 .table-control-btn {
     padding: 4px 8px;
     font-size: 0.75rem;
-    background: var(--color-primary, #3b82f6);
-    color: white;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -27,7 +28,7 @@
 }
 
 .table-control-btn:hover {
-    background: var(--color-primary-dark, #2563eb);
+    background: color-mix(in srgb, var(--color-accent), black 10%);
 }
 
 .table-content {
@@ -36,7 +37,7 @@
 }
 
 .table-content td {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-base);
     padding: 0;
 }
 
@@ -47,10 +48,11 @@
     outline: none;
     font-size: 0.875rem;
     background: transparent;
+    color: inherit;
     min-width: 80px;
     min-height: 32px;
 }
 
 .table-cell-mathfield:focus {
-    background: #f1f5f9;
+    background: var(--bg-surface-active);
 }

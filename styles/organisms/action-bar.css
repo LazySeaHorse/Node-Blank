@@ -1,0 +1,46 @@
+/* Action Bar and Import/Export Modals */
+
+.action-bar {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.export-import-dropdown {
+    position: fixed;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 10000;
+    min-width: 180px;
+    padding: 0.5rem;
+    animation: fadeIn 0.1s ease-out;
+}
+
+.export-import-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+}
+
+/* Reusing common dropdown item style if possible or defining specific ones */
+.export-import-dropdown .dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.export-import-dropdown .dropdown-item:hover {
+    background: var(--bg-surface-hover);
+}

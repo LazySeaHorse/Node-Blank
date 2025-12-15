@@ -1,0 +1,115 @@
+/* Script Node Styling */
+.node-script {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--border-base);
+}
+
+.script-header {
+    padding: 8px 12px;
+    background-color: var(--bg-surface-hover);
+    border-bottom: 1px solid var(--border-base);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+}
+
+.script-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.script-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.script-run-btn {
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.script-run-btn:hover {
+    background-color: color-mix(in srgb, var(--color-accent), black 10%);
+}
+
+.script-clear-btn {
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-base);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.script-clear-btn:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+.script-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 0;
+    min-height: 0;
+}
+
+.script-editor {
+    flex: 1;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    border: none;
+    border-bottom: 1px solid var(--border-base);
+    padding: 12px;
+    font-family: 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+}
+
+.script-console {
+    height: 100px;
+    background-color: var(--bg-surface-active);
+    color: var(--text-secondary);
+    font-family: 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-base);
+    white-space: pre-wrap;
+}
+
+.console-line {
+    border-bottom: 1px solid var(--border-base);
+    padding: 4px 0;
+    color: var(--text-primary);
+}
+
+.console-error {
+    color: var(--color-red-500);
+    background-color: color-mix(in srgb, var(--color-red-500), transparent 90%);
+}
+
+.console-warn {
+    color: #d97706;
+    background-color: color-mix(in srgb, #d97706, transparent 90%);
+}

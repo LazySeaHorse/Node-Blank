@@ -1,13 +1,13 @@
-body { 
-    overscroll-behavior: none; 
+body {
+    overscroll-behavior: none;
 }
 
 /* Grid Background */
 #canvas-container {
-    background-color: #f9fafb; 
-    background-image: 
-        linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-        linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+    background-color: var(--bg-canvas);
+    background-image:
+        linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
@@ -16,16 +16,16 @@ body {
     position: absolute;
     border-radius: 0.5rem;
     transition: box-shadow 0.15s ease;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-md);
     border: 1px solid transparent;
 }
 
 .node.selected {
-    box-shadow: 0 0 0 2px #3b82f6, 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 2px var(--color-accent), var(--shadow-lg);
     z-index: 1000 !important;
-    background: #ffffff;
-    border-color: #bfdbfe;
+    background: var(--bg-surface);
+    border-color: var(--color-accent-light);
 }
 
 .node.dragging {
@@ -34,27 +34,27 @@ body {
 }
 
 /* 1. Math Node */
-.node-math { 
-    padding: 8px 12px; 
-    min-width: 60px; 
-    cursor: grab; 
+.node-math {
+    padding: 8px 12px;
+    min-width: 60px;
+    cursor: grab;
 }
 
 /* 2. Text/Markdown Node */
-.node-text { 
-    padding: 16px; 
-    min-width: 250px; 
-    max-width: 500px; 
-    min-height: 60px; 
-    cursor: grab; 
+.node-text {
+    padding: 16px;
+    min-width: 250px;
+    max-width: 500px;
+    min-height: 60px;
+    cursor: grab;
 }
 
 /* 3. Graph Node */
-.node-graph { 
-    padding: 12px; 
-    width: 340px; 
-    display: flex; 
-    flex-direction: column; 
+.node-graph {
+    padding: 12px;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     cursor: grab;
 }
@@ -63,95 +63,95 @@ body {
 math-field {
     font-size: 1.25rem;
     background: transparent;
-    outline: none; 
+    outline: none;
     border: none;
     user-select: text;
     cursor: text;
     padding: 2px;
 }
 
-math-field::part(container) { 
-    outline: none; 
+math-field::part(container) {
+    outline: none;
 }
 
 /* Markdown Preview Styling */
-.md-preview { 
-    user-select: text; 
+.md-preview {
+    user-select: text;
     cursor: text;
     font-family: ui-sans-serif, system-ui, sans-serif;
     font-size: 0.95rem;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 /* Markdown Elements */
-.md-preview h1 { 
-    font-size: 1.4em; 
-    font-weight: 700; 
-    margin-bottom: 0.5em; 
-    color: #1e293b; 
-    border-bottom: 1px solid #e2e8f0; 
+.md-preview h1 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-base);
     padding-bottom: 4px;
 }
 
-.md-preview h2 { 
-    font-size: 1.2em; 
-    font-weight: 600; 
-    margin-bottom: 0.5em; 
-    color: #334155; 
+.md-preview h2 {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
     margin-top: 0.5em;
 }
 
-.md-preview p { 
-    margin-bottom: 0.6em; 
-    line-height: 1.5; 
+.md-preview p {
+    margin-bottom: 0.6em;
+    line-height: 1.5;
 }
 
-.md-preview ul { 
-    list-style-type: disc; 
-    padding-left: 1.2em; 
-    margin-bottom: 0.6em; 
+.md-preview ul {
+    list-style-type: disc;
+    padding-left: 1.2em;
+    margin-bottom: 0.6em;
 }
 
-.md-preview ol { 
-    list-style-type: decimal; 
-    padding-left: 1.2em; 
-    margin-bottom: 0.6em; 
+.md-preview ol {
+    list-style-type: decimal;
+    padding-left: 1.2em;
+    margin-bottom: 0.6em;
 }
 
-.md-preview code { 
-    background: #f1f5f9; 
-    padding: 2px 4px; 
-    border-radius: 4px; 
-    font-family: monospace; 
-    font-size: 0.9em; 
-    color: #db2777; 
+.md-preview code {
+    background: var(--bg-surface-active);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--color-pink-600);
 }
 
-.md-preview pre { 
-    background: #1e293b; 
-    padding: 10px; 
-    border-radius: 6px; 
-    overflow-x: auto; 
-    margin-bottom: 0.8em; 
+.md-preview pre {
+    background: var(--color-slate-800);
+    padding: 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-bottom: 0.8em;
 }
 
-.md-preview pre code { 
-    background: transparent; 
-    color: #f8fafc; 
+.md-preview pre code {
+    background: transparent;
+    color: var(--color-white);
 }
 
-.md-preview blockquote { 
-    border-left: 3px solid #cbd5e1; 
-    padding-left: 10px; 
-    color: #64748b; 
-    font-style: italic; 
+.md-preview blockquote {
+    border-left: 3px solid #cbd5e1;
+    padding-left: 10px;
+    color: #64748b;
+    font-style: italic;
 }
 
 /* Markdown Editor Styling */
 .md-editor {
-    width: 100%; 
+    width: 100%;
     min-height: 120px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--border-base);
     border-radius: 6px;
     padding: 10px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -161,35 +161,36 @@ math-field::part(container) {
     outline: none;
     user-select: text;
     cursor: text;
-    background: #f8fafc;
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
-.md-editor:focus { 
-    border-color: #3b82f6; 
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); 
+.md-editor:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent-light);
 }
 
 /* Graph Internals */
 .graph-input-wrapper {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-base);
     border-radius: 6px;
     padding: 4px 8px;
-    background: #f8fafc;
+    background: var(--bg-surface);
     display: flex;
     align-items: center;
 }
 
-.graph-label { 
-    font-size: 0.8rem; 
-    font-weight: bold; 
-    color: #64748b; 
-    margin-right: 6px; 
+.graph-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+    margin-right: 6px;
 }
 
-.graph-target { 
-    width: 100%; 
-    height: 220px; 
-    overflow: hidden; 
-    border-radius: 6px; 
-    border: 1px solid #f1f5f9;
+.graph-target {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid var(--border-base);
 }

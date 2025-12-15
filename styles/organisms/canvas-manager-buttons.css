@@ -1,0 +1,51 @@
+/* Action Buttons in Canvas Manager */
+.canvas-action-btn {
+    padding: 6px 12px;
+    background: var(--bg-surface);
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.canvas-action-btn:hover {
+    color: var(--color-accent-fg) !important;
+    background: currentColor !important;
+    border-color: transparent;
+}
+
+/* Load Button - Blue in light, Accent in Dark */
+.btn-action-load {
+    color: var(--color-primary);
+    /* Will map to Blue or Orange depending on theme */
+    border-color: var(--color-primary);
+}
+
+.btn-action-load:hover {
+    background: var(--color-primary);
+    color: var(--color-white) !important;
+}
+
+/* Rename Button - Slate/Gray */
+.btn-action-rename {
+    color: var(--text-secondary);
+    border-color: var(--border-base);
+}
+
+.btn-action-rename:hover {
+    background: var(--text-secondary);
+    color: var(--bg-surface) !important;
+}
+
+/* Delete Button - Red */
+.btn-action-delete {
+    color: var(--color-red-500);
+    border-color: var(--color-red-500);
+}
+
+.btn-action-delete:hover {
+    background: var(--color-red-500);
+    color: white !important;
+}
