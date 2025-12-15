@@ -321,7 +321,7 @@ export function setupCanvasEvents(container, world) {
     // Touch Events for Mobile (Pan & Zoom)
     container.addEventListener('touchstart', (e) => {
         // Allow interaction with UI elements (buttons, etc.)
-        if (e.target.closest('.app-header') || e.target.closest('.zoom-controls')) {
+        if (e.target.closest('.app-header') || e.target.closest('.zoom-controls') || e.target.closest('.theme-toggle-btn')) {
             return;
         }
 

@@ -29,7 +29,7 @@ class MathCanvasApp {
         // Create main layout
         const appContainer = document.getElementById('app');
         appContainer.className = 'h-screen w-screen overflow-hidden text-slate-800 flex flex-col font-sans';
-        appContainer.style.height = '100vh';
+        appContainer.style.height = '100dvh';
         appContainer.style.width = '100vw';
         appContainer.style.overflow = 'hidden';
         appContainer.style.display = 'flex';
@@ -70,7 +70,7 @@ class MathCanvasApp {
         // Create wrapper for bottom-right controls
         const controlsWrapper = document.createElement('div');
         controlsWrapper.style.position = 'absolute';
-        controlsWrapper.style.bottom = '1.25rem';
+        controlsWrapper.style.bottom = 'calc(1.25rem + env(safe-area-inset-bottom))';
         controlsWrapper.style.right = '1.25rem';
         controlsWrapper.style.display = 'flex';
         controlsWrapper.style.flexDirection = 'column';
