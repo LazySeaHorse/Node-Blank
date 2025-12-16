@@ -17,6 +17,48 @@
 
     <!-- Tailwind CSS -->
     <script src="lib/tailwind.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        accent: 'var(--color-accent)',
+                        
+                        // Backgrounds
+                        canvas: 'var(--bg-canvas)',
+                        surface: {
+                            DEFAULT: 'var(--bg-surface)',
+                            hover: 'var(--bg-surface-hover)',
+                            active: 'var(--bg-surface-active)',
+                        },
+                        
+                        // Text
+                        text: {
+                            primary: 'var(--text-primary)',
+                            secondary: 'var(--text-secondary)',
+                            tertiary: 'var(--text-tertiary)',
+                        },
+                        
+                        // Borders
+                        border: {
+                            base: 'var(--border-base)',
+                        }
+                    },
+                    borderRadius: {
+                        md: 'var(--radius-md)',
+                        lg: 'var(--radius-lg)',
+                    },
+                    boxShadow: {
+                        focus: 'var(--shadow-focus)',
+                        md: 'var(--shadow-md)',
+                        lg: 'var(--shadow-lg)',
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="styles/main.css">

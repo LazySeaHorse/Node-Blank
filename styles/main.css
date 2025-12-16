@@ -11,13 +11,13 @@
 
 /* Molecules */
 @import './molecules/mode-button.css';
-@import './molecules/action-button.css';
+/* @import './molecules/action-button.css'; - Migrated to Tailwind */
 @import './molecules/markdown-editor.css';
 @import './molecules/zoom-control.css';
 @import './molecules/theme-toggle.css';
 
 /* Organisms */
-@import './organisms/app-header.css';
+/* @import './organisms/app-header.css'; - Migrated to Tailwind */
 @import './organisms/node.css';
 @import './organisms/canvas-world.css';
 @import './organisms/table-node.css';
