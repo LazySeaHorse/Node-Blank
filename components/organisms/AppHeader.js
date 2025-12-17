@@ -19,7 +19,7 @@ export function createAppHeader({
     onCanvasManager
 }) {
     const header = document.createElement('div');
-    header.className = 'absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-surface p-2 rounded-lg border border-border-base shadow-lg z-30';
+    header.className = 'app-header absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-surface p-2 rounded-lg border border-border-base shadow-lg z-30';
 
     // Canvases button (icon only)
     const canvasesBtn = document.createElement('button');

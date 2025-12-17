@@ -127,7 +127,7 @@ export function createToolConfigModal({ onClose }) {
 
     const saveBtn = document.createElement('button');
     // .btn-primary { bg: var(--color-accent); color: var(--color-accent-fg); } hover: darker
-    saveBtn.className = 'px-4 py-2 font-medium rounded-md shadow-sm transition-colors border-none cursor-pointer bg-accent text-accent-fg hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
+    saveBtn.className = 'px-4 py-2 font-medium rounded-md shadow-sm transition-colors border-none cursor-pointer bg-accent text-white hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
     saveBtn.textContent = 'Save Changes';
     saveBtn.onclick = () => {
         // Save to global state

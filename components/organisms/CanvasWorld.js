@@ -272,8 +272,10 @@ export function setupCanvasEvents(container, world) {
             const wx = (mx - appState.pan.x) / appState.scale;
             const wy = (my - appState.pan.y) / appState.scale;
 
-            appState.pan.x = mx - wx * newScale;
-            appState.pan.y = my - wy * newScale;
+            appState.pan = {
+                x: mx - wx * newScale,
+                y: my - wy * newScale
+            };
             appState.scale = newScale;
             //updateTransform(world, container);
         }

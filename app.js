@@ -2,7 +2,7 @@
  * Main Application Entry Point
  * Orchestrates all components using Atomic Design Methodology
  */
-import { appState, interaction, effect, signals, computedValues } from './state/appState.js';
+import { appState, interaction, effect, signals, computedValues, screenToWorld } from './state/appState.js';
 import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from './utils/storage.js';
 import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas } from './utils/indexedDB.js';
 import { createNode, renderNode, selectNode } from './utils/nodeFactory.js';
@@ -74,7 +74,8 @@ class MathCanvasApp {
         const zoomControl = createZoomControl({
             onZoomIn: () => this.zoomIn(),
             onZoomOut: () => this.zoomOut(),
-            onReset: () => this.resetView(),
+            onZoomReset: () => this.resetZoomOnly(),
+            onFullReset: () => this.resetView(),
             initialZoom: Math.round(appState.scale * 100)
         });
 
@@ -282,6 +283,30 @@ class MathCanvasApp {
     zoomOut() {
         appState.scale /= 1.2;
         //updateTransform(this.world, this.container);
+    }
+
+    resetZoomOnly() {
+        if (!this.container) return;
+
+        // 1. Get center of viewport
+        const rect = this.container.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+
+        // 2. Get world coordinates of center
+        const centerWorld = screenToWorld(cx, cy);
+
+        // 3. Reset Scale
+        appState.scale = 1;
+
+        // 4. Adjust Pan to keep centerWorld at centerScreen
+        // cx = pan.x + centerWorld.x * scale
+        appState.pan = {
+            x: cx - centerWorld.x * appState.scale,
+            y: cy - centerWorld.y * appState.scale
+        };
+
+        // Update transform is automatic via effects
     }
 
     resetView() {

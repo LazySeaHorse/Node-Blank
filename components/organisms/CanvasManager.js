@@ -41,7 +41,7 @@ export function createCanvasManager(callbacks) {
     const newCanvasBtn = document.createElement('button');
     newCanvasBtn.textContent = '+ New Canvas';
     // .new-canvas-btn { background: var(--color-accent); color: var(--color-accent-fg); } hover: darker
-    newCanvasBtn.className = 'mx-6 my-4 px-6 py-3 border-none rounded-lg text-sm font-medium cursor-pointer transition-colors bg-accent text-accent-fg hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
+    newCanvasBtn.className = 'mx-6 my-4 px-6 py-3 border-none rounded-lg text-sm font-medium cursor-pointer transition-colors bg-accent text-white hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
 
     newCanvasBtn.onclick = async () => {
         const name = prompt('Canvas name:', 'Untitled Canvas');
