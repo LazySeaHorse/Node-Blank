@@ -101,25 +101,34 @@ export function setupCanvasEvents(container, world) {
     const selectionRect = document.getElementById('selection-rect');
 
     // --- 1. D3 Zoom Setup ---
+    // --- 1. D3 Zoom Setup ---
     const zoom = d3.zoom()
         .scaleExtent([0.1, 5])
         .filter((e) => {
-            // Allow wheel
+            // 1. Zoom with Wheel
             if (e.type === 'wheel') return true;
 
+            // 2. Prevent Zoom/Pan when interacting with Nodes or Handles
             if (e.target.closest('.node') || e.target.closest('.resize-handle')) return false;
 
-            if (e.type === 'mousedown') {
+            // 3. Touch Handling (Pan / Pinch)
+            // Explicitly ALLOW touch pointer events
+            if (e.pointerType === 'touch' || e.type === 'touchstart') return true;
 
-                if (e.button === 0) return false;
-                return true;
-            }
+            // 4. Mouse Handling
+            // ALLOW Middle Click (1) -> Pan
+            // BLOCK Left Click (0) -> Reserved for Selection
+            if (e.button === 1) return true;
+            if (e.button === 0) return false;
 
-            return true;
+            // Default: strict middle mouse for pan (or touch)
+            return false;
         })
         .on('start', (e) => {
             // Optional: cursor changes
-            if (e.sourceEvent && e.sourceEvent.type === 'mousedown') container.style.cursor = 'grabbing';
+            if (e.sourceEvent && (e.sourceEvent.type === 'mousedown' || e.sourceEvent.type === 'pointerdown')) {
+                container.style.cursor = 'grabbing';
+            }
         })
         .on('zoom', (e) => {
             // Update App State (Batch for performance)
@@ -168,7 +177,8 @@ export function setupCanvasEvents(container, world) {
 
         // 2. Selection Rectangle (Left Click on background)
         // D3 Zoom filter returns false for button 0, so D3 ignores this. We handle it here.
-        if (e.button === 0 && (e.target === container || e.target === world)) {
+        // We also check for pointerType='touch' to strictly prevent Touch from selecting/drawing box
+        if (e.button === 0 && (!e.pointerType || e.pointerType !== 'touch') && (e.target === container || e.target === world)) {
             interaction.isSelecting = true;
             const rect = container.getBoundingClientRect();
             interaction.selectionStart = {
