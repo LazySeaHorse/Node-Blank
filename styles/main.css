@@ -1,30 +1,13 @@
 /* Main CSS - Imports all component styles */
 
 /* Base */
-/* @import './base/reset.css'; - Handled by Tailwind Preflight */
 @import './base/variables.css';
 
 /* Atoms */
-/* @import './atoms/button.css'; - Migrated to Tailwind */
 @import './atoms/mathfield.css';
 @import './atoms/textarea.css';
 
 /* Molecules */
 @import './molecules/mode-button.css';
-/* @import './molecules/action-button.css'; - Migrated to Tailwind */
 @import './molecules/markdown-editor.css';
 @import './molecules/zoom-control.css';
-@import './molecules/theme-toggle.css';
-
-/* Organisms */
-/* @import './organisms/app-header.css'; - Migrated to Tailwind */
-/* @import './organisms/node.css'; - Migrated to Tailwind */
-/* @import './organisms/canvas-world.css'; - Migrated to Tailwind */
-/* @import './organisms/table-node.css'; - Migrated to Tailwind */
-/* @import './organisms/video-node.css'; - Migrated to Tailwind */
-/* @import './organisms/canvas-manager.css'; - Migrated to Tailwind */
-/* @import './organisms/more-tools.css'; - Migrated to Tailwind */
-/* @import './organisms/tool-config.css'; - Migrated to Tailwind */
-/* @import './organisms/script-node.css'; - Migrated to Tailwind */
-/* @import './organisms/canvas-manager-buttons.css'; - Migrated to Tailwind */
-/* @import './organisms/action-bar.css'; - Migrated to Tailwind */

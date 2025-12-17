@@ -10,7 +10,10 @@
     <script type="importmap">
     {
         "imports": {
-            "@preact/signals-core": "https://esm.sh/@preact/signals-core@1.5.1"
+            "@preact/signals-core": "https://esm.sh/@preact/signals-core@1.5.1",
+            "preact": "https://esm.sh/preact@10.19.3",
+            "preact/hooks": "https://esm.sh/preact@10.19.3/hooks",
+            "htm": "https://esm.sh/htm@3.1.1"
         }
     }
     </script>
@@ -25,7 +28,7 @@
                     colors: {
                         primary: 'var(--color-primary)',
                         accent: 'var(--color-accent)',
-                        
+
                         // Backgrounds
                         canvas: 'var(--bg-canvas)',
                         surface: {
@@ -33,14 +36,14 @@
                             hover: 'var(--bg-surface-hover)',
                             active: 'var(--bg-surface-active)',
                         },
-                        
+
                         // Text
                         text: {
                             primary: 'var(--text-primary)',
                             secondary: 'var(--text-secondary)',
                             tertiary: 'var(--text-tertiary)',
                         },
-                        
+
                         // Borders
                         border: {
                             base: 'var(--border-base)',
@@ -74,8 +77,11 @@
     <script src="lib/katex.min.js"></script>
 
     <!-- 4. Function Plot + D3 (Graphing) -->
-    <script src="lib/d3.min.js"></script>
-    <script src="lib/function-plot.js"></script>
+    <!-- 4. D3 (Graphing) -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <!-- 5. Math.js (Equation Evaluation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
 </head>
 
 <body>

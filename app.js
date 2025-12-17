@@ -29,28 +29,10 @@ class MathCanvasApp {
 
         // Create main layout
         const appContainer = document.getElementById('app');
-        // Legacy: 'h-screen w-screen overflow-hidden text-slate-800 flex flex-col font-sans' is mostly correct but needs specific values from variables
-        // We set most things via Tailwind classes now.
-        // appContainer.style... lines are removed in favor of classes.
-        // text-slate-800 -> text-text-primary (mapped to slate-800)
-        // font-sans -> font-sans
+
         appContainer.className = 'h-screen w-screen overflow-hidden flex flex-col font-sans text-text-primary';
 
-        // Explicit styles removed as they are covered by classes:
-        // appContainer.style.height = '100dvh'; -> h-screen (or h-[100dvh] if needed, tailwind h-screen is usually 100vh. 100dvh is better for mobile)
-        // Let's use arbitrary value for exact match if needed or just h-screen.
-        // For mobile, we often want 100dvh.
         appContainer.classList.add('h-[100dvh]');
-
-        // color: var(--color-slate-700) -> text-slate-700 in original code vs text-text-primary (slate-800)
-        // The original code had `appContainer.className = ... text-slate-800` BUT `appContainer.style.color = 'var(--color-slate-700)'`.
-        // The style overrides the class. Let's use text-text-primary which is defined as slate-800 in light mode variables.css, 
-        // OR text-text-secondary for 700? 
-        // Variables.css: text-primary is slate-800. text-secondary is slate-500. 
-        // The detailed code in app.js line 38 used `var(--color-slate-700)`.
-        // Let's stick to text-text-primary (slate-800) as per the class name intent, or text-slate-700 if strictly preserving.
-        // Tailwind config maps text-primary to var(--text-primary) which is slate-800.
-        // Let's allow it to be text-text-primary for consistency with the design system variables.
 
         // Create header
         const header = createAppHeader({

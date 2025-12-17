@@ -43,14 +43,9 @@ function updateSelectionFromRect(left, top, width, height, container) {
 export function createCanvasWorld() {
     const container = document.createElement('main');
     container.id = 'canvas-container';
-    // #canvas-container { bg-color: var(--bg-canvas); ... }
-    // We already migrated app.js layout, so we just need internal sizing/bg here.
-    // background-image logic remains in JS (updateTransform) or we can move it here if static? 
-    // It depends on CSS variables. The CSS used var(--grid-color) etc.
-    // We'll keep the JS dynamic background styles but strictly use Tailwind for layout.
     container.className = 'flex-1 relative overflow-hidden w-full h-full bg-canvas touch-none';
 
-    // Restore grid pattern (previously in canvas-world.css)
+    // Restore grid pattern
     container.style.backgroundImage = `
         linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
         linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px)
@@ -58,17 +53,12 @@ export function createCanvasWorld() {
 
     const world = document.createElement('div');
     world.id = 'canvas-world';
-    // #canvas-world { position: absolute; ... }
     world.className = 'absolute top-0 left-0 w-full h-full origin-top-left will-change-transform';
 
     // Selection rectangle
     const selectionRect = document.createElement('div');
     selectionRect.id = 'selection-rect';
-    // .selection-rect { position: absolute; border: 2px solid var(--color-accent); bg: color-mix(...); pointer-events: none; display: none; z-index: 10000; }
     selectionRect.className = 'absolute border-2 border-accent bg-accent/10 pointer-events-none hidden z-[10000]';
-
-    // Disable default touch actions to allow custom handling
-    container.style.touchAction = 'none';
 
     container.appendChild(world);
     container.appendChild(selectionRect);
@@ -77,124 +67,150 @@ export function createCanvasWorld() {
 }
 
 export function updateTransform(world, container) {
-    world.style.transform = `translate(${appState.pan.x}px, ${appState.pan.y}px) scale(${appState.scale})`;
+    const { pan, scale } = appState; // Using getter from appState object for convenience
+    // Or access signals directly if needed, but appState getter is fine.
+
+    // 1. Update Visuals
+    world.style.transform = `translate(${pan.x}px, ${pan.y}px) scale(${scale})`;
 
     // Grid Updates
-    const s = 40 * appState.scale;
+    const s = 40 * scale;
     container.style.backgroundSize = `${s}px ${s}px`;
-    container.style.backgroundPosition = `${appState.pan.x}px ${appState.pan.y}px`;
+    container.style.backgroundPosition = `${pan.x}px ${pan.y}px`;
 
-    // Update Zoom Indicator Text
-    const percent = Math.round(appState.scale * 100);
+    // Update Zoom Indicator
+    const percent = Math.round(scale * 100);
     const indicator = document.getElementById('zoom-indicator');
     if (indicator) indicator.innerText = percent + '%';
+
+    // 2. Sync D3 State (if mismatch)
+    // This handles external updates (like animateTo or Reset Zoom)
+    if (container.__zoomBehavior) {
+        const current = d3.zoomTransform(container);
+        // We use a small epsilon to avoid floating point loops
+        if (Math.abs(current.k - scale) > 0.001 ||
+            Math.abs(current.x - pan.x) > 0.1 ||
+            Math.abs(current.y - pan.y) > 0.1) {
+
+            d3.select(container).call(container.__zoomBehavior.transform, new d3.ZoomTransform(scale, pan.x, pan.y));
+        }
+    }
 }
 
 export function setupCanvasEvents(container, world) {
     const selectionRect = document.getElementById('selection-rect');
 
-    // Mouse down - distinguish between left and middle button
+    // --- 1. D3 Zoom Setup ---
+    const zoom = d3.zoom()
+        .scaleExtent([0.1, 5])
+        .filter((e) => {
+            // Allow wheel
+            if (e.type === 'wheel') return true;
+
+            if (e.target.closest('.node') || e.target.closest('.resize-handle')) return false;
+
+            if (e.type === 'mousedown') {
+
+                if (e.button === 0) return false;
+                return true;
+            }
+
+            return true;
+        })
+        .on('start', (e) => {
+            // Optional: cursor changes
+            if (e.sourceEvent && e.sourceEvent.type === 'mousedown') container.style.cursor = 'grabbing';
+        })
+        .on('zoom', (e) => {
+            // Update App State (Batch for performance)
+            // e.transform contains {k, x, y}
+            const t = e.transform;
+
+            appState.scale = t.k;
+            appState.pan = { x: t.x, y: t.y };
+        })
+        .on('end', () => {
+            container.style.cursor = 'crosshair'; // Logic from original
+        });
+
+    // Attach zoom behavior to container
+    const selection = d3.select(container).call(zoom);
+    container.__zoomBehavior = zoom; // Save for updateTransform (DO NOT use __zoom, it's reserved by D3)
+
+    // Disable double-click to zoom (conflicts with double-click to create node)
+    selection.on("dblclick.zoom", null);
+
+
+    // --- 2. Custom Interaction (Selection, Node Drag, Resize) ---
+    // We kept these manual because they involve specific node logic
+
     container.addEventListener('mousedown', (e) => {
-        cancelAnimation(); // Stop any active zoom animation
-        // Check if clicking on resize handle
+        cancelAnimation();
+
+        // 1. Resize Handle
         if (e.target.classList.contains('resize-handle')) {
             e.preventDefault();
             e.stopPropagation();
-
             const nodeId = e.target.dataset.nodeId;
             const nodeData = appState.fields.find(f => f.id === nodeId);
-
-            if (nodeData && (nodeData.type === 'image' || nodeData.type === 'video')) {
+            if (nodeData) {
                 interaction.isResizingNode = true;
                 interaction.resizeNodeId = nodeId;
                 interaction.startPos = { x: e.clientX, y: e.clientY };
                 interaction.resizeStartSize = {
-                    width: nodeData.width || (nodeData.type === 'image' ? 300 : 560),
-                    height: nodeData.height || (nodeData.type === 'image' ? 300 : 315)
+                    width: nodeData.width || 300,
+                    height: nodeData.height || 300
                 };
-
-                // Calculate aspect ratio
                 interaction.aspectRatio = interaction.resizeStartSize.width / interaction.resizeStartSize.height;
             }
             return;
         }
 
-        if (e.target === container || e.target === world) {
-            // Middle button (1) or right button (2) - pan
-            if (e.button === 1 || e.button === 2) {
-                e.preventDefault();
-                interaction.isDraggingCanvas = true;
-                interaction.startPos = { x: e.clientX, y: e.clientY };
-                interaction.panStart = { ...appState.pan };
-                container.style.cursor = 'grabbing';
-                return;
-            }
-
-            // Left button (0) - selection rectangle
-            if (e.button === 0) {
-                interaction.isSelecting = true;
-                const rect = container.getBoundingClientRect();
-                interaction.selectionStart = {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                };
-                selectNode(null);
-                if (document.activeElement) document.activeElement.blur();
-            }
+        // 2. Selection Rectangle (Left Click on background)
+        // D3 Zoom filter returns false for button 0, so D3 ignores this. We handle it here.
+        if (e.button === 0 && (e.target === container || e.target === world)) {
+            interaction.isSelecting = true;
+            const rect = container.getBoundingClientRect();
+            interaction.selectionStart = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            selectNode(null);
+            if (document.activeElement) document.activeElement.blur();
         }
     });
 
-    // Prevent context menu on right click
-    container.addEventListener('contextmenu', (e) => {
-        if (e.target === container || e.target === world) {
-            e.preventDefault();
-        }
+    // Prevent Context Menu (Right Click pan)
+    container.addEventListener('contextmenu', e => {
+        if (e.target === container || e.target === world) e.preventDefault();
     });
 
+    // Global Mouse Move (for Drag/Resize/Select)
     window.addEventListener('mousemove', (e) => {
         // Resize Node
         if (interaction.isResizingNode) {
             e.preventDefault();
+            const dx = (e.clientX - interaction.startPos.x) / appState.scale;
             const nodeData = appState.fields.find(f => f.id === interaction.resizeNodeId);
             if (nodeData) {
-                const dx = (e.clientX - interaction.startPos.x) / appState.scale;
-
-                // Calculate new width maintaining aspect ratio (minimum 50px)
                 const newWidth = Math.max(50, interaction.resizeStartSize.width + dx);
-                const newHeight = newWidth / interaction.aspectRatio;
-
                 nodeData.width = newWidth;
-                nodeData.height = newHeight;
-
-                // Update the DOM element
+                nodeData.height = newWidth / interaction.aspectRatio;
+                // Update DOM directly for performance (until Node is Preact)
                 const el = document.getElementById(interaction.resizeNodeId);
                 if (el) {
                     const mediaEl = el.querySelector('img, iframe');
                     if (mediaEl) {
-                        mediaEl.style.width = `${newWidth}px`;
-                        mediaEl.style.height = `${newHeight}px`;
-                        // Disable pointer events on iframe during resize
-                        if (mediaEl.tagName === 'IFRAME') {
-                            mediaEl.style.pointerEvents = 'none';
-                        }
+                        mediaEl.style.width = `${nodeData.width}px`;
+                        mediaEl.style.height = `${nodeData.height}px`;
+                        if (mediaEl.tagName === 'IFRAME') mediaEl.style.pointerEvents = 'none';
                     }
                 }
             }
             return;
         }
 
-        // Pan Canvas
-        if (interaction.isDraggingCanvas) {
-            const dx = e.clientX - interaction.startPos.x;
-            const dy = e.clientY - interaction.startPos.y;
-            appState.pan = {
-                x: interaction.panStart.x + dx,
-                y: interaction.panStart.y + dy
-            };
-            // updateTransform now called automatically via effect
-        }
-
-        // Selection Rectangle
+        // Selection Rect
         if (interaction.isSelecting) {
             const rect = container.getBoundingClientRect();
             const currentX = e.clientX - rect.left;
@@ -211,21 +227,19 @@ export function setupCanvasEvents(container, world) {
             selectionRect.style.height = `${height}px`;
             selectionRect.style.display = 'block';
 
-            // Update selection
             updateSelectionFromRect(left, top, width, height, container);
         }
 
-        // Drag Node(s)
         if (interaction.isDraggingNode) {
             const dx = e.movementX / appState.scale;
             const dy = e.movementY / appState.scale;
 
-            // Move all selected nodes
             interaction.selectedIds.forEach(id => {
                 const nodeData = appState.fields.find(f => f.id === id);
                 if (nodeData) {
                     nodeData.x += dx;
                     nodeData.y += dy;
+                    // Direct DOM update for smooth 60fps
                     const el = document.getElementById(id);
                     if (el) {
                         el.style.left = `${nodeData.x}px`;
@@ -237,54 +251,23 @@ export function setupCanvasEvents(container, world) {
     });
 
     window.addEventListener('mouseup', () => {
-        // Re-enable pointer events on iframes after resize
         if (interaction.isResizingNode) {
             const el = document.getElementById(interaction.resizeNodeId);
             if (el) {
                 const iframe = el.querySelector('iframe');
-                if (iframe) {
-                    iframe.style.pointerEvents = 'auto';
-                }
+                if (iframe) iframe.style.pointerEvents = 'auto';
             }
         }
-
-        interaction.isDraggingCanvas = false;
         interaction.isDraggingNode = false;
         interaction.isResizingNode = false;
         interaction.isSelecting = false;
         interaction.resizeNodeId = null;
-        interaction.dragStartPositions.clear();
-        container.style.cursor = 'crosshair';
         selectionRect.style.display = 'none';
+        container.style.cursor = 'crosshair';
         document.querySelectorAll('.node').forEach(n => n.classList.remove('dragging'));
     });
 
-    // Zoom with Ctrl+Scroll
-    container.addEventListener('wheel', (e) => {
-        cancelAnimation(); // Stop any active zoom animation
-        if (e.target.tagName === 'TEXTAREA') return;
-
-        if (e.ctrlKey) {
-            e.preventDefault();
-            const factor = Math.exp((e.deltaY < 0 ? 1 : -1) * 0.1);
-            const newScale = Math.min(5, Math.max(0.1, appState.scale * factor));
-
-            const rect = container.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            const wx = (mx - appState.pan.x) / appState.scale;
-            const wy = (my - appState.pan.y) / appState.scale;
-
-            appState.pan = {
-                x: mx - wx * newScale,
-                y: my - wy * newScale
-            };
-            appState.scale = newScale;
-            //updateTransform(world, container);
-        }
-    }, { passive: false });
-
-    // Double Click
+    // Double click (Create Node)
     container.addEventListener('dblclick', (e) => {
         if (e.target === container || e.target === world) {
             const rect = container.getBoundingClientRect();
@@ -294,14 +277,12 @@ export function setupCanvasEvents(container, world) {
         }
     });
 
-    // Keyboard
+    // Keyboard (Delete, Duplicate) - Unchanged
     window.addEventListener('keydown', (e) => {
-        // Delete
         if (e.key === 'Delete') {
             const tag = document.activeElement.tagName.toLowerCase();
             if (tag !== 'input' && tag !== 'textarea' && tag !== 'math-field') {
                 if (interaction.selectedIds.length > 0) {
-                    // Delete all selected nodes
                     [...interaction.selectedIds].forEach(id => removeNode(id));
                 }
             }
@@ -319,7 +300,6 @@ export function setupCanvasEvents(container, world) {
                         newIds.push(nodeData.id);
                     }
                 });
-                // Select the duplicated nodes
                 selectNode(null);
                 newIds.forEach(id => selectNode(id, true));
             }
@@ -328,97 +308,6 @@ export function setupCanvasEvents(container, world) {
         if (e.key === 'Escape') {
             selectNode(null);
             if (document.activeElement) document.activeElement.blur();
-            document.querySelectorAll('.md-editor:not(.hidden)').forEach(el => el.blur());
         }
     });
-
-    // Touch Events for Mobile (Pan & Zoom)
-    container.addEventListener('touchstart', (e) => {
-        // Allow interaction with UI elements (buttons, etc.)
-        if (e.target.closest('.app-header') || e.target.closest('.zoom-controls') || e.target.closest('.theme-toggle-btn')) {
-            return;
-        }
-
-        // Prevent default browser zooming/scrolling for all touches in canvas
-        e.preventDefault();
-        cancelAnimation();
-
-        if (e.touches.length === 1) {
-            const touch = e.touches[0];
-            interaction.isDraggingCanvas = true;
-            interaction.startPos = { x: touch.clientX, y: touch.clientY };
-            interaction.panStart = { ...appState.pan };
-        } else if (e.touches.length === 2) {
-            interaction.isZooming = true;
-
-            const t1 = e.touches[0];
-            const t2 = e.touches[1];
-
-            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-            const cx = (t1.clientX + t2.clientX) / 2;
-            const cy = (t1.clientY + t2.clientY) / 2;
-
-            interaction.pinchStartDist = dist;
-            interaction.pinchStartScale = appState.scale;
-            interaction.pinchStartCenter = { x: cx, y: cy };
-            interaction.panStart = { ...appState.pan };
-        }
-    }, { passive: false });
-
-    container.addEventListener('touchmove', (e) => {
-        // Prevent default processing
-        e.preventDefault();
-
-        if (e.touches.length === 1 && interaction.isDraggingCanvas) {
-            const touch = e.touches[0];
-            const dx = touch.clientX - interaction.startPos.x;
-            const dy = touch.clientY - interaction.startPos.y;
-            appState.pan = {
-                x: interaction.panStart.x + dx,
-                y: interaction.panStart.y + dy
-            };
-        } else if (e.touches.length === 2 && interaction.isZooming) {
-            const t1 = e.touches[0];
-            const t2 = e.touches[1];
-
-            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-            const cx = (t1.clientX + t2.clientX) / 2;
-            const cy = (t1.clientY + t2.clientY) / 2;
-
-            if (interaction.pinchStartDist > 0) {
-                const scaleFactor = dist / interaction.pinchStartDist;
-                let newScale = interaction.pinchStartScale * scaleFactor;
-                newScale = Math.min(5, Math.max(0.1, newScale));
-
-                // Calculate new pan to zoom around center
-                const rect = container.getBoundingClientRect();
-                const startCxRel = interaction.pinchStartCenter.x - rect.left;
-                const startCyRel = interaction.pinchStartCenter.y - rect.top;
-
-                const wx = (startCxRel - interaction.panStart.x) / interaction.pinchStartScale;
-                const wy = (startCyRel - interaction.panStart.y) / interaction.pinchStartScale;
-
-                const currCxRel = cx - rect.left;
-                const currCyRel = cy - rect.top;
-
-                appState.pan = {
-                    x: currCxRel - wx * newScale,
-                    y: currCyRel - wy * newScale
-                };
-                appState.scale = newScale;
-            }
-        }
-    }, { passive: false });
-
-    container.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) {
-            interaction.isZooming = false;
-        }
-        if (e.touches.length === 0) {
-            interaction.isDraggingCanvas = false;
-        }
-    });
-
-
-
 }

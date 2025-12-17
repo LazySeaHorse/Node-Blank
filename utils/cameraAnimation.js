@@ -42,9 +42,8 @@ export function animateTo(targetScale, targetPan, duration = 750) {
     const interpolatePanX = d3.interpolate(startPan.x, targetPan.x);
     const interpolatePanY = d3.interpolate(startPan.y, targetPan.y);
 
-    // D3 v3 compatibility: create easing function
-    // v3 uses d3.ease("type"), v4+ uses d3.easeType
-    const ease = d3.ease("cubic-out");
+    // D3 v6+ syntax: uses functions directly
+    const ease = d3.easeCubicOut;
 
     // 3. Start timer
     activeTimer = d3.timer((elapsed) => {
