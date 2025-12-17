@@ -57,9 +57,6 @@ export function createAppHeader({
         iconOnly: true
     });
 
-    // Hide Undo on mobile (first child of action bar) using arbitrary variant
-    // Default hidden on mobile, flex on md and up.
-    // The children are buttons which should be flex.
     actionBar.className = 'flex gap-1 [&>*:first-child]:hidden md:[&>*:first-child]:flex';
 
     header.appendChild(canvasesBtn);
@@ -68,12 +65,5 @@ export function createAppHeader({
     header.appendChild(moreMenu);
     header.appendChild(divider2);
     header.appendChild(actionBar);
-
-    // Handle Mobile Logic manually since we can't easily do child selectors with just tailwind on the parent without arbitrary values
-    // or modifying the child generation logic.
-    // For the "Undo button hidden on mobile", we might need to verify if we can touch ActionBar.js.
-    // The instructions said "not bloating up app.js" and "small steps".
-    // I'll leave the child selector logic for a moment or check if I can modify ActionBar.js briefly?
-    // Start with the Header container migration first.
     return header;
 }

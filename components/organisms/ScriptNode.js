@@ -203,17 +203,5 @@ export function createScriptNode(data, onSelect) {
         data.content = editor.value;
     });
 
-    // Also save on keyup for debounced immediate save feeling if desired, 
-    // but blur is safer for performance in simple apps.
-    // Let's stick to blur for data consistency, but maybe we want to save width/height too if resized
-
-    // The main canvas event loop handles x/y updates. 
-    // Resizing is handled by the interaction manager updates to data.width/height
-    // We just need to ensure the element reflects those data changes if re-rendered.
-    // But since this element is created once and mutated, we should observe size changes?
-    // The CanvasWorld updates style directly on drag/resize. 
-    // BUT for custom styling like we have here (flex layout), we rely on outer div resizing.
-    // Our CSS `flex: 1` on body and editor should handle it.
-
     return div;
 }

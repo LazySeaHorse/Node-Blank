@@ -11,7 +11,6 @@ export function createThemeToggle() {
     return container.firstElementChild;
     // Return first child because the app expects a button element, 
     // and replaceWith/appendChild is used in app.js. 
-    // Ideally app.js should handle the component mount, but we are doing gradual migration.
 }
 
 function ThemeToggle() {

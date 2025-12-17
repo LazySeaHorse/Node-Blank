@@ -41,10 +41,6 @@ export function createDropdown({
         btn.className = 'flex items-center gap-2 w-full px-3 py-2 border-none rounded-md text-left text-sm cursor-pointer bg-transparent text-text-primary transition-colors hover:bg-surface-hover';
 
         if (item.icon) {
-            // If icon is a string, we might need a helper, but here we assume it's pre-rendered element or handled by caller?
-            // Existing app uses createIconElement. Let's assume the caller passes either an HTML string or element, or we handle it if simple string.
-            // For flexibility, let's assume 'icon' in item can be an Element or HTML string.
-            // But to match app style simpler: expecting element
             if (item.icon instanceof Element) {
                 btn.appendChild(item.icon);
             }

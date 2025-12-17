@@ -40,15 +40,6 @@ export function createModeSelector(handlers) {
         });
     });
 
-    // Add image input hidden element for the image action
-    // Note: The original code appended inputs to the container. 
-    // Since we re-render container, we should probably keep inputs outside or re-append them.
-    // However, the handlers passed from AppHeader likely trigger inputs that exist elsewhere or we create them on the fly.
-    // In the original AppHeader, the input was created INSIDE ModeSelector.
-    // Let's recreate the hidden input here but append it to body or ensure it persists.
-    // Actually, cleaner is to have a robust onImageUpload handler passed in effectively.
-    // But to match previous logic where one input was reused:
-
     let imageInput = document.getElementById('global-img-upload');
     if (!imageInput) {
         imageInput = document.createElement('input');
@@ -77,7 +68,4 @@ export function createModeSelector(handlers) {
 }
 
 export function updateModeSelector(mode) {
-    // No-op: the effect handles active state updates automatically now!
-    // We keep this function header for compatibility if it's called elsewhere, 
-    // but the reactive effect above is cleaner.
 }
