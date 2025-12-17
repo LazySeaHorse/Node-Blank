@@ -19,12 +19,12 @@
 /* Organisms */
 /* @import './organisms/app-header.css'; - Migrated to Tailwind */
 /* @import './organisms/node.css'; - Migrated to Tailwind */
-@import './organisms/canvas-world.css';
+/* @import './organisms/canvas-world.css'; - Migrated to Tailwind */
 /* @import './organisms/table-node.css'; - Migrated to Tailwind */
-@import './organisms/video-node.css';
-@import './organisms/canvas-manager.css';
-@import './organisms/more-tools.css';
-@import './organisms/tool-config.css';
+/* @import './organisms/video-node.css'; - Migrated to Tailwind */
+/* @import './organisms/canvas-manager.css'; - Migrated to Tailwind */
+/* @import './organisms/more-tools.css'; - Migrated to Tailwind */
+/* @import './organisms/tool-config.css'; - Migrated to Tailwind */
 /* @import './organisms/script-node.css'; - Migrated to Tailwind */
-@import './organisms/canvas-manager-buttons.css';
-@import './organisms/action-bar.css';
+/* @import './organisms/canvas-manager-buttons.css'; - Migrated to Tailwind */
+/* @import './organisms/action-bar.css'; - Migrated to Tailwind */

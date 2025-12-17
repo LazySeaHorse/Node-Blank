@@ -8,12 +8,14 @@ import { createIconElement } from '../../utils/icons.js';
 
 export function createToolConfigModal({ onClose }) {
     // Create overlay
+    // .modal-overlay { bg: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay fixed inset-0 bg-black/50 z-[10001] flex items-center justify-center';
+    overlay.className = 'fixed inset-0 bg-black/50 z-[10001] flex items-center justify-center backdrop-blur-[2px]';
 
     // Create modal container
+    // .tool-config-modal { bg: var(--bg-surface); color: var(--text-primary); shadow: lg; border: 1px solid var(--border-base); }
     const modal = document.createElement('div');
-    modal.className = 'tool-config-modal rounded-lg shadow-xl w-[600px] max-w-[90vw] overflow-hidden flex flex-col max-h-[80vh]';
+    modal.className = 'bg-surface text-text-primary border border-border-base rounded-lg shadow-xl w-[600px] max-w-[90vw] overflow-hidden flex flex-col max-h-[80vh]';
     overlay.appendChild(modal);
 
     // Initial State (Copy of current config)
@@ -23,10 +25,11 @@ export function createToolConfigModal({ onClose }) {
 
     // Header
     const header = document.createElement('div');
-    header.className = 'modal-header px-6 py-4 flex justify-between items-center';
-    header.innerHTML = '<h2 class="modal-title text-lg font-bold">Customize Toolbar</h2>';
+    header.className = 'px-6 py-4 flex justify-between items-center border-b border-border-base';
+    header.innerHTML = '<h2 class="text-lg font-bold text-text-primary">Customize Toolbar</h2>';
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'modal-close';
+    // .modal-close { color: var(--text-secondary); } hover: color-text-primary
+    closeBtn.className = 'text-text-secondary hover:text-text-primary bg-transparent border-none cursor-pointer p-0';
     closeBtn.appendChild(createIconElement('x', 24));
     closeBtn.onclick = () => cleanup();
     header.appendChild(closeBtn);
@@ -42,32 +45,38 @@ export function createToolConfigModal({ onClose }) {
         container.className = 'flex-1 flex flex-col gap-2';
 
         const titleEl = document.createElement('h3');
-        titleEl.className = 'list-area-title text-sm font-semibold mb-2 uppercase tracking-wide';
+        // .list-area-title { color: var(--text-secondary); }
+        titleEl.className = 'text-sm font-semibold mb-2 uppercase tracking-wide text-text-secondary';
         titleEl.textContent = title;
         container.appendChild(titleEl);
 
         const listContainer = document.createElement('div');
-        listContainer.className = 'list-container rounded-md p-2 flex-1 overflow-y-auto min-h-[250px]';
+        // .list-container { bg: var(--bg-canvas); border: 1px solid var(--border-base); }
+        listContainer.className = 'bg-canvas border border-border-base rounded-md p-2 flex-1 overflow-y-auto min-h-[250px]';
 
         items.forEach(itemId => {
             const tool = TOOLS[itemId];
             if (!tool) return;
 
             const itemEl = document.createElement('div');
-            itemEl.className = 'tool-item flex items-center justify-between p-3 mb-2 rounded shadow-sm group';
+            // .tool-item { bg: var(--bg-surface); border: 1px solid var(--border-base); } hover: border-slate-400
+            itemEl.className = 'flex items-center justify-between p-3 mb-2 rounded shadow-sm group bg-surface border border-border-base hover:border-slate-400';
 
             const left = document.createElement('div');
-            left.className = 'flex items-center gap-3 tool-item-icon';
+            // .tool-item-icon { color: var(--text-secondary); }
+            left.className = 'flex items-center gap-3 text-text-secondary';
             left.appendChild(createIconElement(tool.icon, 18));
 
             const text = document.createElement('span');
             text.textContent = tool.label;
-            text.className = 'tool-item-label font-medium';
+            // .tool-item-label { color: var(--text-primary); }
+            text.className = 'font-medium text-text-primary';
             left.appendChild(text);
             itemEl.appendChild(left);
 
             const actionBtn = document.createElement('button');
-            actionBtn.className = 'tool-action-btn p-1 rounded transition-colors tooltip';
+            // .tool-action-btn { color: var(--text-secondary); } hover: color-accent, bg-surface-active
+            actionBtn.className = 'p-1 rounded transition-colors tooltip text-text-secondary hover:text-accent hover:bg-surface-active cursor-pointer border-none bg-transparent';
             // Arrow icon based on direction
             const iconName = isToolbar ? 'arrow-right' : 'arrow-left';
             actionBtn.appendChild(createIconElement(iconName, 18));
@@ -107,15 +116,18 @@ export function createToolConfigModal({ onClose }) {
 
     // Footer
     const footer = document.createElement('div');
-    footer.className = 'modal-footer px-6 py-4 flex justify-end gap-3';
+    // .modal-footer { bg: var(--bg-surface-hover); border-top: 1px solid var(--border-base); }
+    footer.className = 'px-6 py-4 flex justify-end gap-3 bg-surface-hover border-t border-border-base';
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'btn-secondary px-4 py-2 font-medium rounded-md transition-colors';
+    // .btn-secondary { color: var(--text-primary); } hover: bg-surface-active
+    cancelBtn.className = 'px-4 py-2 font-medium rounded-md transition-colors bg-transparent border-none cursor-pointer text-text-primary hover:bg-surface-active';
     cancelBtn.textContent = 'Cancel';
     cancelBtn.onclick = () => cleanup();
 
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn-primary px-4 py-2 font-medium rounded-md shadow-sm transition-colors';
+    // .btn-primary { bg: var(--color-accent); color: var(--color-accent-fg); } hover: darker
+    saveBtn.className = 'px-4 py-2 font-medium rounded-md shadow-sm transition-colors border-none cursor-pointer bg-accent text-accent-fg hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
     saveBtn.textContent = 'Save Changes';
     saveBtn.onclick = () => {
         // Save to global state

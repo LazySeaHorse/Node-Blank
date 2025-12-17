@@ -10,80 +10,35 @@ export function createDropdown({
     position = 'bottom-start'
 }) {
     const dropdown = document.createElement('div');
-    dropdown.className = 'dropdown-menu';
+    // .dropdown-menu { min-width: 180px; padding: 0.5rem; flex-col; gap: 0.25rem; radius: 0.5rem; bg: surface; border: base; shadow: lg; }
+    dropdown.className = 'fixed min-w-[180px] p-2 flex flex-col gap-1 rounded-lg bg-surface border border-border-base shadow-lg z-[10000] animate-[fadeIn_0.1s_ease-out]';
 
     // Calculate position
     const rect = trigger.getBoundingClientRect();
     const top = rect.bottom + 8;
     const left = rect.left;
 
-    dropdown.style.cssText = `
-        position: fixed;
-        top: ${top}px;
-        left: ${left}px;
-        animation: fadeIn 0.1s ease-out;
-    `;
+    dropdown.style.top = `${top}px`;
+    dropdown.style.left = `${left}px`;
 
-    // Add simple animation styles only (structure moved to more-tools.css)
-    const style = document.createElement('style');
-    if (!document.getElementById('dropdown-animation')) {
-        style.id = 'dropdown-animation';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-5px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .dropdown-menu {
-                min-width: 180px;
-                padding: 0.5rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-                border-radius: 0.5rem;
-            }
-            .dropdown-item {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                width: 100%;
-                padding: 0.5rem 0.75rem;
-                border: none;
-                border-radius: 0.375rem;
-                text-align: left;
-                font-size: 0.875rem;
-                cursor: pointer;
-                font-family: inherit;
-                background: transparent;
-            }
-            .dropdown-separator {
-                height: 1px;
-                margin: 0.5rem 0;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    // Removed inline style injection as we use Tailwind classes now
 
     const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 9999;
-    `;
+    overlay.className = 'fixed inset-0 z-[9999]';
 
     // Render items
     items.forEach(item => {
         if (item.type === 'separator') {
             const separator = document.createElement('div');
-            separator.className = 'dropdown-separator';
+            // .dropdown-separator { height: 1px; margin: 0.5rem 0; bg: border-base }
+            separator.className = 'h-px my-1 bg-border-base';
             dropdown.appendChild(separator);
             return;
         }
 
         const btn = document.createElement('button');
-        btn.className = 'dropdown-item';
+        // .dropdown-item { flex items-center gap-2 w-full px-3 py-2 border-none radius-md text-left text-sm cursor-pointer bg-transparent text-text-primary hover:bg-surface-hover }
+        btn.className = 'flex items-center gap-2 w-full px-3 py-2 border-none rounded-md text-left text-sm cursor-pointer bg-transparent text-text-primary transition-colors hover:bg-surface-hover';
 
         if (item.icon) {
             // If icon is a string, we might need a helper, but here we assume it's pre-rendered element or handled by caller?

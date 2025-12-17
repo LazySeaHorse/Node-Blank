@@ -42,20 +42,29 @@ function updateSelectionFromRect(left, top, width, height, container) {
 export function createCanvasWorld() {
     const container = document.createElement('main');
     container.id = 'canvas-container';
-    container.className = 'flex-1 relative overflow-hidden w-full h-full';
-    container.style.flex = '1';
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
-    container.style.width = '100%';
-    container.style.height = '100%';
+    // #canvas-container { bg-color: var(--bg-canvas); ... }
+    // We already migrated app.js layout, so we just need internal sizing/bg here.
+    // background-image logic remains in JS (updateTransform) or we can move it here if static? 
+    // It depends on CSS variables. The CSS used var(--grid-color) etc.
+    // We'll keep the JS dynamic background styles but strictly use Tailwind for layout.
+    container.className = 'flex-1 relative overflow-hidden w-full h-full bg-canvas touch-none';
+
+    // Restore grid pattern (previously in canvas-world.css)
+    container.style.backgroundImage = `
+        linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px)
+    `;
 
     const world = document.createElement('div');
     world.id = 'canvas-world';
+    // #canvas-world { position: absolute; ... }
+    world.className = 'absolute top-0 left-0 w-full h-full origin-top-left will-change-transform';
 
     // Selection rectangle
     const selectionRect = document.createElement('div');
     selectionRect.id = 'selection-rect';
-    selectionRect.className = 'selection-rect';
+    // .selection-rect { position: absolute; border: 2px solid var(--color-accent); bg: color-mix(...); pointer-events: none; display: none; z-index: 10000; }
+    selectionRect.className = 'absolute border-2 border-accent bg-accent/10 pointer-events-none hidden z-[10000]';
 
     // Disable default touch actions to allow custom handling
     container.style.touchAction = 'none';

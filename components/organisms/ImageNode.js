@@ -27,7 +27,7 @@ export function createImageNode(data, onSelect) {
 
     // Add resize handle
     const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
+    resizeHandle.className = 'resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 bg-[linear-gradient(135deg,transparent_50%,var(--color-slate-400)_50%)] opactiy-50 hover:opacity-100';
     resizeHandle.dataset.nodeId = data.id;
     div.appendChild(resizeHandle);
 

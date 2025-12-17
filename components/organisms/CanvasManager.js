@@ -8,24 +8,29 @@ export function createCanvasManager(callbacks) {
     const { onLoad, onClose, onCreate } = callbacks;
 
     // Create overlay backdrop
+    // .canvas-manager-overlay { background: color-mix(in srgb, var(--bg-canvas), transparent 50%); backdrop-filter: blur(2px); }
     const overlay = document.createElement('div');
-    overlay.className = 'canvas-manager-overlay fixed inset-0 flex items-center justify-center z-[10000]';
+    overlay.className = 'fixed inset-0 flex items-center justify-center z-[10000] bg-canvas/50 backdrop-blur-[2px]';
 
     // Create modal
+    // .canvas-manager-modal { background: var(--bg-surface); color: var(--text-primary); shadow: var(--shadow-lg); border: 1px solid var(--border-base); }
     const modal = document.createElement('div');
-    modal.className = 'canvas-manager-modal rounded-xl w-[90%] max-w-[600px] max-h-[80vh] flex flex-col shadow-2xl';
+    modal.className = 'bg-surface text-text-primary shadow-2xl border border-border-base rounded-xl w-[90%] max-w-[600px] max-h-[80vh] flex flex-col';
 
     // Create header
+    // .canvas-manager-header { border-bottom: 1px solid var(--border-base); }
     const header = document.createElement('div');
-    header.className = 'canvas-manager-header p-6 flex justify-between items-center';
+    header.className = 'p-6 flex justify-between items-center border-b border-border-base';
 
     const title = document.createElement('h2');
     title.textContent = 'My Canvases';
-    title.className = 'canvas-manager-title m-0 text-2xl font-semibold';
+    // .canvas-manager-title { color: var(--text-primary); }
+    title.className = 'm-0 text-2xl font-semibold text-text-primary';
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '×';
-    closeBtn.className = 'canvas-manager-close bg-none border-none text-3xl cursor-pointer p-0 w-8 h-8 flex items-center justify-center rounded transition-colors';
+    // .canvas-manager-close { color: var(--text-secondary); } hover: bg-surface-hover, color-text-primary
+    closeBtn.className = 'bg-transparent border-none text-3xl cursor-pointer p-0 w-8 h-8 flex items-center justify-center rounded transition-colors text-text-secondary hover:bg-surface-hover hover:text-text-primary';
 
     closeBtn.onclick = onClose;
 
@@ -35,7 +40,8 @@ export function createCanvasManager(callbacks) {
     // Create new canvas button
     const newCanvasBtn = document.createElement('button');
     newCanvasBtn.textContent = '+ New Canvas';
-    newCanvasBtn.className = 'new-canvas-btn mx-6 my-4 px-6 py-3 border-none rounded-lg text-sm font-medium cursor-pointer transition-colors';
+    // .new-canvas-btn { background: var(--color-accent); color: var(--color-accent-fg); } hover: darker
+    newCanvasBtn.className = 'mx-6 my-4 px-6 py-3 border-none rounded-lg text-sm font-medium cursor-pointer transition-colors bg-accent text-accent-fg hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
 
     newCanvasBtn.onclick = async () => {
         const name = prompt('Canvas name:', 'Untitled Canvas');
@@ -47,7 +53,7 @@ export function createCanvasManager(callbacks) {
 
     // Create canvas list container
     const listContainer = document.createElement('div');
-    listContainer.className = 'canvas-list flex-1 overflow-y-auto px-6 pb-6';
+    listContainer.className = 'flex-1 overflow-y-auto px-6 pb-6';
 
     // Assemble modal
     modal.appendChild(header);
@@ -86,18 +92,21 @@ export function createCanvasManager(callbacks) {
 
     function createCanvasItem(canvas) {
         const item = document.createElement('div');
-        item.className = 'canvas-item rounded-lg p-4 mb-3 border transition-colors';
+        // .canvas-item { background: var(--bg-surface-hover); border: 1px solid var(--border-base); } hover: border-slate-400
+        item.className = 'rounded-lg p-4 mb-3 border border-border-base transition-colors bg-surface-hover hover:border-slate-400';
 
         const topRow = document.createElement('div');
         topRow.className = 'flex justify-between items-center mb-2';
 
         const nameSpan = document.createElement('span');
         nameSpan.textContent = canvas.name;
-        nameSpan.className = 'canvas-item-name text-base font-medium';
+        // .canvas-item-name { color: var(--text-primary); }
+        nameSpan.className = 'text-base font-medium text-text-primary';
 
         const dateSpan = document.createElement('span');
         dateSpan.textContent = formatDate(canvas.lastModified);
-        dateSpan.className = 'canvas-item-date text-sm';
+        // .canvas-item-date { color: var(--text-secondary); }
+        dateSpan.className = 'text-sm text-text-secondary';
 
         topRow.appendChild(nameSpan);
         topRow.appendChild(dateSpan);
@@ -105,12 +114,12 @@ export function createCanvasManager(callbacks) {
         const actions = document.createElement('div');
         actions.className = 'flex gap-2';
 
-        const loadBtn = createActionButton('Load', 'btn-action-load', async () => {
+        const loadBtn = createActionButton('Load', 'text-primary border-primary hover:bg-primary hover:text-white', async () => {
             await onLoad(canvas.id);
             onClose();
         });
 
-        const renameBtn = createActionButton('Rename', 'btn-action-rename', async () => {
+        const renameBtn = createActionButton('Rename', 'text-text-secondary border-border-base hover:bg-text-secondary hover:text-surface', async () => {
             const newName = prompt('New name:', canvas.name);
             if (newName && newName !== canvas.name) {
                 await renameCanvas(canvas.id, newName);
@@ -118,7 +127,7 @@ export function createCanvasManager(callbacks) {
             }
         });
 
-        const deleteBtn = createActionButton('Delete', 'btn-action-delete', async () => {
+        const deleteBtn = createActionButton('Delete', 'text-red-500 border-red-500 hover:bg-red-500 hover:text-white', async () => {
             if (confirm(`Delete "${canvas.name}"? This cannot be undone.`)) {
                 await deleteCanvas(canvas.id);
                 await renderList();
@@ -135,10 +144,12 @@ export function createCanvasManager(callbacks) {
         return item;
     }
 
-    function createActionButton(text, className, onClick) {
+    function createActionButton(text, tailwindClasses, onClick) {
         const btn = document.createElement('button');
         btn.textContent = text;
-        btn.className = `canvas-action-btn ${className}`;
+        // .canvas-action-btn { padding: 6px 12px; bg: var(--bg-surface); border: 1px solid currentColor; radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        // hover: border-transparent
+        btn.className = `px-3 py-1.5 bg-surface border border-current rounded-md text-[13px] font-medium cursor-pointer transition-all duration-200 hover:border-transparent ${tailwindClasses}`;
 
         btn.onclick = onClick;
         return btn;

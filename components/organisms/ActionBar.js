@@ -5,7 +5,7 @@ import { createActionButton } from '../molecules/ActionButton.js';
 
 export function createActionBar({ onUndo, onExport, onImport, onSave, iconOnly = false }) {
     const container = document.createElement('div');
-    container.className = 'action-bar';
+    container.className = 'flex gap-1';
 
     // Undo button
     const undoBtn = createActionButton({
@@ -72,11 +72,15 @@ function ensureDropdownStyles() {
 /**
  * Show export choice dropdown
  */
+/**
+ * Show export choice dropdown
+ */
 function showExportDialog(onExport, buttonElement) {
     ensureDropdownStyles();
     return new Promise((resolve) => {
         const dropdown = document.createElement('div');
-        dropdown.className = 'export-import-dropdown';
+        // .export-import-dropdown { bg: var(--bg-surface); border: 1px solid var(--border-base); radius: lg; shadow: lg; padding: 0.5rem; }
+        dropdown.className = 'fixed bg-surface border border-border-base rounded-lg shadow-lg z-[10000] min-w-[180px] p-2 animate-[fadeIn_0.1s_ease-out]';
 
         // Position below the button
         const rect = buttonElement.getBoundingClientRect();
@@ -84,12 +88,18 @@ function showExportDialog(onExport, buttonElement) {
         dropdown.style.left = `${rect.left}px`;
 
         const overlay = document.createElement('div');
-        overlay.className = 'export-import-overlay';
+        // .export-import-overlay { fixed inset 0 z 9999 }
+        overlay.className = 'fixed inset-0 z-[9999]';
+
+        // Item classes
+        // .dropdown-item { w-full padding: 0.5 0.75; bg: transparent; border: none; radius: md; text-align: left; text-sm; color: text-primary; cursor: pointer; transition; }
+        // hover: bg-surface-hover
+        const itemClass = 'block w-full px-3 py-2 bg-transparent border-none rounded-md text-left text-sm text-text-primary cursor-pointer transition-colors hover:bg-surface-hover';
 
         dropdown.innerHTML = `
-            <button class="dropdown-item" id="export-nodes">Selected Nodes</button>
-            <button class="dropdown-item" id="export-single">Current Canvas</button>
-            <button class="dropdown-item" id="export-all">All Canvases</button>
+            <button class="${itemClass}" id="export-nodes">Selected Nodes</button>
+            <button class="${itemClass}" id="export-single">Current Canvas</button>
+            <button class="${itemClass}" id="export-all">All Canvases</button>
         `;
 
         document.body.appendChild(overlay);
@@ -132,7 +142,8 @@ function showImportDialog(buttonElement) {
     ensureDropdownStyles();
     return new Promise((resolve) => {
         const dropdown = document.createElement('div');
-        dropdown.className = 'export-import-dropdown';
+        // Reuse same class as export
+        dropdown.className = 'fixed bg-surface border border-border-base rounded-lg shadow-lg z-[10000] min-w-[180px] p-2 animate-[fadeIn_0.1s_ease-out]';
 
         // Position below the button
         const rect = buttonElement.getBoundingClientRect();
@@ -140,12 +151,14 @@ function showImportDialog(buttonElement) {
         dropdown.style.left = `${rect.left}px`;
 
         const overlay = document.createElement('div');
-        overlay.className = 'export-import-overlay';
+        overlay.className = 'fixed inset-0 z-[9999]';
+
+        const itemClass = 'block w-full px-3 py-2 bg-transparent border-none rounded-md text-left text-sm text-text-primary cursor-pointer transition-colors hover:bg-surface-hover';
 
         dropdown.innerHTML = `
-            <button class="dropdown-item" id="import-nodes">Append Nodes</button>
-            <button class="dropdown-item" id="import-single">Single Canvas</button>
-            <button class="dropdown-item" id="import-all">All Canvases</button>
+            <button class="${itemClass}" id="import-nodes">Append Nodes</button>
+            <button class="${itemClass}" id="import-single">Single Canvas</button>
+            <button class="${itemClass}" id="import-all">All Canvases</button>
         `;
 
         document.body.appendChild(overlay);

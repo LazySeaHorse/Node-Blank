@@ -51,7 +51,8 @@ export function createVideoNode(data, onSelect) {
 
     const iframe = document.createElement('iframe');
     iframe.src = embedUrl;
-    iframe.className = 'video-iframe';
+    // .video-iframe { display: block; border: none; border-radius: var(--radius-md); }
+    iframe.className = 'block border-none rounded-md pointer-events-auto';
     iframe.style.width = `${width}px`;
     iframe.style.height = `${height}px`;
     iframe.setAttribute('frameborder', '0');
@@ -66,7 +67,7 @@ export function createVideoNode(data, onSelect) {
 
     // Add resize handle
     const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
+    resizeHandle.className = 'resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 bg-[linear-gradient(135deg,transparent_50%,var(--color-slate-400)_50%)] opactiy-50 hover:opacity-100';
     resizeHandle.dataset.nodeId = data.id;
     div.appendChild(resizeHandle);
 

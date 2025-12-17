@@ -10,10 +10,11 @@ import { createToolConfigModal } from './ToolConfigModal.js';
 
 export function createMoreToolsMenu(handlers) {
     const container = document.createElement('div');
-    container.className = 'more-tools-menu ml-1';
+    container.className = 'ml-1 relative'; // more-tools-menu
 
     const triggerBtn = document.createElement('button');
-    triggerBtn.className = 'more-tools-trigger p-2 rounded-md transition-colors';
+    // .more-tools-trigger { color: var(--text-secondary); transition: all 0.2s ease; } hover: text-primary, bg-surface-hover
+    triggerBtn.className = 'p-2 rounded-md transition-colors border-none bg-transparent cursor-pointer text-text-secondary hover:text-text-primary hover:bg-surface-hover';
     triggerBtn.title = 'More Tools';
     triggerBtn.appendChild(createIconElement('more-horizontal', 20));
 
