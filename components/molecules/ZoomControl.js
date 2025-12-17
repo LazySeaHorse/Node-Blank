@@ -14,14 +14,10 @@ export function createZoomControl({ onZoomIn, onZoomOut, onZoomReset, onFullRese
     indicator.id = 'zoom-indicator';
     indicator.className = 'zoom-indicator';
     indicator.textContent = `${initialZoom}%`;
-    let clickTimeout;
     indicator.addEventListener('click', (e) => {
         if (e.detail === 1) {
-            clickTimeout = setTimeout(() => {
-                onZoomReset();
-            }, 250);
+            onZoomReset();
         } else if (e.detail === 2) {
-            clearTimeout(clickTimeout);
             onFullReset();
         }
     });

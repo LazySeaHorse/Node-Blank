@@ -12,6 +12,7 @@ import { createCanvasWorld, setupCanvasEvents, updateTransform } from './compone
 import { createZoomControl } from './components/molecules/ZoomControl.js';
 import { createCanvasManager } from './components/organisms/CanvasManager.js';
 import { createThemeToggle } from './components/molecules/ThemeToggle.js';
+import { animateTo } from './utils/cameraAnimation.js';
 
 class MathCanvasApp {
     constructor() {
@@ -297,22 +298,21 @@ class MathCanvasApp {
         const centerWorld = screenToWorld(cx, cy);
 
         // 3. Reset Scale
-        appState.scale = 1;
+        const targetScale = 1;
 
         // 4. Adjust Pan to keep centerWorld at centerScreen
         // cx = pan.x + centerWorld.x * scale
-        appState.pan = {
-            x: cx - centerWorld.x * appState.scale,
-            y: cy - centerWorld.y * appState.scale
+        const targetPan = {
+            x: cx - centerWorld.x * targetScale,
+            y: cy - centerWorld.y * targetScale
         };
 
-        // Update transform is automatic via effects
+        // Animate
+        animateTo(targetScale, targetPan);
     }
 
     resetView() {
-        appState.scale = 1;
-        appState.pan = { x: 0, y: 0 };
-        //updateTransform(this.world, this.container);
+        animateTo(1, { x: 0, y: 0 });
     }
 
     async manualSave() {

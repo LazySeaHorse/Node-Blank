@@ -3,6 +3,7 @@
  */
 import { appState, interaction, screenToWorld } from '../../state/appState.js';
 import { createNode, renderNode, removeNode, selectNode } from '../../utils/nodeFactory.js';
+import { cancelAnimation } from '../../utils/cameraAnimation.js';
 
 function updateSelectionFromRect(left, top, width, height, container) {
     const rect = container.getBoundingClientRect();
@@ -94,6 +95,7 @@ export function setupCanvasEvents(container, world) {
 
     // Mouse down - distinguish between left and middle button
     container.addEventListener('mousedown', (e) => {
+        cancelAnimation(); // Stop any active zoom animation
         // Check if clicking on resize handle
         if (e.target.classList.contains('resize-handle')) {
             e.preventDefault();
@@ -259,6 +261,7 @@ export function setupCanvasEvents(container, world) {
 
     // Zoom with Ctrl+Scroll
     container.addEventListener('wheel', (e) => {
+        cancelAnimation(); // Stop any active zoom animation
         if (e.target.tagName === 'TEXTAREA') return;
 
         if (e.ctrlKey) {
@@ -338,6 +341,7 @@ export function setupCanvasEvents(container, world) {
 
         // Prevent default browser zooming/scrolling for all touches in canvas
         e.preventDefault();
+        cancelAnimation();
 
         if (e.touches.length === 1) {
             const touch = e.touches[0];
