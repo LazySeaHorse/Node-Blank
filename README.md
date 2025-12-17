@@ -1,4 +1,4 @@
-# MathCanvas
+# Node Blank
 
 An infinite canvas application for creating math equations, markdown text, graphs, and images, built with vanilla JavaScript following Atomic Design Methodology.
 
@@ -17,20 +17,11 @@ An infinite canvas application for creating math equations, markdown text, graph
 
 ## 🛠️ Technologies
 
-- **Vanilla JavaScript** with ES6 modules
-- **CSS Variables** for theming
 - **MathLive** for math input
 - **KaTeX** for math rendering
 - **Marked.js** for markdown parsing
 - **Function Plot** for graphing
 - **Tailwind CSS** for utility classes
-
-## 🔧 Development
-
-All components use ES6 modules. The application uses:
-- `type="module"` for script loading
-- Import/export for module dependencies
-- CSS imports for stylesheet organization
 
 ## 📝 License
 
