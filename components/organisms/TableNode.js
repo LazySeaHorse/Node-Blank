@@ -2,13 +2,13 @@
  * Table Node Organism
  */
 import { interaction } from '../../state/appState.js';
+import { createNodeHeader, createButtonGroup } from '../molecules/NodeHeader.js';
 
 export function createTableNode(data, onSelect) {
     const div = document.createElement('div');
     div.id = data.id;
-    // Base Node
-    // .node-table { background: var(--bg-surface); padding: 12px; min-width: 200px; color: var(--text-primary); ... }
-    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 p-3 min-w-[200px] cursor-grab';
+    // Base Node - updated structure with flex column and no padding (padding is in content)
+    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 flex flex-col overflow-hidden min-w-[200px]';
     div.style.left = `${data.x}px`;
     div.style.top = `${data.y}px`;
     div.style.zIndex = data.zIndex;
@@ -28,6 +28,7 @@ export function createTableNode(data, onSelect) {
             cells: Array(3).fill(null).map(() => Array(3).fill(''))
         };
     }
+
 
     const table = document.createElement('table');
     // .table-content { border-collapse: collapse; width: 100%; }
@@ -94,66 +95,57 @@ export function createTableNode(data, onSelect) {
         }
     };
 
-    // Control buttons
-    const controls = document.createElement('div');
-    // .table-controls { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
-    controls.className = 'flex gap-1 mb-2 flex-wrap';
-
-    const addRowBtn = createControlButton('+Row', () => {
-        tableData.rows++;
-        tableData.cells.push(Array(tableData.cols).fill(''));
-        data.content = JSON.stringify(tableData);
-        renderTable();
-    });
-
-    const addColBtn = createControlButton('+Col', () => {
-        tableData.cols++;
-        tableData.cells.forEach(row => row.push(''));
-        data.content = JSON.stringify(tableData);
-        renderTable();
-    });
-
-    const removeRowBtn = createControlButton('-Row', () => {
-        if (tableData.rows > 1) {
-            tableData.rows--;
-            tableData.cells.pop();
+    // Create button groups for header controls
+    const rowControls = createButtonGroup('Row',
+        // Decrement (remove row)
+        () => {
+            if (tableData.rows > 1) {
+                tableData.rows--;
+                tableData.cells.pop();
+                data.content = JSON.stringify(tableData);
+                renderTable();
+            }
+        },
+        // Increment (add row)
+        () => {
+            tableData.rows++;
+            tableData.cells.push(Array(tableData.cols).fill(''));
             data.content = JSON.stringify(tableData);
             renderTable();
         }
-    });
+    );
 
-    const removeColBtn = createControlButton('-Col', () => {
-        if (tableData.cols > 1) {
-            tableData.cols--;
-            tableData.cells.forEach(row => row.pop());
+    const colControls = createButtonGroup('Col',
+        // Decrement (remove col)
+        () => {
+            if (tableData.cols > 1) {
+                tableData.cols--;
+                tableData.cells.forEach(row => row.pop());
+                data.content = JSON.stringify(tableData);
+                renderTable();
+            }
+        },
+        // Increment (add col)
+        () => {
+            tableData.cols++;
+            tableData.cells.forEach(row => row.push(''));
             data.content = JSON.stringify(tableData);
             renderTable();
         }
-    });
+    );
 
-    controls.appendChild(addRowBtn);
-    controls.appendChild(removeRowBtn);
-    controls.appendChild(addColBtn);
-    controls.appendChild(removeColBtn);
+    // Create header with controls
+    const header = createNodeHeader('Table', [rowControls, colControls]);
 
-    div.appendChild(controls);
-    div.appendChild(table);
+    // Content wrapper with padding
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'p-3';
+    contentWrapper.appendChild(table);
+
+    div.appendChild(header);
+    div.appendChild(contentWrapper);
 
     renderTable();
 
     return div;
-}
-
-function createControlButton(text, onClick) {
-    const btn = document.createElement('button');
-    btn.textContent = text;
-    // .table-control-btn { padding: 4px 8px; font-size: 0.75rem; bg: var(--color-accent); color: var(--color-accent-fg); border: none; radius: 4px; cursor: pointer; transition: background 0.2s; }
-    // hover: color-mix... (darker accent)
-    // Using text-white explicitly as requested.
-    btn.className = 'px-2 py-1 text-xs bg-accent text-white border-none rounded cursor-pointer transition-colors hover:bg-[color-mix(in_srgb,var(--color-accent),black_10%)]';
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onClick();
-    });
-    return btn;
 }

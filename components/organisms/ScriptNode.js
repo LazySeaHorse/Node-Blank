@@ -22,9 +22,10 @@ export function createScriptNode(data, onSelect) {
     header.className = 'p-2 px-3 bg-surface-hover border-b border-border-base flex justify-between items-center cursor-grab';
 
     const title = document.createElement('span');
-    title.innerHTML = 'JS Sandbox';
+    title.innerHTML = 'JS SANDBOX';
     // .script-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
-    title.className = 'text-xs font-semibold text-text-secondary';
+    title.className = 'text-xs font-semibold text-text-secondary uppercase tracking-wider';
+
 
     const controls = document.createElement('div');
     // .script-controls { display: flex; gap: 8px; }
@@ -61,9 +62,10 @@ export function createScriptNode(data, onSelect) {
     // Code Editor Area
     const editor = document.createElement('textarea');
     editor.value = data.content || "// console.log('Hello World');";
-    // .script-editor { flex: 1; bg: var(--bg-canvas); color: var(--text-primary); border: none; border-bottom: 1px solid var(--border-base); padding: 12px; font-family: monospace; font-size: 13px; line-height: 1.5; resize: none; outline: none; }
-    editor.className = 'mouse-interactive flex-1 bg-canvas text-text-primary border-none border-b border-border-base p-3 font-mono text-[13px] leading-relaxed resize-none outline-none';
+    // .script-editor { flex: 1; bg: var(--bg-surface); color: var(--text-primary); border: none; border-bottom: 1px solid var(--border-base); padding: 12px; font-family: monospace; font-size: 13px; line-height: 1.5; resize: none; outline: none; }
+    editor.className = 'mouse-interactive flex-1 bg-surface text-text-primary border-none border-b border-border-base p-3 font-mono text-[13px] leading-relaxed resize-none outline-none';
     editor.placeholder = "// Write JavaScript here...";
+
 
     // Console Output Area
     const consoleOutput = document.createElement('div');
