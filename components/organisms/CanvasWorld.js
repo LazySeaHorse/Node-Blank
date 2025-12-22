@@ -108,8 +108,8 @@ export function setupCanvasEvents(container, world) {
             // 1. Zoom with Wheel
             if (e.type === 'wheel') return true;
 
-            // 2. Prevent Zoom/Pan when interacting with Nodes or Handles
-            if (e.target.closest('.node') || e.target.closest('.resize-handle')) return false;
+            // 2. Prevent Zoom/Pan when interacting with Nodes, Handles, or Context Menus
+            if (e.target.closest('.node') || e.target.closest('.resize-handle') || e.target.closest('.jcontextmenu')) return false;
 
             // 3. Touch Handling (Pan / Pinch)
             // Explicitly ALLOW touch pointer events

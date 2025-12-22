@@ -41,7 +41,7 @@ export function createTextNode(data, onSelect) {
     });
 
     // Stop propagation in textarea so we can select text
-    textarea.addEventListener('mousedown', e => e.stopPropagation());
+    // Handled by nodeFactory
 
     div.appendChild(preview);
     div.appendChild(textarea);

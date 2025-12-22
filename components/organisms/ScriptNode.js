@@ -94,13 +94,6 @@ export function createScriptNode(data, onSelect) {
     div.appendChild(body);
     div.appendChild(resizeHandle);
 
-    // Prevent dragging when typing
-    editor.addEventListener('mousedown', e => e.stopPropagation());
-    consoleOutput.addEventListener('mousedown', e => e.stopPropagation());
-    // Also stop propagation on buttons so we don't drag when clicking them
-    runBtn.addEventListener('mousedown', e => e.stopPropagation());
-    clearBtn.addEventListener('mousedown', e => e.stopPropagation());
-
     // State management
     let worker = null;
 

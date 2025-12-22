@@ -28,9 +28,16 @@ export const TOOLS = {
     table: {
         id: 'table',
         label: 'Table',
-        icon: 'table',
+        icon: 'table-2',
         type: 'mode',
         description: 'Add data tables'
+    },
+    spreadsheet: {
+        id: 'spreadsheet',
+        label: 'Sheet',
+        icon: 'sheet',
+        type: 'mode',
+        description: 'Add Excel-like spreadsheet'
     },
     image: {
         id: 'image',
@@ -56,6 +63,6 @@ export const TOOLS = {
 };
 
 export const DEFAULT_TOOL_CONFIG = {
-    toolbar: ['math', 'text', 'image'],
-    more: ['js', 'table', 'video', 'graph']
+    toolbar: ['image', 'text', 'video'],
+    more: ['graph', 'js', 'math', 'spreadsheet', 'table']
 };

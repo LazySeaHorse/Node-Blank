@@ -62,8 +62,6 @@ export function createTableNode(data, onSelect) {
                     onSelect(data.id);
                 });
 
-                mf.addEventListener('mousedown', e => e.stopPropagation());
-
                 // Handle Enter to move to next cell
                 mf.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -157,6 +155,5 @@ function createControlButton(text, onClick) {
         e.stopPropagation();
         onClick();
     });
-    btn.addEventListener('mousedown', e => e.stopPropagation());
     return btn;
 }

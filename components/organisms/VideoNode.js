@@ -61,7 +61,7 @@ export function createVideoNode(data, onSelect) {
     iframe.setAttribute('loading', 'lazy');
 
     // Prevent iframe from capturing drag events
-    iframe.addEventListener('mousedown', e => e.stopPropagation());
+    // Handled by nodeFactory
 
     div.appendChild(iframe);
 

@@ -25,7 +25,7 @@ export function createMathNode(data, onSelect) {
     });
 
     // Prevent drag when interacting with math field
-    mf.addEventListener('mousedown', e => e.stopPropagation());
+    // Handled by nodeFactory
 
     // Handle Enter for multiline
     mf.addEventListener('keydown', (e) => {

@@ -9,6 +9,7 @@ import { createImageNode } from '../components/organisms/ImageNode.js';
 import { createTableNode } from '../components/organisms/TableNode.js';
 import { createVideoNode } from '../components/organisms/VideoNode.js';
 import { createScriptNode } from '../components/organisms/ScriptNode.js';
+import { createSpreadsheetNode } from '../components/organisms/SpreadsheetNode.js';
 
 export function createNode(x, y, type = appState.mode, content = "") {
     const id = `node-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
@@ -22,6 +23,7 @@ export function createNode(x, y, type = appState.mode, content = "") {
             cols: 3,
             cells: Array(3).fill(null).map(() => Array(3).fill(''))
         });
+        if (type === 'spreadsheet') content = "[]"; // Handler will init default 5x5
         if (type === 'js') content = "// JavaScript Sandbox\nconsole.log('Hello from the worker!');\n\n// Try some math:\nconst sum = [1, 2, 3, 4].reduce((a, b) => a + b, 0);\nconsole.log('Sum:', sum);";
     }
 
@@ -69,6 +71,9 @@ export function renderNode(data, world, selectNodeFn) {
         case 'video':
             nodeElement = createVideoNode(data, selectNodeFn);
             break;
+        case 'spreadsheet':
+            nodeElement = createSpreadsheetNode(data, selectNodeFn);
+            break;
         case 'js':
             nodeElement = createScriptNode(data, selectNodeFn);
             break;
@@ -78,29 +83,47 @@ export function renderNode(data, world, selectNodeFn) {
 
     // Add drag handlers
     nodeElement.addEventListener('mousedown', (e) => {
-        // Don't drag if clicking resize handle
+        // 1. Don't drag if clicking resize handle
         if (e.target.classList.contains('resize-handle')) {
             return;
         }
 
-        // Check if we clicked an interactive child
+        // 2. Identify if we clicked an interactive child
         const targetTag = e.target.tagName.toLowerCase();
-        const interactiveTags = ['input', 'textarea', 'math-field', 'button'];
+        const interactiveTags = ['input', 'textarea', 'math-field', 'button', 'select', 'a'];
 
-        if (interactiveTags.includes(targetTag) || e.target.closest('.md-editor')) {
-            return;
-        }
+        // Jspreadsheet/jSuites/MathLive specific selectors
+        const isJssElement = e.target.closest('.jss_container') ||
+            e.target.closest('.jexcel_container') ||
+            e.target.closest('.jss') ||
+            e.target.closest('.jexcel') ||
+            e.target.closest('.jcontextmenu') ||
+            e.target.closest('.spreadsheet-content');
 
-        if (e.target.closest('.graph-target')) return;
+        const isInteractive = interactiveTags.includes(targetTag) ||
+            e.target.closest('.md-editor') ||
+            e.target.closest('.mouse-interactive') ||
+            e.target.closest('.spreadsheet-content') ||
+            isJssElement ||
+            e.target.closest('.graph-target') ||
+            targetTag === 'math-field' ||
+            e.target.closest('math-field');
 
-        // Only left button for node dragging
-        if (e.button !== 0) return;
-
-        // If this node is not in the current selection, select only this node
-        // If it is already selected, keep the multi-selection
+        // 3. Selection Logic: Always select the node on mousedown if not dragging from elsewhere
         if (!interaction.selectedIds.includes(data.id)) {
             selectNodeFn(data.id);
         }
+
+        // 4. If it's an interactive element, we stop here and let the event bubble/perform default actions
+        if (isInteractive) {
+            // We NO LONGER call e.stopPropagation() here because Jspreadsheet and other libraries
+            // often rely on document-level listeners to manage focus and state.
+            // Since CanvasWorld and D3 already have filters for .node, bubbling is safe.
+            return;
+        }
+
+        // 5. Only left button for node dragging (non-interactive areas)
+        if (e.button !== 0) return;
 
         interaction.isDraggingNode = true;
         interaction.selectedId = data.id;
@@ -111,6 +134,7 @@ export function renderNode(data, world, selectNodeFn) {
             if (el) el.classList.add('dragging');
         });
 
+        // For non-interactive areas, we block default choice/selection to enable clean dragging
         e.preventDefault();
         e.stopPropagation();
     });

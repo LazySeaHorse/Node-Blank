@@ -8,5 +8,7 @@
 @import './atoms/textarea.css';
 
 /* Molecules */
-/* Molecules */
 @import './molecules/markdown-editor.css';
+
+/* Organisms */
+@import './organisms/spreadsheet.css';

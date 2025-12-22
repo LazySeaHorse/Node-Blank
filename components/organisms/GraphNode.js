@@ -104,7 +104,6 @@ function GraphNodeContent({ data }) {
                 class="flex-1 text-base bg-transparent text-text-primary outline-none border-none p-0.5"
                 value=${content}
                 onInput=${handleInput}
-                onMouseDown=${e => e.stopPropagation()}
                 placeholder="x^2"
             />
         </div>
@@ -112,7 +111,6 @@ function GraphNodeContent({ data }) {
             id=${graphId} 
             ref=${graphRef}
             class="w-full h-[240px] overflow-hidden rounded-md border border-border-base bg-canvas"
-            onMouseDown=${e => e.stopPropagation()} 
             onWheel=${e => e.stopPropagation()} 
         ></div>
     `;
