@@ -20,7 +20,7 @@ export function createAppHeader({
     onCanvasManager
 }) {
     const header = document.createElement('div');
-    header.className = 'app-header absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-surface p-2 rounded-lg border border-border-base shadow-lg z-30';
+    header.className = 'app-header absolute top-4 right-4 flex items-center gap-2 bg-surface p-2 rounded-lg border border-border-base shadow-lg z-30';
 
     // Canvases button (icon only)
     const canvasesBtn = document.createElement('button');
@@ -95,17 +95,6 @@ export function createAppHeader({
         const isSearch = signals.isSearchOpen.value;
         const isMobile = window.innerWidth < 768;
 
-        // Position Logic
-        if (isMobile) {
-            header.classList.remove('left-1/2', '-translate-x-1/2');
-            header.classList.add('right-4', 'translate-x-0');
-            header.style.left = 'auto'; // ensure override
-        } else {
-            header.classList.add('left-1/2', '-translate-x-1/2');
-            header.classList.remove('right-4', 'translate-x-0');
-            header.style.left = '';
-        }
-
         // Smushing Logic (Mobile Only)
         if (isMobile && isSearch) {
             // Hide standard controls
@@ -138,17 +127,6 @@ export function createAppHeader({
 
     // Resize listener to re-run effect logic implicitly or explicitly
     window.addEventListener('resize', () => {
-
-        const isMobile = window.innerWidth < 768;
-        if (isMobile) {
-            header.classList.remove('left-1/2', '-translate-x-1/2');
-            header.classList.add('right-4', 'translate-x-0');
-            header.style.left = 'auto';
-        } else {
-            header.classList.add('left-1/2', '-translate-x-1/2');
-            header.classList.remove('right-4', 'translate-x-0');
-            header.style.left = '';
-        }
     });
 
     return header;

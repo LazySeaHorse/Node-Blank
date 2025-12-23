@@ -123,7 +123,6 @@ class MathCanvasApp {
 
                 // Determine match
                 // Simple text content check on the node data
-                // For complex nodes, we might need more, but node.content is the source of truth usually
                 const content = (node.content || '').toLowerCase();
                 const matches = query === '' || content.includes(query);
 
@@ -137,9 +136,9 @@ class MathCanvasApp {
                     if (matches) {
                         el.style.opacity = '1';
                         el.style.filter = 'none';
-                        el.style.zIndex = '100'; // Bring to front visually? Optional.
+                        el.style.zIndex = '100';
                     } else {
-                        el.style.opacity = '0.1';
+                        el.style.opacity = '0.4';
                         el.style.filter = 'grayscale(100%)';
                         el.style.zIndex = '1';
                     }
@@ -148,11 +147,6 @@ class MathCanvasApp {
 
             // Update Match Count Signal
             signals.searchMatchCount.value = matchedIds.length;
-
-            // 2. Zoom Logic
-            // If query is empty, do we reset? The user said "at the start it'll zoom out...".
-            // When clearing search, maybe we don't force zoom? Or reset to fit all?
-            // "at the start" -> when query length > 0.
 
             if (query.length > 0 && matchedIds.length > 0) {
                 // Calculate bounding box of matched nodes

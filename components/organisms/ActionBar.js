@@ -83,9 +83,19 @@ function showExportDialog(onExport, buttonElement) {
         dropdown.className = 'fixed bg-surface border border-border-base rounded-lg shadow-lg z-[10000] min-w-[180px] p-2 animate-[fadeIn_0.1s_ease-out]';
 
         // Position below the button
+        // Position logic
         const rect = buttonElement.getBoundingClientRect();
         dropdown.style.top = `${rect.bottom + 8}px`;
-        dropdown.style.left = `${rect.left}px`;
+
+        const isRightSide = rect.left > window.innerWidth / 2;
+        if (isRightSide) {
+            dropdown.style.right = `${window.innerWidth - rect.right}px`;
+            dropdown.style.left = 'auto';
+            dropdown.style.transformOrigin = 'top right';
+        } else {
+            dropdown.style.left = `${rect.left}px`;
+            dropdown.style.transformOrigin = 'top left';
+        }
 
         const overlay = document.createElement('div');
         // .export-import-overlay { fixed inset 0 z 9999 }
@@ -146,9 +156,19 @@ function showImportDialog(buttonElement) {
         dropdown.className = 'fixed bg-surface border border-border-base rounded-lg shadow-lg z-[10000] min-w-[180px] p-2 animate-[fadeIn_0.1s_ease-out]';
 
         // Position below the button
+        // Position logic
         const rect = buttonElement.getBoundingClientRect();
         dropdown.style.top = `${rect.bottom + 8}px`;
-        dropdown.style.left = `${rect.left}px`;
+
+        const isRightSide = rect.left > window.innerWidth / 2;
+        if (isRightSide) {
+            dropdown.style.right = `${window.innerWidth - rect.right}px`;
+            dropdown.style.left = 'auto';
+            dropdown.style.transformOrigin = 'top right';
+        } else {
+            dropdown.style.left = `${rect.left}px`;
+            dropdown.style.transformOrigin = 'top left';
+        }
 
         const overlay = document.createElement('div');
         overlay.className = 'fixed inset-0 z-[9999]';

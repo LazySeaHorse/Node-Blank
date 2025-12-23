@@ -10,16 +10,24 @@ export function createDropdown({
     position = 'bottom-start'
 }) {
     const dropdown = document.createElement('div');
-    // .dropdown-menu { min-width: 180px; padding: 0.5rem; flex-col; gap: 0.25rem; radius: 0.5rem; bg: surface; border: base; shadow: lg; }
     dropdown.className = 'fixed min-w-[180px] p-2 flex flex-col gap-1 rounded-lg bg-surface border border-border-base shadow-lg z-[10000] animate-[fadeIn_0.1s_ease-out]';
 
     // Calculate position
     const rect = trigger.getBoundingClientRect();
     const top = rect.bottom + 8;
-    const left = rect.left;
 
-    dropdown.style.top = `${top}px`;
-    dropdown.style.left = `${left}px`;
+    const isRightSide = rect.left > window.innerWidth / 2;
+
+    if (isRightSide) {
+        dropdown.style.top = `${top}px`;
+        dropdown.style.right = `${window.innerWidth - rect.right}px`;
+        dropdown.style.left = 'auto';
+        dropdown.style.transformOrigin = 'top right';
+    } else {
+        dropdown.style.top = `${top}px`;
+        dropdown.style.left = `${rect.left}px`;
+        dropdown.style.transformOrigin = 'top left';
+    }
 
     // Removed inline style injection as we use Tailwind classes now
 

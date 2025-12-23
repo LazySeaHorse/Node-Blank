@@ -6,38 +6,41 @@ import { signals, effect } from '../../state/appState.js';
 import { createIconElement } from '../../utils/icons.js';
 
 export function createSearchOverlay() {
-    const container = document.createElement('div');
-    container.className = 'absolute top-4 left-4 z-40 flex items-center gap-2';
+    // 1. Main Shell (Background/Border/Shadow)
+    // We add flex to align children
+    const shell = document.createElement('div');
+    shell.className = 'absolute top-4 left-4 z-40 bg-surface border border-border-base rounded-lg shadow-lg flex items-center p-2 transition-all duration-300 ease-in-out';
 
-    // Search Toggle Button (Mobile mainly)
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'flex items-center justify-center p-2 bg-surface border border-border-base rounded-lg text-text-secondary cursor-pointer transition-colors duration-150 hover:bg-surface-hover hover:text-text-primary shadow-sm';
-    toggleBtn.appendChild(createIconElement('search', 20));
+    // 2. Icon Wrapper (Always visible)
+    const iconWrapper = document.createElement('div');
+    // Added p-2 to match standard button padding size (8px) + 20px icon = 36px content height
+    iconWrapper.className = 'flex items-center justify-center text-text-secondary cursor-pointer hover:text-text-primary transition-colors p-2';
+    // Matches button size inside header (icon + padding)
+    iconWrapper.appendChild(createIconElement('search', 20));
 
-    // Input Container
-    const inputWrapper = document.createElement('div');
-    inputWrapper.className = 'overflow-hidden transition-all duration-300 ease-in-out bg-surface rounded-lg shadow-lg origin-left relative flex items-center';
-    // Default state: Hidden on mobile (width 0), Visible on desktop
-    // We'll manage classes based on state signals
+    // 3. Input Wrapper (Expandable)
+    const inputContainer = document.createElement('div');
+    inputContainer.className = 'overflow-hidden transition-all duration-300 ease-in-out relative flex items-center';
+    // Width controlled via JS/Classes
 
+    // 4. Input Field
     const input = document.createElement('input');
     input.type = 'text';
-    input.placeholder = 'Search nodes...';
-    // Added pr-24 (padding-right 6rem) to prevent text overlapping controls
-    input.className = 'w-full w-64 bg-transparent border-none pl-4 pr-28 py-2 text-text-primary outline-none placeholder:text-text-secondary/50';
+    input.placeholder = 'Search...';
+    // pl-2 (spacing from icon), pr-28 (room for controls)
+    // Removed default vertical padding (py-0) and set fixed height (h-9 = 36px) to match iconWrapper
+    input.className = 'bg-transparent border-none pl-2 pr-28 text-text-primary outline-none placeholder:text-text-secondary/50 w-64 h-9 py-0';
 
-    // Controls Container (Count + Clear)
+    // 5. Controls (Count + Clear) - Absolute Right of Input Container
     const controls = document.createElement('div');
-    controls.className = 'absolute right-2 flex items-center gap-2 pointer-events-auto';
+    controls.className = 'absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-auto pr-1';
 
-    // Count Badge
     const countBadge = document.createElement('span');
     countBadge.className = 'text-xs text-text-secondary font-medium whitespace-nowrap hidden';
 
-    // Clear Button
     const clearBtn = document.createElement('button');
-    clearBtn.className = 'p-1 text-text-secondary hover:text-text-primary rounded-full hover:bg-surface-hover flex items-center justify-center transition-colors hidden';
-    clearBtn.title = 'Clear search';
+    clearBtn.className = 'p-0.5 text-text-secondary hover:text-text-primary rounded-full hover:bg-surface-hover flex items-center justify-center transition-colors hidden';
+    clearBtn.title = 'Clear';
     clearBtn.appendChild(createIconElement('x', 14));
     clearBtn.onclick = () => {
         signals.searchQuery.value = '';
@@ -47,22 +50,16 @@ export function createSearchOverlay() {
     controls.appendChild(countBadge);
     controls.appendChild(clearBtn);
 
-    inputWrapper.appendChild(input);
-    inputWrapper.appendChild(controls);
+    inputContainer.appendChild(input);
+    inputContainer.appendChild(controls);
 
-    container.appendChild(toggleBtn);
-    container.appendChild(inputWrapper);
+    shell.appendChild(iconWrapper);
+    shell.appendChild(inputContainer);
 
-    // Bind Input
-    input.addEventListener('input', (e) => {
-        signals.searchQuery.value = e.target.value;
-    });
+    // Event Handlers
 
-    // Toggle Logic
-    toggleBtn.addEventListener('click', () => {
-        // Toggle interaction specific check for mobile logic
-        // If query is empty and we click, we might want to close if already open
-        // But usually search icon focuses input
+    // Click Icon to Toggle (Mobile) or Focus (Desktop)
+    iconWrapper.onclick = () => {
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
             signals.isSearchOpen.value = !signals.isSearchOpen.value;
@@ -72,74 +69,62 @@ export function createSearchOverlay() {
         } else {
             input.focus();
         }
+    };
+
+    input.addEventListener('input', (e) => {
+        signals.searchQuery.value = e.target.value;
     });
 
-    // Reactive State Updates
+    // Reactive State
     effect(() => {
         const isOpen = signals.isSearchOpen.value;
         const query = signals.searchQuery.value;
+        const isMobile = window.innerWidth < 768;
 
-        // Update input value if different
-        if (input.value !== query) {
-            input.value = query;
-        }
+        // Sync Input Value
+        if (input.value !== query) input.value = query;
 
-        // Update functionality UI (Count & Clear)
-        const hasQuery = query.length > 0;
-
-        if (hasQuery) {
+        // UI Controls (Count/Clear)
+        if (query.length > 0) {
             clearBtn.classList.remove('hidden');
             countBadge.classList.remove('hidden');
-            const count = signals.searchMatchCount.value;
-            countBadge.textContent = `${count} found`;
+            countBadge.textContent = `${signals.searchMatchCount.value} found`;
         } else {
             clearBtn.classList.add('hidden');
             countBadge.classList.add('hidden');
         }
 
-        // On Desktop, we want it always open essentially, or at least visible
-        // On Mobile, we toggle
-
-        // We can use a media query check inside effect or rely on CSS classes
-        // Ideally CSS classes handle the "desktop always open" part
-
-        if (isOpen) {
-            inputWrapper.style.width = '16rem'; // w-64
-            inputWrapper.style.opacity = '1';
-            inputWrapper.style.pointerEvents = 'auto';
-            toggleBtn.classList.add('text-primary', 'border-primary');
-        } else {
-            // Close state
-            // Only strictly close if on Mobile
-            if (window.innerWidth < 768) {
-                inputWrapper.style.width = '0px';
-                inputWrapper.style.opacity = '0';
-                inputWrapper.style.pointerEvents = 'none';
-                toggleBtn.classList.remove('text-primary', 'border-primary');
+        if (isMobile) {
+            if (isOpen) {
+                inputContainer.style.width = 'min(16rem, calc(100vw - 160px))';
+                inputContainer.style.opacity = '1';
+                shell.classList.add('border-primary'); // Highlight active
             } else {
-                // Desktop: Always open
-                inputWrapper.style.width = '16rem';
-                inputWrapper.style.opacity = '1';
-                inputWrapper.style.pointerEvents = 'auto';
+                inputContainer.style.width = '0px';
+                inputContainer.style.opacity = '0';
+                shell.classList.remove('border-primary');
             }
+        } else {
+            // Desktop
+            inputContainer.style.width = '16rem';
+            inputContainer.style.opacity = '1';
+            shell.classList.remove('border-primary');
         }
     });
 
-    // Listen for resize to reset/fix state if needed
+    // Resize Handler
     window.addEventListener('resize', () => {
-        // Force re-evaluation of the effect by touching the signal roughly? 
-        // Or just manually checking
-        if (window.innerWidth >= 768) {
-            inputWrapper.style.width = '16rem';
-            inputWrapper.style.opacity = '1';
-            inputWrapper.style.pointerEvents = 'auto';
+        const isMobile = window.innerWidth < 768;
+        if (!isMobile) {
+            inputContainer.style.width = '16rem';
+            inputContainer.style.opacity = '1';
         } else {
             if (!signals.isSearchOpen.value) {
-                inputWrapper.style.width = '0px';
-                inputWrapper.style.opacity = '0';
+                inputContainer.style.width = '0px';
+                inputContainer.style.opacity = '0';
             }
         }
     });
 
-    return container;
+    return shell;
 }
