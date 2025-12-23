@@ -48,7 +48,7 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 - [x] **Smoother navigation using D3**
 - [ ] **Fix touchpad navigation**
 - [x] **Spreadsheet node**
-- [ ] **Global search**
+- [x] **Global search**
 - [ ] **Themes!**
 - [ ] **PDF node**
 - [ ] **Link 2+ nodes**

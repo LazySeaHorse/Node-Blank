@@ -28,7 +28,6 @@ export function createSearchOverlay() {
     input.type = 'text';
     input.placeholder = 'Search...';
     // pl-2 (spacing from icon), pr-28 (room for controls)
-    // Removed default vertical padding (py-0) and set fixed height (h-9 = 36px) to match iconWrapper
     input.className = 'bg-transparent border-none pl-2 pr-28 text-text-primary outline-none placeholder:text-text-secondary/50 w-64 h-9 py-0';
 
     // 5. Controls (Count + Clear) - Absolute Right of Input Container
@@ -58,16 +57,11 @@ export function createSearchOverlay() {
 
     // Event Handlers
 
-    // Click Icon to Toggle (Mobile) or Focus (Desktop)
+    // Click Icon to Toggle (Unified Mobile/Desktop)
     iconWrapper.onclick = () => {
-        const isMobile = window.innerWidth < 768;
-        if (isMobile) {
-            signals.isSearchOpen.value = !signals.isSearchOpen.value;
-            if (signals.isSearchOpen.value) {
-                setTimeout(() => input.focus(), 100);
-            }
-        } else {
-            input.focus();
+        signals.isSearchOpen.value = !signals.isSearchOpen.value;
+        if (signals.isSearchOpen.value) {
+            setTimeout(() => input.focus(), 100);
         }
     };
 
@@ -94,34 +88,32 @@ export function createSearchOverlay() {
             countBadge.classList.add('hidden');
         }
 
-        if (isMobile) {
-            if (isOpen) {
+        if (isOpen) {
+            // Apply Highlight
+            shell.classList.add('border-primary');
+
+            if (isMobile) {
                 inputContainer.style.width = 'min(16rem, calc(100vw - 160px))';
-                inputContainer.style.opacity = '1';
-                shell.classList.add('border-primary'); // Highlight active
             } else {
-                inputContainer.style.width = '0px';
-                inputContainer.style.opacity = '0';
-                shell.classList.remove('border-primary');
+                inputContainer.style.width = '16rem';
             }
-        } else {
-            // Desktop
-            inputContainer.style.width = '16rem';
             inputContainer.style.opacity = '1';
+        } else {
+            // Closed
+            inputContainer.style.width = '0px';
+            inputContainer.style.opacity = '0';
             shell.classList.remove('border-primary');
         }
     });
 
-    // Resize Handler
     window.addEventListener('resize', () => {
+        const isOpen = signals.isSearchOpen.value;
         const isMobile = window.innerWidth < 768;
-        if (!isMobile) {
-            inputContainer.style.width = '16rem';
-            inputContainer.style.opacity = '1';
-        } else {
-            if (!signals.isSearchOpen.value) {
-                inputContainer.style.width = '0px';
-                inputContainer.style.opacity = '0';
+        if (isOpen) {
+            if (isMobile) {
+                inputContainer.style.width = 'min(16rem, calc(100vw - 160px))';
+            } else {
+                inputContainer.style.width = '16rem';
             }
         }
     });
