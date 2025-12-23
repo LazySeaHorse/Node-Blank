@@ -12,6 +12,7 @@ import { createCanvasWorld, setupCanvasEvents, updateTransform } from './compone
 import { createZoomControl } from './components/molecules/ZoomControl.js';
 import { createCanvasManager } from './components/organisms/CanvasManager.js';
 import { createThemeToggle } from './components/molecules/ThemeToggle.js';
+import { createSearchOverlay } from './components/organisms/SearchOverlay.js';
 import { animateTo } from './utils/cameraAnimation.js';
 
 class MathCanvasApp {
@@ -79,9 +80,13 @@ class MathCanvasApp {
         controlsWrapper.appendChild(themeToggle);
         controlsWrapper.appendChild(zoomControl);
 
+        // Create Search Overlay
+        const searchOverlay = createSearchOverlay();
+
         // Append to DOM
         appContainer.appendChild(container);
         container.appendChild(header);
+        container.appendChild(searchOverlay); // Add search overlay
         container.appendChild(controlsWrapper);
 
         // Setup events
@@ -101,6 +106,107 @@ class MathCanvasApp {
         effect(() => {
             const mode = signals.mode.value;
             updateModeSelector(mode);
+        });
+
+        // Effect 3: Search Logic (Filter & Zoom)
+        effect(() => {
+            const query = signals.searchQuery.value.toLowerCase().trim();
+            const nodes = appState.fields;
+
+            if (!nodes || nodes.length === 0) return;
+
+            // 1. Filter Visuals
+            const matchedIds = [];
+            nodes.forEach(node => {
+                const el = document.getElementById(node.id);
+                if (!el) return;
+
+                // Determine match
+                // Simple text content check on the node data
+                // For complex nodes, we might need more, but node.content is the source of truth usually
+                const content = (node.content || '').toLowerCase();
+                const matches = query === '' || content.includes(query);
+
+                if (matches) matchedIds.push(node.id);
+
+                // Apply Visual Styles
+                if (query === '') {
+                    el.style.opacity = '1';
+                    el.style.filter = 'none';
+                } else {
+                    if (matches) {
+                        el.style.opacity = '1';
+                        el.style.filter = 'none';
+                        el.style.zIndex = '100'; // Bring to front visually? Optional.
+                    } else {
+                        el.style.opacity = '0.1';
+                        el.style.filter = 'grayscale(100%)';
+                        el.style.zIndex = '1';
+                    }
+                }
+            });
+
+            // Update Match Count Signal
+            signals.searchMatchCount.value = matchedIds.length;
+
+            // 2. Zoom Logic
+            // If query is empty, do we reset? The user said "at the start it'll zoom out...".
+            // When clearing search, maybe we don't force zoom? Or reset to fit all?
+            // "at the start" -> when query length > 0.
+
+            if (query.length > 0 && matchedIds.length > 0) {
+                // Calculate bounding box of matched nodes
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+                matchedIds.forEach(id => {
+                    const node = nodes.find(n => n.id === id);
+                    const el = document.getElementById(id);
+                    if (!node || !el) return;
+
+                    const elRect = el.getBoundingClientRect();
+                    const w = elRect.width / appState.scale;
+                    const h = elRect.height / appState.scale;
+
+                    minX = Math.min(minX, node.x);
+                    minY = Math.min(minY, node.y);
+                    maxX = Math.max(maxX, node.x + w);
+                    maxY = Math.max(maxY, node.y + h);
+                });
+
+                // Add padding
+                const padding = 100;
+                minX -= padding;
+                minY -= padding;
+                maxX += padding;
+                maxY += padding;
+
+                const width = maxX - minX;
+                const height = maxY - minY;
+                const cx = minX + width / 2;
+                const cy = minY + height / 2;
+
+                // Calculate target scale to fit
+                const containerRect = this.container.getBoundingClientRect();
+                const scaleX = containerRect.width / width;
+                const scaleY = containerRect.height / height;
+                let targetScale = Math.min(scaleX, scaleY);
+
+                // Clamp scale
+                targetScale = Math.min(Math.max(targetScale, 0.1), 2);
+
+                // Calculate Pan to center (cx, cy)
+                // Viewport Center = pan + worldPoint * scale
+                // pan = Viewport Center - worldPoint * scale
+                const targetPan = {
+                    x: (containerRect.width / 2) - (cx * targetScale),
+                    y: (containerRect.height / 2) - (cy * targetScale)
+                };
+
+                animateTo(targetScale, targetPan, 1000);
+            } else if (query.length > 0 && matchedIds.length === 0) {
+                // No matches? Maybe don't move? Or zoom out to show emptiness?
+                // Let's stay put.
+            }
         });
 
         // Render nodes from loaded canvas

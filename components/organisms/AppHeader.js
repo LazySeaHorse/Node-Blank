@@ -6,6 +6,7 @@ import { createActionBar } from './ActionBar.js';
 import { createIconElement } from '../../utils/icons.js';
 
 import { createMoreToolsMenu } from './MoreToolsMenu.js';
+import { signals, effect } from '../../state/appState.js';
 
 export function createAppHeader({
     onModeChange,
@@ -65,5 +66,90 @@ export function createAppHeader({
     header.appendChild(moreMenu);
     header.appendChild(divider2);
     header.appendChild(actionBar);
+
+    // Helper to exit search fully
+    const exitSearch = () => {
+        if (signals.searchQuery.value || signals.isSearchOpen.value) {
+            signals.searchQuery.value = '';
+            signals.isSearchOpen.value = false;
+        }
+    };
+
+    // Smushed Menu Button (only acts as a toggle to close search/restore view)
+    const smushedBtn = document.createElement('button');
+    smushedBtn.className = 'hidden items-center justify-center p-2 text-text-secondary hover:text-text-primary';
+    smushedBtn.appendChild(createIconElement('menu', 20));
+    smushedBtn.onclick = (e) => {
+        e.stopPropagation();
+        exitSearch();
+    };
+    header.appendChild(smushedBtn);
+
+    header.addEventListener('click', (e) => {
+        if (e.target !== smushedBtn && !smushedBtn.contains(e.target)) {
+            exitSearch();
+        }
+    });
+
+    effect(() => {
+        const isSearch = signals.isSearchOpen.value;
+        const isMobile = window.innerWidth < 768;
+
+        // Position Logic
+        if (isMobile) {
+            header.classList.remove('left-1/2', '-translate-x-1/2');
+            header.classList.add('right-4', 'translate-x-0');
+            header.style.left = 'auto'; // ensure override
+        } else {
+            header.classList.add('left-1/2', '-translate-x-1/2');
+            header.classList.remove('right-4', 'translate-x-0');
+            header.style.left = '';
+        }
+
+        // Smushing Logic (Mobile Only)
+        if (isMobile && isSearch) {
+            // Hide standard controls
+            canvasesBtn.style.display = 'none';
+            divider1.style.display = 'none';
+            modeSelector.style.display = 'none';
+            moreMenu.style.display = 'none';
+            divider2.style.display = 'none';
+            actionBar.style.display = 'none';
+
+            // Show smushed button
+            smushedBtn.classList.remove('hidden');
+            smushedBtn.classList.add('flex');
+        } else {
+            // Restore standard controls
+            canvasesBtn.style.display = '';
+            divider1.style.display = '';
+
+            modeSelector.style.display = '';
+            moreMenu.style.display = '';
+
+            divider2.style.display = '';
+            actionBar.style.display = ''; // "flex gap-1 ..."
+
+            // Hide smushed button
+            smushedBtn.classList.add('hidden');
+            smushedBtn.classList.remove('flex');
+        }
+    });
+
+    // Resize listener to re-run effect logic implicitly or explicitly
+    window.addEventListener('resize', () => {
+
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            header.classList.remove('left-1/2', '-translate-x-1/2');
+            header.classList.add('right-4', 'translate-x-0');
+            header.style.left = 'auto';
+        } else {
+            header.classList.add('left-1/2', '-translate-x-1/2');
+            header.classList.remove('right-4', 'translate-x-0');
+            header.style.left = '';
+        }
+    });
+
     return header;
 }

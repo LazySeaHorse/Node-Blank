@@ -22,7 +22,10 @@ export const signals = {
     mode: signal('math'),
     fields: signal([]),
     zIndexCounter: signal(1),
-    toolConfig: signal(initialToolConfig)
+    toolConfig: signal(initialToolConfig),
+    searchQuery: signal(''),
+    isSearchOpen: signal(false),
+    searchMatchCount: signal(0)
 };
 
 // Persist tool config changes

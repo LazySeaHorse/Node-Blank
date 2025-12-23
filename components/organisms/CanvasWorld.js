@@ -314,10 +314,30 @@ export function setupCanvasEvents(container, world) {
                 newIds.forEach(id => selectNode(id, true));
             }
         }
-        // Escape
+        // Global Search Shortcuts
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            signals.isSearchOpen.value = true;
+            setTimeout(() => {
+                const searchInput = document.querySelector('input[placeholder="Search nodes..."]');
+                if (searchInput) searchInput.focus();
+            }, 50);
+        }
+
         if (e.key === 'Escape') {
-            selectNode(null);
-            if (document.activeElement) document.activeElement.blur();
+            // If search is active/has query, clear it
+            if (signals.searchQuery.value || signals.isSearchOpen.value) {
+                e.stopImmediatePropagation();
+                signals.searchQuery.value = '';
+                signals.isSearchOpen.value = false;
+                if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+                    document.activeElement.blur();
+                }
+            } else {
+                // Standard Deselect Logic
+                selectNode(null);
+                if (document.activeElement) document.activeElement.blur();
+            }
         }
     });
 }
