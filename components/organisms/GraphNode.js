@@ -2,18 +2,12 @@
  * Graph Node Organism
  */
 import { html, useState, useEffect, useRef, render } from '../../utils/preact.js';
+import { createNodeContainer } from '../../utils/nodeUI.js';
 
 export function createGraphNode(data) {
-    // Container for the component
-    const container = document.createElement('div');
-
-    // Set ID and cleanup/setup properties that the app expects on the node element
-    container.id = data.id;
-    container.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 p-3 w-[350px] flex flex-col gap-2 cursor-grab';
-    container.style.position = 'absolute';
-    container.style.left = `${data.x}px`;
-    container.style.top = `${data.y}px`;
-    container.style.zIndex = data.zIndex;
+    const container = createNodeContainer(data, {
+        className: 'p-3 w-[350px] flex flex-col gap-2'
+    });
 
     // Render the content
     render(html`<${GraphNodeContent} data=${data} />`, container);

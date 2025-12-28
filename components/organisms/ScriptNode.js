@@ -3,18 +3,14 @@
  */
 import { interaction } from '../../state/appState.js';
 import { createIconElement } from '../../utils/icons.js';
+import { createNodeContainer } from '../../utils/nodeUI.js';
 
 export function createScriptNode(data, onSelect) {
-    const div = document.createElement('div');
-    div.id = data.id;
-    // Base node
-    // .node-script { display: flex; flex-direction: column; bg: var(--bg-surface); color: var(--text-primary); radius: var(--radius-lg); shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--border-base); }
-    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-border-base [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 flex flex-col overflow-hidden';
-    div.style.left = `${data.x}px`;
-    div.style.top = `${data.y}px`;
-    div.style.zIndex = data.zIndex;
-    div.style.width = `${data.width || 400}px`;
-    div.style.height = `${data.height || 300}px`;
+    const div = createNodeContainer(data, {
+        flex: true,
+        withResize: true,
+        className: 'border-border-base'
+    });
 
     // Header
     const header = document.createElement('div');
@@ -56,14 +52,12 @@ export function createScriptNode(data, onSelect) {
 
     // Body container
     const body = document.createElement('div');
-    // .script-body { display: flex; flex-direction: column; flex: 1; padding: 0; min-height: 0; }
-    body.className = 'flex flex-col flex-1 p-0 min-h-0';
+    body.className = 'flex flex-col flex-1 p-0 min-h-0 min-w-0';
 
     // Code Editor Area
     const editor = document.createElement('textarea');
     editor.value = data.content || "// console.log('Hello World');";
-    // .script-editor { flex: 1; bg: var(--bg-surface); color: var(--text-primary); border: none; border-bottom: 1px solid var(--border-base); padding: 12px; font-family: monospace; font-size: 13px; line-height: 1.5; resize: none; outline: none; }
-    editor.className = 'mouse-interactive flex-1 bg-surface text-text-primary border-none border-b border-border-base p-3 font-mono text-[13px] leading-relaxed resize-none outline-none';
+    editor.className = 'mouse-interactive flex-1 bg-surface text-text-primary border-none border-b border-border-base p-3 font-mono text-[13px] leading-relaxed resize-none outline-none w-full';
     editor.placeholder = "// Write JavaScript here...";
 
 
@@ -77,24 +71,8 @@ export function createScriptNode(data, onSelect) {
     body.appendChild(editor);
     body.appendChild(consoleOutput);
 
-    // Resize Handle
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
-    resizeHandle.dataset.nodeId = data.id;
-    resizeHandle.style.cssText = `
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 15px;
-        height: 15px;
-        background: linear-gradient(135deg, transparent 50%, var(--color-slate-400) 50%);
-        cursor: se-resize;
-        z-index: 20;
-    `;
-
     div.appendChild(header);
     div.appendChild(body);
-    div.appendChild(resizeHandle);
 
     // State management
     let worker = null;

@@ -4,18 +4,13 @@
  */
 import { interaction } from '../../state/appState.js';
 import { createNodeHeader } from '../molecules/NodeHeader.js';
+import { createNodeContainer } from '../../utils/nodeUI.js';
 
 export function createSpreadsheetNode(data, onSelect) {
-    const div = document.createElement('div');
-    div.id = data.id;
-    // .node-spreadsheet defined in css
-    // We add common node classes for selection/dragging
-    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 p-0 cursor-grab node-spreadsheet overflow-hidden';
-
-    // Position
-    div.style.left = `${data.x}px`;
-    div.style.top = `${data.y}px`;
-    div.style.zIndex = data.zIndex;
+    const div = createNodeContainer(data, {
+        className: 'p-0 node-spreadsheet',
+        flex: true
+    });
 
     // Formula display bar (shows formula/value of selected cell)
     const formulaDisplay = document.createElement('div');

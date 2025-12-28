@@ -35,13 +35,13 @@ function parseVideoUrl(input) {
     return `https://www.youtube.com/embed/${input}`;
 }
 
+import { createNodeContainer } from '../../utils/nodeUI.js';
+
 export function createVideoNode(data, onSelect) {
-    const div = document.createElement('div');
-    div.id = data.id;
-    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 cursor-grab';
-    div.style.left = `${data.x}px`;
-    div.style.top = `${data.y}px`;
-    div.style.zIndex = data.zIndex;
+    const div = createNodeContainer(data, {
+        withResize: true,
+        className: '[&.selected]:ring-4'
+    });
 
     // Use stored dimensions or defaults
     const width = data.width || 560;
@@ -52,9 +52,7 @@ export function createVideoNode(data, onSelect) {
     const iframe = document.createElement('iframe');
     iframe.src = embedUrl;
     // .video-iframe { display: block; border: none; border-radius: var(--radius-md); }
-    iframe.className = 'block border-none rounded-md pointer-events-auto';
-    iframe.style.width = `${width}px`;
-    iframe.style.height = `${height}px`;
+    iframe.className = 'w-full h-full block border-none rounded-md pointer-events-auto';
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('allowfullscreen', 'true');
     iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
@@ -64,12 +62,6 @@ export function createVideoNode(data, onSelect) {
     // Handled by nodeFactory
 
     div.appendChild(iframe);
-
-    // Add resize handle
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 bg-[linear-gradient(135deg,transparent_50%,var(--color-slate-400)_50%)] opactiy-50 hover:opacity-100';
-    resizeHandle.dataset.nodeId = data.id;
-    div.appendChild(resizeHandle);
 
     return div;
 }

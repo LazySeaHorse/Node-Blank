@@ -3,15 +3,13 @@
  */
 import { interaction } from '../../state/appState.js';
 import { createNodeHeader, createButtonGroup } from '../molecules/NodeHeader.js';
+import { createNodeContainer } from '../../utils/nodeUI.js';
 
 export function createTableNode(data, onSelect) {
-    const div = document.createElement('div');
-    div.id = data.id;
-    // Base Node - updated structure with flex column and no padding (padding is in content)
-    div.className = 'node absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:border-accent [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 flex flex-col overflow-hidden min-w-[200px]';
-    div.style.left = `${data.x}px`;
-    div.style.top = `${data.y}px`;
-    div.style.zIndex = data.zIndex;
+    const div = createNodeContainer(data, {
+        className: 'min-w-[200px]',
+        flex: true
+    });
 
     // Parse table data or create default
     let tableData;

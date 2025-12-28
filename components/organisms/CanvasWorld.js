@@ -209,12 +209,12 @@ export function setupCanvasEvents(container, world) {
                 // Update DOM directly for performance (until Node is Preact)
                 const el = document.getElementById(interaction.resizeNodeId);
                 if (el) {
-                    const mediaEl = el.querySelector('img, iframe');
-                    if (mediaEl) {
-                        mediaEl.style.width = `${nodeData.width}px`;
-                        mediaEl.style.height = `${nodeData.height}px`;
-                        if (mediaEl.tagName === 'IFRAME') mediaEl.style.pointerEvents = 'none';
-                    }
+                    el.style.width = `${nodeData.width}px`;
+                    el.style.height = `${nodeData.height}px`;
+
+                    // Disable pointer events on iframes while resizing to prevent losing mouse focus
+                    const iframe = el.querySelector('iframe');
+                    if (iframe) iframe.style.pointerEvents = 'none';
                 }
             }
             return;
