@@ -110,7 +110,8 @@ export function renderNode(data, world, selectNodeFn) {
             e.target.closest('math-field');
 
         // 3. Selection Logic: Always select the node on mousedown if not dragging from elsewhere
-        if (!interaction.selectedIds.includes(data.id)) {
+        // But ONLY for the primary mouse button (0)
+        if (e.button === 0 && !interaction.selectedIds.includes(data.id)) {
             selectNodeFn(data.id);
         }
 

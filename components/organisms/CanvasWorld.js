@@ -108,17 +108,17 @@ export function setupCanvasEvents(container, world) {
             // 1. Zoom with Wheel
             if (e.type === 'wheel') return true;
 
-            // 2. Prevent Zoom/Pan when interacting with Nodes, Handles, or Context Menus
-            if (e.target.closest('.node') || e.target.closest('.resize-handle') || e.target.closest('.jcontextmenu')) return false;
-
-            // 3. Touch Handling (Pan / Pinch)
+            // 2. Touch Handling (Pan / Pinch)
             // Explicitly ALLOW touch pointer events
             if (e.pointerType === 'touch' || e.type === 'touchstart') return true;
 
-            // 4. Mouse Handling
-            // ALLOW Middle Click (1) -> Pan
-            // BLOCK Left Click (0) -> Reserved for Selection
+            // 3. Mouse Handling: ALLOW Middle Click (1) -> Pan ALWAYS
             if (e.button === 1) return true;
+
+            // 4. Prevent Zoom/Pan with other buttons when interacting with Nodes, Handles, or Context Menus
+            if (e.target.closest('.node') || e.target.closest('.resize-handle') || e.target.closest('.jcontextmenu')) return false;
+
+            // 5. BLOCK Left Click (0) -> Reserved for Selection
             if (e.button === 0) return false;
 
             // Default: strict middle mouse for pan (or touch)
