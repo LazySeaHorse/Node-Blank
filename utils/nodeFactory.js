@@ -3,6 +3,7 @@
  */
 import { appState, interaction } from '../state/appState.js';
 import { createMathNode } from '../components/organisms/MathNode.js';
+import { createMathPlusNode } from '../components/organisms/MathPlusNode.js';
 import { createTextNode } from '../components/organisms/TextNode.js';
 import { createGraphNode } from '../components/organisms/GraphNode.js';
 import { createImageNode } from '../components/organisms/ImageNode.js';
@@ -25,6 +26,7 @@ export function createNode(x, y, type = appState.mode, content = "") {
         });
         if (type === 'spreadsheet') content = "[]"; // Handler will init default 5x5
         if (type === 'js') content = "// JavaScript Sandbox\nconsole.log('Hello from the worker!');\n\n// Try some math:\nconst sum = [1, 2, 3, 4].reduce((a, b) => a + b, 0);\nconsole.log('Sum:', sum);";
+        if (type === 'math-plus') content = '';
     }
 
     const nodeData = {
@@ -55,6 +57,9 @@ export function renderNode(data, world, selectNodeFn) {
     switch (data.type) {
         case 'math':
             nodeElement = createMathNode(data, selectNodeFn);
+            break;
+        case 'math-plus':
+            nodeElement = createMathPlusNode(data, selectNodeFn);
             break;
         case 'text':
             nodeElement = createTextNode(data, selectNodeFn);

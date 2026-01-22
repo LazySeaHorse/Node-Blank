@@ -11,6 +11,13 @@ export const TOOLS = {
         type: 'mode',
         description: 'Add mathematical equations'
     },
+    'math-plus': {
+        id: 'math-plus',
+        label: 'Math+',
+        icon: 'calculator',
+        type: 'mode',
+        description: 'Compute expressions with global variables'
+    },
     text: {
         id: 'text',
         label: 'Text',
@@ -64,5 +71,5 @@ export const TOOLS = {
 
 export const DEFAULT_TOOL_CONFIG = {
     toolbar: ['image', 'text', 'video'],
-    more: ['graph', 'js', 'math', 'spreadsheet', 'table']
+    more: ['graph', 'js', 'math', 'math-plus', 'spreadsheet', 'table']
 };

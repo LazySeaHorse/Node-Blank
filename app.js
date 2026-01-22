@@ -14,6 +14,7 @@ import { createCanvasManager } from './components/organisms/CanvasManager.js';
 import { createThemeToggle } from './components/molecules/ThemeToggle.js';
 import { createSearchOverlay } from './components/organisms/SearchOverlay.js';
 import { animateTo } from './utils/cameraAnimation.js';
+import { initComputeEngine } from './utils/computeEngine.js';
 
 class MathCanvasApp {
     constructor() {
@@ -24,6 +25,9 @@ class MathCanvasApp {
     async init() {
         // Initialize IndexedDB
         await initDB();
+
+        // Initialize Compute Engine for Math+ nodes
+        initComputeEngine().catch(err => console.warn('Compute Engine init failed:', err));
 
         // Load or create initial canvas
         await this.initializeCanvas();
