@@ -2,7 +2,7 @@
 
 **Objective**: Migrate the existing "Vanilla JS Component Factory" application to a modern **Preact + Vite + Tailwind CLI** stack to improve performance, code density, and AI-maintainability.
 
-**Current Status**: Phase 1 (Infrastructure & Build System) - **COMPLETE** ✅
+**Current Status**: Phase 2 (Core Application Shell) - **COMPLETE** ✅
 **Last Updated**: 2026-01-22
 
 ---
@@ -18,17 +18,18 @@
 - [x] Verify local dev server / build
     - *Resolution*: Moved `compute-engine.js` to `src/lib/` to allow Vite to process/bundle it, resolving the dynamic import error.
 
-### Phase 2: Core Application Shell (Next Up)
-- [ ] Rename `index.html` -> `index.original.html` (Backup)
-- [ ] Create new `index.html` (Vite entry point) - *Partially done in P1*
-- [ ] Create `src/App.jsx` (Root Preact Component) - *Done in P1 (Wrapper)*
-- [ ] Migrate `state/appState.js` to NPM imports (remove CDN) - *Done in P1*
-- [ ] Convert `MathCanvasApp` class in `app.js` to a functional Component
+### Phase 2: Core Application Shell ✅ (Complete)
+- [x] **Adoption of TypeScript (TSX)**: Converted `App.jsx` -> `App.tsx` and configured `tsconfig.json`. Future components will be TSX.
+- [x] Rename `index.html` -> `index.original.html` (Backup)
+- [x] Create new `index.html` (Vite entry point) - *Done in P1*
+- [x] Create `src/App.jsx` (Root Preact Component) - *Done in P1 (Wrapper)*
+- [x] Migrate `state/appState.js` to NPM imports (remove CDN) - *Done in P1*
+- [x] Convert `MathCanvasApp` class in `app.js` to a functional Component - *Done in P2*
 
-### Phase 3: Component Migration (The Big Shift)
-- [ ] **Atoms**: Convert `components/atoms/*.js` -> `*.jsx`
-- [ ] **Molecules**: Convert `components/molecules/*.js` -> `*.jsx`
-- [ ] **Organisms**: Convert `components/organisms/*.js` -> `*.jsx`
+### Phase 3: Component Migration (The Big Shift) 🚧 (Next Up)
+- [ ] **Atoms**: Convert `components/atoms/*.js` -> `*.tsx`
+- [ ] **Molecules**: Convert `components/molecules/*.js` -> `*.tsx`
+- [ ] **Organisms**: Convert `components/organisms/*.js` -> `*.tsx`
 
 ### Phase 4: Library Replacement
 - [ ] Uninstall/Delete `lib/` folder scripts

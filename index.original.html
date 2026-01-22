@@ -103,7 +103,12 @@
     <div id="app"></div>
 
     <!-- Main Application Module -->
-    <script type="module" src="./app.js"></script>
+    <script type="module">
+        import { MathCanvasApp } from './app.legacy.js';
+        const app = new MathCanvasApp();
+        app.init(document.getElementById('app'));
+        window.nodeBlankApp = app;
+    </script>
 </body>
 
 </html>
