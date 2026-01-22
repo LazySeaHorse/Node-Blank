@@ -1,0 +1,40 @@
+{
+  "name": "node-blank",
+  "version": "1.0.0",
+  "description": "A lightweight, in-browser personal canvas where you can throw down whatever you're working on. Math, markdown, videos, code, graphs... you name it!",
+  "main": "app.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LazySeaHorse/Node-Blank.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LazySeaHorse/Node-Blank/issues"
+  },
+  "homepage": "https://github.com/LazySeaHorse/Node-Blank#readme",
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "@preact/signals": "^2.6.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "preact": "^10.28.2",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@preact/signals-core": "^1.12.2",
+    "htm": "^3.1.1"
+  }
+}

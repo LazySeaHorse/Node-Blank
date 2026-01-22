@@ -22,7 +22,7 @@ class MathCanvasApp {
         this.container = null;
     }
 
-    async init() {
+    async init(targetElement) {
         // Initialize IndexedDB
         await initDB();
 
@@ -33,7 +33,7 @@ class MathCanvasApp {
         await this.initializeCanvas();
 
         // Create main layout
-        const appContainer = document.getElementById('app');
+        const appContainer = targetElement || document.getElementById('app');
 
         appContainer.className = 'h-screen w-screen overflow-hidden flex flex-col font-sans text-text-primary';
 
@@ -482,16 +482,4 @@ class MathCanvasApp {
 }
 
 // Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    const app = new MathCanvasApp();
-    app.init();
-
-    // Register Service Worker for PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registered.'))
-                .catch(err => console.log('Service Worker registration failed:', err));
-        });
-    }
-});
+export { MathCanvasApp }; // Export the class

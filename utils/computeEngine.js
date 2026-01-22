@@ -17,7 +17,7 @@ export async function initComputeEngine() {
 
     try {
         // Dynamic import of the compute engine
-        const { ComputeEngine } = await import('../lib/compute-engine.js');
+        const { ComputeEngine } = await import('../src/lib/compute-engine.js');
         engineInstance = new ComputeEngine();
         engineReady = true;
 
