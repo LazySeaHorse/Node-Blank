@@ -27,8 +27,8 @@
 - [x] Convert `MathCanvasApp` class in `app.js` to a functional Component - *Done in P2*
 
 ### Phase 3: Component Migration (The Big Shift) 🚧 (Next Up)
-- [ ] **Atoms**: Convert `components/atoms/*.js` -> `*.tsx`
-- [ ] **Molecules**: Convert `components/molecules/*.js` -> `*.tsx`
+- [x] **Atoms**: Convert `components/atoms/*.js` -> `*.tsx` (Completed `Button.tsx`)
+- [x] **Molecules**: Convert `components/molecules/*.js` -> `*.tsx` (All 6 molecules migrated + Icons lib)
 - [ ] **Organisms**: Convert `components/organisms/*.js` -> `*.tsx`
 
 ### Phase 4: Library Replacement
