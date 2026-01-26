@@ -23,10 +23,18 @@
         "paths": {
             "@/*": [
                 "./src/*"
+            ],
+            "@state/*": [
+                "./state/*"
+            ],
+            "@utils/*": [
+                "./utils/*"
             ]
         }
     },
     "include": [
-        "src"
+        "src",
+        "state",
+        "utils"
     ]
 }

@@ -1,8 +1,5 @@
 import { JSX } from 'preact/jsx-runtime';
-import {
-    IconMoreHorizontal, IconSettings, IconArrowLeft, IconArrowRight,
-    IconX, IconTerminal, IconPlay, IconProps
-} from '../icons';
+import { getIconComponent, IconProps } from '../icons';
 
 export interface ActionButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
     iconName?: string;
@@ -10,16 +7,6 @@ export interface ActionButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonEl
     label?: string;
     iconOnly?: boolean;
 }
-
-const ICON_MAP: Record<string, (props: IconProps) => JSX.Element> = {
-    'more-horizontal': IconMoreHorizontal,
-    'settings': IconSettings,
-    'arrow-left': IconArrowLeft,
-    'arrow-right': IconArrowRight,
-    'x': IconX,
-    'terminal': IconTerminal,
-    'play': IconPlay
-};
 
 export function ActionButton({
     iconName,
@@ -33,9 +20,11 @@ export function ActionButton({
 
     // Resolve Icon
     let RenderedIcon = null;
-    if (iconName && ICON_MAP[iconName]) {
-        const IconComponent = ICON_MAP[iconName];
-        RenderedIcon = <IconComponent size={iconOnly ? 20 : 18} />;
+    if (iconName) {
+        const IconComponent = getIconComponent(iconName);
+        if (IconComponent) {
+            RenderedIcon = <IconComponent size={iconOnly ? 20 : 18} />;
+        }
     } else if (icon) {
         RenderedIcon = typeof icon === 'string' ? <span>{icon}</span> : icon;
     }

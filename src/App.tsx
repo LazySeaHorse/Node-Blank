@@ -4,20 +4,20 @@
  * Replaces the legacy MathCanvasApp class.
  * Orchestrates the application shell using Preact while wrapping legacy DOM components.
  */
-import { useEffect, useRef } from 'preact/hooks';
-import { appState, signals, interaction, effect, computedValues, screenToWorld } from '../state/appState.js';
-import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '../utils/indexedDB.js';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { appState, signals, interaction, effect, computedValues, screenToWorld } from '@state/appState.js';
+import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB.js';
 import { updateModeSelector } from '../components/organisms/ModeSelector.js';
-import { createAppHeader } from '../components/organisms/AppHeader.js';
+import { AppHeader } from './components/organisms/AppHeader';
 import { createCanvasWorld, setupCanvasEvents, updateTransform } from '../components/organisms/CanvasWorld.js';
-import { createZoomControl } from '../components/molecules/ZoomControl.js';
-import { createCanvasManager } from '../components/organisms/CanvasManager.js';
-import { createThemeToggle } from '../components/molecules/ThemeToggle.js';
-import { createSearchOverlay } from '../components/organisms/SearchOverlay.js';
-import { animateTo } from '../utils/cameraAnimation.js';
-import { initComputeEngine } from '../utils/computeEngine.js';
-import { createNode, renderNode, selectNode } from '../utils/nodeFactory.js';
-import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '../utils/storage.js';
+import { ZoomControl } from './components/molecules/ZoomControl';
+import { CanvasManager } from './components/organisms/CanvasManager';
+import { ThemeToggle } from './components/molecules/ThemeToggle';
+import { SearchOverlay } from './components/organisms/SearchOverlay';
+import { animateTo } from '@utils/cameraAnimation.js';
+import { initComputeEngine } from '@utils/computeEngine.js';
+import { createNode, renderNode, selectNode } from '@utils/nodeFactory.js';
+import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage.js';
 
 declare global {
     interface Window {
@@ -27,7 +27,9 @@ declare global {
 
 export function App() {
     const rootRef = useRef<HTMLDivElement>(null);
+    const legacyContainerRef = useRef<HTMLDivElement>(null);
     const worldRef = useRef<{ container: HTMLElement | null; world: HTMLElement | null }>({ container: null, world: null });
+    const [showCanvasManager, setShowCanvasManager] = useState(false);
 
     // ============================================================================
     // ACTIONS (Ported from MathCanvasApp methods)
@@ -228,19 +230,11 @@ export function App() {
     };
 
     const openCanvasManager = () => {
-        const manager = createCanvasManager({
-            onLoad: async (id) => {
-                await saveCurrentCanvas();
-                await loadCanvas(id);
-            },
-            onCreate: async (name) => {
-                await createNewCanvas(name);
-            },
-            onClose: () => {
-                document.body.removeChild(manager);
-            }
-        });
-        document.body.appendChild(manager);
+        setShowCanvasManager(true);
+    };
+
+    const closeCanvasManager = () => {
+        setShowCanvasManager(false);
     };
 
     // ============================================================================
@@ -263,7 +257,6 @@ export function App() {
 
         initComputeEngine().catch(err => console.warn('Compute Engine init failed:', err));
 
-        // Setup DOM Structure (Legacy)
         const appContainer = rootRef.current;
         if (!appContainer) return;
 
@@ -271,54 +264,12 @@ export function App() {
         const { container, world, selectionRect } = createCanvasWorld();
         worldRef.current = { container, world };
 
-        // 2. Create Header
-        const header = createAppHeader({
-            onModeChange: setMode,
-            onUndo: () => document.execCommand('undo'),
-            onExport: handleExport,
-            onImport: handleImport,
-            onSave: manualSave,
-            onImageUpload: addImage,
-            onVideoAdd: addVideo,
-            onClear: clearCanvas,
-            onCanvasManager: openCanvasManager
-        });
+        // 2. Append to Legacy Container Ref
+        if (legacyContainerRef.current) {
+            legacyContainerRef.current.appendChild(container); // Append wrapper
+        }
 
-        // 3. Create Controls (Zoom, Theme)
-        const zoomControl = createZoomControl({
-            onZoomIn: zoomIn,
-            onZoomOut: zoomOut,
-            onZoomReset: resetZoomOnly,
-            onFullReset: resetView,
-            initialZoom: Math.round(appState.scale * 100)
-        });
-
-        const themeToggle = createThemeToggle();
-
-        const controlsWrapper = document.createElement('div');
-        controlsWrapper.style.position = 'absolute';
-        controlsWrapper.style.bottom = 'calc(1.25rem + env(safe-area-inset-bottom))';
-        controlsWrapper.style.right = '1.25rem';
-        controlsWrapper.style.display = 'flex';
-        controlsWrapper.style.flexDirection = 'column';
-        controlsWrapper.style.alignItems = 'flex-end';
-        controlsWrapper.style.zIndex = '30';
-        controlsWrapper.style.pointerEvents = 'none';
-
-        controlsWrapper.appendChild(themeToggle);
-        controlsWrapper.appendChild(zoomControl);
-
-        // 4. Create Search Overlay
-        const searchOverlay = createSearchOverlay();
-
-        // 5. Append All to DOM in order
-        appContainer.innerHTML = ''; // Clear strict React rendered stuff if any (though we are empty)
-        appContainer.appendChild(container);
-        container.appendChild(header);
-        container.appendChild(searchOverlay);
-        container.appendChild(controlsWrapper);
-
-        // 6. Setup Events
+        // 3. Setup Events (Search Overlay is now rendered in JSX)
         setupCanvasEvents(container, world);
 
         // 7. Initialize Auto-Save
@@ -434,6 +385,50 @@ export function App() {
         <div
             ref={rootRef}
             className="flex flex-col h-screen w-screen overflow-hidden font-sans text-text-primary h-[100dvh]"
-        />
+        >
+            {/* Legacy Canvas Container */}
+            <div ref={legacyContainerRef} className="absolute inset-0 z-0" />
+
+            {/* Search Overlay */}
+            <SearchOverlay />
+
+            {/* React UI Shell */}
+            <AppHeader
+                onModeChange={setMode}
+                onUndo={() => document.execCommand('undo')}
+                onExport={handleExport}
+                onImport={handleImport}
+                onSave={manualSave}
+                onImageUpload={addImage}
+                onVideoAdd={addVideo}
+                onClear={clearCanvas}
+                onCanvasManager={openCanvasManager}
+            />
+
+            <div className="absolute bottom-5 right-5 flex flex-col items-end z-30 pointer-events-none gap-3">
+                <ThemeToggle />
+                <ZoomControl
+                    onZoomIn={zoomIn}
+                    onZoomOut={zoomOut}
+                    onZoomReset={resetZoomOnly}
+                    onFullReset={resetView}
+                    initialZoom={Math.round(appState.scale * 100)}
+                />
+            </div>
+
+            {/* Canvas Manager Modal */}
+            {showCanvasManager && (
+                <CanvasManager
+                    onLoad={async (id) => {
+                        await saveCurrentCanvas();
+                        await loadCanvas(id);
+                    }}
+                    onCreate={async (name) => {
+                        await createNewCanvas(name);
+                    }}
+                    onClose={closeCanvasManager}
+                />
+            )}
+        </div>
     );
 }
