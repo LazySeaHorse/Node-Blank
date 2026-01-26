@@ -4,7 +4,7 @@
 import jspreadsheet from 'jspreadsheet-ce';
 import 'jsuites';
 import { interaction } from '../state/appState.ts';
-import { createNodeHeader } from '../components/molecules/NodeHeader.js';
+import { createNodeHeader } from '../src/components/molecules/NodeHeader';
 import { createNodeContainer } from './nodeUI.ts';
 import type { NodeData } from '../src/types/index.js';
 

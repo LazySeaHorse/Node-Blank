@@ -1,4 +1,5 @@
 import { JSX } from 'preact/jsx-runtime';
+import { render } from 'preact';
 
 export interface NodeHeaderProps {
     title: string;
@@ -53,4 +54,25 @@ export function ButtonGroup({ label, onDecrement, onIncrement }: ButtonGroupProp
             </button>
         </div>
     );
+}
+
+// Helper functions for DOM-based nodes that need to render JSX components
+export function createNodeHeader(title: string, controls: HTMLElement[] = []): HTMLElement {
+    const container = document.createElement('div');
+    
+    // Convert HTML elements to JSX elements
+    const jsxControls = controls.map((el, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(el);
+        return <div key={index} dangerouslySetInnerHTML={{ __html: wrapper.innerHTML }} />;
+    });
+    
+    render(<NodeHeader title={title} controls={jsxControls} />, container);
+    return container.firstElementChild as HTMLElement;
+}
+
+export function createButtonGroup(label: string, onDecrement: () => void, onIncrement: () => void): HTMLElement {
+    const container = document.createElement('div');
+    render(<ButtonGroup label={label} onDecrement={onDecrement} onIncrement={onIncrement} />, container);
+    return container.firstElementChild as HTMLElement;
 }

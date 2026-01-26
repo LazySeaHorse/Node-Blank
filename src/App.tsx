@@ -5,19 +5,19 @@
  * Orchestrates the application shell using Preact while wrapping legacy DOM components.
  */
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { appState, signals, interaction, effect, computedValues, screenToWorld } from '@state/appState.ts';
-import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB.ts';
-import { updateModeSelector } from '../components/organisms/ModeSelector.js';
+import { appState, signals, interaction, effect, computedValues, screenToWorld } from '@state/appState';
+import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB';
+import { ModeSelector } from './components/organisms/ModeSelector';
 import { AppHeader } from './components/organisms/AppHeader';
-import { createCanvasWorld, setupCanvasEvents, updateTransform } from '../components/organisms/CanvasWorld.tsx';
+import { createCanvasWorld, setupCanvasEvents, updateTransform } from './components/organisms/CanvasWorld';
 import { ZoomControl } from './components/molecules/ZoomControl';
 import { CanvasManager } from './components/organisms/CanvasManager';
 import { ThemeToggle } from './components/molecules/ThemeToggle';
 import { SearchOverlay } from './components/organisms/SearchOverlay';
-import { animateTo } from '@utils/cameraAnimation.ts';
+import { animateTo } from '@utils/cameraAnimation';
 import { initComputeEngine } from '@utils/computeEngine.js';
-import { createNode, renderNode, selectNode } from '@utils/nodeFactory.tsx';
-import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage.ts';
+import { createNode, renderNode, selectNode } from '@utils/nodeFactory';
+import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage';
 
 declare global {
     interface Window {
@@ -293,10 +293,7 @@ export function App() {
         }));
 
         // Effect 2: Mode selector updates
-        cleanups.push(effect(() => {
-            const mode = signals.mode.value;
-            updateModeSelector(mode);
-        }));
+        // Mode selector updates are handled automatically by the ModeSelector component
 
         // Effect 3: Search Logic
         cleanups.push(effect(() => {

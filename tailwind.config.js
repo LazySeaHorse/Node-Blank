@@ -3,8 +3,7 @@ export default {
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
-        "./components/**/*.{js,ts,jsx,tsx}", // Legacy path support during migration
-        "./utils/**/*.{js,ts,jsx,tsx}" // Legacy path support
+        "./utils/**/*.{js,ts,jsx,tsx}"
     ],
     darkMode: ['class', '[data-theme="dark"]'],
     theme: {

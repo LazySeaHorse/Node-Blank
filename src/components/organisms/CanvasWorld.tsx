@@ -2,13 +2,11 @@
  * Canvas World Organism
  */
 import * as d3 from 'd3';
-import { appState, interaction, screenToWorld, signals } from '../../state/appState.ts';
-import { createNode, renderNode, removeNode, selectNode } from '../../utils/nodeFactory.tsx';
-import { cancelAnimation } from '../../utils/cameraAnimation.ts';
+import { appState, interaction, screenToWorld, signals } from '@state/appState';
+import { createNode, renderNode, removeNode, selectNode } from '@utils/nodeFactory';
+import { cancelAnimation } from '@utils/cameraAnimation';
 
-function updateSelectionFromRect(left, top, width, height, container) {
-    const rect = container.getBoundingClientRect();
-
+function updateSelectionFromRect(left: number, top: number, width: number, height: number, container: HTMLElement) {
     // Convert screen rect to world coordinates
     const worldLeft = (left - appState.pan.x) / appState.scale;
     const worldTop = (top - appState.pan.y) / appState.scale;
@@ -67,9 +65,8 @@ export function createCanvasWorld() {
     return { container, world, selectionRect };
 }
 
-export function updateTransform(world, container) {
-    const { pan, scale } = appState; // Using getter from appState object for convenience
-    // Or access signals directly if needed, but appState getter is fine.
+export function updateTransform(world: HTMLElement, container: HTMLElement) {
+    const { pan, scale } = appState;
 
     // 1. Update Visuals
     world.style.transform = `translate(${pan.x}px, ${pan.y}px) scale(${scale})`;
@@ -85,32 +82,30 @@ export function updateTransform(world, container) {
     if (indicator) indicator.innerText = percent + '%';
 
     // 2. Sync D3 State (if mismatch)
-    // This handles external updates (like animateTo or Reset Zoom)
-    if (container.__zoomBehavior) {
+    const containerWithZoom = container as any;
+    if (containerWithZoom.__zoomBehavior) {
         const current = d3.zoomTransform(container);
         // We use a small epsilon to avoid floating point loops
         if (Math.abs(current.k - scale) > 0.001 ||
             Math.abs(current.x - pan.x) > 0.1 ||
             Math.abs(current.y - pan.y) > 0.1) {
 
-            d3.select(container).call(container.__zoomBehavior.transform, new d3.ZoomTransform(scale, pan.x, pan.y));
+            d3.select(container).call(containerWithZoom.__zoomBehavior.transform, new d3.ZoomTransform(scale, pan.x, pan.y));
         }
     }
 }
 
-export function setupCanvasEvents(container, world) {
+export function setupCanvasEvents(container: HTMLElement, world: HTMLElement) {
     const selectionRect = document.getElementById('selection-rect');
 
-    // --- 1. D3 Zoom Setup ---
-    // --- 1. D3 Zoom Setup ---
+    // D3 Zoom Setup
     const zoom = d3.zoom()
         .scaleExtent([0.1, 5])
-        .filter((e) => {
+        .filter((e: any) => {
             // 1. Zoom with Wheel
             if (e.type === 'wheel') return true;
 
             // 2. Touch Handling (Pan / Pinch)
-            // Explicitly ALLOW touch pointer events
             if (e.pointerType === 'touch' || e.type === 'touchstart') return true;
 
             // 3. Mouse Handling: ALLOW Middle Click (1) -> Pan ALWAYS
@@ -122,48 +117,41 @@ export function setupCanvasEvents(container, world) {
             // 5. BLOCK Left Click (0) -> Reserved for Selection
             if (e.button === 0) return false;
 
-            // Default: strict middle mouse for pan (or touch)
             return false;
         })
-        .on('start', (e) => {
+        .on('start', (e: any) => {
             document.body.classList.add('canvas-interacting');
-            // Optional: cursor changes
             if (e.sourceEvent && (e.sourceEvent.type === 'mousedown' || e.sourceEvent.type === 'pointerdown')) {
                 container.style.cursor = 'grabbing';
             }
         })
-        .on('zoom', (e) => {
-            // Update App State (Batch for performance)
-            // e.transform contains {k, x, y}
+        .on('zoom', (e: any) => {
             const t = e.transform;
-
             appState.scale = t.k;
             appState.pan = { x: t.x, y: t.y };
         })
         .on('end', () => {
             document.body.classList.remove('canvas-interacting');
-            container.style.cursor = 'crosshair'; // Logic from original
+            container.style.cursor = 'crosshair';
         });
 
     // Attach zoom behavior to container
     const selection = d3.select(container).call(zoom);
-    container.__zoomBehavior = zoom; // Save for updateTransform (DO NOT use __zoom, it's reserved by D3)
+    (container as any).__zoomBehavior = zoom;
 
-    // Disable double-click to zoom (conflicts with double-click to create node)
+    // Disable double-click to zoom
     selection.on("dblclick.zoom", null);
 
-
-    // --- 2. Custom Interaction (Selection, Node Drag, Resize) ---
-    // We kept these manual because they involve specific node logic
-
-    container.addEventListener('mousedown', (e) => {
+    // Custom Interaction Events
+    container.addEventListener('mousedown', (e: MouseEvent) => {
         cancelAnimation();
 
         // 1. Resize Handle
-        if (e.target.classList.contains('resize-handle')) {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('resize-handle')) {
             e.preventDefault();
             e.stopPropagation();
-            const nodeId = e.target.dataset.nodeId;
+            const nodeId = target.dataset.nodeId;
             const nodeData = appState.fields.find(f => f.id === nodeId);
             if (nodeData) {
                 document.body.classList.add('canvas-interacting');
@@ -180,9 +168,7 @@ export function setupCanvasEvents(container, world) {
         }
 
         // 2. Selection Rectangle (Left Click on background)
-        // D3 Zoom filter returns false for button 0, so D3 ignores this. We handle it here.
-        // We also check for pointerType='touch' to strictly prevent Touch from selecting/drawing box
-        if (e.button === 0 && (!e.pointerType || e.pointerType !== 'touch') && (e.target === container || e.target === world)) {
+        if (e.button === 0 && (e.target === container || e.target === world)) {
             document.body.classList.add('canvas-interacting');
             interaction.isSelecting = true;
             const rect = container.getBoundingClientRect();
@@ -191,17 +177,19 @@ export function setupCanvasEvents(container, world) {
                 y: e.clientY - rect.top
             };
             selectNode(null);
-            if (document.activeElement) document.activeElement.blur();
+            if (document.activeElement && 'blur' in document.activeElement) {
+                (document.activeElement as HTMLElement).blur();
+            }
         }
     });
 
-    // Prevent Context Menu (Right Click pan)
-    container.addEventListener('contextmenu', e => {
+    // Prevent Context Menu
+    container.addEventListener('contextmenu', (e: MouseEvent) => {
         if (e.target === container || e.target === world) e.preventDefault();
     });
 
-    // Global Mouse Move (for Drag/Resize/Select)
-    window.addEventListener('mousemove', (e) => {
+    // Global Mouse Move
+    window.addEventListener('mousemove', (e: MouseEvent) => {
         // Resize Node
         if (interaction.isResizingNode) {
             e.preventDefault();
@@ -211,8 +199,7 @@ export function setupCanvasEvents(container, world) {
                 const newWidth = Math.max(50, interaction.resizeStartSize.width + dx);
                 nodeData.width = newWidth;
                 nodeData.height = newWidth / interaction.aspectRatio;
-                // Update DOM directly for performance (until Node is Preact)
-                const el = document.getElementById(interaction.resizeNodeId);
+                const el = document.getElementById(interaction.resizeNodeId!);
                 if (el) {
                     el.style.width = `${nodeData.width}px`;
                     el.style.height = `${nodeData.height}px`;
@@ -222,7 +209,7 @@ export function setupCanvasEvents(container, world) {
         }
 
         // Selection Rect
-        if (interaction.isSelecting) {
+        if (interaction.isSelecting && selectionRect) {
             const rect = container.getBoundingClientRect();
             const currentX = e.clientX - rect.left;
             const currentY = e.clientY - rect.top;
@@ -250,7 +237,6 @@ export function setupCanvasEvents(container, world) {
                 if (nodeData) {
                     nodeData.x += dx;
                     nodeData.y += dy;
-                    // Direct DOM update for smooth 60fps
                     const el = document.getElementById(id);
                     if (el) {
                         el.style.left = `${nodeData.x}px`;
@@ -263,20 +249,17 @@ export function setupCanvasEvents(container, world) {
 
     window.addEventListener('mouseup', () => {
         document.body.classList.remove('canvas-interacting');
-        if (interaction.isResizingNode) {
-            // Logic handled by tailwind class now
-        }
         interaction.isDraggingNode = false;
         interaction.isResizingNode = false;
         interaction.isSelecting = false;
         interaction.resizeNodeId = null;
-        selectionRect.style.display = 'none';
+        if (selectionRect) selectionRect.style.display = 'none';
         container.style.cursor = 'crosshair';
         document.querySelectorAll('.node').forEach(n => n.classList.remove('dragging'));
     });
 
     // Double click (Create Node)
-    container.addEventListener('dblclick', (e) => {
+    container.addEventListener('dblclick', (e: MouseEvent) => {
         if (e.target === container || e.target === world) {
             const rect = container.getBoundingClientRect();
             const pos = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
@@ -285,21 +268,22 @@ export function setupCanvasEvents(container, world) {
         }
     });
 
-    // Keyboard (Delete, Duplicate) - Unchanged
-    window.addEventListener('keydown', (e) => {
+    // Keyboard Events
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Delete') {
-            const tag = document.activeElement.tagName.toLowerCase();
+            const tag = (document.activeElement as HTMLElement)?.tagName?.toLowerCase();
             if (tag !== 'input' && tag !== 'textarea' && tag !== 'math-field') {
                 if (interaction.selectedIds.length > 0) {
                     [...interaction.selectedIds].forEach(id => removeNode(id));
                 }
             }
         }
+        
         // Duplicate
         if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
             e.preventDefault();
             if (interaction.selectedIds.length > 0) {
-                const newIds = [];
+                const newIds: string[] = [];
                 interaction.selectedIds.forEach(id => {
                     const orig = appState.fields.find(f => f.id === id);
                     if (orig) {
@@ -312,29 +296,32 @@ export function setupCanvasEvents(container, world) {
                 newIds.forEach(id => selectNode(id, true));
             }
         }
+        
         // Global Search Shortcuts
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             e.preventDefault();
             signals.isSearchOpen.value = true;
             setTimeout(() => {
-                const searchInput = document.querySelector('input[placeholder="Search nodes..."]');
-                if (searchInput) searchInput.focus();
+                const searchInput = document.querySelector('input[placeholder="Search nodes..."]') as HTMLInputElement;
+                if (searchInput && 'focus' in searchInput) {
+                    searchInput.focus();
+                }
             }, 50);
         }
 
         if (e.key === 'Escape') {
-            // If search is active/has query, clear it
             if (signals.searchQuery.value || signals.isSearchOpen.value) {
                 e.stopImmediatePropagation();
                 signals.searchQuery.value = '';
                 signals.isSearchOpen.value = false;
-                if (document.activeElement && document.activeElement.tagName === 'INPUT') {
-                    document.activeElement.blur();
+                if (document.activeElement && 'blur' in document.activeElement) {
+                    (document.activeElement as HTMLElement).blur();
                 }
             } else {
-                // Standard Deselect Logic
                 selectNode(null);
-                if (document.activeElement) document.activeElement.blur();
+                if (document.activeElement && 'blur' in document.activeElement) {
+                    (document.activeElement as HTMLElement).blur();
+                }
             }
         }
     });
