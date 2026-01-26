@@ -1,6 +1,7 @@
 /**
  * Canvas World Organism
  */
+import * as d3 from 'd3';
 import { appState, interaction, screenToWorld } from '../../state/appState.js';
 import { createNode, renderNode, removeNode, selectNode } from '../../utils/nodeFactory.js';
 import { cancelAnimation } from '../../utils/cameraAnimation.js';

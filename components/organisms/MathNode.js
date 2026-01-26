@@ -1,6 +1,7 @@
 /**
  * Math Node Organism
  */
+import 'mathlive';
 import { interaction } from '../../state/appState.js';
 import { createNodeContainer } from '../../utils/nodeUI.js';
 

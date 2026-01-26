@@ -2,6 +2,8 @@
  * Spreadsheet Node Organism
  * Uses Jspreadsheet CE (v5)
  */
+import jspreadsheet from 'jspreadsheet-ce';
+import 'jsuites';
 import { interaction } from '../../state/appState.js';
 import { createNodeHeader } from '../molecules/NodeHeader.js';
 import { createNodeContainer } from '../../utils/nodeUI.js';
@@ -71,49 +73,45 @@ export function createSpreadsheetNode(data, onSelect) {
         }
     };
 
-    if (window.jspreadsheet) {
-        worksheetInstance = window.jspreadsheet(contentDiv, {
-            worksheets: [{
-                data: spreadsheetData,
-                minDimensions: [5, 5],
-                defaultColWidth: 100,
-                parseFormulas: true,
-            }],
-            tableOverflow: false, // Auto-expand
-            tableWidth: "auto",
-            tableHeight: "auto",
+    worksheetInstance = jspreadsheet(contentDiv, {
+        worksheets: [{
+            data: spreadsheetData,
+            minDimensions: [5, 5],
+            defaultColWidth: 100,
+            parseFormulas: true,
+        }],
+        tableOverflow: false, // Auto-expand
+        tableWidth: "auto",
+        tableHeight: "auto",
 
-            // Events - all trigger the same sync logic
-            onchange: syncData,
-            oninsertrow: syncData,
-            ondeleterow: syncData,
-            oninsertcolumn: syncData,
-            ondeletecolumn: syncData,
-            onundo: syncData,
-            onredo: syncData,
-            onsort: syncData,
-            onmoverow: syncData,
-            onmovecolumn: syncData,
+        // Events - all trigger the same sync logic
+        onchange: syncData,
+        oninsertrow: syncData,
+        ondeleterow: syncData,
+        oninsertcolumn: syncData,
+        ondeletecolumn: syncData,
+        onundo: syncData,
+        onredo: syncData,
+        onsort: syncData,
+        onmoverow: syncData,
+        onmovecolumn: syncData,
 
-            // Update formula display when cell is selected
-            onselection: (instance, x1, y1, x2, y2, origin) => {
-                const ws = Array.isArray(worksheetInstance) ? worksheetInstance[0] : worksheetInstance;
-                if (ws && typeof ws.getValueFromCoords === 'function') {
-                    // Get the value of the first selected cell (top-left of selection)
-                    const cellValue = ws.getValueFromCoords(x1, y1);
+        // Update formula display when cell is selected
+        onselection: (instance, x1, y1, x2, y2, origin) => {
+            const ws = Array.isArray(worksheetInstance) ? worksheetInstance[0] : worksheetInstance;
+            if (ws && typeof ws.getValueFromCoords === 'function') {
+                // Get the value of the first selected cell (top-left of selection)
+                const cellValue = ws.getValueFromCoords(x1, y1);
 
-                    // Display the cell value (formulas in jspreadsheet start with '=')
-                    if (cellValue) {
-                        formulaValue.textContent = cellValue;
-                    } else {
-                        formulaValue.textContent = '';
-                    }
+                // Display the cell value (formulas in jspreadsheet start with '=')
+                if (cellValue) {
+                    formulaValue.textContent = cellValue;
+                } else {
+                    formulaValue.textContent = '';
                 }
             }
-        });
-    } else {
-        contentDiv.textContent = "Error: Jspreadsheet library not loaded.";
-    }
+        }
+    });
 
     return div;
 }

@@ -2,10 +2,10 @@
 
 **Objective**: Migrate the existing "Vanilla JS Component Factory" application to a modern **Preact + Vite + Tailwind CLI** stack to improve performance, code density, and AI-maintainability.
 
-**Current Status**: Phase 3 (Component Migration) - **UI COMPLETE** ✅ / Canvas Core Deferred
+**Current Status**: Phase 4 (Library Replacement) - **COMPLETE** ✅
 **Last Updated**: 2026-01-26
 
-**Next Steps**: Phase 4 (Library Replacement) or continue with Canvas/Node migration.
+**Next Steps**: Phase 5 (Full TSX Migration) or production build testing.
 
 ---
 
@@ -28,28 +28,33 @@
 - [x] Migrate `state/appState.js` to NPM imports (remove CDN) - *Done in P1*
 - [x] Convert `MathCanvasApp` class in `app.js` to a functional Component - *Done in P2*
 
-### Phase 3: Component Migration (The Big Shift) 🚧 (In Progress)
+### Phase 3: Component Migration (The Big Shift) ✅ (UI Complete)
 - [x] **Atoms**: Convert `components/atoms/*.js` -> `*.tsx` (Completed `Button.tsx`)
 - [x] **Molecules**: Convert `components/molecules/*.js` -> `*.tsx` (All 6 molecules migrated + Icons lib)
-- [ ] **Organisms**: Convert `components/organisms/*.js` -> `*.tsx`
+- [x] **Organisms**: Convert `components/organisms/*.js` -> `*.tsx`
     - [x] UI Components: `AppHeader`, `ActionBar`, `ModeSelector`, `MoreToolsMenu`
     - [x] Modals/Overlays: `CanvasManager`, `SearchOverlay`, `ToolConfigModal`
-    - [⏸️] Canvas Core: `CanvasWorld` *(Deferred - tightly coupled with D3.js zoom/pan behavior)*
-    - [⏸️] Node Types: `*Node.js` *(Deferred - complex external library integrations: MathLive, D3, jSpreadsheet)*
+    - [⏸️] Canvas Core: `CanvasWorld` *(Deferred - now uses NPM D3)*
+    - [⏸️] Node Types: `*Node.js` *(Now use NPM library imports)*
 
-**Phase 3 Strategy Note**: The `CanvasWorld` and Node components (`GraphNode`, `ScriptNode`, `MathNode`, etc.) are deeply integrated with:
-- D3.js for zoom/pan interactions
-- MathLive for math editing (`<math-field>`)
-- jSpreadsheet for spreadsheet functionality
-- Function-plot for graph rendering
-- Direct DOM manipulation patterns
+### Phase 4: Library Replacement ✅ (Complete)
+- [x] Install NPM packages: `mathlive`, `marked`, `katex`, `d3`, `function-plot`, `mathjs`, `jspreadsheet-ce`, `jsuites`
+- [x] Update imports in components:
+    - [x] `mdRenderer.js` - Now imports `marked` and `katex` from NPM
+    - [x] `CanvasWorld.js` - Now imports `d3` from NPM
+    - [x] `GraphNode.js` - Now imports `function-plot` from NPM
+    - [x] `SpreadsheetNode.js` - Now imports `jspreadsheet-ce` and `jsuites` from NPM
+    - [x] `MathNode.js` - Now imports `mathlive` from NPM
+    - [x] `MathPlusNode.js` - Now imports `mathlive` and `katex` from NPM
+- [x] Update `src/index.css` - Added CSS imports for `katex`, `jspreadsheet-ce`, `jsuites`
+- [x] Clean `index.html` - Removed all legacy CDN/script tags
+- [x] Delete legacy files from `public/lib/` folder (mathlive, marked, katex, function-plot, jspreadsheet, jsuites, tailwind, fonts)
 
-These will remain as **legacy vanilla JS** for now and are successfully mounted into the Preact tree via the `App.tsx` wrapper. Migration of these would require significant refactoring and is better addressed as part of Phase 4 library replacements.
-
-### Phase 4: Library Replacement
-- [ ] Uninstall/Delete `lib/` folder scripts
-- [ ] Install NPM equivalents (`mathlive`, `d3`, `function-plot`, etc.)
-- [ ] Refactor Node types to use NPM-installed libraries
+### Phase 5: Full TSX Migration (Future)
+- [ ] Convert `CanvasWorld.js` to TSX with proper D3 integration via refs/useEffect
+- [ ] Convert Node types to TSX components
+- [ ] Remove `htm` dependency (use JSX directly)
+- [ ] Full TypeScript type definitions
 
 ---
 
@@ -61,8 +66,23 @@ These will remain as **legacy vanilla JS** for now and are successfully mounted 
 | **Molecules** | ActionButton, Dropdown, ModeButton, ThemeToggle, ZoomControl, Icons | ✅ TSX |
 | **Organisms** | AppHeader, ActionBar, ModeSelector, MoreToolsMenu | ✅ TSX |
 | **Modals** | CanvasManager, SearchOverlay, ToolConfigModal | ✅ TSX |
-| **Canvas Core** | CanvasWorld | ⏸️ Deferred (Legacy JS) |
-| **Nodes** | MathNode, TextNode, GraphNode, ImageNode, etc. | ⏸️ Deferred (Legacy JS) |
+| **Canvas Core** | CanvasWorld | 📦 NPM D3 (Legacy JS) |
+| **Nodes** | MathNode, TextNode, GraphNode, SpreadsheetNode, etc. | 📦 NPM Libs (Legacy JS) |
+
+---
+
+## 📦 Library Migration Summary
+
+| Library | NPM Package | Version | Usage |
+|---------|------------|---------|-------|
+| MathLive | `mathlive` | ^0.108.2 | Math editing (`<math-field>`) |
+| Marked | `marked` | ^17.0.1 | Markdown parsing |
+| KaTeX | `katex` | ^0.16.28 | LaTeX rendering |
+| D3 | `d3` | ^7.9.0 | Zoom/pan, graph dependencies |
+| Function-plot | `function-plot` | ^1.25.3 | Graph rendering |
+| Math.js | `mathjs` | ^15.1.0 | Equation evaluation |
+| jSpreadsheet CE | `jspreadsheet-ce` | ^5.0.4 | Spreadsheet component |
+| jSuites | `jsuites` | ^6.1.1 | jSpreadsheet dependency |
 
 ---
 
@@ -70,6 +90,7 @@ These will remain as **legacy vanilla JS** for now and are successfully mounted 
 - **Legacy imports**: We currently support legacy imports by exposing `window.process` in `index.html`.
 - **Path Aliases**: Added `@state` and `@utils` aliases in both `vite.config.js` and `tsconfig.json` to resolve legacy JS imports from TSX files.
 - **CSS**: We are temporarily importing the legacy `main.css` inside `src/index.css`. This should be refactored as we move components.
-- **Compute Engine**: The `compute-engine.js` file was moved to `src/lib/` to handle dynamic imports correctly in Vite. The `public/lib` folder still contains other legacy libs.
+- **Compute Engine**: The `compute-engine.js` file was moved to `src/lib/` to handle dynamic imports correctly in Vite. The `public/lib` folder still contains legacy libs (pending cleanup).
 - **Icon Stroke Width**: Increased default stroke width from 2 to 2.5 to match the legacy icon appearance.
 - **Reactivity**: ModeSelector and MoreToolsMenu now properly subscribe to signals via `useEffect` + `effect()` pattern for toolbar config updates.
+- **BABEL Warning**: Large files like `compute-engine.js` trigger BABEL deoptimization warnings - this is informational only and doesn't affect functionality.

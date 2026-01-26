@@ -3,6 +3,7 @@
  */
 import { html, useState, useEffect, useRef, render } from '../../utils/preact.js';
 import { createNodeContainer } from '../../utils/nodeUI.js';
+import functionPlot from 'function-plot';
 
 export function createGraphNode(data) {
     const container = createNodeContainer(data, {

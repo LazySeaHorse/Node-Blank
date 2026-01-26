@@ -1,4 +1,10 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/* NPM Library CSS */
+@import 'katex/dist/katex.min.css';
+@import 'jspreadsheet-ce/dist/jspreadsheet.css';
+@import 'jsuites/dist/jsuites.css';
+
+/* Legacy styles (to be migrated) */
 @import '../styles/main.css';

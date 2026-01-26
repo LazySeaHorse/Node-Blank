@@ -5,6 +5,8 @@
  * 
  * Two-column layout: math-field on left, per-line results on right.
  */
+import 'mathlive';
+import katex from 'katex';
 import { interaction } from '../../state/appState.js';
 import { createNodeContainer } from '../../utils/nodeUI.js';
 import { evaluateLatex, isEngineReady, onEngineReady } from '../../utils/computeEngine.js';
@@ -107,14 +109,10 @@ export function createMathPlusNode(data, onSelect) {
             valueSpan.innerHTML = `<span class="text-red-400 text-xs" title="${evalResult.error}">⚠</span>`;
         } else if (evalResult.result) {
             try {
-                if (typeof katex !== 'undefined') {
-                    katex.render(evalResult.result, valueSpan, {
-                        throwOnError: false,
-                        displayMode: false
-                    });
-                } else {
-                    valueSpan.textContent = evalResult.result;
-                }
+                katex.render(evalResult.result, valueSpan, {
+                    throwOnError: false,
+                    displayMode: false
+                });
             } catch (e) {
                 valueSpan.textContent = evalResult.result;
             }
