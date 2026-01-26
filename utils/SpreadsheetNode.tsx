@@ -1,15 +1,15 @@
 /**
- * Spreadsheet Node Organism
- * Uses Jspreadsheet CE (v5)
+ * Spreadsheet Node Component (TSX)
  */
 import jspreadsheet from 'jspreadsheet-ce';
 import 'jsuites';
-import { interaction } from '../../state/appState.js';
-import { createNodeHeader } from '../molecules/NodeHeader.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { interaction } from '../state/appState.js';
+import { createNodeHeader } from '../components/molecules/NodeHeader.js';
+import { createNodeContainer } from './nodeUI.js';
+import type { NodeData } from '../src/types/index.js';
 
-export function createSpreadsheetNode(data, onSelect) {
-    const div = createNodeContainer(data, {
+export function createSpreadsheetNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
+    const div = (createNodeContainer as any)(data, {
         className: 'p-0 node-spreadsheet',
         flex: true
     });
@@ -40,9 +40,7 @@ export function createSpreadsheetNode(data, onSelect) {
     div.appendChild(contentDiv);
 
     // Initialize Jspreadsheet
-    // We need to wait for the customized styling or ensure it loads.
-    // Data parsing
-    let spreadsheetData = [];
+    let spreadsheetData: any[][] = [];
     try {
         if (data.content && data.content.startsWith('[')) {
             spreadsheetData = JSON.parse(data.content);
@@ -63,7 +61,7 @@ export function createSpreadsheetNode(data, onSelect) {
         ];
     }
 
-    let worksheetInstance = null;
+    let worksheetInstance: any = null;
 
     const syncData = () => {
         const ws = Array.isArray(worksheetInstance) ? worksheetInstance[0] : worksheetInstance;
@@ -73,7 +71,7 @@ export function createSpreadsheetNode(data, onSelect) {
         }
     };
 
-    worksheetInstance = jspreadsheet(contentDiv, {
+    worksheetInstance = (jspreadsheet as any)(contentDiv, {
         worksheets: [{
             data: spreadsheetData,
             minDimensions: [5, 5],
@@ -97,7 +95,7 @@ export function createSpreadsheetNode(data, onSelect) {
         onmovecolumn: syncData,
 
         // Update formula display when cell is selected
-        onselection: (instance, x1, y1, x2, y2, origin) => {
+        onselection: (instance: any, x1: number, y1: number, x2: number, y2: number, origin: any) => {
             const ws = Array.isArray(worksheetInstance) ? worksheetInstance[0] : worksheetInstance;
             if (ws && typeof ws.getValueFromCoords === 'function') {
                 // Get the value of the first selected cell (top-left of selection)

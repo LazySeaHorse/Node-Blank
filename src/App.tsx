@@ -9,14 +9,14 @@ import { appState, signals, interaction, effect, computedValues, screenToWorld }
 import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB.js';
 import { updateModeSelector } from '../components/organisms/ModeSelector.js';
 import { AppHeader } from './components/organisms/AppHeader';
-import { createCanvasWorld, setupCanvasEvents, updateTransform } from '../components/organisms/CanvasWorld.js';
+import { createCanvasWorld, setupCanvasEvents, updateTransform } from '../components/organisms/CanvasWorld.tsx';
 import { ZoomControl } from './components/molecules/ZoomControl';
 import { CanvasManager } from './components/organisms/CanvasManager';
 import { ThemeToggle } from './components/molecules/ThemeToggle';
 import { SearchOverlay } from './components/organisms/SearchOverlay';
 import { animateTo } from '@utils/cameraAnimation.js';
 import { initComputeEngine } from '@utils/computeEngine.js';
-import { createNode, renderNode, selectNode } from '@utils/nodeFactory.js';
+import { createNode, renderNode, selectNode } from '@utils/nodeFactory.tsx';
 import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage.js';
 
 declare global {
@@ -332,6 +332,10 @@ export function App() {
             signals.searchMatchCount.value = matchedIds.length;
 
             if (query.length > 0 && matchedIds.length > 0) {
+                // Get container from worldRef
+                const { container } = worldRef.current;
+                if (!container) return;
+                
                 // ... (Bounding Box Calc & Animation Logic from app.js)
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 matchedIds.forEach(id => {

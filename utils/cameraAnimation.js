@@ -1,4 +1,5 @@
 import { appState, batch } from '../state/appState.js';
+import * as d3 from 'd3';
 
 let activeTimer = null;
 
@@ -22,16 +23,6 @@ export function cancelAnimation() {
 export function animateTo(targetScale, targetPan, duration = 750) {
     // 1. Cancel any existing animation
     cancelAnimation();
-
-    // 2. Check if D3 is available
-    if (typeof d3 === 'undefined') {
-        console.warn('D3 not found, falling back to instant jump');
-        batch(() => {
-            appState.scale = targetScale;
-            appState.pan = targetPan;
-        });
-        return;
-    }
 
     // Capture starting state
     const startScale = appState.scale;

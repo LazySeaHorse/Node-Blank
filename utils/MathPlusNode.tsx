@@ -1,18 +1,15 @@
 /**
- * Math+ Node Organism
- * An enhanced math node that evaluates expressions using the Compute Engine.
- * Supports global variables shared across all Math+ nodes.
- * 
- * Two-column layout: math-field on left, per-line results on right.
+ * Math+ Node Component (TSX)
  */
 import 'mathlive';
 import katex from 'katex';
-import { interaction } from '../../state/appState.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
-import { evaluateLatex, isEngineReady, onEngineReady } from '../../utils/computeEngine.js';
+import { interaction } from '../state/appState.js';
+import { createNodeContainer } from './nodeUI.js';
+import { evaluateLatex, isEngineReady, onEngineReady } from './computeEngine.js';
+import type { NodeData } from '../src/types/index.js';
 
-export function createMathPlusNode(data, onSelect) {
-    const div = createNodeContainer(data, {
+export function createMathPlusNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
+    const div = (createNodeContainer as any)(data, {
         className: 'p-2 px-3 min-w-[200px] math-plus-node'
     });
 
@@ -30,7 +27,7 @@ export function createMathPlusNode(data, onSelect) {
     leftColumn.style.minWidth = '100px';
 
     // Create the math field for input
-    const mf = document.createElement('math-field');
+    const mf = document.createElement('math-field') as any;
     mf.value = data.content || '';
     mf.setAttribute('smart-mode', 'true');
     mf.style.width = '100%';
@@ -49,7 +46,7 @@ export function createMathPlusNode(data, onSelect) {
     /**
      * Split LaTeX by line breaks (\\) and evaluate each line
      */
-    function parseAndEvaluateLines(latex) {
+    function parseAndEvaluateLines(latex: string) {
         if (!latex || latex.trim() === '') {
             return [];
         }
@@ -87,11 +84,10 @@ export function createMathPlusNode(data, onSelect) {
         return results;
     }
 
-
     /**
      * Render a single result line
      */
-    function renderResultLine(evalResult) {
+    function renderResultLine(evalResult: any) {
         const lineDiv = document.createElement('div');
         lineDiv.className = 'math-plus-result-line flex items-center gap-1';
         // Match MathLive's displaylines line height (approximately 1.8em)
@@ -172,11 +168,11 @@ export function createMathPlusNode(data, onSelect) {
 
     mf.addEventListener('focus', () => {
         interaction.activeInput = mf;
-        onSelect(data.id);
+        if (onSelect) onSelect(data.id);
     });
 
     // Handle Enter for multiline
-    mf.addEventListener('keydown', (e) => {
+    mf.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
