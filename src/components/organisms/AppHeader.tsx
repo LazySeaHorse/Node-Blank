@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 // @ts-ignore
-import { signals, effect } from '@state/appState.js';
+import { signals, effect } from '@state/appState.ts';
 import { IconFolder, IconMenu } from '../icons';
 import { ModeSelector } from './ModeSelector';
 import { MoreToolsMenu } from './MoreToolsMenu';

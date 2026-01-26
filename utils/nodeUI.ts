@@ -2,20 +2,21 @@
  * Node UI Utilities
  * Shared logic for node structure, styling, and standard elements
  */
+import type { NodeData, NodeContainerOptions, CreateNodeContainerFn } from '../src/types/index.js';
 
 export const BASE_NODE_CLASSES = 'node group absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:ring-2 [&.selected]:ring-accent [&.selected]:ring-offset-1 dark:[&.selected]:ring-offset-canvas [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 cursor-grab';
 
 /**
  * Creates the outer container for any node with standardized styling and properties.
  * 
- * @param {Object} data - The node data object (id, x, y, zIndex, width, height, etc.)
- * @param {Object} options - Configuration for the container
- * @param {string} options.className - Additional classes to add to the base node
- * @param {boolean} options.withResize - Whether to add a resize handle
- * @param {boolean} options.flex - Whether to use flexbox (flex-col overflow-hidden)
- * @returns {HTMLElement} - The created div element
+ * @param data - The node data object (id, x, y, zIndex, width, height, etc.)
+ * @param options - Configuration for the container
+ * @returns The created div element
  */
-export function createNodeContainer(data, { className = '', withResize = false, flex = false } = {}) {
+export const createNodeContainer: CreateNodeContainerFn = (
+    data: NodeData, 
+    { className = '', withResize = false, flex = false }: NodeContainerOptions = {}
+): HTMLElement => {
     const div = document.createElement('div');
     div.id = data.id;
 
@@ -28,7 +29,7 @@ export function createNodeContainer(data, { className = '', withResize = false, 
     // Set position and z-index
     div.style.left = `${data.x}px`;
     div.style.top = `${data.y}px`;
-    div.style.zIndex = data.zIndex;
+    div.style.zIndex = data.zIndex.toString();
 
     // Set dimensions if provided
     if (data.width) div.style.width = `${data.width}px`;
@@ -44,4 +45,4 @@ export function createNodeContainer(data, { className = '', withResize = false, 
     }
 
     return div;
-}
+};

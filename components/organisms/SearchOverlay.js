@@ -2,8 +2,8 @@
  * Search Overlay Organism
  * Global search functionality
  */
-import { signals, effect } from '../../state/appState.js';
-import { createIconElement } from '../../utils/icons.js';
+import { signals, effect } from '../../state/appState.ts';
+import { createIconElement } from '../../utils/icons.ts';
 
 export function createSearchOverlay() {
     // 1. Main Shell (Background/Border/Shadow)

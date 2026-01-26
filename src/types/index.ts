@@ -74,11 +74,8 @@ export interface PanState {
 
 /** Tool configuration for toolbar items */
 export interface ToolConfig {
-    [toolId: string]: {
-        visible: boolean;
-        position: number;
-        inMoreMenu: boolean;
-    };
+    toolbar: string[];
+    more: string[];
 }
 
 /** Interaction state for canvas operations */

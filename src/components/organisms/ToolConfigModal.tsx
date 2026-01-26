@@ -4,9 +4,9 @@
  */
 import { useState, useEffect } from 'preact/hooks';
 // @ts-ignore
-import { appState, signals, effect } from '@state/appState.js';
+import { appState, signals, effect } from '@state/appState.ts';
 // @ts-ignore
-import { TOOLS, DEFAULT_TOOL_CONFIG } from '@utils/toolRegistry.js';
+import { TOOLS, DEFAULT_TOOL_CONFIG } from '@utils/toolRegistry.ts';
 import { IconX, IconArrowLeft, IconArrowRight, getIconComponent } from '../icons';
 
 interface ToolConfigModalProps {

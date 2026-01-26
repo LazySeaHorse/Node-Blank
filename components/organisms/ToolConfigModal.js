@@ -2,9 +2,9 @@
  * Tool Configuration Modal
  * Allows user to customize which tools appear in the toolbar vs the "More" menu.
  */
-import { appState } from '../../state/appState.js';
-import { TOOLS, DEFAULT_TOOL_CONFIG } from '../../utils/toolRegistry.js';
-import { createIconElement } from '../../utils/icons.js';
+import { appState } from '../../state/appState.ts';
+import { TOOLS, DEFAULT_TOOL_CONFIG } from '../../utils/toolRegistry.ts';
+import { createIconElement } from '../../utils/icons.ts';
 
 export function createToolConfigModal({ onClose }) {
     // Create overlay

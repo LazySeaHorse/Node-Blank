@@ -1,7 +1,7 @@
 /**
  * Action Button Molecule
  */
-import { createIconElement } from '../../utils/icons.js';
+import { createIconElement } from '../../utils/icons.ts';
 
 export function createActionButton({ icon, iconName, label, onClick, iconOnly = false }) {
     const button = document.createElement('button');

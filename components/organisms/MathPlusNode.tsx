@@ -6,8 +6,8 @@
  */
 import 'mathlive';
 import katex from 'katex';
-import { interaction } from '../../state/appState.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { interaction } from '../../state/appState.ts';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import { evaluateLatex, isEngineReady, onEngineReady } from '../../utils/computeEngine.js';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 

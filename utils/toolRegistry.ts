@@ -2,8 +2,17 @@
  * Registry of all available tools/nodes in the application.
  * Defines metadata for each tool including label, icon, and type.
  */
+import type { NodeType, ToolConfig } from '../src/types/index.js';
 
-export const TOOLS = {
+export interface Tool {
+    id: NodeType;
+    label: string;
+    icon: string;
+    type: 'mode' | 'action';
+    description: string;
+}
+
+export const TOOLS: Record<NodeType, Tool> = {
     math: {
         id: 'math',
         label: 'Math',
@@ -69,7 +78,7 @@ export const TOOLS = {
     }
 };
 
-export const DEFAULT_TOOL_CONFIG = {
+export const DEFAULT_TOOL_CONFIG: ToolConfig = {
     toolbar: ['image', 'text', 'video'],
     more: ['graph', 'js', 'math', 'math-plus', 'spreadsheet', 'table']
 };

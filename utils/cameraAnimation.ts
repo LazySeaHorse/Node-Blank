@@ -1,13 +1,14 @@
-import { appState, batch } from '../state/appState.js';
+import { appState, batch } from '../state/appState.ts';
 import * as d3 from 'd3';
+import type { PanState } from '../src/types/index.js';
 
-let activeTimer = null;
+let activeTimer: d3.Timer | null = null;
 
 /**
  * Stop any active animation.
  * Should be called on user interaction (mouse, touch, wheel).
  */
-export function cancelAnimation() {
+export function cancelAnimation(): void {
     if (activeTimer) {
         activeTimer.stop();
         activeTimer = null;
@@ -16,11 +17,11 @@ export function cancelAnimation() {
 
 /**
  * Smoothly animate the camera to a target scale and pan.
- * @param {number} targetScale - The zoom level to animate to
- * @param {Object} targetPan - The x/y coordinates to animate to
- * @param {number} [duration=750] - Animation duration in ms
+ * @param targetScale - The zoom level to animate to
+ * @param targetPan - The x/y coordinates to animate to
+ * @param duration - Animation duration in ms
  */
-export function animateTo(targetScale, targetPan, duration = 750) {
+export function animateTo(targetScale: number, targetPan: PanState, duration: number = 750): void {
     // 1. Cancel any existing animation
     cancelAnimation();
 

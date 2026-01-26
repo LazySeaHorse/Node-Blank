@@ -4,9 +4,9 @@
  */
 import jspreadsheet from 'jspreadsheet-ce';
 import 'jsuites';
-import { interaction } from '../../state/appState.js';
+import { interaction } from '../../state/appState.ts';
 import { createNodeHeader } from '../molecules/NodeHeader.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 // Type for jSpreadsheet worksheet instance

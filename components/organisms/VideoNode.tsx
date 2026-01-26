@@ -2,7 +2,7 @@
  * Video Node Organism
  * Embeds YouTube, Vimeo, and other video sources
  */
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 /**

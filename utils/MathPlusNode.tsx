@@ -3,8 +3,8 @@
  */
 import 'mathlive';
 import katex from 'katex';
-import { interaction } from '../state/appState.js';
-import { createNodeContainer } from './nodeUI.js';
+import { interaction } from '../state/appState.ts';
+import { createNodeContainer } from './nodeUI.ts';
 import { evaluateLatex, isEngineReady, onEngineReady } from './computeEngine.js';
 import type { NodeData } from '../src/types/index.js';
 

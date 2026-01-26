@@ -3,7 +3,7 @@
  */
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { render } from 'preact';
-import { createNodeContainer } from './nodeUI.js';
+import { createNodeContainer } from './nodeUI.ts';
 import functionPlot from 'function-plot';
 import type { NodeData } from '../src/types/index.js';
 

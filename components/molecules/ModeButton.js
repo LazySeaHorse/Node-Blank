@@ -1,7 +1,7 @@
 /**
  * Mode Button Molecule
  */
-import { createIconElement } from '../../utils/icons.js';
+import { createIconElement } from '../../utils/icons.ts';
 
 export function createModeButton({ id, icon, iconName, label, onClick, isActive = false }) {
     const button = document.createElement('button');

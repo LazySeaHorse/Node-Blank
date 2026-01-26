@@ -2,7 +2,7 @@
  * Canvas Manager Organism
  * UI for managing multiple canvases
  */
-import { getAllCanvases, deleteCanvas, renameCanvas } from '../../utils/indexedDB.js';
+import { getAllCanvases, deleteCanvas, renameCanvas } from '../../utils/indexedDB.ts';
 
 export function createCanvasManager(callbacks) {
     const { onLoad, onClose, onCreate } = callbacks;

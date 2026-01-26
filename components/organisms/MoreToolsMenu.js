@@ -2,9 +2,9 @@
  * More Tools Menu Organism
  * Button that opens a dropdown with extra tools and configuration option.
  */
-import { appState } from '../../state/appState.js';
-import { TOOLS } from '../../utils/toolRegistry.js';
-import { createIconElement } from '../../utils/icons.js';
+import { appState } from '../../state/appState.ts';
+import { TOOLS } from '../../utils/toolRegistry.ts';
+import { createIconElement } from '../../utils/icons.ts';
 import { createDropdown } from '../molecules/Dropdown.js';
 import { createToolConfigModal } from './ToolConfigModal.js';
 

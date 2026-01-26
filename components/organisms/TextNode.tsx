@@ -2,9 +2,9 @@
  * Text Node Organism
  * Markdown editor with preview/edit toggle
  */
-import { mdRenderer } from '../../utils/mdRenderer.js';
-import { interaction } from '../../state/appState.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { mdRenderer } from '../../utils/mdRenderer.ts';
+import { interaction } from '../../state/appState.ts';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 /**

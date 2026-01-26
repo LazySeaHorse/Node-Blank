@@ -2,7 +2,7 @@
  * Image Node Organism
  * Displays an image with resize capability
  */
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 /**

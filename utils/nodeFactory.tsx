@@ -2,7 +2,7 @@
  * Node Factory - Creates and manages nodes
  * Refactored for TSX component imports
  */
-import { appState, interaction } from '../state/appState.js';
+import { appState, interaction } from '../state/appState.ts';
 import { createMathNode } from './MathNode';
 import { createMathPlusNode } from './MathPlusNode';
 import { createTextNode } from './TextNode';

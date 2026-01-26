@@ -3,8 +3,8 @@
  * Single MathLive math-field for LaTeX input
  */
 import 'mathlive';
-import { interaction } from '../../state/appState.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { interaction } from '../../state/appState.ts';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 // Extend HTMLElement for MathLive's math-field custom element

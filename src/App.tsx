@@ -5,8 +5,8 @@
  * Orchestrates the application shell using Preact while wrapping legacy DOM components.
  */
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { appState, signals, interaction, effect, computedValues, screenToWorld } from '@state/appState.js';
-import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB.js';
+import { appState, signals, interaction, effect, computedValues, screenToWorld } from '@state/appState.ts';
+import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas, renameCanvas } from '@utils/indexedDB.ts';
 import { updateModeSelector } from '../components/organisms/ModeSelector.js';
 import { AppHeader } from './components/organisms/AppHeader';
 import { createCanvasWorld, setupCanvasEvents, updateTransform } from '../components/organisms/CanvasWorld.tsx';
@@ -14,10 +14,10 @@ import { ZoomControl } from './components/molecules/ZoomControl';
 import { CanvasManager } from './components/organisms/CanvasManager';
 import { ThemeToggle } from './components/molecules/ThemeToggle';
 import { SearchOverlay } from './components/organisms/SearchOverlay';
-import { animateTo } from '@utils/cameraAnimation.js';
+import { animateTo } from '@utils/cameraAnimation.ts';
 import { initComputeEngine } from '@utils/computeEngine.js';
 import { createNode, renderNode, selectNode } from '@utils/nodeFactory.tsx';
-import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage.js';
+import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage.ts';
 
 declare global {
     interface Window {

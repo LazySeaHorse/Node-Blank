@@ -2,9 +2,9 @@
  * Script Node Organism (Sandboxed JavaScript Execution)
  * Provides a code editor with Web Worker-based script execution
  */
-import { interaction } from '../../state/appState.js';
-import { createIconElement } from '../../utils/icons.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { interaction } from '../../state/appState.ts';
+import { createIconElement } from '../../utils/icons.ts';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 
 type ConsoleType = 'log' | 'error' | 'warn' | 'info';

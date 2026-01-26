@@ -4,7 +4,7 @@
  */
 import { render } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import functionPlot from 'function-plot';
 import type { NodeData, SelectNodeFn } from '../../src/types';
 

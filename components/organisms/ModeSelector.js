@@ -3,8 +3,8 @@
  * Display toolbar buttons based on configuration.
  */
 import { createModeButton } from '../molecules/ModeButton.js';
-import { appState, signals } from '../../state/appState.js';
-import { TOOLS } from '../../utils/toolRegistry.js';
+import { appState, signals } from '../../state/appState.ts';
+import { TOOLS } from '../../utils/toolRegistry.ts';
 import { effect } from '@preact/signals-core';
 
 export function createModeSelector(handlers) {

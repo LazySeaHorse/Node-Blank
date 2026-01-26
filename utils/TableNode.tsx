@@ -1,9 +1,9 @@
 /**
  * Table Node Component (TSX)
  */
-import { interaction } from '../state/appState.js';
+import { interaction } from '../state/appState.ts';
 import { createNodeHeader, createButtonGroup } from '../components/molecules/NodeHeader.js';
-import { createNodeContainer } from './nodeUI.js';
+import { createNodeContainer } from './nodeUI.ts';
 import type { NodeData } from '../src/types/index.js';
 
 interface TableData {

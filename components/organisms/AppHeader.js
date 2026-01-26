@@ -3,10 +3,10 @@
  */
 import { createModeSelector } from './ModeSelector.js';
 import { createActionBar } from './ActionBar.js';
-import { createIconElement } from '../../utils/icons.js';
+import { createIconElement } from '../../utils/icons.ts';
 
 import { createMoreToolsMenu } from './MoreToolsMenu.js';
-import { signals, effect } from '../../state/appState.js';
+import { signals, effect } from '../../state/appState.ts';
 
 export function createAppHeader({
     onModeChange,

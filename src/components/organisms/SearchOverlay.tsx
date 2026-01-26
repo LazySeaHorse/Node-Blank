@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useRef } from 'preact/hooks';
 // @ts-ignore
-import { signals, effect } from '@state/appState.js';
+import { signals, effect } from '@state/appState.ts';
 import { IconX, getIconComponent } from '../icons';
 
 export function SearchOverlay() {

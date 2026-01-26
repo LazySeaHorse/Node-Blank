@@ -2,9 +2,9 @@
  * Canvas World Organism
  */
 import * as d3 from 'd3';
-import { appState, interaction, screenToWorld, signals } from '../../state/appState.js';
+import { appState, interaction, screenToWorld, signals } from '../../state/appState.ts';
 import { createNode, renderNode, removeNode, selectNode } from '../../utils/nodeFactory.tsx';
-import { cancelAnimation } from '../../utils/cameraAnimation.js';
+import { cancelAnimation } from '../../utils/cameraAnimation.ts';
 
 function updateSelectionFromRect(left, top, width, height, container) {
     const rect = container.getBoundingClientRect();

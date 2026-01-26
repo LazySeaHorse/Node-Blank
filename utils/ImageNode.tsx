@@ -1,7 +1,7 @@
 /**
  * Image Node Component (TSX)
  */
-import { createNodeContainer } from './nodeUI.js';
+import { createNodeContainer } from './nodeUI.ts';
 import type { NodeData } from '../src/types/index.js';
 
 export function createImageNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {

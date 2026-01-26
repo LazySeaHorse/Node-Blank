@@ -2,9 +2,9 @@
  * Main Application Entry Point
  * Orchestrates all components using Atomic Design Methodology
  */
-import { appState, interaction, effect, signals, computedValues, screenToWorld } from './state/appState.js';
-import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from './utils/storage.js';
-import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas } from './utils/indexedDB.js';
+import { appState, interaction, effect, signals, computedValues, screenToWorld } from './state/appState.ts';
+import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from './utils/storage.ts';
+import { initDB, getAllCanvases, getCanvasData, saveCanvasData, createCanvas, deleteCanvas } from './utils/indexedDB.ts';
 import { createNode, renderNode, selectNode } from './utils/nodeFactory.js';
 import { updateModeSelector } from './components/organisms/ModeSelector.js';
 import { createAppHeader } from './components/organisms/AppHeader.js';
@@ -13,7 +13,7 @@ import { createZoomControl } from './components/molecules/ZoomControl.js';
 import { createCanvasManager } from './components/organisms/CanvasManager.js';
 import { createThemeToggle } from './components/molecules/ThemeToggle.js';
 import { createSearchOverlay } from './components/organisms/SearchOverlay.js';
-import { animateTo } from './utils/cameraAnimation.js';
+import { animateTo } from './utils/cameraAnimation.ts';
 import { initComputeEngine } from './utils/computeEngine.js';
 
 class MathCanvasApp {

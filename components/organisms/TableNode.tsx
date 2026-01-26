@@ -2,9 +2,9 @@
  * Table Node Organism
  * Interactive table with MathLive cells
  */
-import { interaction } from '../../state/appState.js';
+import { interaction } from '../../state/appState.ts';
 import { createNodeHeader, createButtonGroup } from '../molecules/NodeHeader.js';
-import { createNodeContainer } from '../../utils/nodeUI.js';
+import { createNodeContainer } from '../../utils/nodeUI.ts';
 import type { NodeData, SelectNodeFn, TableData } from '../../src/types';
 
 // Extend HTMLElement for MathLive's math-field custom element

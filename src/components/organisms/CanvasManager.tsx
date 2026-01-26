@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { JSX } from 'preact/jsx-runtime';
 // @ts-ignore
-import { getAllCanvases, deleteCanvas, renameCanvas } from '@utils/indexedDB.js';
+import { getAllCanvases, deleteCanvas, renameCanvas } from '@utils/indexedDB.ts';
 import { IconX } from '../icons';
 
 interface Canvas {

@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from 'preact/hooks';
 import { ModeButton } from '../molecules/ModeButton';
 // @ts-ignore
-import { appState, signals, effect } from '@state/appState.js';
+import { appState, signals, effect } from '@state/appState.ts';
 // @ts-ignore
-import { TOOLS } from '@utils/toolRegistry.js';
+import { TOOLS } from '@utils/toolRegistry.ts';
 
 interface ModeSelectorProps {
     onModeChange: (mode: string) => void;

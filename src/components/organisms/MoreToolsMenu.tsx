@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'preact/hooks';
 // @ts-ignore
-import { appState, signals, effect } from '@state/appState.js';
+import { appState, signals, effect } from '@state/appState.ts';
 // @ts-ignore
-import { TOOLS } from '@utils/toolRegistry.js';
+import { TOOLS } from '@utils/toolRegistry.ts';
 import { Dropdown, DropdownMenuItem } from '../molecules/Dropdown';
 import { IconMoreHorizontal, getIconComponent, IconSettings } from '../icons';
 import { ToolConfigModal } from './ToolConfigModal';
