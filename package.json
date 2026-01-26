@@ -38,7 +38,6 @@
     "@preact/signals-core": "^1.12.2",
     "d3": "^7.9.0",
     "function-plot": "^1.25.3",
-    "htm": "^3.1.1",
     "jspreadsheet-ce": "^5.0.4",
     "jsuites": "^6.1.1",
     "katex": "^0.16.28",

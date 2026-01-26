@@ -16,7 +16,7 @@ export function createTextNode(data: NodeData, onSelect?: (id: string, addToSele
     preview.innerHTML = mdRenderer(data.content || '');
 
     const textarea = document.createElement('textarea');
-    textarea.className = 'md-editor hidden';
+    textarea.className = 'hidden w-full min-h-[120px] border border-border-base rounded-md p-2.5 resize-both bg-canvas text-text-primary font-mono text-sm leading-relaxed outline-none focus:border-accent focus:ring-2 focus:ring-accent/20';
     textarea.value = data.content || '';
 
     // Toggle Edit

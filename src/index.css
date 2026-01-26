@@ -1,10 +1,106 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/* Design System Variables */
+:root {
+    /* Colors - Primitives */
+    --color-primary: #3b82f6;
+    --color-primary-light: #bfdbfe;
+    --color-orange-500: #f97316;
+    --color-orange-600: #ea580c;
+    --color-orange-200: #fed7aa;
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-50: #f9fafb;
+    --color-gray-200: #e5e7eb;
+    --color-gray-800: #1f2937;
+    --color-red-400: #f87171;
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+    --color-pink-600: #db2777;
+
+    /* Semantic Variables (Light Mode Default) */
+    --bg-canvas: var(--color-slate-50);
+    --bg-surface: var(--color-white);
+    --bg-surface-hover: var(--color-slate-50);
+    --bg-surface-active: var(--color-slate-100);
+    --text-primary: var(--color-slate-800);
+    --text-secondary: var(--color-slate-500);
+    --text-tertiary: var(--color-slate-400);
+    --border-base: var(--color-slate-200);
+    --color-accent: var(--color-primary);
+    --color-accent-light: var(--color-primary-light);
+    --color-accent-fg: var(--color-white);
+    --grid-color: var(--color-gray-200);
+
+    /* Spacing */
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
+    --spacing-xl: 16px;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 0.5rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 5px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-focus: 0 0 0 2px var(--color-accent);
+
+    --grid-size: 40px;
+}
+
+/* Dark Mode Overrides */
+:root[data-theme="dark"] {
+    --bg-canvas: #0a0a0a;
+    --bg-surface: #262626;
+    --bg-surface-hover: #333333;
+    --bg-surface-active: #404040;
+    --text-primary: #ededed;
+    --text-secondary: #a3a3a3;
+    --text-tertiary: #737373;
+    --border-base: #404040;
+    --color-accent: #f97316;
+    --color-accent-light: #431407;
+    --color-accent-fg: #ffffff;
+    --color-slate-50: #0a0a0a;
+    --color-slate-100: #171717;
+    --color-slate-200: #262626;
+    --color-slate-300: #404040;
+    --color-slate-400: #525252;
+    --color-slate-500: #737373;
+    --color-slate-600: #a3a3a3;
+    --color-slate-700: #d4d4d4;
+    --color-slate-800: #e5e5e5;
+    --color-slate-900: #fafafa;
+    --color-primary: var(--color-accent);
+    --color-primary-light: var(--color-accent-light);
+    --grid-color: #262626;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+}
+
 /* NPM Library CSS */
 @import 'katex/dist/katex.min.css';
 @import 'jspreadsheet-ce/dist/jspreadsheet.css';
 @import 'jsuites/dist/jsuites.css';
 
-/* Legacy styles (to be migrated) */
-@import '../styles/main.css';
+/* Component-specific CSS (for innerHTML content and third-party overrides) */
+@import './components/markdown-preview.css';
+@import './components/third-party-overrides.css';
