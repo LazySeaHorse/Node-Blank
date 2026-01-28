@@ -63,9 +63,9 @@ export function createTableNode(data: NodeData, onSelect?: (id: string, addToSel
                     if (onSelect) onSelect(data.id);
                 });
 
-                // Handle Enter to move to next cell
+                // Handle Shift+Enter to move to next cell (plain Enter reserved for MathLive popover)
                 mf.addEventListener('keydown', (e: KeyboardEvent) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && e.shiftKey) {
                         e.preventDefault();
                         e.stopPropagation();
                         // Move to next cell or next row

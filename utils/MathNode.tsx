@@ -23,9 +23,9 @@ export function createMathNode(data: NodeData, onSelect?: (id: string, addToSele
         if (onSelect) onSelect(data.id);
     });
 
-    // Handle Enter for multiline
+    // Handle Shift+Enter for multiline (plain Enter reserved for MathLive popover)
     mf.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
             mf.executeCommand(['insert', '\\\\']);
