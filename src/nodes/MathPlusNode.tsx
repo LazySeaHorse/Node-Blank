@@ -3,10 +3,10 @@
  */
 import 'mathlive';
 import katex from 'katex';
-import { interaction } from '../state/appState';
-import { createNodeContainer } from './nodeUI';
+import { interaction } from '@state/appState';
+import { createNodeContainer } from '@utils/nodeUI';
 import { evaluateLatex, isEngineReady, onEngineReady } from '@utils/computeEngine';
-import type { NodeData } from '../src/types/index';
+import type { NodeData } from '@/types';
 
 export function createMathPlusNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const div = (createNodeContainer as any)(data, {

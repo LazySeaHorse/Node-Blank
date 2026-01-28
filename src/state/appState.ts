@@ -3,14 +3,14 @@
  * 100% backwards compatible - all existing code works unchanged
  */
 import { signal, computed, effect, batch, Signal, ReadonlySignal } from '@preact/signals-core';
-import { DEFAULT_TOOL_CONFIG } from '../utils/toolRegistry.ts';
-import type { 
-    NodeData, 
-    PanState, 
-    ToolConfig, 
-    InteractionState, 
-    WorldCoordinates 
-} from '../src/types/index.js';
+import { DEFAULT_TOOL_CONFIG } from '@utils/toolRegistry';
+import type {
+    NodeData,
+    PanState,
+    ToolConfig,
+    InteractionState,
+    WorldCoordinates
+} from '@/types';
 
 // Load config from localStorage
 const savedConfig = localStorage.getItem('canvas_tool_config');

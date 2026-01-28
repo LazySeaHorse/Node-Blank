@@ -1,10 +1,10 @@
 /**
  * Script Node Component (TSX)
  */
-import { interaction } from '../state/appState.ts';
-import { createIconElement } from './icons.ts';
-import { createNodeContainer } from './nodeUI.ts';
-import type { NodeData } from '../src/types/index.js';
+import { interaction } from '@state/appState';
+import { createIconElement } from '@utils/icons';
+import { createNodeContainer } from '@utils/nodeUI';
+import type { NodeData } from '@/types';
 
 export function createScriptNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const div = createNodeContainer(data, {

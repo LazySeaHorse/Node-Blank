@@ -2,9 +2,9 @@
  * Math Node Component (TSX)
  */
 import 'mathlive';
-import { interaction } from '../state/appState.ts';
-import { createNodeContainer } from './nodeUI.ts';
-import type { NodeData } from '../src/types/index.js';
+import { interaction } from '@state/appState';
+import { createNodeContainer } from '@utils/nodeUI';
+import type { NodeData } from '@/types';
 
 export function createMathNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const div = createNodeContainer(data, {

@@ -3,9 +3,9 @@
  */
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { render } from 'preact';
-import { createNodeContainer } from './nodeUI.ts';
+import { createNodeContainer } from '@utils/nodeUI';
 import functionPlot from 'function-plot';
-import type { NodeData } from '../src/types/index.js';
+import type { NodeData } from '@/types';
 
 export function createGraphNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const container = (createNodeContainer as any)(data, {
@@ -94,7 +94,7 @@ function GraphNodeContent({ data }: { data: NodeData }) {
         <>
             <div className="border border-border-base rounded-md p-1 px-2 bg-surface-hover flex items-center">
                 <span className="text-xs font-bold text-text-secondary mr-2">f(x)=</span>
-                <input 
+                <input
                     type="text"
                     className="flex-1 text-base bg-transparent text-text-primary outline-none border-none p-0.5"
                     value={content}
@@ -102,11 +102,11 @@ function GraphNodeContent({ data }: { data: NodeData }) {
                     placeholder="x^2"
                 />
             </div>
-            <div 
-                id={graphId} 
+            <div
+                id={graphId}
                 ref={graphRef}
                 className="w-full h-[240px] overflow-hidden rounded-md border border-border-base bg-canvas"
-                onWheel={(e: WheelEvent) => e.stopPropagation()} 
+                onWheel={(e: WheelEvent) => e.stopPropagation()}
             />
         </>
     );

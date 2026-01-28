@@ -16,7 +16,7 @@ import { ThemeToggle } from './components/molecules/ThemeToggle';
 import { SearchOverlay } from './components/organisms/SearchOverlay';
 import { animateTo } from '@utils/cameraAnimation';
 import { initComputeEngine } from '@utils/computeEngine';
-import { createNode, renderNode, selectNode } from '@utils/nodeFactory';
+import { createNode, renderNode, selectNode } from '@nodes/nodeFactory';
 import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage';
 
 declare global {

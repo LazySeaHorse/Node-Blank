@@ -25,16 +25,17 @@
                 "./src/*"
             ],
             "@state/*": [
-                "./state/*"
+                "./src/state/*"
             ],
             "@utils/*": [
-                "./utils/*"
+                "./src/utils/*"
+            ],
+            "@nodes/*": [
+                "./src/nodes/*"
             ]
         }
     },
     "include": [
-        "src",
-        "state",
-        "utils"
+        "src"
     ]
 }

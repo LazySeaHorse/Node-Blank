@@ -6,9 +6,9 @@ import jspreadsheet from 'jspreadsheet-ce';
 import 'jsuites';
 import { signal } from '@preact/signals';
 import { render } from 'preact';
-import { createNodeContainer } from './nodeUI.ts';
-import { SpreadsheetHeader } from '../src/components/molecules/SpreadsheetHeader';
-import type { NodeData } from '../src/types/index.js';
+import { createNodeContainer } from '@utils/nodeUI';
+import { SpreadsheetHeader } from '@/components/molecules/SpreadsheetHeader';
+import type { NodeData } from '@/types';
 
 export function createSpreadsheetNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const div = (createNodeContainer as any)(data, {

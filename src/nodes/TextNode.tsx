@@ -1,10 +1,10 @@
 /**
  * Text Node Component (TSX)
  */
-import { mdRenderer } from './mdRenderer.ts';
-import { interaction } from '../state/appState.ts';
-import { createNodeContainer } from './nodeUI.ts';
-import type { NodeData } from '../src/types/index.js';
+import { mdRenderer } from '@utils/mdRenderer';
+import { interaction } from '@state/appState';
+import { createNodeContainer } from '@utils/nodeUI';
+import type { NodeData } from '@/types';
 
 export function createTextNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
     const div = createNodeContainer(data, {

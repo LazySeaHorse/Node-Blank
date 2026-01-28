@@ -2,7 +2,7 @@
  * Registry of all available tools/nodes in the application.
  * Defines metadata for each tool including label, icon, and type.
  */
-import type { NodeType, ToolConfig } from '../src/types/index.js';
+import type { NodeType, ToolConfig } from '@/types';
 
 export interface Tool {
     id: NodeType;

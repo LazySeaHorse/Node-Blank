@@ -1,8 +1,8 @@
 /**
  * Video Node Component (TSX)
  */
-import { createNodeContainer } from './nodeUI.ts';
-import type { NodeData } from '../src/types/index.js';
+import { createNodeContainer } from '@utils/nodeUI';
+import type { NodeData } from '@/types';
 
 /**
  * Parse various video URL formats to embed URLs

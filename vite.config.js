@@ -22,8 +22,21 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': '/src',
-            '@state': '/state',
-            '@utils': '/utils'
+            '@state': '/src/state',
+            '@utils': '/src/utils',
+            '@nodes': '/src/nodes'
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-react': ['preact/hooks', 'preact'],
+                    'vendor-math': ['mathlive', 'katex', 'mathjs'],
+                    'vendor-graph': ['d3', 'function-plot'],
+                    'vendor-sheet': ['jspreadsheet-ce', 'jsuites'],
+                }
+            }
+        }
+    }
 });

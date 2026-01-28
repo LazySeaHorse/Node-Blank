@@ -3,7 +3,7 @@
  */
 import * as d3 from 'd3';
 import { appState, interaction, screenToWorld, signals } from '@state/appState';
-import { createNode, renderNode, removeNode, selectNode } from '@utils/nodeFactory';
+import { createNode, renderNode, removeNode, selectNode } from '@nodes/nodeFactory';
 import { cancelAnimation } from '@utils/cameraAnimation';
 
 function updateSelectionFromRect(left: number, top: number, width: number, height: number, container: HTMLElement) {
@@ -278,7 +278,7 @@ export function setupCanvasEvents(container: HTMLElement, world: HTMLElement) {
                 }
             }
         }
-        
+
         // Duplicate
         if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
             e.preventDefault();
@@ -296,7 +296,7 @@ export function setupCanvasEvents(container: HTMLElement, world: HTMLElement) {
                 newIds.forEach(id => selectNode(id, true));
             }
         }
-        
+
         // Global Search Shortcuts
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             e.preventDefault();

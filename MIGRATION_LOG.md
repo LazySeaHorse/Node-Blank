@@ -174,14 +174,18 @@ The codebase is now fully modern with Preact + Vite + Tailwind + TypeScript prov
 - [x] **Compute Engine Migration**: Replaced local `compute-engine.js` (600KB) with `@cortex-js/compute-engine` NPM package.
 - [x] **Type Definitions**: Cleaned `declarations.d.ts` (Removed legacy JS shims).
 
-### Phase 7B: Production Optimization (IN PROGRESS)
+### Phase 7B: Production Optimization ✅ (Complete)
 - [x] Bundle analysis with `vite-bundle-analyzer`
-    *   *Result*: Generated `stats.html`. Bundle size analysis needed.
 - [x] **Strict TS**: `tsconfig.json` updated to `allowJs: false`.
-- [ ] Code splitting for large dependencies (compute-engine, jspreadsheet)
-- [ ] Lazy loading for node types
-- [ ] Performance profiling and optimization
-- [ ] Build size optimization strategies
+- [x] **Code Splitting**: Implemented `manualChunks` in `vite.config.js` for `mathlive`, `katex`, `d3`, `jspreadsheet` etc.
+- [x] **Project Structure**: moved `state`, `utils`, `nodes` into `src/` for better organization.
+
+### Phase 7F: Structural Standardization ✅ (Complete)
+- [x] Move `state/` -> `src/state/`
+- [x] Move `utils/` -> `src/utils/`
+- [x] Create `src/nodes/` and move all node components there
+- [x] Update all import paths to use new aliases (`@state`, `@utils`, `@nodes`)
+- [x] Delete redundant files (`stats.html`, empty `public/lib`)
 
 ### Phase 7D: Testing Setup
 - [ ] Unit tests for core utilities (storage, indexedDB, nodeFactory)

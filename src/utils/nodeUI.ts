@@ -2,7 +2,7 @@
  * Node UI Utilities
  * Shared logic for node structure, styling, and standard elements
  */
-import type { NodeData, NodeContainerOptions, CreateNodeContainerFn } from '../src/types/index.js';
+import type { NodeData, NodeContainerOptions, CreateNodeContainerFn } from '@/types';
 
 export const BASE_NODE_CLASSES = 'node group absolute rounded-lg transition-shadow duration-150 bg-surface text-text-primary shadow-md border border-transparent [&.selected]:shadow-focus [&.selected]:shadow-lg [&.selected]:z-[1000] [&.selected]:ring-2 [&.selected]:ring-accent [&.selected]:ring-offset-1 dark:[&.selected]:ring-offset-canvas [&.dragging]:cursor-grabbing [&.dragging]:opacity-90 cursor-grab';
 
@@ -14,7 +14,7 @@ export const BASE_NODE_CLASSES = 'node group absolute rounded-lg transition-shad
  * @returns The created div element
  */
 export const createNodeContainer: CreateNodeContainerFn = (
-    data: NodeData, 
+    data: NodeData,
     { className = '', withResize = false, flex = false }: NodeContainerOptions = {}
 ): HTMLElement => {
     const div = document.createElement('div');
