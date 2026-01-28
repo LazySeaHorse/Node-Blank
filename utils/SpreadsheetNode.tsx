@@ -1,11 +1,13 @@
 /**
  * Spreadsheet Node Component (TSX)
+ * Uses Preact signals for reactive formula display
  */
 import jspreadsheet from 'jspreadsheet-ce';
 import 'jsuites';
-import { interaction } from '../state/appState.ts';
-import { createNodeHeader } from '../src/components/molecules/NodeHeader';
+import { signal } from '@preact/signals';
+import { render } from 'preact';
 import { createNodeContainer } from './nodeUI.ts';
+import { SpreadsheetHeader } from '../src/components/molecules/SpreadsheetHeader';
 import type { NodeData } from '../src/types/index.js';
 
 export function createSpreadsheetNode(data: NodeData, onSelect?: (id: string, addToSelection?: boolean) => void): HTMLElement {
@@ -14,29 +16,19 @@ export function createSpreadsheetNode(data: NodeData, onSelect?: (id: string, ad
         flex: true
     });
 
-    // Formula display bar (shows formula/value of selected cell)
-    const formulaDisplay = document.createElement('div');
-    formulaDisplay.className = 'flex items-center gap-2 bg-surface rounded border border-border-base px-2 py-1 min-w-[200px] max-w-[300px]';
+    // Create reactive signal for formula display
+    const formulaValue = signal('');
 
-    const formulaLabel = document.createElement('span');
-    formulaLabel.className = 'text-xs font-semibold text-text-tertiary';
-    formulaLabel.textContent = 'fx';
-
-    const formulaValue = document.createElement('span');
-    formulaValue.className = 'text-xs text-text-secondary font-mono truncate flex-1';
-    formulaValue.textContent = '';
-
-    formulaDisplay.appendChild(formulaLabel);
-    formulaDisplay.appendChild(formulaValue);
-
-    // Header with formula display
-    const header = createNodeHeader('Spreadsheet', [formulaDisplay]);
+    // Render Preact header component into a container
+    const headerContainer = document.createElement('div');
+    render(<SpreadsheetHeader formulaValue={formulaValue} />, headerContainer);
 
     // Content Container
     const contentDiv = document.createElement('div');
     contentDiv.className = 'p-1 bg-surface spreadsheet-content';
 
-    div.appendChild(header);
+    // Append header and content to node
+    div.appendChild(headerContainer.firstElementChild as HTMLElement);
     div.appendChild(contentDiv);
 
     // Initialize Jspreadsheet
@@ -101,12 +93,8 @@ export function createSpreadsheetNode(data: NodeData, onSelect?: (id: string, ad
                 // Get the value of the first selected cell (top-left of selection)
                 const cellValue = ws.getValueFromCoords(x1, y1);
 
-                // Display the cell value (formulas in jspreadsheet start with '=')
-                if (cellValue) {
-                    formulaValue.textContent = cellValue;
-                } else {
-                    formulaValue.textContent = '';
-                }
+                // Update the signal - Preact will reactively update the UI
+                formulaValue.value = cellValue || '';
             }
         }
     });
