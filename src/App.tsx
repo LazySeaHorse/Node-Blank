@@ -15,7 +15,7 @@ import { CanvasManager } from './components/organisms/CanvasManager';
 import { ThemeToggle } from './components/molecules/ThemeToggle';
 import { SearchOverlay } from './components/organisms/SearchOverlay';
 import { animateTo } from '@utils/cameraAnimation';
-import { initComputeEngine } from '@utils/computeEngine.js';
+import { initComputeEngine } from '@utils/computeEngine';
 import { createNode, renderNode, selectNode } from '@utils/nodeFactory';
 import { exportJSON, importJSON, exportAllCanvasesJSON, importAllCanvasesJSON, exportSelectedNodesJSON, importNodesJSON } from '@utils/storage';
 
@@ -332,7 +332,7 @@ export function App() {
                 // Get container from worldRef
                 const { container } = worldRef.current;
                 if (!container) return;
-                
+
                 // ... (Bounding Box Calc & Animation Logic from app.js)
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 matchedIds.forEach(id => {

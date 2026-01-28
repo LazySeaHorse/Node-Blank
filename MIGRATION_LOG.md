@@ -165,6 +165,12 @@ The codebase is now fully modern with Preact + Vite + Tailwind + TypeScript prov
 - [x] `utils/icons.js` → `utils/icons.ts` (Icon loading utilities)
 - [x] `utils/mdRenderer.js` → `utils/mdRenderer.ts` (Markdown rendering)
 - [x] `utils/cameraAnimation.js` → `utils/cameraAnimation.ts` (Canvas animations)
+- [x] `utils/computeEngine.js` → `utils/computeEngine.ts` (Math Engine wrapper)
+
+### Phase 7E: Final Cleanup ✅ (Complete)
+- [x] Delete `index.original.html`
+- [x] Remove global `window.process` shim from `index.html`
+- [x] Clean `public/lib` folder (ToastUI files removed)
 
 ### Phase 7B: Production Optimization (NEXT)
 - [ ] Bundle analysis with `vite-bundle-analyzer`
