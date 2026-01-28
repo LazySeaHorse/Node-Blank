@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
+    base: '/Node-Blank/',
     plugins: [
         preact(),
         tailwindcss(),
