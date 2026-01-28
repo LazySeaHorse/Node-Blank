@@ -1,0 +1,71 @@
+/* Markdown Preview Styles - Applied to innerHTML content */
+.md-preview {
+    user-select: text;
+    cursor: text;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.md-preview h1 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-base);
+    padding-bottom: 4px;
+}
+
+.md-preview h2 {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+    margin-top: 0.5em;
+}
+
+.md-preview p {
+    margin-bottom: 0.6em;
+    line-height: 1.5;
+}
+
+.md-preview ul {
+    list-style-type: disc;
+    padding-left: 1.2em;
+    margin-bottom: 0.6em;
+}
+
+.md-preview ol {
+    list-style-type: decimal;
+    padding-left: 1.2em;
+    margin-bottom: 0.6em;
+}
+
+.md-preview code {
+    background: var(--bg-surface-active);
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--color-pink-600);
+}
+
+.md-preview pre {
+    background: var(--color-slate-800);
+    padding: 10px;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin-bottom: 0.8em;
+}
+
+.md-preview pre code {
+    background: transparent;
+    color: var(--color-white);
+}
+
+.md-preview blockquote {
+    border-left: 3px solid var(--border-base);
+    padding-left: 10px;
+    color: var(--text-secondary);
+    font-style: italic;
+}

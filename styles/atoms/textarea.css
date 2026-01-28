@@ -1,9 +1,0 @@
-/* Base Textarea Styles */
-textarea {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    outline: none;
-    user-select: text;
-    cursor: text;
-}

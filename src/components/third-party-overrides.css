@@ -1,0 +1,206 @@
+/* Third-party Library Style Overrides */
+
+/* ========================================
+   MATHLIVE OVERRIDES
+   ======================================== */
+
+/* MathField (Input) Styling */
+math-field {
+    font-size: 1.25rem;
+    background: transparent;
+    outline: none;
+    border: none;
+    user-select: text;
+    cursor: text;
+    padding: var(--spacing-xs);
+    color: inherit;
+}
+
+math-field::part(container) {
+    outline: none;
+}
+
+/* Hide MathLive menu and keyboard buttons */
+math-field::part(menu-toggle),
+math-field::part(virtual-keyboard-toggle) {
+    display: none !important;
+}
+
+/* Dark Mode MathLive Overrides */
+:root[data-theme="dark"] math-field {
+    --caret-color: var(--color-accent);
+    --selection-background-color: var(--bg-surface-active);
+    --selection-color: var(--text-primary);
+    --primary: var(--color-accent);
+    --placeholder-color: var(--text-tertiary);
+    --placeholder-opacity: 0.5;
+    --contains-highlight-background-color: var(--bg-surface-hover);
+    --highlight-text: var(--color-accent);
+    --smart-fence-color: var(--color-accent);
+    --smart-fence-opacity: 0.7;
+    --latex-color: var(--text-secondary);
+    --correct-color: var(--color-red-400);
+    --incorrect-color: var(--color-red-500);
+}
+
+:root[data-theme="dark"] math-field::part(content) {
+    color: var(--text-primary);
+    background: transparent;
+}
+
+:root[data-theme="dark"] math-field::part(container) {
+    background: transparent;
+}
+
+/* ========================================
+   JSPREADSHEET OVERRIDES
+   ======================================== */
+
+/* Spreadsheet Node Wrapper */
+.node-spreadsheet {
+    width: fit-content;
+    height: fit-content;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+/* Container */
+.jss_container {
+    font-family: inherit;
+    background: var(--bg-surface);
+    border: none;
+    box-shadow: none;
+}
+
+/* Headers (A, B, C...) */
+.jss_worksheet>thead>tr>td {
+    background-color: var(--bg-surface-active) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-base) !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Row Numbers (1, 2, 3...) */
+.jss_worksheet>tbody>tr>td:first-child {
+    background-color: var(--bg-surface-active) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-base) !important;
+    font-size: 0.75rem;
+}
+
+/* Cells */
+.jss_worksheet>tbody>tr>td {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-base);
+    padding: 4px;
+    font-size: 0.875rem;
+}
+
+/* Active Cell */
+.jss_worksheet .highlight {
+    background-color: color-mix(in srgb, var(--color-accent), transparent 90%) !important;
+}
+
+.jss_worksheet .highlight-selected {
+    background-color: color-mix(in srgb, var(--color-accent), transparent 85%) !important;
+}
+
+.jss_worksheet>tbody>tr>td.active {
+    border-color: var(--color-accent) !important;
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+/* Inputs / Textareas */
+.jss_content textarea,
+.jss_content input {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    font-family: inherit;
+}
+
+/* Context Menu */
+.jcontextmenu {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-base) !important;
+    box-shadow: var(--shadow-lg) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-md) !important;
+    z-index: 10001 !important;
+}
+
+.jcontextmenu>div {
+    color: var(--text-primary) !important;
+    padding: 8px 12px !important;
+}
+
+.jcontextmenu>div:hover {
+    background: var(--bg-surface-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+.jcontextmenu>div>*,
+.jcontextmenu>div>a,
+.jcontextmenu>div>span,
+.jcontextmenu a,
+.jcontextmenu span {
+    color: var(--text-primary) !important;
+}
+
+.jcontextmenu hr {
+    border: none !important;
+    border-bottom: 1px solid var(--border-base) !important;
+    margin: 4px 0 !important;
+}
+
+/* Hide the 'Powered by' */
+.jss_about {
+    display: none !important;
+}
+
+/* Enhanced Dark Mode Overrides */
+.jss_worksheet {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border-base) !important;
+}
+
+.jss_worksheet>thead>tr>td,
+.jss_worksheet>tbody>tr>td,
+.jss_worksheet>tfoot>tr>td {
+    border-top-color: var(--border-base) !important;
+    border-left-color: var(--border-base) !important;
+    border-right-color: transparent !important;
+    border-bottom-color: transparent !important;
+}
+
+.jss_worksheet {
+    border-right-color: var(--border-base) !important;
+    border-bottom-color: var(--border-base) !important;
+}
+
+/* Selection Borders */
+.jss_worksheet .highlight-top {
+    border-top: 1px solid var(--color-accent) !important;
+    box-shadow: none !important;
+}
+
+.jss_worksheet .highlight-left {
+    border-left: 1px solid var(--color-accent) !important;
+    box-shadow: none !important;
+}
+
+.jss_worksheet .highlight-right {
+    border-right: 1px solid var(--color-accent) !important;
+}
+
+.jss_worksheet .highlight-bottom {
+    border-bottom: 1px solid var(--color-accent) !important;
+}
+
+/* Corner Handle */
+.jss_corner {
+    background-color: var(--color-accent) !important;
+    border-color: var(--bg-surface) !important;
+}

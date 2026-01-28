@@ -2,108 +2,16 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Node Blank</title>
-
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#3b82f6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
-    <link rel="icon" type="image/x-icon" href="assets/logo/favicon.ico">
-
-    <!-- Preact Signals via CDN -->
-    <script type="importmap">
-    {
-        "imports": {
-            "@preact/signals-core": "https://esm.sh/@preact/signals-core@1.5.1",
-            "preact": "https://esm.sh/preact@10.19.3",
-            "preact/hooks": "https://esm.sh/preact@10.19.3/hooks",
-            "htm": "https://esm.sh/htm@3.1.1"
-        }
-    }
-    </script>
-
-    <!-- Tailwind CSS -->
-    <script src="lib/tailwind.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: ['class', '[data-theme="dark"]'],
-            theme: {
-                extend: {
-                    colors: {
-                        primary: 'var(--color-primary)',
-                        accent: 'var(--color-accent)',
-
-                        // Backgrounds
-                        canvas: 'var(--bg-canvas)',
-                        surface: {
-                            DEFAULT: 'var(--bg-surface)',
-                            hover: 'var(--bg-surface-hover)',
-                            active: 'var(--bg-surface-active)',
-                        },
-
-                        // Text
-                        text: {
-                            primary: 'var(--text-primary)',
-                            secondary: 'var(--text-secondary)',
-                            tertiary: 'var(--text-tertiary)',
-                        },
-
-                        // Borders
-                        border: {
-                            base: 'var(--border-base)',
-                        }
-                    },
-                    borderRadius: {
-                        md: 'var(--radius-md)',
-                        lg: 'var(--radius-lg)',
-                    },
-                    boxShadow: {
-                        focus: 'var(--shadow-focus)',
-                        md: 'var(--shadow-md)',
-                        lg: 'var(--shadow-lg)',
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="styles/main.css">
-
-    <!-- 1. MathLive (Editing Math) -->
-    <script src="lib/mathlive.min.js"></script>
-
-    <!-- 2. Marked.js (Markdown) -->
-    <script src="lib/marked.min.js"></script>
-
-    <!-- 3. KaTeX (Rendering Math in Markdown) -->
-    <link rel="stylesheet" href="lib/katex.min.css">
-    <script src="lib/katex.min.js"></script>
-
-    <!-- 4. Function Plot + D3 (Graphing) -->
-    <!-- 4. D3 (Graphing) -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script src="lib/function-plot.js"></script>
-
-    <!-- 5. Math.js (Equation Evaluation) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
-
-    <!-- 6. Jspreadsheet CE (Spreadsheets) -->
-    <link rel="stylesheet" href="lib/jsuites.css">
-    <link rel="stylesheet" href="lib/jspreadsheet.css">
-    <script src="lib/jsuites.js"></script>
-    <script src="lib/formula.js"></script>
-    <script src="lib/jspreadsheet.js"></script>
+    <link rel="icon" type="image/x-icon" href="/assets/logo/favicon.ico">
 </head>
 
 <body>
     <div id="app"></div>
+    <script type="module" src="/src/index.tsx"></script>
 
-    <!-- Main Application Module -->
-    <script type="module" src="./app.js"></script>
 </body>
 
 </html>
