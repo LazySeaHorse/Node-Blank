@@ -174,8 +174,10 @@ The codebase is now fully modern with Preact + Vite + Tailwind + TypeScript prov
 - [x] **Compute Engine Migration**: Replaced local `compute-engine.js` (600KB) with `@cortex-js/compute-engine` NPM package.
 - [x] **Type Definitions**: Cleaned `declarations.d.ts` (Removed legacy JS shims).
 
-### Phase 7B: Production Optimization (NEXT)
-- [ ] Bundle analysis with `vite-bundle-analyzer`
+### Phase 7B: Production Optimization (IN PROGRESS)
+- [x] Bundle analysis with `vite-bundle-analyzer`
+    *   *Result*: Generated `stats.html`. Bundle size analysis needed.
+- [x] **Strict TS**: `tsconfig.json` updated to `allowJs: false`.
 - [ ] Code splitting for large dependencies (compute-engine, jspreadsheet)
 - [ ] Lazy loading for node types
 - [ ] Performance profiling and optimization
