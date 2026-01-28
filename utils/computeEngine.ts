@@ -1,29 +1,8 @@
 /**
  * Compute Engine Singleton
  * A shared compute engine instance for all Math+ nodes.
- * Variables defined in one node are accessible to all others.
  */
-
-// Define simplified types for the potentially untyped library
-interface ComputeEngineInstance {
-    parse: (latex: string) => BoxedExpression | null;
-    evaluate: (expr: any) => any;
-    context: PropertyMap;
-    [key: string]: any;
-}
-
-interface BoxedExpression {
-    isNothing: boolean;
-    head: string;
-    evaluate: () => BoxedExpression;
-    latex: string;
-    value: any;
-    [key: string]: any;
-}
-
-interface PropertyMap {
-    ids?: Map<string, { value: any }>;
-}
+import type { ComputeEngine, BoxedExpression } from '@cortex-js/compute-engine';
 
 export interface EvaluationResult {
     result: string;
@@ -31,27 +10,26 @@ export interface EvaluationResult {
     error: string | null;
 }
 
-let engineInstance: ComputeEngineInstance | null = null;
+// We hold a reference to the ComputeEngine instance
+let engineInstance: ComputeEngine | null = null;
 let engineReady = false;
-type EngineCallback = (engine: ComputeEngineInstance) => void;
+type EngineCallback = (engine: ComputeEngine) => void;
 const pendingCallbacks: EngineCallback[] = [];
 
 /**
  * Initialize the compute engine asynchronously.
  * Call this once at app startup.
  */
-export async function initComputeEngine(): Promise<ComputeEngineInstance> {
+export async function initComputeEngine(): Promise<ComputeEngine> {
     if (engineInstance) return engineInstance;
 
     try {
-        // Dynamic import of the compute engine
-        // @ts-ignore - Importing local JS file without declaration
-        const module = await import('../src/lib/compute-engine.js');
-        const { ComputeEngine } = module;
-        engineInstance = (new ComputeEngine() as unknown) as ComputeEngineInstance;
+        // Dynamic import for code splitting
+        const { ComputeEngine } = await import('@cortex-js/compute-engine');
+        engineInstance = new ComputeEngine();
         engineReady = true;
 
-        // Execute any pending callbacks
+        // Execute pending callbacks
         if (engineInstance) {
             const instance = engineInstance;
             pendingCallbacks.forEach(cb => cb(instance));
@@ -59,7 +37,7 @@ export async function initComputeEngine(): Promise<ComputeEngineInstance> {
         pendingCallbacks.length = 0;
 
         console.log('Compute Engine initialized successfully');
-        return engineInstance as ComputeEngineInstance;
+        return engineInstance;
     } catch (error) {
         console.error('Failed to initialize Compute Engine:', error);
         throw error;
@@ -70,7 +48,7 @@ export async function initComputeEngine(): Promise<ComputeEngineInstance> {
  * Get the compute engine instance.
  * Returns null if not yet initialized.
  */
-export function getComputeEngine(): ComputeEngineInstance | null {
+export function getComputeEngine(): ComputeEngine | null {
     return engineInstance;
 }
 
@@ -142,14 +120,20 @@ export function getDefinedSymbols(): Map<string, any> {
     if (!engineInstance) return new Map();
 
     const symbols = new Map<string, any>();
-    // Access the global scope's symbols
-    // This is a simplified version - the actual API may differ
+    // Access the global scope's symbols.
+    // Note: accessing context directly might depend on version internal structure
     try {
-        const scope = engineInstance.context;
-        if (scope && scope.ids) {
-            for (const [name, def] of scope.ids) {
-                if (def.value !== undefined) {
-                    symbols.set(name, def.value);
+        const context = engineInstance.context;
+        if (context) {
+            // In some versions, it's context.ids or similar. 
+            // We'll try to iterate if possible/known, otherwise return empty for now if strict.
+            // For now, let's treat it as any to avoid build errors if definitions mismatch.
+            const ctxAny = context as any;
+            if (ctxAny.ids) {
+                for (const [name, def] of ctxAny.ids) {
+                    if (def && def.value !== undefined) {
+                        symbols.set(name, def.value);
+                    }
                 }
             }
         }

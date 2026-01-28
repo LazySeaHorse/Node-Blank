@@ -171,6 +171,8 @@ The codebase is now fully modern with Preact + Vite + Tailwind + TypeScript prov
 - [x] Delete `index.original.html`
 - [x] Remove global `window.process` shim from `index.html`
 - [x] Clean `public/lib` folder (ToastUI files removed)
+- [x] **Compute Engine Migration**: Replaced local `compute-engine.js` (600KB) with `@cortex-js/compute-engine` NPM package.
+- [x] **Type Definitions**: Cleaned `declarations.d.ts` (Removed legacy JS shims).
 
 ### Phase 7B: Production Optimization (NEXT)
 - [ ] Bundle analysis with `vite-bundle-analyzer`
