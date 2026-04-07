@@ -59,16 +59,20 @@ export function ButtonGroup({ label, onDecrement, onIncrement }: ButtonGroupProp
 // Helper functions for DOM-based nodes that need to render JSX components
 export function createNodeHeader(title: string, controls: HTMLElement[] = []): HTMLElement {
     const container = document.createElement('div');
-    
-    // Convert HTML elements to JSX elements
-    const jsxControls = controls.map((el, index) => {
-        const wrapper = document.createElement('div');
-        wrapper.appendChild(el);
-        return <div key={index} dangerouslySetInnerHTML={{ __html: wrapper.innerHTML }} />;
-    });
-    
-    render(<NodeHeader title={title} controls={jsxControls} />, container);
-    return container.firstElementChild as HTMLElement;
+
+    // Render the header without controls first
+    render(<NodeHeader title={title} />, container);
+    const headerEl = container.firstElementChild as HTMLElement;
+
+    // Append actual DOM elements to preserve event handlers
+    if (controls.length > 0) {
+        const controlsWrapper = document.createElement('div');
+        controlsWrapper.className = 'flex gap-2 items-center';
+        controls.forEach(el => controlsWrapper.appendChild(el));
+        headerEl.appendChild(controlsWrapper);
+    }
+
+    return headerEl;
 }
 
 export function createButtonGroup(label: string, onDecrement: () => void, onIncrement: () => void): HTMLElement {

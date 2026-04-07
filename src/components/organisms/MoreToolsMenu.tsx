@@ -34,7 +34,7 @@ export function MoreToolsMenu({ onModeChange, onImageUpload, onVideoAdd }: MoreT
         return {
             type: 'item',
             label: tool.label,
-            icon: IconComp ? <IconComp size={16} /> : undefined,
+            icon: IconComp ? <IconComp size={18} /> : undefined,
             onClick: () => {
                 if (tool.type === 'mode') {
                     onModeChange(tool.id);
@@ -54,7 +54,7 @@ export function MoreToolsMenu({ onModeChange, onImageUpload, onVideoAdd }: MoreT
     items.push({
         type: 'item',
         label: 'Configure Toolbar...',
-        icon: <IconSettings size={16} />,
+        icon: <IconSettings size={18} />,
         onClick: () => {
             setAnchorEl(null); // Close dropdown first
             setShowConfigModal(true);

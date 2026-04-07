@@ -23,7 +23,7 @@ export function ActionButton({
     if (iconName) {
         const IconComponent = getIconComponent(iconName);
         if (IconComponent) {
-            RenderedIcon = <IconComponent size={iconOnly ? 20 : 18} />;
+            RenderedIcon = <IconComponent size={20} />;
         }
     } else if (icon) {
         RenderedIcon = typeof icon === 'string' ? <span>{icon}</span> : icon;

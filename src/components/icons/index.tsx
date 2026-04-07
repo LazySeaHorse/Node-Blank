@@ -5,7 +5,7 @@ export interface IconProps extends JSX.SVGAttributes<SVGSVGElement> {
     strokeWidth?: number | string;
 }
 
-const DefaultIcon = ({ size = 24, strokeWidth = 2.5, children, ...props }: IconProps) => (
+const DefaultIcon = ({ size = 24, strokeWidth = 2, children, ...props }: IconProps) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -84,7 +84,7 @@ export const IconChart = (props: IconProps) => (
     <DefaultIcon {...props}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></DefaultIcon>
 );
 export const IconTable2 = (props: IconProps) => (
-    <DefaultIcon {...props}><path d="M9 3H5a2 2 0 0 0-2 2v4h10V3z" /><path d="M19 3h-4v6h10V5a2 2 0 0 0-2-2z" /><path d="M21 13H15v10h4a2 2 0 0 0 2-2v-8z" /><path d="M11 23V13H3v8a2 2 0 0 0 2 2h6z" /></DefaultIcon>
+    <DefaultIcon {...props}><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></DefaultIcon>
 );
 export const IconSheet = (props: IconProps) => (
     <DefaultIcon {...props}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" /><line x1="9" y1="3" x2="9" y2="21" /><line x1="15" y1="3" x2="15" y2="21" /></DefaultIcon>

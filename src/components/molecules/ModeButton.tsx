@@ -31,7 +31,7 @@ export function ModeButton({
     if (iconName) {
         const IconComponent = getIconComponent(iconName);
         if (IconComponent) {
-            RenderedIcon = <IconComponent size={18} />;
+            RenderedIcon = <IconComponent size={20} />;
         }
     } else if (icon) {
         RenderedIcon = <span>{icon}</span>;
