@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { clusterRects, organiseLayout, type Rect, reconcileGroups } from './clusters';
+import {
+  besideCandidates,
+  clusterRects,
+  findFreeSpot,
+  organiseLayout,
+  type Rect,
+  reconcileGroups,
+} from './clusters';
 
 const rect = (id: string, x: number, y: number, width = 100, height = 50): Rect => ({
   id,
@@ -110,5 +117,53 @@ describe('organiseLayout', () => {
     const layout = organiseLayout(clusters, 20, 100);
     expect(layout.get('b')).toEqual({ x: 200, y: 0 });
     expect(layout.get('c')).toEqual({ x: 320, y: 0 });
+  });
+});
+
+describe('findFreeSpot', () => {
+  const size = { width: 100, height: 50 };
+
+  it('takes the first free candidate', () => {
+    const obstacles = [rect('a', 0, 0)];
+    expect(
+      findFreeSpot(
+        size,
+        [
+          { x: 50, y: 0 },
+          { x: 200, y: 0 },
+        ],
+        obstacles,
+        10,
+      ),
+    ).toEqual({ x: 200, y: 0 });
+  });
+
+  it('keeps the padding clear', () => {
+    expect(
+      findFreeSpot(
+        size,
+        [
+          { x: 105, y: 0 },
+          { x: 110, y: 0 },
+        ],
+        [rect('a', 0, 0)],
+        10,
+      ),
+    ).toEqual({
+      x: 110,
+      y: 0,
+    });
+  });
+
+  it('steps down from the first candidate when every candidate is taken', () => {
+    const spot = findFreeSpot(size, [{ x: 0, y: 0 }], [rect('a', 0, 0), rect('b', 0, 60)], 10);
+    expect(spot).toEqual({ x: 0, y: 120 });
+  });
+
+  it('suggests spots right of and below a target', () => {
+    expect(besideCandidates(rect('a', 10, 20), 5)).toEqual([
+      { x: 115, y: 20 },
+      { x: 10, y: 75 },
+    ]);
   });
 });

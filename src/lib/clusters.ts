@@ -170,3 +170,35 @@ export function organiseLayout(
   });
   return result;
 }
+
+const overlaps = (a: Omit<Rect, 'id'>, b: Omit<Rect, 'id'>, padding: number) =>
+  a.x < b.x + b.width + padding &&
+  b.x < a.x + a.width + padding &&
+  a.y < b.y + b.height + padding &&
+  b.y < a.y + a.height + padding;
+
+/**
+ * The first candidate position where a box of `size` keeps `padding` clear of every obstacle.
+ * If all candidates are taken, steps down from the first candidate until there is room.
+ */
+export function findFreeSpot(
+  size: { width: number; height: number },
+  candidates: { x: number; y: number }[],
+  obstacles: Omit<Rect, 'id'>[],
+  padding = NODE_PADDING,
+): { x: number; y: number } {
+  const free = (p: { x: number; y: number }) =>
+    !obstacles.some((o) => overlaps({ ...p, ...size }, o, padding));
+  const spot = candidates.find(free);
+  if (spot) return spot;
+  const start = candidates[0] ?? { x: 0, y: 0 };
+  for (let y = start.y; ; y += padding) if (free({ x: start.x, y })) return { x: start.x, y };
+}
+
+/** Candidate spots next to `target` for a new box: to its right, then below it. */
+export function besideCandidates(target: Omit<Rect, 'id'>, padding = NODE_PADDING) {
+  return [
+    { x: target.x + target.width + padding, y: target.y },
+    { x: target.x, y: target.y + target.height + padding },
+  ];
+}

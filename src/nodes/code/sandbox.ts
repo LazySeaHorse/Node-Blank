@@ -7,8 +7,11 @@ export interface LogLine {
 /** Scripts (including their timers) are killed after this long. */
 const TIME_LIMIT_MS = 5000;
 
-/** Runs `source` in a throwaway worker, streaming console output. Returns a function that stops it. */
-export function runScript(source: string, onLine: (line: LogLine) => void): () => void {
+/**
+ * Runs `source` in a throwaway worker, streaming console output. `onDone` fires once the top-level
+ * code has finished (timers it started may still log until the time limit). Returns a function that stops it.
+ */
+export function runScript(source: string, onLine: (line: LogLine) => void, onDone?: () => void): () => void {
   const worker = new Worker(new URL('./sandbox.worker.ts', import.meta.url), { type: 'module' });
   let finished = false;
 
@@ -18,8 +21,10 @@ export function runScript(source: string, onLine: (line: LogLine) => void): () =
   }, TIME_LIMIT_MS);
 
   worker.onmessage = ({ data }: MessageEvent<LogLine | { level: 'done' }>) => {
-    if (data.level === 'done') finished = true;
-    else onLine(data);
+    if (data.level === 'done') {
+      finished = true;
+      onDone?.();
+    } else onLine(data);
   };
   worker.onerror = (event) => onLine({ level: 'error', text: event.message });
   worker.postMessage(source);
