@@ -18,7 +18,7 @@ export function createNode<K extends NodeKind>(
     position,
     data: { ...spec.defaults(), ...data },
     ...dimensions,
-  } as NodeOf<K>;
+  } as unknown as NodeOf<K>;
 }
 
 /** Copies nodes with fresh ids, shifted by `offset`. */

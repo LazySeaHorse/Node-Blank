@@ -14,8 +14,9 @@ export type NodeDataMap = {
 };
 
 export type NodeKind = keyof NodeDataMap;
-export type NodeOf<K extends NodeKind> = Node<NodeDataMap[K], K>;
-export type AppNode = { [K in NodeKind]: NodeOf<K> }[NodeKind];
+/** Distributes over unions, so `NodeOf<NodeKind>` is the union of every node type. */
+export type NodeOf<K extends NodeKind> = K extends NodeKind ? Node<NodeDataMap[K], K> : never;
+export type AppNode = NodeOf<NodeKind>;
 
 export interface CanvasMeta {
   id: string;
