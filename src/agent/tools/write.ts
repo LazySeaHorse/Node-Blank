@@ -3,6 +3,7 @@ import { besideCandidates, boundsOf, CLUSTER_PADDING, findFreeSpot, type Rect } 
 import { setCell } from '@/lib/grid';
 import type { AppNode, NodeDataMap, NodeKind } from '@/model/types';
 import { createNode } from '@/nodes/factory';
+import { splitLines } from '@/nodes/mathPlus/evaluate';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { nodeRect } from '@/store/groups';
@@ -77,6 +78,13 @@ const newNodeSchema = z.discriminatedUnion(
 type NewNode = { kind: Exclude<NodeKind, 'image'> } & z.infer<z.ZodObject<typeof placementShape>> &
   Record<string, unknown>;
 
+/** Multi-line Math+ input is stored the way MathLive writes it, as \displaylines{a \\ b}. */
+export function normaliseMathPlus(latex: string): string {
+  const text = latex.trim();
+  if (/^\\displaylines\s*\{/.test(text) || splitLines(text).length < 2) return text;
+  return `\\displaylines{${splitLines(text).join(' \\\\ ')}}`;
+}
+
 function checkVideo(url: unknown) {
   if (typeof url === 'string' && !toEmbedUrl(url))
     throw new ToolError('invalid_url', `"${url}" is not a video or embeddable https URL.`);
@@ -99,6 +107,7 @@ export const createNodes = defineTool({
     for (const spec of specs as NewNode[]) {
       const { kind, near, group, x, y, width, height, ...data } = spec;
       if (kind === 'video') checkVideo(data.url);
+      if (kind === 'mathPlus') data.latex = normaliseMathPlus(String(data.latex));
       if ((width || height) && !RESIZABLE.has(kind))
         throw new ToolError('not_resizable', `${kind} nodes size to their content; omit width and height.`);
       const draft = createNode(kind, { x: 0, y: 0 }, data as Partial<NodeDataMap[typeof kind]>);
@@ -253,6 +262,7 @@ export const updateNodes = defineTool({
         data.cells = setCells(data.cells as string[][], cells, id);
       }
       if (node.type === 'video') checkVideo(data.url);
+      if (node.type === 'mathPlus') data.latex = normaliseMathPlus(String(data.latex));
       return { node, data };
     });
 

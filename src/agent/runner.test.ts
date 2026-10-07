@@ -202,6 +202,15 @@ describe('writing', () => {
     expect(canvas().nodes[0].data).toEqual({ markdown: '1 2 2' });
   });
 
+  it('stores multi-line Math+ the way MathLive does', async () => {
+    await call('create_nodes', { nodes: [{ kind: 'mathPlus', latex: 'a:=2 \\\\ a+1' }] });
+    expect(canvas().nodes[0].data).toEqual({ latex: '\\displaylines{a:=2 \\\\ a+1}' });
+    await call('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'a+1', replace: 'a+2' }] }] });
+    expect(canvas().nodes[0].data).toEqual({ latex: '\\displaylines{a:=2 \\\\ a+2}' });
+    await call('update_nodes', { updates: [{ id: 'n1', set: { latex: 'x' } }] });
+    expect(canvas().nodes[0].data).toEqual({ latex: 'x' });
+  });
+
   it('sets cells by reference, growing the grid', async () => {
     load([createNode('sheet', at(0, 0), { cells: [['a']] })]);
     await call('update_nodes', { updates: [{ id: 'n1', cells: [{ cell: 'C2', value: '=A1' }] }] });
