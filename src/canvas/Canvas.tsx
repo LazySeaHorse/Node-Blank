@@ -6,7 +6,8 @@ import {
   SelectionMode,
   useReactFlow,
 } from '@xyflow/react';
-import type { MouseEvent } from 'react';
+import { type MouseEvent, useEffect, useMemo } from 'react';
+import { setAgentView, useAgentStore } from '@/agent';
 import type { AppNode } from '@/model/types';
 import { nodeTypes } from '@/nodes/nodeTypes';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -44,9 +45,25 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   const onNodesChange = useCanvasStore((s) => s.onNodesChange);
   const setViewport = useCanvasStore((s) => s.setViewport);
   const theme = useUiStore((s) => s.theme);
-  const displayNodes = useSearchHighlight(nodes);
+  const touched = useAgentStore((s) => s.touched);
+  const searched = useSearchHighlight(nodes);
+  const displayNodes = useMemo(
+    () =>
+      touched.size
+        ? searched.map((n) => (touched.has(n.id) ? { ...n, className: 'ai-touched' } : n))
+        : searched,
+    [searched, touched],
+  );
   const { addNode } = useCanvasActions();
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
+
+  useEffect(() => {
+    setAgentView({
+      fitNodes: (ids) =>
+        void fitView({ nodes: ids.map((id) => ({ id })), duration: 400, padding: 0.3, maxZoom: 1.2 }),
+    });
+    return () => setAgentView(null);
+  }, [fitView]);
   useShortcuts(readOnly);
 
   const placeNode = (event: MouseEvent) => {

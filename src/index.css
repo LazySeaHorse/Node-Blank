@@ -115,3 +115,17 @@ math-field::part(virtual-keyboard-toggle) {
   --border-color: var(--border);
   --header-background-color: var(--surface-2);
 }
+
+/* Nodes an AI agent just changed. */
+@keyframes ai-touched {
+  from {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.react-flow__node.ai-touched {
+  border-radius: 0.5rem;
+  animation: ai-touched 1.6s ease-out;
+}

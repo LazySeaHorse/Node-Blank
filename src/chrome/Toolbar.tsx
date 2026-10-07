@@ -1,6 +1,7 @@
-import { ChevronDown, Download, FolderOpen, LayoutGrid, Redo2, Undo2, Upload } from 'lucide-react';
+import { Bot, ChevronDown, Download, FolderOpen, LayoutGrid, Redo2, Undo2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from 'zustand';
+import { useAgentStore } from '@/agent';
 import { useCanvasActions } from '@/canvas/useCanvasActions';
 import { nodeKinds, nodeSpecs } from '@/nodes/catalog';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
@@ -16,7 +17,8 @@ import { useCurrentCanvas } from './useCurrentCanvas';
 export function Toolbar() {
   const [managerOpen, setManagerOpen] = useState(false);
   const canvas = useCurrentCanvas();
-  const { tool, setTool } = useUiStore();
+  const { tool, setTool, aiPanelOpen, toggleAiPanel } = useUiStore();
+  const aiEnabled = useAgentStore((s) => s.enabled);
   const { insertImage, insertVideo, importJson, exportJson } = useCanvasActions();
   const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0);
@@ -89,6 +91,14 @@ export function Toolbar() {
         onClick={() => void importJson()}
       />
       <ThemeToggle />
+      <IconButton
+        icon={Bot}
+        label="AI control"
+        hint={aiEnabled ? 'on' : 'off'}
+        active={aiPanelOpen}
+        onClick={toggleAiPanel}
+        className={aiEnabled && !aiPanelOpen ? 'text-accent' : undefined}
+      />
     </Panel>
   );
 }

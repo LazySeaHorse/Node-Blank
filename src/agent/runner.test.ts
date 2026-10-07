@@ -170,12 +170,18 @@ describe('writing', () => {
 
   it('places nodes right of everything by default and validates kinds', async () => {
     load([createNode('math', at(0, 0))]);
-    expect(await call('create_nodes', { nodes: [{ kind: 'graph', functions: ['x'] }] })).toContain('at 400,0');
-    expect((await callError('create_nodes', { nodes: [{ kind: 'image', src: 'x' }] })).error).toBe('invalid_input');
-    expect((await callError('create_nodes', { nodes: [{ kind: 'video', url: 'nope' }] })).error).toBe('invalid_url');
-    expect((await callError('create_nodes', { nodes: [{ kind: 'text', markdown: '', width: 300 }] })).error).toBe(
-      'not_resizable',
+    expect(await call('create_nodes', { nodes: [{ kind: 'graph', functions: ['x'] }] })).toContain(
+      'at 400,0',
     );
+    expect((await callError('create_nodes', { nodes: [{ kind: 'image', src: 'x' }] })).error).toBe(
+      'invalid_input',
+    );
+    expect((await callError('create_nodes', { nodes: [{ kind: 'video', url: 'nope' }] })).error).toBe(
+      'invalid_url',
+    );
+    expect(
+      (await callError('create_nodes', { nodes: [{ kind: 'text', markdown: '', width: 300 }] })).error,
+    ).toBe('not_resizable');
   });
 
   it('applies exact find/replace edits and rejects missing or ambiguous ones', async () => {
@@ -183,12 +189,16 @@ describe('writing', () => {
     await call('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'one', replace: '1' }] }] });
     expect(canvas().nodes[0].data).toEqual({ markdown: '1 two two' });
     expect(
-      (await callError('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'two', replace: '2' }] }] })).error,
+      (await callError('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'two', replace: '2' }] }] }))
+        .error,
     ).toBe('edit_ambiguous');
     expect(
-      (await callError('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'zzz', replace: '' }] }] })).error,
+      (await callError('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'zzz', replace: '' }] }] }))
+        .error,
     ).toBe('edit_not_found');
-    await call('update_nodes', { updates: [{ id: 'n1', edits: [{ find: 'two', replace: '2', all: true }] }] });
+    await call('update_nodes', {
+      updates: [{ id: 'n1', edits: [{ find: 'two', replace: '2', all: true }] }],
+    });
     expect(canvas().nodes[0].data).toEqual({ markdown: '1 2 2' });
   });
 
@@ -219,7 +229,9 @@ describe('writing', () => {
     load([createNode('graph', at(0, 0)), createNode('math', at(0, 500))]);
     await call('move_nodes', { moves: [{ id: 'n1', x: 50, dy: 5, width: 500 }] });
     expect(canvas().nodes[0]).toMatchObject({ position: { x: 50, y: 5 }, width: 500 });
-    expect((await callError('move_nodes', { moves: [{ id: 'n2', width: 500 }] })).error).toBe('not_resizable');
+    expect((await callError('move_nodes', { moves: [{ id: 'n2', width: 500 }] })).error).toBe(
+      'not_resizable',
+    );
     await call('delete_nodes', { ids: ['n2'] });
     expect(canvas().nodes).toHaveLength(1);
     expect((await callError('delete_nodes', { ids: ['n2'] })).error).toBe('node_not_found');

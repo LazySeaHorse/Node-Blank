@@ -10,11 +10,13 @@ interface UiState {
   theme: Theme;
   searchOpen: boolean;
   searchQuery: string;
+  aiPanelOpen: boolean;
   setTool: (tool: NodeKind) => void;
   toggleTheme: () => void;
   openSearch: () => void;
   closeSearch: () => void;
   setSearchQuery: (query: string) => void;
+  toggleAiPanel: () => void;
 }
 
 const systemTheme = (): Theme =>
@@ -27,11 +29,13 @@ export const useUiStore = create<UiState>()(
       theme: systemTheme(),
       searchOpen: false,
       searchQuery: '',
+      aiPanelOpen: false,
       setTool: (tool) => set({ tool }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       openSearch: () => set({ searchOpen: true }),
       closeSearch: () => set({ searchOpen: false, searchQuery: '' }),
       setSearchQuery: (searchQuery) => set({ searchQuery }),
+      toggleAiPanel: () => set((s) => ({ aiPanelOpen: !s.aiPanelOpen })),
     }),
     { name: 'node-blank-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
   ),
