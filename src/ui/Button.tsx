@@ -72,9 +72,7 @@ export function IconButton({
         className={cn(
           'inline-flex cursor-pointer items-center justify-center rounded-xl transition-colors disabled:pointer-events-none disabled:opacity-40',
           size === 'md' ? 'size-9' : 'size-7',
-          active
-            ? 'bg-accent text-accent-fg shadow-md shadow-accent/30'
-            : 'text-fg hover:bg-accent/10 hover:text-accent',
+          active ? 'bg-accent text-accent-fg' : 'text-fg hover:bg-accent/10 hover:text-accent',
           className,
         )}
         {...props}

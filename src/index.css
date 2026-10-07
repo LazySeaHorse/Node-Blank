@@ -119,10 +119,10 @@ math-field::part(virtual-keyboard-toggle) {
 /* Nodes an AI agent just changed. */
 @keyframes ai-touched {
   from {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 45%, transparent);
+    outline: 4px solid color-mix(in srgb, var(--accent) 55%, transparent);
   }
   to {
-    box-shadow: 0 0 0 0 transparent;
+    outline: 4px solid transparent;
   }
 }
 .react-flow__node.ai-touched {
@@ -184,4 +184,15 @@ math-field::part(virtual-keyboard-toggle) {
   .mascot-eyes {
     animation: none;
   }
+}
+
+/* Dark mode is flat: no shadows from our components or from third-party CSS (toasts, editors, spreadsheet). */
+html.dark,
+html.dark *,
+html.dark *::before,
+html.dark *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: has to beat utility, inline and library shadows alike. */
+  box-shadow: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: same as above. */
+  text-shadow: none !important;
 }

@@ -30,7 +30,7 @@ export function SearchBar() {
   }
 
   return (
-    <div className={cn('flex h-9 items-center gap-1 rounded-xl bg-surface-2 pl-2.5 ring-1 ring-accent')}>
+    <div className={cn('flex h-9 items-center gap-1 rounded-xl border border-accent bg-surface-2 pl-2.5')}>
       <Search className="size-4 shrink-0 text-accent" />
       <input
         // biome-ignore lint/a11y/noAutofocus: opening search is an explicit user action.

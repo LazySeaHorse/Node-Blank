@@ -28,7 +28,7 @@ export function AiButton() {
           className={cn(
             'size-2 rounded-full',
             enabled ? 'bg-emerald-500' : 'bg-border',
-            locked && 'animate-pulse ring-4 ring-emerald-500/25',
+            locked && 'animate-pulse',
           )}
         />
       </button>

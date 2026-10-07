@@ -172,3 +172,28 @@ test('dark mode toggles', async ({ page }) => {
   await page.getByRole('button', { name: /Dark mode|Light mode/ }).click();
   expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(!dark);
 });
+
+test('buttons never glow, and dark mode has no shadows at all', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await page.getByRole('button', { name: 'Math', exact: true }).click();
+
+  const shadowed = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('*')]
+        .filter((el) => getComputedStyle(el).boxShadow !== 'none')
+        .map((el) => (el as HTMLElement).className?.toString().slice(0, 60) || el.tagName),
+    );
+  const activeButtonShadow = () =>
+    page
+      .locator('button[aria-pressed="true"]')
+      .first()
+      .evaluate((el) => getComputedStyle(el).boxShadow);
+
+  expect(await activeButtonShadow()).toBe('none');
+
+  await page.getByRole('button', { name: /Dark mode/ }).click();
+  expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(true);
+  expect(await activeButtonShadow()).toBe('none');
+  // Nodes fade their shadow out over a short transition when the theme flips.
+  await expect.poll(shadowed).toEqual([]);
+});
