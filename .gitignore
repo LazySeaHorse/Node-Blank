@@ -1,8 +1,13 @@
 # Node
 node_modules/
 dist/
+dev-dist/
 .env
 .env.*
+
+# Tests
+test-results/
+playwright-report/
 
 # OS
 .DS_Store

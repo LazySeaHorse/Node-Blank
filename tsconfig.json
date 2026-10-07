@@ -1,41 +1,20 @@
 {
-    "compilerOptions": {
-        "target": "ESNext",
-        "useDefineForClassFields": true,
-        "lib": [
-            "DOM",
-            "DOM.Iterable",
-            "ESNext"
-        ],
-        "allowJs": false,
-        "skipLibCheck": true,
-        "esModuleInterop": false,
-        "allowSyntheticDefaultImports": true,
-        "strict": false,
-        "forceConsistentCasingInFileNames": true,
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "react-jsx",
-        "jsxImportSource": "preact",
-        "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "@state/*": [
-                "./src/state/*"
-            ],
-            "@utils/*": [
-                "./src/utils/*"
-            ],
-            "@nodes/*": [
-                "./src/nodes/*"
-            ]
-        }
-    },
-    "include": [
-        "src"
-    ]
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["vite/client", "vite-plugin-pwa/react", "node"],
+    "paths": { "@/*": ["./src/*"] }
+  },
+  "include": ["src", "e2e", "vite.config.ts", "playwright.config.ts"]
 }
