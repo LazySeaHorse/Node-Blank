@@ -1,0 +1,173 @@
+import { expect, test } from '@playwright/test';
+import { nodes, openApp, placeNode } from './helpers';
+
+test.beforeEach(async ({ page }) => openApp(page));
+
+test('starts with an empty untitled canvas', async ({ page }) => {
+  await expect(page.getByRole('button', { name: /Untitled canvas/ })).toBeVisible();
+  await expect(nodes(page)).toHaveCount(0);
+});
+
+test('places, edits and persists a text node', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await expect(nodes(page)).toHaveCount(1);
+  await nodes(page).locator('.prose').dblclick();
+  const editor = nodes(page).locator('textarea');
+  await editor.fill('# Hello\n\nSome **bold** text and $x^2$');
+  await editor.press('Escape');
+  await expect(nodes(page).locator('h1')).toHaveText('Hello');
+  await expect(nodes(page).locator('.katex')).toBeVisible();
+
+  await page.waitForTimeout(800); // autosave debounce
+  await page.reload();
+  await expect(nodes(page).locator('h1')).toHaveText('Hello');
+});
+
+test('undo, redo, duplicate and delete', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await expect(nodes(page)).toHaveCount(1);
+  await page.mouse.click(1000, 700); // click empty canvas: keyboard focus back to the page
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(nodes(page)).toHaveCount(0);
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(nodes(page)).toHaveCount(1);
+
+  await nodes(page).first().click();
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(nodes(page)).toHaveCount(2);
+  await page.keyboard.press('Delete');
+  await expect(nodes(page)).toHaveCount(1);
+});
+
+test('marquee selection and drag', async ({ page }) => {
+  await placeNode(page, 'Text', 400, 300);
+  await placeNode(page, 'Text', 400, 600);
+  await page.mouse.click(1200, 800);
+  await page.mouse.move(300, 200);
+  await page.mouse.down();
+  await page.mouse.move(1000, 850, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
+
+  const before = await nodes(page).first().boundingBox();
+  const header = nodes(page).first().locator('.prose');
+  const box = await header.boundingBox();
+  if (!before || !box) throw new Error('missing node box');
+  await page.mouse.move(box.x + 10, box.y + 5);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 110, box.y + 55, { steps: 50 });
+  await page.mouse.up();
+  const after = await nodes(page).first().boundingBox();
+  // React Flow's drag threshold swallows the first mouse step.
+  expect(after?.x).toBeGreaterThan(before.x + 95);
+});
+
+test('math node accepts input', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await expect(field).toBeVisible();
+  await field.click();
+  await page.keyboard.type('x^2', { delay: 30 });
+  await expect.poll(() => field.evaluate((el) => (el as HTMLInputElement).value)).toContain('x^2');
+});
+
+test('math+ nodes share variables', async ({ page }) => {
+  await placeNode(page, 'Math+', 500, 250);
+  await nodes(page).locator('math-field').click();
+  await page.keyboard.type('a:=5', { delay: 30 });
+  await page.mouse.click(1200, 850);
+  await placeNode(page, 'Math+', 500, 500);
+  await nodes(page).nth(1).locator('math-field').click();
+  await page.keyboard.type('a*2', { delay: 30 });
+  await expect(nodes(page).nth(1).locator('ol')).toContainText('10', { timeout: 20_000 });
+});
+
+test('graph node plots a function', async ({ page }) => {
+  await placeNode(page, 'Graph');
+  await expect(nodes(page).locator('.MafsView path[d]').first()).toBeAttached({ timeout: 20_000 });
+});
+
+test('script node runs code in the sandbox', async ({ page }) => {
+  await placeNode(page, 'Script');
+  await nodes(page).getByRole('button', { name: 'Run' }).click();
+  await expect(nodes(page)).toContainText('Hello from the sandbox!');
+  await expect(nodes(page)).toContainText('10');
+});
+
+test('script node stops infinite loops', async ({ page }) => {
+  test.setTimeout(30_000);
+  await placeNode(page, 'Script');
+  const editor = nodes(page).locator('.cm-content');
+  await editor.click();
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.type('while (true) {}');
+  await nodes(page).getByRole('button', { name: 'Run' }).click();
+  await expect(nodes(page)).toContainText('Stopped', { timeout: 10_000 });
+});
+
+test('sheet node evaluates formulas', async ({ page }) => {
+  await placeNode(page, 'Sheet');
+  const cells = nodes(page).locator('td.Spreadsheet__cell');
+  await cells.nth(0).click();
+  await page.keyboard.type('2');
+  await page.keyboard.press('Enter'); // commits and moves to A2
+  await page.keyboard.type('=A1*21');
+  await page.keyboard.press('Enter');
+  await expect(cells.nth(4)).toHaveText('42');
+  await expect(nodes(page)).toHaveCount(1); // Delete/typing inside the grid must not touch the node
+});
+
+test('table node rows and columns', async ({ page }) => {
+  await placeNode(page, 'Table');
+  await expect(nodes(page).locator('math-field')).toHaveCount(9);
+  await nodes(page).getByRole('button', { name: 'Add Row' }).click();
+  await nodes(page).getByRole('button', { name: 'Add Col' }).click();
+  await expect(nodes(page).locator('math-field')).toHaveCount(16);
+});
+
+test('search dims non-matching nodes', async ({ page }) => {
+  await placeNode(page, 'Text', 400, 300);
+  await placeNode(page, 'Script', 900, 300);
+  await page.keyboard.press('ControlOrMeta+f');
+  await page.getByLabel('Search nodes').fill('sandbox');
+  await expect(page.getByText('1 found')).toBeVisible();
+  await expect(page.locator('.react-flow__node.search-miss')).toHaveCount(1);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.react-flow__node.search-miss')).toHaveCount(0);
+});
+
+test('manages multiple canvases', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await page.getByRole('button', { name: /Untitled canvas/ }).click();
+  await page.getByRole('button', { name: 'New canvas' }).click();
+  await page.getByRole('textbox').fill('Second');
+  await page.getByRole('button', { name: 'OK' }).click();
+  await expect(page.getByRole('button', { name: /Second/ })).toBeVisible();
+  await expect(nodes(page)).toHaveCount(0);
+
+  await page.getByRole('button', { name: /Second/ }).click();
+  await page.getByRole('button', { name: /^Untitled canvas/ }).click();
+  await expect(nodes(page)).toHaveCount(1);
+});
+
+test('exports and re-imports a canvas', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await page.getByRole('button', { name: 'Export' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('menuitem', { name: 'This canvas' }).click();
+  const download = await downloadPromise;
+  const path = await download.path();
+
+  const chooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import' }).click();
+  await (await chooserPromise).setFiles(path);
+  await expect(page.getByText('Imported 1 canvas')).toBeVisible();
+  await expect(nodes(page)).toHaveCount(1);
+});
+
+test('dark mode toggles', async ({ page }) => {
+  await page.getByRole('button', { name: /Dark mode|Light mode/ }).click();
+  const dark = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+  await page.getByRole('button', { name: /Dark mode|Light mode/ }).click();
+  expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(!dark);
+});

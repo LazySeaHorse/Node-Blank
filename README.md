@@ -16,41 +16,59 @@ Node-Blank is a desktop-first infinite canvas that focuses on a snappy, offline-
 I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and wasn't tethered to a specific ecosystem or tablet hardware. It started as a simple way to jot down math expressions and markdown side-by-side, but it has since matured into a robust tool with close to a dozen node types. The goal was to create something that stays out of your way and lets you think.
 
 ### Features
-- **Lots of Node Types**: Support for Math (LaTeX), Markdown, Images, Videos, Tables, Code (Script), Spreadsheets, and Dynamic Graphs.
-- **Multiple Canvases**: Organize different projects or thoughts into separate infinite workspaces via the Canvas Manager.
-- **Desktop Optimized**: Fine-tuned for keyboard shortcuts and precise mouse navigation using D3.js.
-- **Privacy First**: All data is stored locally in your browser’s IndexedDB. No cloud sync means no one is looking at your data but you.
-- **Import/Export**: Move your data in and out via JSON (supports single canvas, selected nodes, or your entire library).
-- **Dark Mode**: Built-in dark mode support.
-- **Modern Tech Stack**: Rebuilt with Preact, TypeScript, and Vite for high performance.
-- **Always Free**: No subscriptions, no login walls.
+- **Node types**: Text (Markdown + LaTeX), Math, Math+ (evaluates expressions; `a := 2` variables are shared across Math+ nodes, top to bottom), Graph (plot several functions of x), Table (math cells), Sheet (spreadsheet with formulas), Script (sandboxed JavaScript), Image and Video.
+- **Multiple canvases**, autosaved to your browser's IndexedDB. No accounts, no cloud.
+- **Undo/redo** for everything on the canvas.
+- **Import/export** selected nodes, a canvas, or everything as JSON.
+- **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.
+- **Dark mode**, **offline PWA**.
+- **Mobile**: read-only viewer. Pan, zoom and switch canvases; editing is desktop-only.
+
+### Controls
+| Action | Input |
+| --- | --- |
+| Place a node | Pick a tool in the toolbar, then double-click the canvas |
+| Pan | Scroll / trackpad, or drag with middle or right mouse button |
+| Zoom | Pinch, or Ctrl/Cmd + scroll |
+| Select | Click, Shift+click, or drag a box on empty canvas |
+| Undo / redo | Ctrl+Z / Ctrl+Shift+Z |
+| Duplicate / delete | Ctrl+D / Delete |
+| Select all | Ctrl+A |
+| New line in a math node | Shift+Enter |
 
 ### Tech Stack
-- **Framework**: Preact + Vite
-- **Language**: TypeScript
-- **State Management**: Preact Signals
-- **Styling**: Tailwind CSS v4
-- **Math & Logic**: MathLive, KaTeX, CortexJS Compute Engine
-- **Visualization**: D3.js, Function Plot
-- **Data**: Jspreadsheet CE, Marked.js
+- **App**: React 19, TypeScript, Vite, Tailwind CSS 4
+- **Canvas**: React Flow
+- **State & storage**: Zustand + zundo (undo), Dexie (IndexedDB), Zod (import validation)
+- **Math**: MathLive, KaTeX, Cortex Compute Engine
+- **Nodes**: react-markdown, Mafs, react-spreadsheet, CodeMirror 6
+- **UI**: Radix UI, lucide icons, sonner
 
 ### Getting Started
+Requires Node.js 22+.
 
-Prerequisites: Node.js installed.
+```bash
+npm install
+npm run dev        # dev server
+npm test           # unit tests (Vitest)
+npm run test:e2e   # browser tests (Playwright)
+npm run lint       # Biome
+npm run build      # typecheck + production build
+```
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Build for production:
-   ```bash
-   npm run build
-   ```
+### Project Layout
+```
+src/
+  model/        node and canvas types
+  nodes/        one folder per node kind: spec (metadata, defaults, schema) + component + logic
+  store/        canvas store (undo), UI store, workspace service (open/save/import/export)
+  persistence/  Dexie database, repository, autosave, JSON format
+  canvas/       React Flow canvas, shortcuts, search, insert actions
+  chrome/       toolbar, canvas manager, search bar, zoom controls, mobile bar
+  ui/           Radix-based primitives and prompt/confirm dialogs
+  lib/          small shared helpers (MathField, Markdown, files, grid, …)
+```
+Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>/spec.ts` and a component, then register it in `nodes/catalog.ts` and `nodes/nodeTypes.tsx`.
 
 ### Roadmap
 - [x] **Table node**
@@ -68,7 +86,8 @@ Prerequisites: Node.js installed.
 - [x] **Global search**
 - [x] **Make it a PWA**
 - [x] **Migrate to TypeScript**
-- [ ] **Fix touchpad navigation**
+- [x] **Rewrite on React + React Flow**
+- [x] **Fix touchpad navigation**
 - [ ] **Themes!**
 - [ ] **PDF node**
 - [ ] **Link 2+ nodes**
