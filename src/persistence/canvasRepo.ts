@@ -20,7 +20,8 @@ export async function createCanvas(name: string, content: CanvasContent = EMPTY_
 
 export async function loadContent(id: string): Promise<CanvasContent> {
   const row = await db.contents.get(id);
-  return row ? { nodes: row.nodes, viewport: row.viewport } : EMPTY_CONTENT;
+  if (!row) return EMPTY_CONTENT;
+  return { nodes: row.nodes, viewport: row.viewport, ...(row.groups ? { groups: row.groups } : {}) };
 }
 
 export async function saveContent(id: string, content: CanvasContent): Promise<void> {

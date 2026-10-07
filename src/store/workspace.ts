@@ -27,7 +27,8 @@ const autosave = createAutosave(async () => {
 });
 
 useCanvasStore.subscribe((state, prev) => {
-  if (state.nodes !== prev.nodes || state.viewport !== prev.viewport) autosave.schedule();
+  if (state.nodes !== prev.nodes || state.viewport !== prev.viewport || state.groups !== prev.groups)
+    autosave.schedule();
 });
 
 if (typeof window !== 'undefined') {
@@ -110,8 +111,7 @@ export async function importFile(file: ExportFile, at: XYPosition): Promise<stri
   }
   if (file.canvases.length === 0) return 'No canvases in file';
   const ids: string[] = [];
-  for (const { name, nodes, viewport } of file.canvases)
-    ids.push(await repo.createCanvas(name, { nodes, viewport }));
+  for (const { name, ...content } of file.canvases) ids.push(await repo.createCanvas(name, content));
   await openCanvas(ids[0]);
   return `Imported ${ids.length} canvas${ids.length === 1 ? '' : 'es'}`;
 }

@@ -9,6 +9,7 @@ const VERSION = 1;
 
 const point = z.object({ x: z.number(), y: z.number() });
 const viewportSchema = z.object({ x: z.number(), y: z.number(), zoom: z.number().positive() });
+const groupSchema = z.object({ id: z.string(), nodeIds: z.array(z.string()) });
 
 const nodeSchema = z.discriminatedUnion(
   'type',
@@ -30,7 +31,14 @@ const exportFileSchema = z.discriminatedUnion('kind', [
   z.object({
     ...header,
     kind: z.literal('canvases'),
-    canvases: z.array(z.object({ name: z.string(), nodes: z.array(nodeSchema), viewport: viewportSchema })),
+    canvases: z.array(
+      z.object({
+        name: z.string(),
+        nodes: z.array(nodeSchema),
+        viewport: viewportSchema,
+        groups: z.array(groupSchema).optional(),
+      }),
+    ),
   }),
   z.object({ ...header, kind: z.literal('nodes'), nodes: z.array(nodeSchema) }),
 ]);
@@ -44,7 +52,12 @@ export const exportCanvases = (canvases: NamedCanvas[]): CanvasesFile => ({
   app: APP_TAG,
   version: VERSION,
   kind: 'canvases',
-  canvases: canvases.map((c) => ({ name: c.name, nodes: c.nodes.map(stripTransient), viewport: c.viewport })),
+  canvases: canvases.map((c) => ({
+    name: c.name,
+    nodes: c.nodes.map(stripTransient),
+    viewport: c.viewport,
+    ...(c.groups ? { groups: c.groups } : {}),
+  })),
 });
 
 export const exportNodes = (nodes: AppNode[]): NodesFile => ({

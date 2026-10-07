@@ -24,9 +24,20 @@ export interface CanvasMeta {
   updatedAt: number;
 }
 
+/**
+ * Nodes that sit close together. Groups are invisible: they are recomputed from node positions
+ * (by Organise and by the AI tools) and saved so their ids stay stable between sessions.
+ */
+export interface CanvasGroup {
+  id: string;
+  nodeIds: string[];
+}
+
 export interface CanvasContent {
   nodes: AppNode[];
   viewport: Viewport;
+  /** Omitted until the canvas has been organised or read by an AI agent. */
+  groups?: CanvasGroup[];
 }
 
 export const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 };

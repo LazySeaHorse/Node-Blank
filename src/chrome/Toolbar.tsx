@@ -1,9 +1,10 @@
-import { ChevronDown, Download, FolderOpen, Redo2, Undo2, Upload } from 'lucide-react';
+import { ChevronDown, Download, FolderOpen, LayoutGrid, Redo2, Undo2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from 'zustand';
 import { useCanvasActions } from '@/canvas/useCanvasActions';
 import { nodeKinds, nodeSpecs } from '@/nodes/catalog';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
+import { organiseCanvas } from '@/store/groups';
 import { useUiStore } from '@/store/uiStore';
 import { IconButton, WithTooltip } from '@/ui/Button';
 import { Menu } from '@/ui/Menu';
@@ -20,6 +21,7 @@ export function Toolbar() {
   const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0);
   const hasSelection = useCanvasStore((s) => s.nodes.some((n) => n.selected));
+  const hasNodes = useCanvasStore((s) => s.nodes.length > 0);
 
   const insertActions = { image: insertImage, video: insertVideo } as const;
 
@@ -63,6 +65,13 @@ export function Toolbar() {
       <Divider />
       <IconButton icon={Undo2} label="Undo" hint="Ctrl+Z" disabled={!canUndo} onClick={undo} />
       <IconButton icon={Redo2} label="Redo" hint="Ctrl+Shift+Z" disabled={!canRedo} onClick={redo} />
+      <IconButton
+        icon={LayoutGrid}
+        label="Organise"
+        hint="group nearby nodes and space them evenly"
+        disabled={!hasNodes}
+        onClick={organiseCanvas}
+      />
 
       <Divider />
       <Menu

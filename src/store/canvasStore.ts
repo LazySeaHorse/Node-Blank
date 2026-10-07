@@ -1,10 +1,11 @@
-import { applyNodeChanges, type NodeChange, type Viewport } from '@xyflow/react';
+import { applyNodeChanges, type NodeChange, type Viewport, type XYPosition } from '@xyflow/react';
 import isEqual from 'fast-deep-equal';
 import { temporal } from 'zundo';
 import { create } from 'zustand';
 import {
   type AppNode,
   type CanvasContent,
+  type CanvasGroup,
   DEFAULT_VIEWPORT,
   type NodeDataMap,
   type NodeKind,
@@ -18,12 +19,17 @@ const DUPLICATE_OFFSET = { x: 30, y: 30 };
 export interface CanvasState {
   nodes: AppNode[];
   viewport: Viewport;
+  /** Not undoable: groups are derived from positions and refreshed whenever they are needed. */
+  groups: CanvasGroup[];
   onNodesChange: (changes: NodeChange<AppNode>[]) => void;
   setViewport: (viewport: Viewport) => void;
   addNodes: (nodes: AppNode[]) => void;
   updateNodeData: <K extends NodeKind>(id: string, patch: Partial<NodeDataMap[K]>) => void;
   duplicateSelected: () => void;
   clear: () => void;
+  setGroups: (groups: CanvasGroup[]) => void;
+  /** Moves nodes to new positions in one update. */
+  moveNodes: (positions: Map<string, XYPosition>) => void;
   load: (content: CanvasContent) => void;
 }
 
@@ -43,6 +49,7 @@ export const useCanvasStore = create<CanvasState>()(
     (set, get) => ({
       nodes: [],
       viewport: DEFAULT_VIEWPORT,
+      groups: [],
 
       onNodesChange: (changes) => set({ nodes: applyNodeChanges(changes, get().nodes) }),
 
@@ -65,8 +72,18 @@ export const useCanvasStore = create<CanvasState>()(
 
       clear: () => set({ nodes: [] }),
 
-      load: ({ nodes, viewport }) => {
-        set({ nodes, viewport });
+      setGroups: (groups) => set({ groups }),
+
+      moveNodes: (positions) =>
+        set({
+          nodes: get().nodes.map((n) => {
+            const position = positions.get(n.id);
+            return position ? { ...n, position } : n;
+          }),
+        }),
+
+      load: ({ nodes, viewport, groups = [] }) => {
+        set({ nodes, viewport, groups });
         useCanvasStore.temporal.getState().clear();
         startNewUndoStep();
       },
@@ -85,6 +102,9 @@ export const useCanvasStore = create<CanvasState>()(
   ),
 );
 
+/** Makes the next content change its own undo step instead of extending the current one. */
+export { startNewUndoStep };
+
 export const undo = () => {
   useCanvasStore.temporal.getState().undo();
   startNewUndoStep();
@@ -96,6 +116,6 @@ export const redo = () => {
 
 /** Snapshot of the open canvas in its persisted form. */
 export function getCanvasContent(): CanvasContent {
-  const { nodes, viewport } = useCanvasStore.getState();
-  return { nodes: nodes.map(stripTransient), viewport };
+  const { nodes, viewport, groups } = useCanvasStore.getState();
+  return { nodes: nodes.map(stripTransient), viewport, ...(groups.length > 0 ? { groups } : {}) };
 }

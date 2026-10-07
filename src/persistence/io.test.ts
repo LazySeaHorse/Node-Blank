@@ -16,6 +16,14 @@ describe('io', () => {
     expect(parsed.kind === 'canvases' && parsed.canvases[0].nodes[0]).not.toHaveProperty('selected');
   });
 
+  it('round-trips canvas groups', () => {
+    const nodes = sampleNodes();
+    const groups = [{ id: 'g', nodeIds: nodes.map((n) => n.id) }];
+    const file = exportCanvases([{ name: 'A', nodes, viewport: { x: 0, y: 0, zoom: 1 }, groups }]);
+    const parsed = parseExportFile(JSON.stringify(file));
+    expect(parsed.kind === 'canvases' && parsed.canvases[0].groups).toEqual(groups);
+  });
+
   it('round-trips nodes', () => {
     const file = exportNodes(sampleNodes());
     expect(parseExportFile(JSON.stringify(file))).toEqual(file);
