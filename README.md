@@ -21,6 +21,8 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 - **Undo/redo** for everything on the canvas.
 - **Import/export** selected nodes, a canvas, or everything as JSON.
 - **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.
+- **Organise**: groups nearby nodes and spaces them evenly (one undo step).
+- **AI control**: let a coding agent (Claude Code, Codex, Gemini CLI, …) read and edit the open canvas through a small local bridge, or a browser agent through WebMCP. See [AI control](#ai-control).
 - **Dark mode**, **offline PWA**.
 - **Mobile**: read-only viewer. Pan, zoom and switch canvases; editing is desktop-only.
 
@@ -56,6 +58,14 @@ npm run lint       # Biome
 npm run build      # typecheck + production build
 ```
 
+### AI control
+Off on every page load. Open the AI panel (robot button in the toolbar) and turn it on; the canvas is organised first so agents can find their way around (undo reverts that).
+
+1. Download and run the bridge for your OS from the latest `bridge-v*` [release](https://github.com/LazySeaHorse/Node-Blank/releases). See [`bridge/README.md`](bridge/README.md).
+2. Add it to your agent once: `claude mcp add --transport http node-blank http://127.0.0.1:47801/mcp` (or `codex mcp add node-blank --url …`, `gemini mcp add --transport http node-blank …`).
+
+Agents get a small fixed-size overview (counts, groups of nearby nodes, the selection), then list, search and read only what they need, using short handles (`n3`, `g2`) instead of ids. Edits are find/replace, cell updates or whole fields; each call is one undo step. While an agent is editing, the canvas is read-only for you (Take over turns AI control off), changed nodes flash, and the panel keeps the session's activity.
+
 ### Project Layout
 ```
 src/
@@ -66,7 +76,9 @@ src/
   canvas/       React Flow canvas, shortcuts, search, insert actions
   chrome/       toolbar, canvas manager, search bar, zoom controls, mobile bar
   ui/           Radix-based primitives and prompt/confirm dialogs
-  lib/          small shared helpers (MathField, Markdown, files, grid, …)
+  lib/          small shared helpers (MathField, Markdown, files, grid, clusters, …)
+  agent/        AI tools (transport-agnostic), bridge client, WebMCP adapter, activity log
+bridge/         Go bridge between coding agents (MCP over HTTP) and the open tab (WebSocket)
 ```
 Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>/spec.ts` and a component, then register it in `nodes/catalog.ts` and `nodes/nodeTypes.tsx`.
 
