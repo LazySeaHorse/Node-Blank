@@ -87,6 +87,12 @@ export async function exportCurrentCanvas(): Promise<ExportFile> {
   return exportCanvases(id ? [await namedCanvas(id)] : []);
 }
 
+/** Any canvas, not just the open one. */
+export async function exportCanvasById(id: string): Promise<ExportFile> {
+  await autosave.flush();
+  return exportCanvases([await namedCanvas(id)]);
+}
+
 export async function exportAllCanvases(): Promise<ExportFile> {
   await autosave.flush();
   const metas = await repo.listCanvases();

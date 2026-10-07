@@ -6,11 +6,10 @@ import { useAgentStore } from '@/agent';
 import { Canvas } from '@/canvas/Canvas';
 import { ReadOnlyContext } from '@/canvas/readOnly';
 import { AgentConnector } from '@/chrome/AgentConnector';
-import { AiLockBanner, AiPanel } from '@/chrome/AiPanel';
+import { AiLockBanner, AiPanel, AiStatusPill } from '@/chrome/AiPanel';
 import { MobileBar } from '@/chrome/MobileBar';
-import { SearchBar } from '@/chrome/SearchBar';
 import { useThemeClass } from '@/chrome/ThemeToggle';
-import { Toolbar } from '@/chrome/Toolbar';
+import { TopBar } from '@/chrome/TopBar';
 import { ZoomControls } from '@/chrome/ZoomControls';
 import { cn } from '@/lib/cn';
 import { useIsMobile } from '@/lib/useMediaQuery';
@@ -46,28 +45,23 @@ export function App() {
           <main className="relative h-dvh w-screen">
             <Canvas key={currentId} readOnly={readOnly} />
             {mobile ? (
-              <div className="pointer-events-none absolute inset-x-3 top-3">
+              <div className="pointer-events-none absolute inset-x-0 top-0">
                 <MobileBar />
               </div>
             ) : (
               <>
-                <div className="pointer-events-none absolute top-3 left-3">
-                  <SearchBar />
-                </div>
                 <div
-                  className={cn(
-                    'pointer-events-none absolute top-3 left-1/2 -translate-x-1/2',
-                    locked && 'opacity-60',
-                  )}
+                  className={cn('pointer-events-none absolute inset-x-3 top-3', locked && 'opacity-60')}
                   inert={locked}
                 >
-                  <Toolbar />
+                  <TopBar />
                 </div>
-                <div className="pointer-events-none absolute top-16 left-1/2 -translate-x-1/2">
+                <div className="pointer-events-none absolute top-[4.75rem] left-1/2 -translate-x-1/2">
                   <AiLockBanner />
+                  <AiStatusPill />
                 </div>
                 {aiPanelOpen && (
-                  <div className="pointer-events-none absolute top-16 right-3 bottom-16 flex flex-col">
+                  <div className="pointer-events-none absolute top-[4.75rem] right-3">
                     <AiPanel />
                   </div>
                 )}

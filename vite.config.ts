@@ -19,7 +19,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo/favicon.ico', 'logo/apple-touch-icon.png'],
+      includeAssets: ['logo/favicon.ico', 'logo/favicon.svg', 'logo/apple-touch-icon.png'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,png,ico,svg}'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,

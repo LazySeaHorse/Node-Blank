@@ -20,7 +20,7 @@ export function Button({
     <button
       type="button"
       className={cn(
-        'inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40',
+        'inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40',
         variants[variant],
         className,
       )}
@@ -36,7 +36,7 @@ export function WithTooltip({ label, children }: { label: ReactNode; children: R
       <Tooltip.Portal>
         <Tooltip.Content
           sideOffset={6}
-          className="z-50 rounded-md bg-fg px-2 py-1 text-xs text-canvas shadow-md"
+          className="z-50 rounded-lg bg-fg px-2 py-1 text-xs text-canvas shadow-md"
         >
           {label}
         </Tooltip.Content>
@@ -70,9 +70,11 @@ export function IconButton({
         aria-label={label}
         aria-pressed={active}
         className={cn(
-          'inline-flex cursor-pointer items-center justify-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-40',
+          'inline-flex cursor-pointer items-center justify-center rounded-xl transition-colors disabled:pointer-events-none disabled:opacity-40',
           size === 'md' ? 'size-9' : 'size-7',
-          active ? 'bg-accent text-accent-fg' : 'text-muted hover:bg-surface-2 hover:text-fg',
+          active
+            ? 'bg-accent text-accent-fg shadow-md shadow-accent/30'
+            : 'text-fg hover:bg-accent/10 hover:text-accent',
           className,
         )}
         {...props}

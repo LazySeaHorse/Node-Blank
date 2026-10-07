@@ -1,13 +1,23 @@
-import { CircleAlert, LoaderCircle, Power, X } from 'lucide-react';
+import { Check, ChevronDown, CircleAlert, LoaderCircle, Sparkles, X } from 'lucide-react';
+import { Tabs } from 'radix-ui';
 import { useMemo, useState } from 'react';
-import { type AgentEvent, selectAgentCalls, useAgentEvents, useAgentStore } from '@/agent';
+import {
+  type AgentEvent,
+  agentEvents,
+  getAgentTools,
+  selectAgentCalls,
+  useAgentEvents,
+  useAgentStore,
+} from '@/agent';
 import { getAgentView } from '@/agent/view';
 import { cn } from '@/lib/cn';
+import { timeAgo } from '@/lib/time';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
-import { useUiStore } from '@/store/uiStore';
+import { type AiTab, useUiStore } from '@/store/uiStore';
 import { Button, IconButton } from '@/ui/Button';
 import { confirmAction } from '@/ui/dialogs';
+import { Switch } from '@/ui/Switch';
 import { Panel } from './Panel';
 
 const MCP_URL = 'http://127.0.0.1:47801/mcp';
@@ -32,80 +42,75 @@ export async function enableAiControl(): Promise<void> {
   useAgentStore.getState().setEnabled(true);
 }
 
-const time = (at: number) =>
-  new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const Dot = ({ on }: { on: boolean }) => (
+  <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', on ? 'bg-emerald-500' : 'bg-border')} />
+);
 
-function ActivityRow({ event }: { event: AgentEvent }) {
-  const nodes = useCanvasStore((s) => s.nodes);
-  const targets = (event.affectedNodeIds ?? []).filter((id) => nodes.some((n) => n.id === id));
-  const focus = () => targets.length > 0 && getAgentView()?.fitNodes(targets);
+function StatusBlock() {
+  const { enabled, bridgeConnected, webMcpTools } = useAgentStore();
+  const connected = enabled && bridgeConnected;
   return (
-    <li>
-      <button
-        type="button"
-        onClick={focus}
-        disabled={targets.length === 0}
-        className="flex w-full cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-surface-2 disabled:cursor-default disabled:hover:bg-transparent"
-      >
-        <span className="shrink-0 text-muted tabular-nums">{time(event.at)}</span>
-        {event.phase === 'started' && (
-          <LoaderCircle className="mt-px size-3.5 shrink-0 animate-spin text-accent" />
-        )}
-        {event.phase === 'failed' && <CircleAlert className="mt-px size-3.5 shrink-0 text-danger" />}
-        <span className={cn('min-w-0 break-words', event.phase === 'failed' ? 'text-danger' : 'text-fg')}>
-          {event.phase === 'failed' ? event.error : (event.summary ?? event.tool)}
-        </span>
-      </button>
-    </li>
-  );
-}
-
-function Status({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className={cn('size-2 rounded-full', ok ? 'bg-emerald-500' : 'bg-border')} />
-      <span className={ok ? 'text-fg' : 'text-muted'}>{label}</span>
+    <div className="flex flex-col gap-2 rounded-xl bg-surface-2 p-3 text-xs">
+      <div className="flex gap-2.5">
+        <Dot on={connected} />
+        <div>
+          <div className="font-medium">{bridgeConnected ? 'Bridge connected' : 'Bridge not connected'}</div>
+          <div className="mt-0.5 text-muted">
+            {!enabled
+              ? 'Turn AI control on to let a coding agent read and edit this canvas.'
+              : bridgeConnected
+                ? 'A coding agent can use the tools below.'
+                : 'Run the bridge on this computer, then this tab connects by itself.'}
+          </div>
+        </div>
+      </div>
+      {webMcpTools > 0 && (
+        <div className="flex items-center gap-2.5">
+          <Dot on />
+          <span className="font-medium">WebMCP: {webMcpTools} tools registered</span>
+        </div>
+      )}
     </div>
   );
 }
 
-export function AiPanel() {
-  const { enabled, bridgeConnected, webMcpTools, setEnabled } = useAgentStore();
-  const close = useUiStore((s) => s.toggleAiPanel);
-  const events = useAgentEvents();
-  const calls = useMemo(() => selectAgentCalls(events), [events]);
+function ConnectTab() {
+  const enabled = useAgentStore((s) => s.enabled);
+  const setEnabled = useAgentStore((s) => s.setEnabled);
   const [setupOpen, setSetupOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const tools = useMemo(() => getAgentTools(), []);
 
   return (
-    <Panel className="pointer-events-auto flex max-h-full w-80 flex-col items-stretch gap-0 p-0">
-      <header className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <h2 className="text-sm font-semibold">AI control</h2>
-        <Button
-          variant={enabled ? 'primary' : 'ghost'}
-          className="ml-auto h-7 px-2 text-xs"
-          onClick={() => (enabled ? setEnabled(false) : void enableAiControl())}
-          aria-pressed={enabled}
-        >
-          <Power className="size-3.5" /> {enabled ? 'On' : 'Off'}
-        </Button>
-        <IconButton icon={X} label="Close AI panel" size="sm" onClick={close} />
-      </header>
-
-      <section className="flex flex-col gap-1.5 border-b border-border px-3 py-2">
-        <Status
-          ok={enabled && bridgeConnected}
-          label={bridgeConnected ? 'Bridge connected' : 'Bridge not connected'}
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <label htmlFor="ai-enable" className="text-xs font-medium">
+            Allow AI agents to control this canvas
+          </label>
+          <p className="mt-0.5 text-[11px] text-muted">Off each time you open the app.</p>
+        </div>
+        <Switch
+          id="ai-enable"
+          checked={enabled}
+          onCheckedChange={(on) => (on ? void enableAiControl() : setEnabled(false))}
         />
-        {webMcpTools > 0 && <Status ok label={`WebMCP: ${webMcpTools} tools registered`} />}
+      </div>
+
+      <StatusBlock />
+
+      <div>
         <button
           type="button"
-          className="cursor-pointer self-start text-xs text-accent hover:underline"
+          aria-expanded={setupOpen}
           onClick={() => setSetupOpen((o) => !o)}
+          className="flex w-full cursor-pointer items-center justify-between text-xs font-medium text-muted hover:text-fg"
         >
-          {setupOpen ? 'Hide setup' : 'Connect a coding agent'}
+          Connect a coding agent
+          <ChevronDown className={cn('size-3.5 transition-transform', setupOpen && 'rotate-180')} />
         </button>
         {setupOpen && (
-          <div className="flex flex-col gap-1.5 text-xs text-muted">
+          <div className="mt-2 flex flex-col gap-1.5 text-xs text-muted">
             <p>
               1. Download and run the bridge for your OS from the{' '}
               <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="text-accent hover:underline">
@@ -118,28 +123,178 @@ export function AiPanel() {
             {SETUP_COMMANDS.map(([agent, command]) => (
               <div key={agent}>
                 <span className="text-fg">{agent}</span>
-                <code className="mt-0.5 block rounded bg-surface-2 px-2 py-1 font-mono text-[11px] break-all text-fg select-all">
+                <code className="mt-0.5 block rounded-lg bg-surface-2 px-2 py-1.5 font-mono text-[11px] break-all text-fg select-all">
                   {command}
                 </code>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </div>
 
-      <section className="flex min-h-0 flex-1 flex-col">
-        <h3 className="px-3 pt-2 pb-1 text-xs font-semibold tracking-wide text-muted uppercase">Activity</h3>
-        {calls.length === 0 ? (
-          <p className="px-3 pb-3 text-xs text-muted">Nothing yet. Agent calls will show up here.</p>
-        ) : (
-          <ol className="min-h-0 flex-1 overflow-y-auto px-1 pb-2">
+      <div>
+        <button
+          type="button"
+          aria-expanded={toolsOpen}
+          onClick={() => setToolsOpen((o) => !o)}
+          className="flex w-full cursor-pointer items-center justify-between text-xs font-medium text-muted hover:text-fg"
+        >
+          Tools an agent can use ({tools.length})
+          <ChevronDown className={cn('size-3.5 transition-transform', toolsOpen && 'rotate-180')} />
+        </button>
+        {toolsOpen && (
+          <ul className="mt-2 flex flex-col gap-1 text-[11px] text-muted">
+            {tools.map((tool) => (
+              <li key={tool.name} className="flex items-center justify-between gap-2">
+                <span>{tool.title}</span>
+                {!tool.annotations.readOnlyHint && (
+                  <span className="text-[9px] tracking-wider uppercase opacity-70">edits</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ActivityRow({ event }: { event: AgentEvent }) {
+  const nodes = useCanvasStore((s) => s.nodes);
+  const targets = (event.affectedNodeIds ?? []).filter((id) => nodes.some((n) => n.id === id));
+  const focus = () => targets.length > 0 && getAgentView()?.fitNodes(targets);
+  const failed = event.phase === 'failed';
+  return (
+    <li className="border-b border-border/60 last:border-b-0">
+      <button
+        type="button"
+        onClick={focus}
+        disabled={targets.length === 0}
+        className="flex w-full cursor-pointer items-start gap-2.5 px-4 py-2.5 text-left hover:bg-surface-2 disabled:cursor-default disabled:hover:bg-transparent"
+      >
+        <span className="mt-0.5 shrink-0">
+          {event.phase === 'started' && <LoaderCircle className="size-3.5 animate-spin text-accent" />}
+          {event.phase === 'succeeded' && <Check className="size-3.5 text-emerald-500" />}
+          {failed && <CircleAlert className="size-3.5 text-danger" />}
+        </span>
+        <span className={cn('min-w-0 flex-1 text-xs break-words', failed && 'text-danger')}>
+          {failed ? event.error : (event.summary ?? event.tool)}
+        </span>
+        <time className="shrink-0 text-[10px] text-muted tabular-nums">{timeAgo(event.at)}</time>
+      </button>
+    </li>
+  );
+}
+
+function ActivityTab() {
+  const events = useAgentEvents();
+  const calls = useMemo(() => selectAgentCalls(events), [events]);
+  const setAiTab = useUiStore((s) => s.setAiTab);
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {calls.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 p-6 text-center text-xs text-muted">
+          <Sparkles className="size-5" />
+          <p>No AI activity yet.</p>
+          <p>
+            Turn on AI control in the{' '}
+            <button
+              type="button"
+              className="cursor-pointer underline hover:text-fg"
+              onClick={() => setAiTab('connect')}
+            >
+              Connect tab
+            </button>
+            , then ask your agent to work on this canvas. Its calls show up here.
+          </p>
+        </div>
+      ) : (
+        <>
+          <ol className="min-h-0 flex-1 overflow-y-auto">
             {[...calls].reverse().map((event) => (
               <ActivityRow key={event.id} event={event} />
             ))}
           </ol>
-        )}
-      </section>
+          <div className="flex justify-end border-t border-border px-3 py-2">
+            <Button className="h-7 px-2 text-xs" onClick={() => agentEvents.clear()}>
+              Clear feed
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const tabClass =
+  'flex-1 cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-muted transition-colors data-[state=active]:bg-surface data-[state=active]:text-fg data-[state=active]:shadow-sm';
+
+export function AiPanel() {
+  const tab = useUiStore((s) => s.aiTab);
+  const setTab = useUiStore((s) => s.setAiTab);
+  const close = useUiStore((s) => s.toggleAiPanel);
+
+  return (
+    <Panel
+      aria-label="AI panel"
+      className="max-h-[calc(100dvh-18.75rem)] min-h-60 w-[22rem] flex-col items-stretch gap-0 overflow-hidden rounded-2xl p-0 shadow-2xl"
+    >
+      <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-3.5 text-accent" />
+          <h2 className="text-sm font-semibold">AI control</h2>
+          <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-amber-600 uppercase dark:text-amber-400">
+            Experimental
+          </span>
+        </div>
+        <IconButton icon={X} label="Close AI panel" size="sm" onClick={close} />
+      </header>
+      <Tabs.Root
+        value={tab}
+        onValueChange={(v) => setTab(v as AiTab)}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <Tabs.List className="mx-3 mt-3 flex shrink-0 gap-1 rounded-xl bg-surface-2 p-1">
+          <Tabs.Trigger value="connect" className={tabClass}>
+            Connect
+          </Tabs.Trigger>
+          <Tabs.Trigger value="activity" className={tabClass}>
+            Activity
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="connect" className="min-h-0 flex-1 overflow-y-auto">
+          <ConnectTab />
+        </Tabs.Content>
+        <Tabs.Content value="activity" className="flex min-h-0 flex-1 flex-col pt-2">
+          <ActivityTab />
+        </Tabs.Content>
+      </Tabs.Root>
     </Panel>
+  );
+}
+
+/** Shown while AI control is on and the panel is closed. Opens the panel on the Activity tab. */
+export function AiStatusPill() {
+  const enabled = useAgentStore((s) => s.enabled);
+  const locked = useAgentStore((s) => s.locked);
+  const connected = useAgentStore((s) => s.bridgeConnected || s.webMcpTools > 0);
+  const open = useUiStore((s) => s.aiPanelOpen);
+  const openAiPanel = useUiStore((s) => s.openAiPanel);
+  const count = useAgentEvents((events) => selectAgentCalls(events as AgentEvent[]).length);
+
+  if (!enabled || locked || open) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => openAiPanel('activity')}
+      className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium shadow-lg hover:bg-surface-2"
+    >
+      <span className={cn('size-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+      {connected ? 'AI connected' : 'AI on, waiting for an agent'}
+      <span className="text-muted">
+        {count} {count === 1 ? 'call' : 'calls'}
+      </span>
+    </button>
   );
 }
 
@@ -148,10 +303,14 @@ export function AiLockBanner() {
   const locked = useAgentStore((s) => s.locked);
   if (!locked) return null;
   return (
-    <Panel className="gap-3 py-1.5 pr-1.5 pl-3 text-sm" role="status">
+    <Panel className="gap-3 rounded-full py-1.5 pr-1.5 pl-4 text-sm" role="status">
       <LoaderCircle className="size-4 animate-spin text-accent" />
       <span>AI is editing. The canvas is read-only.</span>
-      <Button className="h-7 px-2 text-xs" onClick={() => useAgentStore.getState().setEnabled(false)}>
+      <Button
+        variant="primary"
+        className="h-7 rounded-full px-3 text-xs"
+        onClick={() => useAgentStore.getState().setEnabled(false)}
+      >
         Take over
       </Button>
     </Panel>

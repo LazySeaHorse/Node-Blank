@@ -35,7 +35,7 @@ test('an agent connected through the bridge reads and edits the canvas', async (
 
   // Turning AI control on asks first and organises the canvas.
   await page.getByRole('button', { name: 'AI control' }).click();
-  await page.getByRole('button', { name: 'Off' }).click();
+  await page.getByRole('switch', { name: /Allow AI agents/ }).click();
   await page.getByRole('button', { name: 'Organise and turn on' }).click();
   await expect(page.getByText('Bridge connected')).toBeVisible();
   await expect.poll(async () => (await nodes(page).nth(1).boundingBox())?.x).not.toBe(before?.x);
@@ -64,6 +64,7 @@ test('an agent connected through the bridge reads and edits the canvas', async (
   // Taking over turns AI control off, which also disconnects the tab from the bridge.
   await expect(page.getByText('Bridge not connected')).toBeVisible();
 
-  // The activity panel kept the history.
+  // The activity tab kept the history.
+  await page.getByRole('tab', { name: 'Activity' }).click();
   await expect(page.getByText('Created 1 node')).toBeVisible();
 });
