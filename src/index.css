@@ -13,20 +13,21 @@
   --border: #e2e8f0;
   --fg: #0f172a;
   --muted: #64748b;
-  --accent: #f97316;
+  --accent: #3b82f6;
   --accent-fg: #ffffff;
   --danger: #ef4444;
 }
 
+/* Neutral greys: no blue tint in dark mode. */
 .dark {
-  --canvas: #0b0f17;
-  --surface: #151a24;
-  --surface-2: #1d2430;
-  --border: #2a3140;
-  --fg: #e5e7eb;
-  --muted: #94a3b8;
-  --accent: #fb923c;
-  --accent-fg: #1a0f05;
+  --canvas: #0a0a0a;
+  --surface: #171717;
+  --surface-2: #212121;
+  --border: #2e2e2e;
+  --fg: #e5e5e5;
+  --muted: #a3a3a3;
+  --accent: #f97316;
+  --accent-fg: #ffffff;
   --danger: #f87171;
   color-scheme: dark;
 }
@@ -64,6 +65,13 @@ body,
   --xy-attribution-background-color: transparent;
 }
 
+/* Read-only nodes are not selectable, which makes React Flow ignore pointer events on them.
+   Keep links, embedded videos and scrollable output usable; dragging still pans the canvas. */
+.react-flow.read-only .react-flow__node {
+  /* biome-ignore lint/complexity/noImportantStyles: must beat React Flow's inline pointer-events style. */
+  pointer-events: all !important;
+}
+
 .react-flow__node.search-miss {
   opacity: 0.3;
   filter: grayscale(1);
@@ -75,6 +83,7 @@ math-field {
   --caret-color: var(--accent);
   --selection-background-color: color-mix(in srgb, var(--accent) 25%, transparent);
   --contains-highlight-background-color: var(--surface-2);
+  --placeholder-color: var(--muted);
   --text-font-family: inherit;
   display: block;
   background: transparent;
@@ -89,9 +98,20 @@ math-field::part(virtual-keyboard-toggle) {
 }
 
 /* Mafs */
-.MafsView {
+.react-flow .MafsView {
   --mafs-bg: transparent;
   --mafs-fg: var(--fg);
   --mafs-line-color: var(--border);
   --mafs-origin-color: var(--muted);
+}
+
+/* react-spreadsheet: follow the app theme instead of its own light/dark palettes. */
+.react-flow .Spreadsheet {
+  --background-color: var(--surface);
+  --text-color: var(--fg);
+  --readonly-text-color: var(--muted);
+  --outline-color: var(--accent);
+  --outline-background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+  --border-color: var(--border);
+  --header-background-color: var(--surface-2);
 }

@@ -10,6 +10,10 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  build: {
+    // The compute engine (~4 MB) is a single lazy chunk loaded only by Math+ and Graph nodes.
+    chunkSizeWarningLimit: 4500,
+  },
   plugins: [
     react(),
     tailwindcss(),
