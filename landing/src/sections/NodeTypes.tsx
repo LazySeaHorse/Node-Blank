@@ -16,16 +16,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 const BLURB: Record<Kind, string> = {
-  text: 'Markdown and LaTeX in the same block. Headings, lists and inline maths render as you type.',
-  math: 'A typeset LaTeX field. Shift+Enter starts a new line inside the same node.',
-  mathPlus:
-    'Evaluates what you write. `a := 2` variables are shared across every Math+ node, top to bottom, so one edit re-runs the lot.',
-  graph: 'Plot several functions of x on shared axes. Add a line, it draws a line.',
-  table: 'A grid where every cell is maths — integrals, sums and limits typeset in place.',
-  sheet: 'A spreadsheet with formulas, cell references and a totals row. Follows the app theme.',
-  code: 'Sandboxed JavaScript with a scrollable output pane. No DOM, no network.',
-  image: 'Drop a figure onto the canvas. It pans and zooms with everything else.',
-  video: 'Embed a video. Playback and links stay live even while the canvas is read-only.',
+  text: 'Write in Markdown. Add LaTeX math anywhere in the text.',
+  math: 'Type LaTeX and see typeset math. Press Shift+Enter for a new line.',
+  mathPlus: 'Write a := 2 and every Math+ node can use it. Change it once, and all results update.',
+  graph: 'Plot many functions of x on one graph. Add a line to add a curve.',
+  table: 'A grid where each cell holds math. Integrals, sums and limits look right.',
+  sheet: 'A spreadsheet with formulas and cell references.',
+  code: 'Run JavaScript on the canvas. It runs in a sandbox, so it cannot reach the page or the network.',
+  image: 'Drop in a picture. It moves and zooms with the rest of your canvas.',
+  video: 'Embed a video. It keeps playing while you work around it.',
 };
 
 function NodeStage({ kind }: { kind: Kind }) {
@@ -87,7 +86,7 @@ export function NodeTypes() {
                 <span className="text-muted">One surface for all of them.</span>
               </h2>
               <p className="mt-4 max-w-[60ch] text-[15.5px] leading-[1.6] text-muted">
-                Pick a tool in the toolbar, double-click the canvas, and it lands there.
+                Pick a tool. Double-click the canvas. Your node appears.
               </p>
             </div>
             <div className="flex gap-2">

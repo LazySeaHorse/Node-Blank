@@ -5,29 +5,24 @@ import { APP_URL, REPO_URL } from '@landing/components/Nav';
 import { Reveal } from '@landing/components/Reveal';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
-/* ── The "why", straight out of the README ── */
+/* ── The pitch in one line ── */
 
 export function Story() {
   return (
     <section className="relative overflow-hidden border-t border-line bg-surface py-16 sm:py-20">
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-9 px-4 sm:px-6 lg:grid-cols-12 lg:items-end lg:gap-12">
         <Reveal className="lg:col-span-8">
-          <blockquote className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-semibold tracking-[-0.025em] text-fg text-balance">
-            <span className="mr-1 font-display text-[1.4em] leading-none text-tip">“</span>I wanted a
-            LiquidText / Margin Note-like experience that didn&apos;t feel heavy and wasn&apos;t tethered to a
-            specific ecosystem or tablet hardware.
-            <span className="ml-1 font-display text-[1.4em] leading-none text-tip">”</span>
-          </blockquote>
-          <p className="mt-4 pl-1 font-mono text-[11.5px] tracking-wide text-muted">
-            — the README, on why Node-Blank exists
+          <p className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-semibold tracking-[-0.025em] text-fg text-balance">
+            Notebooks give you pages. Whiteboards give you shapes.{' '}
+            <span className="text-tip">Node-Blank gives you space.</span>
           </p>
         </Reveal>
         <Reveal delay={0.08} className="lg:col-span-4">
           <dl className="flex flex-col gap-3 border-l-2 border-line pl-5">
             {[
-              ['Started as', 'a way to jot maths and markdown side by side'],
-              ['Grew into', 'a robust tool with close to a dozen node types'],
-              ['Goal', 'stay out of your way and let you think'],
+              ['Fast', 'It opens in a tab. There is nothing to install.'],
+              ['Private', 'Your work stays on your device.'],
+              ['Free', 'It is open source. No account needed.'],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt className="font-mono text-[10.5px] tracking-[0.14em] text-muted uppercase">{k}</dt>
@@ -60,8 +55,7 @@ export function FinalCta() {
               canvas.
             </h2>
             <p className="mt-5 max-w-[42ch] text-[16px] leading-[1.6] text-muted">
-              It is already installed — it is a website. Double-click anywhere and put the thing you are
-              working on down.
+              Nothing to install. Nothing to sign up for. Double-click anywhere and start.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3 pb-8">
               <a
@@ -99,7 +93,7 @@ const FOOT_LINKS = [
   { label: 'Open the canvas', href: APP_URL },
   { label: 'GitHub', href: REPO_URL },
   { label: 'Releases', href: `${REPO_URL}/releases` },
-  { label: 'Bridge', href: `${REPO_URL}/blob/main/bridge/README.md` },
+  { label: 'AI bridge', href: `${REPO_URL}/blob/main/bridge/README.md` },
 ];
 
 export function Footer() {

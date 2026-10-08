@@ -67,17 +67,17 @@ export function AiControl() {
               <Reveal>
                 <div className="flex items-start gap-4">
                   <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-extrabold tracking-[-0.03em] text-fg">
-                    Let a coding agent
+                    Let your AI agent
                     <br />
-                    <span className="text-muted">drive the open canvas.</span>
+                    <span className="text-muted">work on your canvas.</span>
                   </h2>
                   <Mascot working className="mt-1 size-14 shrink-0 sm:size-16" />
                 </div>
                 <p className="mt-5 max-w-[46ch] text-[15.5px] leading-[1.62] text-muted">
-                  A small local bridge exposes the tab you already have open over MCP. Claude Code, Codex and
-                  Gemini CLI can read and edit it; browser agents come in through WebMCP. It is{' '}
-                  <span className="font-semibold text-fg">off on every page load</span> — you turn it on, and
-                  the canvas is organised first so agents can find their way around.
+                  Run a small bridge on your computer. Claude Code, Codex and Gemini CLI can then read and
+                  edit your open canvas. Browser agents connect with WebMCP. AI control is{' '}
+                  <span className="font-semibold text-fg">off every time you load the page</span>. You turn it
+                  on.
                 </p>
               </Reveal>
 
@@ -88,7 +88,7 @@ export function AiControl() {
                       1
                     </span>
                     <p className="text-[14.5px] leading-[1.55] text-muted">
-                      Download and run the bridge for your OS from the latest{' '}
+                      Download the bridge for your system from the latest{' '}
                       <code className="rounded bg-surface-2 px-1 py-0.5 font-mono text-[12.5px] text-fg">
                         bridge-v*
                       </code>{' '}
@@ -100,7 +100,7 @@ export function AiControl() {
                       2
                     </span>
                     <p className="text-[14.5px] leading-[1.55] text-muted">
-                      Add it to your agent once. That is the whole setup.
+                      Add it to your agent. You do this one time.
                     </p>
                   </li>
                 </ol>
@@ -129,7 +129,7 @@ export function AiControl() {
                       )}
                     </button>
                   </div>
-                  <pre className="overflow-x-auto px-3.5 py-3 font-mono text-[12px] leading-[1.7] text-[#e2e8f0]">
+                  <pre className="px-3.5 py-3 font-mono text-[12px] break-all whitespace-pre-wrap leading-[1.7] text-[#e2e8f0]">
                     <span className="text-[#64748b]">$ </span>
                     {BRIDGE_CMD.slice(0, 15)}
                     <span className="text-accent">{BRIDGE_CMD.slice(15, 26)}</span>
@@ -149,9 +149,9 @@ export function AiControl() {
               <Reveal delay={0.16}>
                 <ul className="mt-6 flex flex-col gap-2.5">
                   {[
-                    'Short handles — n3, g2 — instead of raw ids, so context stays small.',
-                    'Each call is one undo step. Ctrl+Z takes the agent back.',
-                    'While it edits, the canvas is read-only for you and changed nodes flash.',
+                    'Short names like n3 and g2 keep the agent focused.',
+                    'Each agent edit is one undo step. Press Ctrl+Z to go back.',
+                    'While the agent works, you can only look. Changed nodes flash.',
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-2.5 text-[13.5px] leading-[1.5] text-muted">
                       <Check className="mt-[3px] size-3.5 shrink-0 text-tip" strokeWidth={2.6} />

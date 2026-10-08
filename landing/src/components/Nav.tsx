@@ -10,8 +10,8 @@ export const REPO_URL = 'https://github.com/LazySeaHorse/Node-Blank';
 const LINKS = [
   { href: '#nodes', label: 'Nodes' },
   { href: '#controls', label: 'Controls' },
-  { href: '#ai', label: 'AI control' },
-  { href: '#local', label: 'Local-first' },
+  { href: '#ai', label: 'AI' },
+  { href: '#local', label: 'Your data' },
 ];
 
 export function Nav() {

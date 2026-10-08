@@ -16,9 +16,9 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react';
 
 const FACTS = [
-  { icon: Database, text: 'Autosaved to IndexedDB' },
-  { icon: WifiOff, text: 'Offline PWA' },
-  { icon: MousePointerClick, text: 'Desktop-first, mouse + keyboard' },
+  { icon: Database, text: 'Saves as you work' },
+  { icon: WifiOff, text: 'Works offline' },
+  { icon: MousePointerClick, text: 'Built for mouse and keyboard' },
 ];
 
 const HERO_NODES = [
@@ -67,9 +67,9 @@ export function Hero() {
             canvas that stays out of your way.
           </h1>
 
-          <p className="mt-5 max-w-[46ch] text-[16.5px] leading-[1.62] text-muted">
-            Math, markdown, graphs, spreadsheets, sandboxed code, images and video — dropped anywhere on a 2D
-            canvas that autosaves to your browser. No accounts, no cloud, no ecosystem to be trapped in.
+          <p className="mt-5 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted">
+            Write math. Plot graphs. Run code. Drop in images and video. Put it all on one canvas, exactly
+            where you want it. Your work saves in your browser. There is no account and no cloud.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -87,7 +87,7 @@ export function Hero() {
               className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-[14.5px] font-semibold text-fg transition-colors hover:bg-surface-2"
             >
               <GithubIcon className="size-4 text-muted transition-colors group-hover:text-fg" />
-              Read the source
+              View the source
               <ArrowUpRight className="size-3.5 text-muted" />
             </a>
           </div>

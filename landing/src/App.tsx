@@ -5,7 +5,7 @@ import { FinalCta, Footer, Story } from '@landing/sections/Cta';
 import { Hero } from '@landing/sections/Hero';
 import { LocalFirst } from '@landing/sections/LocalFirst';
 import { NodeTypes } from '@landing/sections/NodeTypes';
-import { Roadmap, Stack } from '@landing/sections/Stack';
+import { Roadmap } from '@landing/sections/Roadmap';
 
 export default function App() {
   return (
@@ -18,7 +18,6 @@ export default function App() {
         <Controls />
         <LocalFirst />
         <AiControl />
-        <Stack />
         <Roadmap />
         <FinalCta />
       </main>

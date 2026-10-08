@@ -15,45 +15,41 @@ import {
 import { cn } from '@/lib/cn';
 
 const FEATURES = [
-  {
-    icon: CloudOff,
-    title: 'No accounts, no cloud',
-    text: 'There is nothing to sign into and nothing to sync. Your canvases live in the browser that made them.',
-  },
+  { icon: CloudOff, title: 'No account, no cloud', text: 'Nothing to sign in to. Nothing to sync.' },
   {
     icon: HardDrive,
-    title: 'Autosaved to IndexedDB',
-    text: 'Dexie writes as you go. Close the tab mid-thought, come back, it is where you left it.',
+    title: 'Saves as you work',
+    text: 'Close the tab at any time. Your canvas is there when you return.',
   },
   {
     icon: RotateCcw,
-    title: 'Undo for everything',
-    text: 'Zustand + zundo snapshots the canvas — including what an agent did. Organising is one undo step too.',
+    title: 'Undo everything',
+    text: 'Undo works on every change, including changes an agent makes.',
   },
   {
     icon: Download,
-    title: 'Export as JSON',
-    text: 'Selected nodes, one canvas, or the lot. Import validates with Zod before it touches your data.',
+    title: 'Export any time',
+    text: 'Export selected nodes, one canvas, or all canvases as JSON.',
   },
   {
     icon: ScanSearch,
-    title: 'Search dims and flies',
-    text: 'Ctrl+F greys out everything that does not match and moves the viewport to the things that do.',
+    title: 'Fast search',
+    text: 'Press Ctrl+F. Other nodes fade and the view moves to the match.',
   },
   {
     icon: LayoutGrid,
     title: 'Organise',
-    text: 'Groups nearby nodes and spaces them evenly, in a single reversible step.',
+    text: 'Group nearby nodes and space them evenly in one step.',
   },
   {
     icon: Moon,
-    title: 'Dark mode + offline PWA',
-    text: 'A flat dark theme with no shadows, and an installable app that works on a plane.',
+    title: 'Dark mode and offline',
+    text: 'Install it as an app. It works without internet.',
   },
   {
     icon: Smartphone,
-    title: 'Mobile is a viewer',
-    text: 'Pan, zoom and switch canvases on a phone. Editing stays desktop-only, on purpose.',
+    title: 'Mobile viewer',
+    text: 'View and pan on your phone. Edit on your desktop.',
   },
 ];
 
@@ -63,16 +59,6 @@ const CANVASES = [
   { name: 'pset-04', when: '3 days ago', active: false, nodes: 18 },
   { name: 'lecture-12', when: 'last week', active: false, nodes: 51 },
   { name: 'scratch', when: 'last month', active: false, nodes: 6 },
-];
-
-const SAVE_FORMAT = [
-  { t: 'interface', n: 'CanvasMeta', b: '{ id: string; name: string; updatedAt: number }' },
-  { t: 'interface', n: 'CanvasGroup', b: '{ id: string; nodeIds: string[] }' },
-  {
-    t: 'interface',
-    n: 'CanvasContent',
-    b: '{ nodes: AppNode[]; viewport: Viewport; groups?: CanvasGroup[] }',
-  },
 ];
 
 export function LocalFirst() {
@@ -88,9 +74,7 @@ export function LocalFirst() {
                 <span className="text-muted">the browser.</span>
               </h2>
               <p className="mt-4 max-w-[42ch] text-[15.5px] leading-[1.62] text-muted">
-                It started as a way to jot down maths and markdown side by side without a heavy app or a
-                tablet. It stayed that way: a scratchpad that is yours, on your disk, in a format you can
-                carry out as JSON.
+                Your canvases stay on your device. No server ever sees them.
               </p>
             </Reveal>
 
@@ -178,43 +162,9 @@ export function LocalFirst() {
                   </ul>
                   <div className="flex items-center gap-2 border-t border-line bg-surface-2/50 px-3.5 py-2">
                     <Upload className="size-3 text-muted" />
-                    <span className="font-mono text-[10.5px] text-muted">
-                      import · export nodes / canvas / everything
-                    </span>
+                    <span className="font-mono text-[10.5px] text-muted">Import and export</span>
                   </div>
                 </div>
-              </Reveal>
-
-              {/* the real save format */}
-              <Reveal delay={0.12}>
-                <div className="mt-5 overflow-hidden rounded-xl border border-line bg-[#0f172a]">
-                  <div className="flex items-center gap-2 border-b border-white/10 px-3.5 py-2">
-                    <span className="size-1.5 rounded-full bg-accent" />
-                    <span className="font-mono text-[10.5px] tracking-[0.14em] text-[#94a3b8] uppercase">
-                      src/model/types.ts
-                    </span>
-                    <span className="ml-auto font-mono text-[10px] text-[#475569]">
-                      the whole save format
-                    </span>
-                  </div>
-                  <pre className="overflow-x-auto px-3.5 py-3.5 font-mono text-[11.5px] leading-[1.85]">
-                    {SAVE_FORMAT.map((l) => (
-                      <div key={l.n}>
-                        <span className="text-accent">{l.t}</span>{' '}
-                        <span className="text-[#fdba74]">{l.n}</span>{' '}
-                        <span className="text-[#e2e8f0]">{l.b}</span>
-                      </div>
-                    ))}
-                  </pre>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.16}>
-                <p className="mt-4 pl-1 text-[13px] leading-[1.55] text-muted">
-                  Nodes are React Flow nodes; the viewport is saved with them, so a canvas reopens exactly
-                  where you were looking. Groups are recomputed from positions rather than stored as boxes —
-                  which is why Organise and the AI overview agree on what is near what.
-                </p>
               </Reveal>
             </div>
           </div>

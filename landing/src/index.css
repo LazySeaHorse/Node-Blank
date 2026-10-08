@@ -243,30 +243,13 @@ body {
   image-rendering: auto;
 }
 
-/* ── Marquee ── */
-@keyframes marquee-x {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee-track {
-  animation: marquee-x 38s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .mascot-arm,
   .mascot-head,
-  .mascot-eyes,
-  .marquee-track {
+  .mascot-eyes {
     animation: none !important;
   }
 }

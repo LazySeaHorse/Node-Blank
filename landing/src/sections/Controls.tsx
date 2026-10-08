@@ -8,30 +8,23 @@ type Row = {
 };
 
 const ROWS: Row[] = [
+  { id: 'place', action: 'Place a node', note: 'Pick a tool. Double-click the canvas.' },
+  { id: 'pan', action: 'Pan', note: 'Scroll, or drag with the middle or right mouse button.' },
+  { id: 'zoom', action: 'Zoom', note: 'Pinch, or hold Ctrl/Cmd and scroll.' },
+  { id: 'select', action: 'Select', note: 'Click, Shift+click, or drag a box on empty canvas.' },
+  { id: 'undo', action: 'Undo / redo', keys: ['Ctrl', 'Z'], note: 'Add Shift to redo.' },
   {
-    id: 'place',
-    action: 'Place a node',
-    note: 'Pick a tool in the toolbar, then double-click the canvas',
+    id: 'dup',
+    action: 'Duplicate / delete',
+    keys: ['Ctrl', 'D'],
+    note: 'Press Delete to remove the selection.',
   },
-  {
-    id: 'pan',
-    action: 'Pan',
-    note: 'Scroll / trackpad, or drag with the middle or right mouse button',
-  },
-  { id: 'zoom', action: 'Zoom', note: 'Pinch, or Ctrl/Cmd + scroll' },
-  {
-    id: 'select',
-    action: 'Select',
-    note: 'Click, Shift+click, or drag a box on empty canvas',
-  },
-  { id: 'undo', action: 'Undo / redo', keys: ['Ctrl', 'Z'], note: 'or Ctrl+Shift+Z to redo' },
-  { id: 'dup', action: 'Duplicate / delete', keys: ['Ctrl', 'D'], note: 'Delete removes the selection' },
-  { id: 'all', action: 'Select all', keys: ['Ctrl', 'A'], note: 'Every node on this canvas' },
+  { id: 'all', action: 'Select all', keys: ['Ctrl', 'A'], note: 'Selects every node on the canvas.' },
   {
     id: 'newline',
     action: 'New line in a math node',
     keys: ['Shift', 'Enter'],
-    note: 'So Enter never commits by accident',
+    note: 'Enter never submits by accident.',
   },
 ];
 
@@ -93,8 +86,7 @@ export function Controls() {
                 <span className="text-muted">and a keyboard.</span>
               </h2>
               <p className="mt-4 max-w-[38ch] text-[15.5px] leading-[1.6] text-muted">
-                No hover-only affordances, no drag handles you have to find. The whole app is reachable from
-                the list on the right.
+                No hidden menus. No handles to hunt for. Every action has a clear input.
               </p>
             </Reveal>
 
@@ -104,7 +96,7 @@ export function Controls() {
                 <div>
                   <p className="font-display text-[15px] font-bold text-fg">Middle-drag pans</p>
                   <p className="mt-1.5 max-w-[24ch] text-[13px] leading-[1.5] text-muted">
-                    Context menus are given up so panning is always one press away.
+                    There are no right-click menus, so panning is always one press away.
                   </p>
                 </div>
               </div>
@@ -143,7 +135,8 @@ export function Controls() {
             </Reveal>
             <Reveal delay={0.1}>
               <p className="mt-5 pl-1 text-[12.5px] text-muted">
-                On macOS, read <span className="text-fg">Ctrl</span> as <span className="text-fg">Cmd</span>.
+                On Mac, use <span className="text-fg">Cmd</span> instead of{' '}
+                <span className="text-fg">Ctrl</span>.
               </p>
             </Reveal>
           </div>
