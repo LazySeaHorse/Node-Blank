@@ -87,14 +87,19 @@ Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>
 ### Roadmap
 - [x] **Rewrite on React + React Flow** (replaced the custom canvas, pan/zoom and touchpad handling)
 - [x] **Text, Math, Math+, Graph, Table, Sheet, Script, Image and Video nodes**
-- [x] **Multiple canvases**
+- [x] **Multiple canvases**, with rename, export and delete
+- [x] **Math+ with variables shared across nodes**
+- [x] **Undo/redo for everything**
+- [x] **Duplicate, select all and keyboard shortcuts**
+- [x] **Resizable nodes**
+- [x] **Validated JSON import** (Zod)
 - [x] **Global search**
 - [x] **Import/export nodes/canvases/everything**
 - [x] **Dark mode**
 - [x] **Offline PWA**
 - [x] **Node groups and Organise**
 - [x] **Mobile viewer**
-- [x] **AI control**
+- [x] **AI control** through the local Go bridge (MCP over HTTP) and WebMCP, with an activity feed and Take over
 - [ ] **Themes!**
 - [ ] **PDF node**
 - [ ] **Link 2+ nodes**

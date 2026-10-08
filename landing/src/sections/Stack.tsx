@@ -58,14 +58,20 @@ const SHIPPED = [
   'Rewrite on React + React Flow',
   'TypeScript and Tailwind',
   'Text, Math, Math+, Graph, Table, Sheet, Script, Image and Video nodes',
-  'Multiple canvases',
+  'Multiple canvases: rename, export, delete',
+  'Math+ with shared variables',
+  'Undo / redo for everything',
+  'Duplicate, select all, shortcuts',
+  'Resizable nodes',
+  'Validated JSON import',
   'Global search',
   'Import / export nodes, canvases, everything',
   'Dark mode',
   'Offline PWA',
   'Node groups and Organise',
   'Mobile viewer',
-  'AI control',
+  'AI control: local Go bridge + WebMCP',
+  'AI activity feed and Take over',
 ];
 
 const NEXT = [

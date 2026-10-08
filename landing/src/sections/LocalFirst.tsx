@@ -159,7 +159,7 @@ export function LocalFirst() {
                           </span>
                         </span>
                         <span className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                          {(['rename', 'duplicate', 'export'] as const).map((a) => (
+                          {(['rename', 'export', 'delete'] as const).map((a) => (
                             <span
                               key={a}
                               className="rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[9.5px] text-muted"
