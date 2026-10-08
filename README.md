@@ -78,6 +78,8 @@ src/
   ui/           Radix-based primitives and prompt/confirm dialogs
   lib/          small shared helpers (MathField, Markdown, files, grid, clusters, …)
   agent/        AI tools (transport-agnostic), bridge client, WebMCP adapter, activity log
+app/            HTML entry for the app, served at /app/
+landing/        the marketing page served at / (its own entry, styles and static UI mocks)
 bridge/         Go bridge between coding agents (MCP over HTTP) and the open tab (WebSocket)
 ```
 Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>/spec.ts` and a component, then register it in `nodes/catalog.ts` and `nodes/nodeTypes.tsx`.

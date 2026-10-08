@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Node-Blank semantic colour tokens — lifted verbatim from the
+   app's own src/index.css so the landing page speaks the same
+   language as the product. Light mode.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --canvas: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --fg: #0f172a;
+  --muted: #64748b;
+  --accent: #3b82f6;
+  --accent-fg: #ffffff;
+  --danger: #ef4444;
+
+  /* Mascot / warm secondary (the app's dark-mode accent + octopus tips) */
+  --tip: #f97316;
+  --tip-soft: #fb923c;
+  --tip-light: #fdba74;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-tip: var(--tip);
+  --color-tip-soft: var(--tip-soft);
+  --color-tip-light: var(--tip-light);
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Keep anchored sections clear of the sticky nav. */
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--fg);
+}
+
+/* Thin, unobtrusive scrollbars — the app is a canvas, chrome stays quiet. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Mascot: arms sway, the head bobs, eyes blink.
+      Faster while an agent is working. (Straight from the app.) ── */
+@keyframes mascot-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+@keyframes mascot-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+.mascot-arm {
+  transform-box: view-box;
+  transform-origin: 64px 74px;
+  animation: mascot-sway 3.2s ease-in-out infinite;
+}
+.mascot-head {
+  transform-box: view-box;
+  animation: mascot-bob 3.2s ease-in-out infinite;
+}
+.mascot-eyes {
+  transform-box: view-box;
+  transform-origin: 64px 58px;
+  animation: mascot-blink 5s infinite;
+}
+.mascot-working .mascot-arm {
+  animation-duration: 0.9s;
+}
+.mascot-working .mascot-head {
+  animation-duration: 0.9s;
+}
+
+/* A node an AI agent just changed, frozen mid-flash. */
+.ai-touched {
+  border-radius: 0.5rem;
+  outline: 4px solid color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+/* ── The canvas background: React Flow's Lines variant, gap 40 ── */
+.canvas-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Math typography for the mock nodes.
+      The app renders LaTeX through KaTeX / MathLive; these are the same shapes
+      drawn with plain markup so nothing has to be faked at runtime. ── */
+.tex {
+  font-family: Georgia, "Times New Roman", serif;
+  font-feature-settings: "liga" 1;
+  letter-spacing: 0.01em;
+}
+.tex i,
+.tex-var {
+  font-style: italic;
+  padding-right: 0.06em;
+}
+.tex-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: -0.55em;
+  line-height: 1.05;
+  margin: 0 0.18em;
+}
+.tex-frac > span:first-child {
+  border-bottom: 1px solid currentColor;
+  padding: 0 0.28em 0.06em;
+}
+.tex-frac > span:last-child {
+  padding: 0.08em 0.28em 0;
+}
+.tex-sqrt {
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: -0.28em;
+}
+.tex-sqrt > svg {
+  align-self: stretch;
+  flex: none;
+}
+.tex-sqrt > span {
+  border-top: 1px solid currentColor;
+  padding: 0.1em 0.16em 0;
+  margin-top: 0.1em;
+}
+.tex-op {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: -0.7em;
+  line-height: 1;
+  margin: 0 0.22em 0 0.06em;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.tex-op > b {
+  font-size: 1.5em;
+  font-weight: 400;
+}
+.tex-op > small {
+  font-size: 0.56em;
+  color: var(--muted);
+  font-family: var(--font-sans);
+}
+
+/* ── Keyboard chip ── */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.65rem;
+  padding: 0.14rem 0.42rem;
+  border-radius: 0.34rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  background: var(--surface);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* ── The app's floating surface for toolbars and controls over the canvas ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* ── ASCII field ── */
+.ascii-canvas {
+  font-family: var(--font-mono);
+  image-rendering: auto;
+}
+
+/* ── Marquee ── */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee-x 38s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .mascot-arm,
+  .mascot-head,
+  .mascot-eyes,
+  .marquee-track {
+    animation: none !important;
+  }
+}

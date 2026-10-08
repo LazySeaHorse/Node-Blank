@@ -8,7 +8,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: `http://localhost:${port}/`,
+    baseURL: `http://localhost:${port}/app/`,
     serviceWorkers: 'block',
     launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined },
   },
@@ -22,7 +22,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `npx vite build && npx vite preview --port ${port} --strictPort`,
-    url: `http://localhost:${port}/`,
+    url: `http://localhost:${port}/app/`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },

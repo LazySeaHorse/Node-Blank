@@ -8,9 +8,19 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   base: '/',
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@landing': fileURLToPath(new URL('./landing/src', import.meta.url)),
+    },
   },
   build: {
+    // The landing page is the site root; the app lives under /app/.
+    rollupOptions: {
+      input: {
+        landing: fileURLToPath(new URL('./index.html', import.meta.url)),
+        app: fileURLToPath(new URL('./app/index.html', import.meta.url)),
+      },
+    },
     // The compute engine (~4 MB) is a single lazy chunk loaded only by Math+ and Graph nodes.
     chunkSizeWarningLimit: 4500,
   },
@@ -23,11 +33,16 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,png,ico,svg}'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        // Only app navigations fall back to the app shell; the landing page is its own document.
+        navigateFallback: '/app/index.html',
+        navigateFallbackAllowlist: [/^\/app\//],
       },
       manifest: {
         name: 'Node-Blank',
         short_name: 'Node-Blank',
         description: 'Infinite canvas for math, text, code & graphs',
+        start_url: '/app/',
+        scope: '/app/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#3b82f6',
