@@ -85,30 +85,21 @@ bridge/         Go bridge between coding agents (MCP over HTTP) and the open tab
 Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>/spec.ts` and a component, then register it in `nodes/catalog.ts` and `nodes/nodeTypes.tsx`.
 
 ### Roadmap
-- [x] **Table node**
-- [x] **Image node**
-- [x] **Import/export nodes/canvases/everything**
+- [x] **Rewrite on React + React Flow** (replaced the custom canvas, pan/zoom and touchpad handling)
+- [x] **Text, Math, Math+, Graph, Table, Sheet, Script, Image and Video nodes**
 - [x] **Multiple canvases**
-- [x] **Code node**
-- [x] **Video node**
-- [x] **Add/Remove nodes from toolbar**
-- [x] **Migrate to Tailwind**
-- [x] **Dark mode**
-- [x] **Migrate to Preact**
-- [x] **Smoother navigation using D3**
-- [x] **Spreadsheet node**
 - [x] **Global search**
-- [x] **Make it a PWA**
-- [x] **Migrate to TypeScript**
-- [x] **Rewrite on React + React Flow**
-- [x] **Fix touchpad navigation**
+- [x] **Import/export nodes/canvases/everything**
+- [x] **Dark mode**
+- [x] **Offline PWA**
+- [x] **Node groups and Organise**
+- [x] **Mobile viewer**
+- [x] **AI control**
 - [ ] **Themes!**
 - [ ] **PDF node**
 - [ ] **Link 2+ nodes**
-- [ ] **Node groups**
 - [ ] **Import export via QR**
 - [ ] **Encrypted saves**
 - [ ] **Bring-your-own Firebase cloud saves**
 - [ ] **Drawings on canvas**
 - [ ] **Export PDF**
-- [ ] **AI features? idk**

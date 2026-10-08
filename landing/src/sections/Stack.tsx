@@ -56,30 +56,22 @@ const DARK = [
 
 const SHIPPED = [
   'Rewrite on React + React Flow',
-  'Migrate to TypeScript',
-  'Migrate to Tailwind',
-  'Spreadsheet node',
-  'Code node',
-  'Table node',
-  'Image node',
-  'Video node',
+  'TypeScript and Tailwind',
+  'Text, Math, Math+, Graph, Table, Sheet, Script, Image and Video nodes',
   'Multiple canvases',
   'Global search',
   'Import / export nodes, canvases, everything',
   'Dark mode',
-  'Make it a PWA',
-  'Add / remove nodes from the toolbar',
+  'Offline PWA',
+  'Node groups and Organise',
+  'Mobile viewer',
   'AI control',
 ];
 
 const NEXT = [
-  'Migrate to Preact',
-  'Smoother navigation using D3',
-  'Fix touchpad navigation',
   'Themes!',
   'PDF node',
   'Link 2+ nodes',
-  'Node groups',
   'Import / export via QR',
   'Encrypted saves',
   'Bring-your-own Firebase cloud saves',
@@ -213,8 +205,8 @@ export function Roadmap() {
                 <span className="text-muted">mostly crossed off.</span>
               </h2>
               <p className="mt-4 max-w-[36ch] text-[15px] leading-[1.6] text-muted">
-                The roadmap lives in the README and is written in the order things were thought of. Most of it
-                already shipped; the rest is honest about what is still open.
+                The roadmap lives in the README. The custom canvas code it used to track is gone: React Flow
+                and a handful of well-trodden libraries do that work now.
               </p>
               <a
                 href="https://github.com/LazySeaHorse/Node-Blank#roadmap"
