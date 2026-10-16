@@ -1,6 +1,7 @@
 import type { NodeProps } from '@xyflow/react';
-import { Check, TriangleAlert } from 'lucide-react';
+import { Copy, TriangleAlert } from 'lucide-react';
 import { useReadOnly } from '@/canvas/readOnly';
+import { copyText } from '@/lib/clipboard';
 import { MathField } from '@/lib/math/MathField';
 import { Tex } from '@/lib/math/Tex';
 import type { NodeOf } from '@/model/types';
@@ -15,7 +16,7 @@ export default function MathPlusNode({ id, data, selected }: NodeProps<NodeOf<'m
   const results = useMathPlusResults(id);
 
   return (
-    <NodeShell selected={selected} className="min-w-56 border-l-4 border-l-accent">
+    <NodeShell selected={selected} className="min-w-56">
       <div className="px-3 py-2">
         <MathField
           value={data.latex}
@@ -49,12 +50,31 @@ function ResultLine({ result }: { result: LineResult }) {
       </li>
     );
   }
+  const copyButton =
+    'nodrag cursor-pointer rounded p-1 text-muted opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-2 hover:text-fg focus-visible:opacity-100 [@media(hover:none)]:opacity-100';
   return (
-    <li className="flex min-h-7 items-center gap-2">
+    <li className="group flex min-h-7 items-center gap-2">
       <span className="text-muted">=</span>
       <Tex latex={result.value ?? ''} />
-      {result.approx && <span className="text-xs text-muted">≈ {result.approx}</span>}
-      {result.assigned && <Check className="size-3.5 text-green-600" aria-label="Defined" />}
+      {result.approx && (
+        <button
+          type="button"
+          className="nodrag cursor-pointer text-xs text-muted hover:text-fg"
+          title="Copy approximate value"
+          onClick={() => void copyText(result.approx ?? '', 'approximate value')}
+        >
+          ≈ {result.approx}
+        </button>
+      )}
+      <button
+        type="button"
+        className={`${copyButton} ml-auto`}
+        aria-label="Copy LaTeX"
+        title="Copy LaTeX"
+        onClick={() => void copyText(result.value ?? '', 'LaTeX')}
+      >
+        <Copy className="size-3.5" />
+      </button>
     </li>
   );
 }
