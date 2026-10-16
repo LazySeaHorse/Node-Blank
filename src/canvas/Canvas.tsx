@@ -13,6 +13,7 @@ import type { AppNode } from '@/model/types';
 import { nodeTypes } from '@/nodes/nodeTypes';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
+import { useClipboard } from './clipboard';
 import { useCanvasActions } from './useCanvasActions';
 import { useSearchHighlight } from './useSearch';
 import { useSections } from './useSections';
@@ -79,6 +80,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
     return () => setAgentView(null);
   }, [fitView]);
   useShortcuts(readOnly);
+  useClipboard(readOnly);
 
   const placeNode = (event: MouseEvent) => {
     const target = event.target as Element;

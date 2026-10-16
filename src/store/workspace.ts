@@ -1,10 +1,11 @@
 import type { XYPosition } from '@xyflow/react';
 import { create } from 'zustand';
+import type { AppNode } from '@/model/types';
 import { cloneNodes } from '@/nodes/factory';
 import { createAutosave } from '@/persistence/autosave';
 import * as repo from '@/persistence/canvasRepo';
 import { type ExportFile, exportCanvases, exportNodes, type NamedCanvas } from '@/persistence/io';
-import { getCanvasContent, useCanvasStore } from './canvasStore';
+import { getCanvasContent, startNewUndoStep, useCanvasStore } from './canvasStore';
 
 /**
  * Coordinates the open canvas with storage: opening, creating, deleting, autosaving, import/export.
@@ -102,6 +103,16 @@ export async function exportAllCanvases(): Promise<ExportFile> {
 export const exportSelectedNodes = (): ExportFile =>
   exportNodes(useCanvasStore.getState().nodes.filter((n) => n.selected));
 
+/** Adds copies of `nodes` to the open canvas with their top-left corner at `at`, as one undo step. */
+export function pasteNodes(nodes: AppNode[], at: XYPosition): void {
+  if (nodes.length === 0) return;
+  const minX = Math.min(...nodes.map((n) => n.position.x));
+  const minY = Math.min(...nodes.map((n) => n.position.y));
+  startNewUndoStep();
+  useCanvasStore.getState().addNodes(cloneNodes(nodes, { x: at.x - minX, y: at.y - minY }));
+  startNewUndoStep();
+}
+
 /**
  * Imports a parsed file. Canvases are added (never overwritten) and the first one is opened;
  * loose nodes are pasted into the open canvas with their top-left corner at `at`.
@@ -110,9 +121,7 @@ export const exportSelectedNodes = (): ExportFile =>
 export async function importFile(file: ExportFile, at: XYPosition): Promise<string> {
   if (file.kind === 'nodes') {
     if (file.nodes.length === 0) return 'No nodes in file';
-    const minX = Math.min(...file.nodes.map((n) => n.position.x));
-    const minY = Math.min(...file.nodes.map((n) => n.position.y));
-    useCanvasStore.getState().addNodes(cloneNodes(file.nodes, { x: at.x - minX, y: at.y - minY }));
+    pasteNodes(file.nodes, at);
     return `Imported ${file.nodes.length} node${file.nodes.length === 1 ? '' : 's'}`;
   }
   if (file.canvases.length === 0) return 'No canvases in file';

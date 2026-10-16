@@ -3,14 +3,7 @@ import { useEffect } from 'react';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { wrapSelectionInSection } from '@/store/sections';
 import { useUiStore } from '@/store/uiStore';
-
-/** True when keys should go to a text field (inputs, CodeMirror, MathLive, spreadsheet) rather than the canvas. */
-function isTyping(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  return (
-    target.isContentEditable || target.matches('input, textarea, select') || target.closest('.nokey') !== null
-  );
-}
+import { isTyping } from './keyboard';
 
 export function useShortcuts(readOnly: boolean) {
   const flow = useStoreApi();
