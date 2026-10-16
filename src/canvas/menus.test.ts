@@ -108,6 +108,22 @@ describe('node menus', () => {
     );
   });
 
+  it('tints a math node background and clears it again', () => {
+    const a = createNode('math', { x: 0, y: 0 });
+    state().load({ nodes: [a], viewport: DEFAULT_VIEWPORT });
+    const background = () => sub(menuFor(element('react-flow__node', a.id), at, actions()), 'Background');
+    expect(
+      background()
+        .filter(isItem)
+        .map((i) => i.label),
+    ).toEqual(['None', 'Yellow', 'Green', 'Blue', 'Purple', 'Pink', 'Orange', 'Gray']);
+    run(background(), 'Blue');
+    expect(state().nodes[0].data).toMatchObject({ color: 'blue' });
+    expect((find(background(), 'Blue') as MenuItem).checked).toBe(true);
+    run(background(), 'None');
+    expect(state().nodes[0].data).not.toHaveProperty('color', 'blue');
+  });
+
   it('offers the section menu on a section and recolours it', () => {
     const s = createNode('section', { x: 0, y: 0 });
     state().load({ nodes: [s], viewport: DEFAULT_VIEWPORT });

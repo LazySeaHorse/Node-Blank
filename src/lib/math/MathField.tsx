@@ -56,6 +56,8 @@ export function MathField({
     if (!field) return;
     field.readOnly = readOnly;
     field.mathVirtualKeyboardPolicy = 'manual';
+    // The canvas context menu replaces MathLive's (see canvas/mathMenu.ts).
+    field.menuItems = [];
     if (placeholder) field.placeholder = placeholder;
   }, [readOnly, placeholder]);
 

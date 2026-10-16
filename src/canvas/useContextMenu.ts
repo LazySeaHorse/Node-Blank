@@ -11,9 +11,12 @@ const CLICK_SLOP = 4;
 
 type Point = { x: number; y: number };
 
-/** Right-clicks that land on the canvas, outside any field (fields keep their native or MathLive menu). */
+/** Fields keep their native menu; math fields use ours, which carries the useful part of MathLive's. */
+const ownMenu = (target: Element) => !isTyping(target) || target.closest('math-field') !== null;
+
+/** Right-clicks that land on the canvas and want our menu. */
 const onCanvas = (target: Element | null): target is Element =>
-  !!target?.closest?.('.react-flow') && !isTyping(target);
+  !!target?.closest?.('.react-flow') && ownMenu(target);
 
 /**
  * Right-click menus that coexist with right-drag panning. Browsers on Linux and macOS fire `contextmenu`
@@ -59,7 +62,7 @@ export function useContextMenu(readOnly: boolean) {
     };
     const onNative = (event: MouseEvent) => {
       const target = event.target as Element | null;
-      if (!event.isTrusted || !target || isTyping(target)) return;
+      if (!event.isTrusted || !target || !ownMenu(target)) return;
       if (event.button !== 2 && !press) {
         // The menu key or Shift+F10: there is no drag to wait for, so open ours straight away.
         if (!onCanvas(target)) return;

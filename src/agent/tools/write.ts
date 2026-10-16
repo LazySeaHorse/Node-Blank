@@ -32,10 +32,12 @@ const cellsSchema = z
   .array(z.array(z.string().max(2000)).max(MAX_GRID.cols))
   .min(1)
   .max(MAX_GRID.rows);
+const tint = z.enum(SECTION_COLORS).optional().describe('Background tint; omit for none.');
 const content = {
   text: { markdown: z.string().max(100_000).describe('Markdown; $...$ and $$...$$ for LaTeX math.') },
-  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.') },
+  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.'), color: tint },
   mathPlus: {
+    color: tint,
     latex: z
       .string()
       .max(20_000)
@@ -246,7 +248,7 @@ export const updateNodes = defineTool({
       const node = requireNode(id);
       const data = { ...(node.data as Record<string, unknown>) };
       for (const [key, value] of Object.entries(set ?? {})) {
-        if (!(key in data))
+        if (!(key in data) && !(key in ((content as Record<string, object>)[node.type] ?? {})))
           throw new ToolError('invalid_field', `${id} is a ${node.type} node; it has no "${key}" field.`);
         data[key] = value;
       }

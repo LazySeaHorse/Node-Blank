@@ -35,6 +35,7 @@ import { deleteSectionWithContents } from '@/store/sections';
 import { useUiStore } from '@/store/uiStore';
 import type { MenuEntry } from '@/ui/Menu';
 import { copySelection, pasteAt } from './clipboard';
+import { mathMenu } from './mathMenu';
 
 export interface MenuActions {
   addNode: (kind: NodeKind, at: XYPosition) => void;
@@ -102,8 +103,10 @@ const copyLatex = (latex: string): MenuEntry => ({
 
 /** Extra items for particular kinds of node, shown above the common ones. */
 const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
-  math: (node) => [copyLatex(node.data.latex)],
+  math: (node) => [...mathMenu(node), { separator: true }, copyLatex(node.data.latex)],
   mathPlus: (node) => [
+    ...mathMenu(node),
+    { separator: true },
     copyLatex(node.data.latex),
     {
       label: 'Copy results',

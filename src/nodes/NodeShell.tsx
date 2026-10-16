@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
+import type { SectionColor } from '@/model/types';
 
 interface NodeShellProps {
   selected: boolean;
@@ -17,6 +18,8 @@ interface NodeShellProps {
     keepAspectRatio?: boolean;
     onResizing?: (resizing: boolean) => void;
   };
+  /** Background tint, from the section palette. */
+  tint?: SectionColor;
   className?: string;
   children: ReactNode;
 }
@@ -28,6 +31,7 @@ export function NodeShell({
   icon: Icon,
   actions,
   resize,
+  tint,
   className,
   children,
 }: NodeShellProps) {
@@ -52,6 +56,7 @@ export function NodeShell({
           selected ? 'border-accent shadow-md ring-2 ring-accent/25' : 'border-border',
           className,
         )}
+        style={tint && { backgroundColor: `color-mix(in srgb, var(--section-${tint}) 35%, var(--surface))` }}
       >
         {title && (
           <header className="flex h-9 shrink-0 cursor-grab items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">

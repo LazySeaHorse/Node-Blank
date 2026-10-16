@@ -39,11 +39,64 @@ test('adding a node from the menu puts it at the click', async ({ page }) => {
   expect(Math.abs((box?.y ?? 0) - 400)).toBeLessThan(20);
 });
 
-test("right-clicking inside a math field opens MathLive's menu, not ours", async ({ page }) => {
+test("right-clicking inside a math field opens our menu with MathLive's editing items", async ({ page }) => {
   await placeNode(page, 'Math');
   await nodes(page).locator('math-field').click({ button: 'right' });
-  await expect(page.locator('.ui-menu-container')).toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'Add node' })).toHaveCount(0);
+  for (const name of ['Insert', 'Insert matrix', 'Text colour', 'Background', 'Copy LaTeX'])
+    await expect(page.getByRole('menuitem', { name, exact: true })).toBeVisible();
+  await expect(page.locator('.ui-menu-container')).toHaveCount(0);
+});
+
+/** The stored LaTeX of the only math node, as the app saw it. */
+const latex = (page: import('@playwright/test').Page) =>
+  nodes(page)
+    .locator('math-field')
+    .evaluate((f) => (f as unknown as { value: string }).value);
+
+test('math menu inserts a matrix and a template at the caret', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('x=1');
+  await page.keyboard.press('ArrowLeft');
+  await field.click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Insert matrix' }).click();
+  await page.getByRole('menuitem', { name: '2 × 2' }).click();
+  await expect.poll(() => latex(page)).toContain('\\begin{pmatrix}');
+  expect(await latex(page)).toMatch(/^x=\\begin\{pmatrix\}.*\\end\{pmatrix\}1$/);
+
+  await field.click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Insert', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Integral' }).click();
+  await expect.poll(() => latex(page)).toContain('\\int');
+  await expect(field).toBeFocused();
+});
+
+test('math menu colours the selected math', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('y');
+  await page.keyboard.press('ControlOrMeta+a');
+  await field.click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Text colour' }).click();
+  await page.getByRole('menuitem', { name: 'Red' }).click();
+  await expect.poll(() => latex(page)).toMatch(/\\(textcolor|color)\{red\}/);
+});
+
+test('math menu tints the node background', async ({ page }) => {
+  await placeNode(page, 'Math+');
+  await nodes(page).locator('math-field').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Background' }).click();
+  await page.getByRole('menuitem', { name: 'Blue' }).click();
+  const card = nodes(page).locator('div[style*="--section-blue"]');
+  await expect(card).toHaveCount(1);
+  await nodes(page).locator('math-field').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Background' }).click();
+  await page.getByRole('menuitem', { name: 'None' }).click();
+  await expect(card).toHaveCount(0);
 });
 
 test('node menu: Duplicate copies the node', async ({ page }) => {

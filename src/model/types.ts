@@ -1,14 +1,14 @@
 import type { Node, Viewport } from '@xyflow/react';
 
-/** Pastel fills a section can take; each theme maps the names to colours (see index.css). */
+/** Pastel fills for sections and node backgrounds; each theme maps the names to colours (see index.css). */
 export const SECTION_COLORS = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'gray'] as const;
 export type SectionColor = (typeof SECTION_COLORS)[number];
 
 /** Per-kind payload stored in `node.data`. This is the single source of truth for node shapes. */
 export type NodeDataMap = {
   text: { markdown: string };
-  math: { latex: string };
-  mathPlus: { latex: string };
+  math: { latex: string; color?: SectionColor };
+  mathPlus: { latex: string; color?: SectionColor };
   graph: { functions: string[] };
   table: { cells: string[][] };
   sheet: { cells: string[][] };
