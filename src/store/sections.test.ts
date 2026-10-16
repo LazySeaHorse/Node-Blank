@@ -3,7 +3,7 @@ import { DEFAULT_VIEWPORT } from '@/model/types';
 import { createNode } from '@/nodes/factory';
 import { undo, useCanvasStore } from './canvasStore';
 import { organiseCanvas, refreshGroups } from './groups';
-import { wrapSelectionInSection } from './sections';
+import { deleteSectionWithContents, wrapSelectionInSection } from './sections';
 
 const state = () => useCanvasStore.getState();
 const math = (x: number, y: number) => createNode('math', { x, y });
@@ -80,5 +80,25 @@ describe('sections', () => {
     const i = moved(inside.id);
     expect(s).toBeDefined();
     expect(i).toEqual({ x: (s?.x ?? 0) + offset.x, y: (s?.y ?? 0) + offset.y });
+  });
+
+  it('ungrouping removes only the box', () => {
+    const section = createNode('section', { x: 0, y: 0 }, {}, { width: 400, height: 300 });
+    const inside = math(50, 80);
+    state().load({ nodes: [section, inside], viewport: DEFAULT_VIEWPORT });
+    state().deleteNodes([section.id]);
+    expect(state().nodes.map((n) => n.id)).toEqual([inside.id]);
+    undo();
+    expect(state().nodes).toHaveLength(2);
+  });
+
+  it('deletes a section with the nodes inside it as one undo step', () => {
+    const section = createNode('section', { x: 0, y: 0 }, {}, { width: 400, height: 300 });
+    const [inside, outside] = [math(50, 80), math(2000, 0)];
+    state().load({ nodes: [section, inside, outside], viewport: DEFAULT_VIEWPORT });
+    deleteSectionWithContents(section.id);
+    expect(state().nodes.map((n) => n.id)).toEqual([outside.id]);
+    undo();
+    expect(state().nodes).toHaveLength(3);
   });
 });

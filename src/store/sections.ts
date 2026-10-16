@@ -1,5 +1,5 @@
 import { nodeRect } from '@/lib/nodeRect';
-import { wrapBounds } from '@/lib/sections';
+import { sectionContents, wrapBounds } from '@/lib/sections';
 import { createNode } from '@/nodes/factory';
 import { startNewUndoStep, useCanvasStore } from './canvasStore';
 import { markRenamePending } from './sectionRename';
@@ -20,4 +20,12 @@ export function wrapSelectionInSection(): void {
   startNewUndoStep();
   addNodes([section]);
   startNewUndoStep();
+}
+
+/** Deletes a section together with the nodes inside it, as one undo step. */
+export function deleteSectionWithContents(id: string): void {
+  const { nodes, deleteNodes } = useCanvasStore.getState();
+  const section = nodes.find((n) => n.id === id);
+  if (!section) return;
+  deleteNodes([id, ...sectionContents(nodeRect(section), nodes.map(nodeRect))]);
 }

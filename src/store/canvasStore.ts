@@ -28,6 +28,8 @@ export interface CanvasState {
   addNodes: (nodes: AppNode[]) => void;
   updateNodeData: <K extends NodeKind>(id: string, patch: Partial<NodeDataMap[K]>) => void;
   duplicateSelected: () => void;
+  /** Removes nodes as one undo step; a section's contents stay. */
+  deleteNodes: (ids: string[]) => void;
   clear: () => void;
   setGroups: (groups: CanvasGroup[]) => void;
   /** Moves nodes to new positions in one update. */
@@ -87,6 +89,13 @@ export const useCanvasStore = create<CanvasState>()(
         );
         const selected = nodes.filter((n) => ids.has(n.id));
         if (selected.length > 0) get().addNodes(cloneNodes(selected, DUPLICATE_OFFSET));
+      },
+
+      deleteNodes: (ids) => {
+        const doomed = new Set(ids);
+        startNewUndoStep();
+        set({ nodes: get().nodes.filter((n) => !doomed.has(n.id)) });
+        startNewUndoStep();
       },
 
       clear: () => set({ nodes: [] }),
