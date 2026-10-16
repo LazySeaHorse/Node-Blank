@@ -35,6 +35,8 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 | Select | Click, Shift+click, or drag a box on empty canvas |
 | Undo / redo | Ctrl+Z / Ctrl+Shift+Z |
 | Duplicate / delete | Ctrl+D / Delete |
+| Copy / paste nodes | Ctrl+C / Ctrl+V (with a node selected, not while typing in one) |
+| Wrap selection in a section | Ctrl+G |
 | Select all | Ctrl+A |
 | New line in a math node | Shift+Enter |
 

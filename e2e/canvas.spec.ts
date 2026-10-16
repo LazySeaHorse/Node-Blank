@@ -67,6 +67,7 @@ test('math node accepts input', async ({ page }) => {
   const field = nodes(page).locator('math-field');
   await expect(field).toBeVisible();
   await field.click();
+  await expect(field).toBeFocused(); // MathLive focuses shortly after the click
   await page.keyboard.type('x^2', { delay: 30 });
   await expect.poll(() => field.evaluate((el) => (el as HTMLInputElement).value)).toContain('x^2');
 });
@@ -74,10 +75,12 @@ test('math node accepts input', async ({ page }) => {
 test('math+ nodes share variables', async ({ page }) => {
   await placeNode(page, 'Math+', 500, 250);
   await nodes(page).locator('math-field').click();
+  await expect(nodes(page).locator('math-field')).toBeFocused();
   await page.keyboard.type('a:=5', { delay: 30 });
   await page.mouse.click(1200, 850);
   await placeNode(page, 'Math+', 500, 500);
   await nodes(page).nth(1).locator('math-field').click();
+  await expect(nodes(page).nth(1).locator('math-field')).toBeFocused();
   await page.keyboard.type('a*2', { delay: 30 });
   await expect(nodes(page).nth(1).locator('ol')).toContainText('10', { timeout: 20_000 });
 });
