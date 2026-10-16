@@ -13,8 +13,10 @@ import type { AppNode } from '@/model/types';
 import { nodeTypes } from '@/nodes/nodeTypes';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
+import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
 import { useCanvasActions } from './useCanvasActions';
+import { useContextMenu } from './useContextMenu';
 import { useSearchHighlight } from './useSearch';
 import { useSections } from './useSections';
 import { useShortcuts } from './useShortcuts';
@@ -81,6 +83,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   }, [fitView]);
   useShortcuts(readOnly);
   useClipboard(readOnly);
+  const menu = useContextMenu(readOnly);
 
   const placeNode = (event: MouseEvent) => {
     const target = event.target as Element;
@@ -89,22 +92,27 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   };
 
   return (
-    <ReactFlow<AppNode>
-      nodes={displayNodes}
-      nodeTypes={nodeTypes}
-      {...sectionHandlers}
-      defaultViewport={useCanvasStore.getState().viewport}
-      onMoveEnd={(_, viewport) => setViewport(viewport)}
-      onDoubleClick={placeNode}
-      zoomOnDoubleClick={false}
-      minZoom={0.1}
-      maxZoom={4}
-      colorMode={theme}
-      proOptions={proOptions}
-      className={readOnly ? 'read-only' : undefined}
-      {...(readOnly ? readOnlyProps : editableProps)}
-    >
-      <Background variant={BackgroundVariant.Lines} gap={40} />
-    </ReactFlow>
+    <ContextMenu items={menu.items} disabled={readOnly} onContextMenu={menu.onContextMenu}>
+      <div ref={menu.area} className="h-full w-full">
+        <ReactFlow<AppNode>
+          nodes={displayNodes}
+          nodeTypes={nodeTypes}
+          {...sectionHandlers}
+          defaultViewport={useCanvasStore.getState().viewport}
+          onMoveEnd={(_, viewport) => setViewport(viewport)}
+          onDoubleClick={placeNode}
+          onContextMenu={menu.keepNative}
+          zoomOnDoubleClick={false}
+          minZoom={0.1}
+          maxZoom={4}
+          colorMode={theme}
+          proOptions={proOptions}
+          className={readOnly ? 'read-only' : undefined}
+          {...(readOnly ? readOnlyProps : editableProps)}
+        >
+          <Background variant={BackgroundVariant.Lines} gap={40} />
+        </ReactFlow>
+      </div>
+    </ContextMenu>
   );
 }

@@ -38,3 +38,9 @@ test('mobile is a read-only viewer', async ({ page }) => {
   await page.locator('.react-flow__pane').dblclick({ position: { x: 200, y: 600 } });
   await expect(nodes(page)).toHaveCount(1);
 });
+
+test('mobile shows no context menu', async ({ page }) => {
+  await openApp(page);
+  await page.locator('.react-flow__pane').dispatchEvent('contextmenu', { clientX: 200, clientY: 400 });
+  await expect(page.getByRole('menu')).toHaveCount(0);
+});

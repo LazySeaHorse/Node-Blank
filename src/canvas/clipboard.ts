@@ -1,5 +1,7 @@
-import { useReactFlow } from '@xyflow/react';
+import { useReactFlow, type XYPosition } from '@xyflow/react';
 import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 import { nodeRect } from '@/lib/nodeRect';
 import { expandWithContents } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
@@ -32,6 +34,27 @@ export function parseClipboard(text: string): AppNode[] | null {
     if (error instanceof ImportError) return null;
     throw error;
   }
+}
+
+/** Copies the selected nodes like Ctrl+C does, for menus. */
+export async function copySelection(): Promise<void> {
+  const nodes = useCanvasStore.getState().nodes;
+  const payload = serializeSelection(nodes);
+  if (payload) await copyText(payload, nodes.filter((n) => n.selected).length === 1 ? 'node' : 'nodes');
+}
+
+/** Pastes nodes from the system clipboard with their top-left corner at `at`, for menus. */
+export async function pasteAt(at: XYPosition): Promise<void> {
+  let text: string;
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    toast.error('Could not read the clipboard');
+    return;
+  }
+  const nodes = parseClipboard(text);
+  if (nodes) pasteNodes(nodes, at);
+  else toast.error('No nodes on the clipboard');
 }
 
 /**
