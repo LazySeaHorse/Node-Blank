@@ -41,9 +41,10 @@ export function MathField({
 
   useEffect(() => {
     const field = ref.current;
+    // Stored values are flattened (see emitChange), so compare like with like or the caret would jump.
     if (!field || flattenDisplaylines(field.value) === value) return;
     try {
-      field.setValue(flattenDisplaylines(value), { silenceNotifications: true });
+      field.setValue(value, { silenceNotifications: true });
     } catch (error) {
       // A value MathLive cannot parse must not take the whole canvas down with this one node.
       console.error('Could not load math into the field', error);

@@ -59,38 +59,53 @@ test('Ctrl+D waits while typing in a math field; Escape hands the node back to t
   await expect(nodes(page)).toHaveCount(2);
 });
 
-test('a saved math node with nested \\displaylines opens, edits and duplicates without crashing', async ({
+test('pasting multi-line math into a line of a multi-line field cannot nest it and break the node', async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  const nested = '\\displaylines{a=1\\\\ \\displaylines{b=2\\\\ c=3}}';
-  const row = { id: 'n1', type: 'math', position: { x: 300, y: 300 }, data: { latex: nested } };
-  await page.evaluate(async (node) => {
-    const open = indexedDB.open('node-blank');
-    const db = await new Promise<IDBDatabase>((resolve, reject) => {
-      open.onsuccess = () => resolve(open.result);
-      open.onerror = () => reject(open.error);
-    });
-    const [meta] = await new Promise<{ id: string }[]>((resolve) => {
-      const req = db.transaction('canvases').objectStore('canvases').getAll();
-      req.onsuccess = () => resolve(req.result);
-    });
-    await new Promise<void>((resolve) => {
-      const tx = db.transaction('contents', 'readwrite');
-      tx.objectStore('contents').put({ id: meta.id, nodes: [node], viewport: { x: 0, y: 0, zoom: 1 } });
-      tx.oncomplete = () => resolve();
-    });
-    db.close();
-  }, row);
-  await page.reload();
-  await expect(nodes(page)).toHaveCount(1);
-  await expect(nodes(page).locator('math-field')).toBeVisible();
+  // MathLive rejecting a saved value is caught so the canvas survives, but it must not happen at all.
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('a');
+  await page.keyboard.press('Shift+Enter');
+  await page.keyboard.type('b');
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.press('ControlOrMeta+c');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('End');
+  await page.keyboard.press('ControlOrMeta+v');
 
+  // What gets saved is never nested, so reopening or duplicating the node cannot crash MathLive.
+  await page.waitForTimeout(800); // autosave debounce
+  await page.reload();
+  await expect(field).toBeVisible();
+  await page.keyboard.press('Escape');
   await nodes(page)
     .first()
     .click({ position: { x: 2, y: 2 } });
   await page.keyboard.press('ControlOrMeta+d');
   await expect(nodes(page)).toHaveCount(2);
+  await expect(nodes(page).locator('math-field')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+test('duplicating a multi-line Math+ node works', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await placeNode(page, 'Math+');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('a:=2');
+  await page.keyboard.press('Shift+Enter');
+  await page.keyboard.type('a*3');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(nodes(page)).toHaveCount(2);
+  await expect(nodes(page).locator('math-field')).toHaveCount(2);
   expect(errors).toEqual([]);
 });

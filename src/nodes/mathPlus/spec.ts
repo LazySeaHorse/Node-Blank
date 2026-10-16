@@ -1,6 +1,5 @@
 import { Calculator } from 'lucide-react';
 import { z } from 'zod';
-import { flattenDisplaylines } from '@/lib/math/normalize';
 import type { NodeSpec } from '../spec';
 
 export const mathPlusSpec: NodeSpec<'mathPlus'> = {
@@ -9,7 +8,7 @@ export const mathPlusSpec: NodeSpec<'mathPlus'> = {
   description: 'Evaluate expressions; variables (a := 2) are shared across Math+ nodes',
   icon: Calculator,
   placement: 'place',
-  schema: z.object({ latex: z.string().transform(flattenDisplaylines) }),
+  schema: z.object({ latex: z.string() }),
   defaults: () => ({ latex: '' }),
   searchText: (d) => d.latex,
 };

@@ -36,16 +36,6 @@ describe('canvasRepo', () => {
     expect((await getCanvas(id))?.updatedAt).toBeGreaterThan(before);
   });
 
-  it('repairs nested displaylines in saved math nodes as they load', async () => {
-    const node = createNode(
-      'mathPlus',
-      { x: 0, y: 0 },
-      { latex: '\\displaylines{a\\\\ \\displaylines{b\\\\ c}}' },
-    );
-    const id = await createCanvas('Old', { nodes: [node], viewport: { x: 0, y: 0, zoom: 1 } });
-    expect((await loadContent(id)).nodes[0].data).toEqual({ latex: '\\displaylines{a\\\\ b\\\\ c}' });
-  });
-
   it('lists most recently updated first', async () => {
     const a = await createCanvas('A');
     await new Promise((r) => setTimeout(r, 5));

@@ -1,14 +1,6 @@
-import { flattenDisplaylines } from '@/lib/math/normalize';
-import { type AppNode, type CanvasContent, type CanvasMeta, DEFAULT_VIEWPORT } from '@/model/types';
+import { type CanvasContent, type CanvasMeta, DEFAULT_VIEWPORT } from '@/model/types';
 import { newId } from '@/nodes/factory';
 import { db } from './db';
-
-/** Older saves may hold LaTeX that crashes MathLive (nested \\displaylines); repair it as it loads. */
-function repairNode(node: AppNode): AppNode {
-  if (node.type !== 'math' && node.type !== 'mathPlus') return node;
-  const latex = flattenDisplaylines(node.data.latex);
-  return latex === node.data.latex ? node : ({ ...node, data: { ...node.data, latex } } as AppNode);
-}
 
 const EMPTY_CONTENT: CanvasContent = { nodes: [], viewport: DEFAULT_VIEWPORT };
 
@@ -29,11 +21,7 @@ export async function createCanvas(name: string, content: CanvasContent = EMPTY_
 export async function loadContent(id: string): Promise<CanvasContent> {
   const row = await db.contents.get(id);
   if (!row) return EMPTY_CONTENT;
-  return {
-    nodes: row.nodes.map(repairNode),
-    viewport: row.viewport,
-    ...(row.groups ? { groups: row.groups } : {}),
-  };
+  return { nodes: row.nodes, viewport: row.viewport, ...(row.groups ? { groups: row.groups } : {}) };
 }
 
 export async function saveContent(id: string, content: CanvasContent): Promise<void> {
