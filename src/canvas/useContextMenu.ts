@@ -1,10 +1,10 @@
-import { useReactFlow, useStoreApi } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import { type MouseEvent, useEffect, useRef, useState } from 'react';
-import { wrapSelectionInSection } from '@/store/sections';
 import type { MenuEntry } from '@/ui/Menu';
 import { isTyping } from './keyboard';
 import { menuFor } from './menus';
 import { useCanvasActions } from './useCanvasActions';
+import { useWrapInSection } from './useSections';
 
 /** A right-click that moves further than this (in px) is a pan, not a click. */
 const CLICK_SLOP = 4;
@@ -19,11 +19,11 @@ const CLICK_SLOP = 4;
 export function useContextMenu(readOnly: boolean) {
   const [items, setItems] = useState<MenuEntry[]>([]);
   const press = useRef<{ x: number; y: number; target: Element } | null>(null);
-  const flow = useStoreApi();
   const replay = useRef<Element | null>(null);
   const area = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const { addNode, insertImage, insertVideo } = useCanvasActions();
+  const wrapInSection = useWrapInSection();
 
   useEffect(() => {
     if (readOnly) return;
@@ -96,10 +96,7 @@ export function useContextMenu(readOnly: boolean) {
         insertImage,
         insertVideo,
         fitView: () => void fitView({ duration: 300 }),
-        wrapInSection: () => {
-          wrapSelectionInSection();
-          flow.setState({ nodesSelectionActive: false }); // as Ctrl+G does
-        },
+        wrapInSection,
       }),
     );
   };

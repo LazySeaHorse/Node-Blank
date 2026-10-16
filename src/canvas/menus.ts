@@ -44,16 +44,6 @@ export interface MenuActions {
   wrapInSection: () => void;
 }
 
-const selectAll = () => {
-  const { nodes, onNodesChange } = useCanvasStore.getState();
-  onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: true })));
-};
-
-const deleteSelected = () => {
-  const { nodes, deleteNodes } = useCanvasStore.getState();
-  deleteNodes(nodes.filter((n) => n.selected).map((n) => n.id));
-};
-
 /** What right-clicking empty canvas offers; `at` is where the click landed, in canvas coordinates. */
 export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
   const insertActions: Partial<Record<NodeKind, () => void>> = {
@@ -74,7 +64,12 @@ export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
     { separator: true },
     { label: 'Organise', icon: Shapes, onSelect: organiseCanvas },
     { label: 'Fit view', icon: Maximize, onSelect: actions.fitView },
-    { label: 'Select all', icon: MousePointer2, hint: 'Ctrl+A', onSelect: selectAll },
+    {
+      label: 'Select all',
+      icon: MousePointer2,
+      hint: 'Ctrl+A',
+      onSelect: () => useCanvasStore.getState().setSelection(() => true),
+    },
   ];
 }
 
@@ -87,7 +82,13 @@ const selectionActions = (): MenuEntry[] => [
     hint: 'Ctrl+D',
     onSelect: () => useCanvasStore.getState().duplicateSelected(),
   },
-  { label: 'Delete', icon: Trash2, hint: 'Delete', danger: true, onSelect: deleteSelected },
+  {
+    label: 'Delete',
+    icon: Trash2,
+    hint: 'Delete',
+    danger: true,
+    onSelect: () => useCanvasStore.getState().deleteSelected(),
+  },
 ];
 
 const order: MenuEntry[] = [
@@ -191,9 +192,7 @@ export function menuFor(target: Element | null, at: XYPosition, actions: MenuAct
   const id = target?.closest<HTMLElement>('.react-flow__node')?.dataset.id;
   const hit = useCanvasStore.getState().nodes.find((n) => n.id === id);
   if (!hit) return canvasMenu(at, actions);
-  const { nodes, onNodesChange } = useCanvasStore.getState();
-  if (!hit.selected)
-    onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: n.id === hit.id })));
+  if (!hit.selected) useCanvasStore.getState().setSelection((n) => n.id === hit.id);
   if (useCanvasStore.getState().nodes.filter((n) => n.selected).length > 1) return selectionMenu(actions);
   return hit.type === 'section' ? sectionMenu(hit) : nodeMenu(hit);
 }

@@ -79,6 +79,21 @@ describe('canvasStore', () => {
     expect(useCanvasStore.temporal.getState().pastStates.length).toBe(pastLength);
   });
 
+  it('sets the selection by predicate and deletes it as one undo step', () => {
+    const [a, b, c] = [0, 1, 2].map((x) => createNode('math', { x, y: 0 }));
+    state().load({ nodes: [a, b, c], viewport: DEFAULT_VIEWPORT });
+    state().setSelection((n) => n.id !== b.id);
+    expect(state().nodes.map((n) => !!n.selected)).toEqual([true, false, true]);
+    const before = state().nodes;
+    state().setSelection((n) => n.id !== b.id);
+    expect(state().nodes).toBe(before);
+
+    state().deleteSelected();
+    expect(state().nodes.map((n) => n.id)).toEqual([b.id]);
+    undo();
+    expect(state().nodes).toHaveLength(3);
+  });
+
   it('load replaces content and clears history', () => {
     state().addNodes([createNode('math', { x: 0, y: 0 })]);
     state().load({ nodes: [], viewport: { x: 1, y: 2, zoom: 3 } });

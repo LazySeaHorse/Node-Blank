@@ -1,12 +1,11 @@
-import { useStoreApi } from '@xyflow/react';
 import { useEffect } from 'react';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
-import { wrapSelectionInSection } from '@/store/sections';
 import { useUiStore } from '@/store/uiStore';
 import { isTyping } from './keyboard';
+import { useWrapInSection } from './useSections';
 
 export function useShortcuts(readOnly: boolean) {
-  const flow = useStoreApi();
+  const wrapInSection = useWrapInSection();
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const mod = event.ctrlKey || event.metaKey;
@@ -37,17 +36,15 @@ export function useShortcuts(readOnly: boolean) {
         canvas.duplicateSelected();
       } else if (mod && key === 'g') {
         event.preventDefault(); // the browser's find-next
-        wrapSelectionInSection();
-        // Drop the leftover marquee box, which would otherwise sit on top of the new section.
-        flow.setState({ nodesSelectionActive: false });
+        wrapInSection();
       } else if (mod && key === 'a') {
         event.preventDefault();
-        canvas.onNodesChange(canvas.nodes.map((n) => ({ type: 'select', id: n.id, selected: true })));
+        canvas.setSelection(() => true);
       } else if (key === 'escape') {
-        canvas.onNodesChange(canvas.nodes.map((n) => ({ type: 'select', id: n.id, selected: false })));
+        canvas.setSelection(() => false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [readOnly, flow]);
+  }, [readOnly, wrapInSection]);
 }

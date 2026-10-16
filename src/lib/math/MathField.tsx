@@ -67,9 +67,7 @@ export function MathField({
     const node = () => field.closest<HTMLElement>('.react-flow__node');
     const handleFocus = () => {
       const id = node()?.dataset.id;
-      const { nodes, onNodesChange } = useCanvasStore.getState();
-      if (!id || nodes.every((n) => !!n.selected === (n.id === id))) return;
-      onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: n.id === id })));
+      if (id) useCanvasStore.getState().setSelection((n) => n.id === id);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && field.mode !== 'latex') {

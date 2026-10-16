@@ -24,12 +24,15 @@ export interface CanvasState {
   /** Not undoable: groups are derived from positions and refreshed whenever they are needed. */
   groups: CanvasGroup[];
   onNodesChange: (changes: NodeChange<AppNode>[]) => void;
+  /** Selects exactly the nodes `pick` returns true for. */
+  setSelection: (pick: (node: AppNode) => boolean) => void;
   setViewport: (viewport: Viewport) => void;
   addNodes: (nodes: AppNode[]) => void;
   updateNodeData: <K extends NodeKind>(id: string, patch: Partial<NodeDataMap[K]>) => void;
   duplicateSelected: () => void;
   /** Removes nodes as one undo step; a section's contents stay. */
   deleteNodes: (ids: string[]) => void;
+  deleteSelected: () => void;
   clear: () => void;
   setGroups: (groups: CanvasGroup[]) => void;
   /** Moves nodes to new positions in one update. */
@@ -70,6 +73,12 @@ export const useCanvasStore = create<CanvasState>()(
 
       onNodesChange: (changes) => set({ nodes: applyNodeChanges(changes, get().nodes) }),
 
+      setSelection: (pick) => {
+        const { nodes } = get();
+        if (nodes.every((n) => !!n.selected === pick(n))) return;
+        set({ nodes: nodes.map((n) => (!!n.selected === pick(n) ? n : { ...n, selected: !n.selected })) });
+      },
+
       setViewport: (viewport) => set({ viewport }),
 
       // Sections go first so they render behind everything else.
@@ -108,6 +117,8 @@ export const useCanvasStore = create<CanvasState>()(
         const doomed = new Set(ids);
         asUndoStep(() => set({ nodes: get().nodes.filter((n) => !doomed.has(n.id)) }));
       },
+
+      deleteSelected: () => get().deleteNodes(get().nodes.flatMap((n) => (n.selected ? [n.id] : []))),
 
       clear: () => set({ nodes: [] }),
 

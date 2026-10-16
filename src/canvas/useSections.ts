@@ -4,6 +4,7 @@ import { nodeRect } from '@/lib/nodeRect';
 import { encloses, type SectionDragSnapshot, snapshotSectionDrag, withSectionDrag } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
+import { wrapSelectionInSection } from '@/store/sections';
 
 /**
  * Behaviour that makes sections work as boxes: dragging one carries the nodes inside it, and a
@@ -11,6 +12,15 @@ import { useCanvasStore } from '@/store/canvasStore';
  * every section it merely touched).
  */
 type Box = { x: number; y: number; width: number; height: number };
+
+/** Ctrl+G: wraps the selection in a section and drops the leftover marquee box, which would sit on top of it. */
+export function useWrapInSection() {
+  const flow = useStoreApi();
+  return useCallback(() => {
+    wrapSelectionInSection();
+    flow.setState({ nodesSelectionActive: false });
+  }, [flow]);
+}
 
 export function useSections() {
   const flow = useStoreApi();
@@ -50,9 +60,9 @@ export function useSections() {
     const box = marquee.current;
     marquee.current = null;
     if (!box) return;
-    const { nodes, onNodesChange: apply } = useCanvasStore.getState();
-    const grabbed = nodes.filter((n) => n.type === 'section' && n.selected && !encloses(box, nodeRect(n)));
-    if (grabbed.length > 0) apply(grabbed.map((n) => ({ type: 'select', id: n.id, selected: false })));
+    useCanvasStore
+      .getState()
+      .setSelection((n) => !!n.selected && (n.type !== 'section' || encloses(box, nodeRect(n))));
   }, []);
 
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {
