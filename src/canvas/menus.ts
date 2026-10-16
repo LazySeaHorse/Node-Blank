@@ -9,6 +9,7 @@ import {
   AlignStartVertical,
   ArrowDownToLine,
   ArrowUpToLine,
+  Calculator,
   Clipboard,
   Copy,
   CopyPlus,
@@ -24,7 +25,7 @@ import {
   Ungroup,
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
-import { type AppNode, type NodeKind, SECTION_COLORS } from '@/model/types';
+import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
 import { type AlignEdge, alignSelected, bringToFront, sendToBack } from '@/store/arrange';
@@ -73,39 +74,40 @@ export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
   ];
 }
 
-/** Items every selection of nodes has, in the order they appear. */
-const selectionActions = (): MenuEntry[] => [
-  { label: 'Copy', icon: Copy, hint: 'Ctrl+C', onSelect: () => void copySelection() },
-  {
-    label: 'Duplicate',
-    icon: CopyPlus,
-    hint: 'Ctrl+D',
-    onSelect: () => useCanvasStore.getState().duplicateSelected(),
-  },
-  {
-    label: 'Delete',
-    icon: Trash2,
-    hint: 'Delete',
-    danger: true,
-    onSelect: () => useCanvasStore.getState().deleteSelected(),
-  },
-];
+const copy: MenuEntry = { label: 'Copy', icon: Copy, hint: 'Ctrl+C', onSelect: () => void copySelection() };
+const duplicate: MenuEntry = {
+  label: 'Duplicate',
+  icon: CopyPlus,
+  hint: 'Ctrl+D',
+  onSelect: () => useCanvasStore.getState().duplicateSelected(),
+};
+const remove: MenuEntry = {
+  label: 'Delete',
+  icon: Trash2,
+  hint: 'Delete',
+  danger: true,
+  onSelect: () => useCanvasStore.getState().deleteSelected(),
+};
 
 const order: MenuEntry[] = [
   { label: 'Bring to front', icon: ArrowUpToLine, onSelect: bringToFront },
   { label: 'Send to back', icon: ArrowDownToLine, onSelect: sendToBack },
 ];
 
+const copyLatex = (latex: string): MenuEntry => ({
+  label: 'Copy LaTeX',
+  icon: Sigma,
+  onSelect: () => void copyText(latex, 'LaTeX'),
+});
+
 /** Extra items for particular kinds of node, shown above the common ones. */
-const kindItems: { [K in NodeKind]?: (node: Extract<AppNode, { type: K }>) => MenuEntry[] } = {
-  math: (node) => [
-    { label: 'Copy LaTeX', icon: Sigma, onSelect: () => void copyText(node.data.latex, 'LaTeX') },
-  ],
+const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
+  math: (node) => [copyLatex(node.data.latex)],
   mathPlus: (node) => [
-    { label: 'Copy LaTeX', icon: Sigma, onSelect: () => void copyText(node.data.latex, 'LaTeX') },
+    copyLatex(node.data.latex),
     {
       label: 'Copy results',
-      icon: Sigma,
+      icon: Calculator,
       onSelect: async () => copyText(await mathPlusResultsText(node.id), 'results'),
     },
   ],
@@ -116,7 +118,9 @@ export function nodeMenu(node: AppNode): MenuEntry[] {
   return [
     ...extra,
     ...(extra.length > 0 ? [{ separator: true } as const] : []),
-    ...selectionActions(),
+    copy,
+    duplicate,
+    remove,
     { separator: true },
     ...order,
   ];
@@ -124,8 +128,7 @@ export function nodeMenu(node: AppNode): MenuEntry[] {
 
 const titleCase = (word: string) => word[0].toUpperCase() + word.slice(1);
 
-export function sectionMenu(node: AppNode): MenuEntry[] {
-  const current = node.type === 'section' ? node.data.color : undefined;
+export function sectionMenu(node: NodeOf<'section'>): MenuEntry[] {
   return [
     {
       label: 'Rename',
@@ -139,13 +142,18 @@ export function sectionMenu(node: AppNode): MenuEntry[] {
       items: SECTION_COLORS.map((color) => ({
         label: titleCase(color),
         swatch: `var(--section-${color})`,
-        checked: color === current,
+        checked: color === node.data.color,
         onSelect: () => useCanvasStore.getState().updateNodeData<'section'>(node.id, { color }),
       })),
     },
     { separator: true },
-    ...selectionActions().slice(0, 2),
-    { label: 'Ungroup', icon: Ungroup, onSelect: () => useCanvasStore.getState().deleteNodes([node.id]) },
+    copy,
+    duplicate,
+    {
+      label: 'Remove section',
+      icon: Ungroup,
+      onSelect: () => useCanvasStore.getState().deleteNodes([node.id]),
+    },
     {
       label: 'Delete section and contents',
       icon: Trash2,
@@ -177,7 +185,9 @@ export function selectionMenu(actions: MenuActions): MenuEntry[] {
       })),
     },
     { separator: true },
-    ...selectionActions(),
+    copy,
+    duplicate,
+    remove,
     { separator: true },
     ...order,
   ];

@@ -14,14 +14,19 @@ const MIME = 'application/x-node-blank+json';
 /** Repeated pastes in the same spot step down-right by this much so copies do not hide each other. */
 const PASTE_STEP = 30;
 
-/** The selected nodes (a selected section brings what is inside it) as clipboard text, or null if none. */
-export function serializeSelection(nodes: AppNode[]): string | null {
+/** The selected nodes; a selected section brings what is inside it. */
+function copiedNodes(nodes: AppNode[]): AppNode[] {
   const ids = expandWithContents(
     new Set(nodes.filter((n) => n.selected).map((n) => n.id)),
     new Set(nodes.filter((n) => n.type === 'section').map((n) => n.id)),
     nodes.map(nodeRect),
   );
-  const picked = nodes.filter((n) => ids.has(n.id));
+  return nodes.filter((n) => ids.has(n.id));
+}
+
+/** The selected nodes as clipboard text, or null if none. */
+export function serializeSelection(nodes: AppNode[]): string | null {
+  const picked = copiedNodes(nodes);
   return picked.length > 0 ? JSON.stringify(exportNodes(picked)) : null;
 }
 
@@ -38,9 +43,9 @@ export function parseClipboard(text: string): AppNode[] | null {
 
 /** Copies the selected nodes like Ctrl+C does, for menus. */
 export async function copySelection(): Promise<void> {
-  const nodes = useCanvasStore.getState().nodes;
-  const payload = serializeSelection(nodes);
-  if (payload) await copyText(payload, nodes.filter((n) => n.selected).length === 1 ? 'node' : 'nodes');
+  const picked = copiedNodes(useCanvasStore.getState().nodes);
+  if (picked.length > 0)
+    await copyText(JSON.stringify(exportNodes(picked)), picked.length === 1 ? 'node' : 'nodes');
 }
 
 /** Pastes nodes from the system clipboard with their top-left corner at `at`, for menus. */

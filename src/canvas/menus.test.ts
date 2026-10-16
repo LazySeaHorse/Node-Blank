@@ -113,7 +113,7 @@ describe('node menus', () => {
     state().load({ nodes: [s], viewport: DEFAULT_VIEWPORT });
     const entries = menuFor(element('react-flow__node react-flow__node-section', s.id), at, actions());
     expect(labels(entries)).toEqual(
-      expect.arrayContaining(['Rename', 'Colour', 'Ungroup', 'Delete section and contents']),
+      expect.arrayContaining(['Rename', 'Colour', 'Remove section', 'Delete section and contents']),
     );
     const colours = sub(entries, 'Colour');
     expect(colours.filter(isItem).map((c) => c.label.toLowerCase())).toEqual([...SECTION_COLORS]);
@@ -121,11 +121,11 @@ describe('node menus', () => {
     expect(state().nodes[0].data).toMatchObject({ color: 'blue' });
   });
 
-  it('ungroups a section without touching what is inside', () => {
+  it('removes a section without touching what is inside', () => {
     const s = createNode('section', { x: 0, y: 0 });
     const inside = createNode('math', { x: 50, y: 80 });
     state().load({ nodes: [s, inside], viewport: DEFAULT_VIEWPORT });
-    run(menuFor(element('react-flow__node', s.id), at, actions()), 'Ungroup');
+    run(menuFor(element('react-flow__node', s.id), at, actions()), 'Remove section');
     expect(state().nodes.map((n) => n.id)).toEqual([inside.id]);
   });
 

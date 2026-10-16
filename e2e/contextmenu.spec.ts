@@ -74,7 +74,7 @@ async function wrapTwoTexts(page: import('@playwright/test').Page) {
   await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
 }
 
-test('selection menu wraps in a section; section menu ungroups it', async ({ page }) => {
+test('selection menu wraps in a section; section menu removes it', async ({ page }) => {
   await wrapTwoTexts(page);
   await page
     .locator('.react-flow__nodesselection-rect')
@@ -85,7 +85,7 @@ test('selection menu wraps in a section; section menu ungroups it', async ({ pag
   await section.locator('input').press('Enter');
 
   await section.locator('.section-handle').click({ button: 'right', position: { x: 60, y: 20 } });
-  await page.getByRole('menuitem', { name: 'Ungroup' }).click();
+  await page.getByRole('menuitem', { name: 'Remove section' }).click();
   await expect(section).toHaveCount(0);
   await expect(nodes(page)).toHaveCount(2);
 });
