@@ -29,6 +29,16 @@ describe('io', () => {
     expect(parseExportFile(JSON.stringify(file))).toEqual(file);
   });
 
+  it('repairs nested displaylines on import', () => {
+    const file = exportNodes([
+      createNode('math', { x: 0, y: 0 }, { latex: '\\displaylines{a\\\\ \\displaylines{b\\\\ c}}' }),
+    ]);
+    const parsed = parseExportFile(JSON.stringify(file));
+    expect(parsed.kind === 'nodes' && parsed.nodes[0].data).toEqual({
+      latex: '\\displaylines{a\\\\ b\\\\ c}',
+    });
+  });
+
   it('rejects malformed JSON', () => {
     expect(() => parseExportFile('{nope')).toThrow(ImportError);
   });

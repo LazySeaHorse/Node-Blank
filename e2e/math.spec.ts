@@ -58,3 +58,39 @@ test('Ctrl+D waits while typing in a math field; Escape hands the node back to t
   await page.keyboard.press('ControlOrMeta+d');
   await expect(nodes(page)).toHaveCount(2);
 });
+
+test('a saved math node with nested \\displaylines opens, edits and duplicates without crashing', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const nested = '\\displaylines{a=1\\\\ \\displaylines{b=2\\\\ c=3}}';
+  const row = { id: 'n1', type: 'math', position: { x: 300, y: 300 }, data: { latex: nested } };
+  await page.evaluate(async (node) => {
+    const open = indexedDB.open('node-blank');
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      open.onsuccess = () => resolve(open.result);
+      open.onerror = () => reject(open.error);
+    });
+    const [meta] = await new Promise<{ id: string }[]>((resolve) => {
+      const req = db.transaction('canvases').objectStore('canvases').getAll();
+      req.onsuccess = () => resolve(req.result);
+    });
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction('contents', 'readwrite');
+      tx.objectStore('contents').put({ id: meta.id, nodes: [node], viewport: { x: 0, y: 0, zoom: 1 } });
+      tx.oncomplete = () => resolve();
+    });
+    db.close();
+  }, row);
+  await page.reload();
+  await expect(nodes(page)).toHaveCount(1);
+  await expect(nodes(page).locator('math-field')).toBeVisible();
+
+  await nodes(page)
+    .first()
+    .click({ position: { x: 2, y: 2 } });
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(nodes(page)).toHaveCount(2);
+  expect(errors).toEqual([]);
+});

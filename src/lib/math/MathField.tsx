@@ -3,6 +3,7 @@ import 'mathlive/fonts.css';
 import { useEffect, useEffectEvent, useRef } from 'react';
 import { cn } from '@/lib/cn';
 import { useCanvasStore } from '@/store/canvasStore';
+import { flattenDisplaylines } from './normalize';
 
 // Fonts come from the bundled CSS above; no keyboard click sounds.
 MathfieldElement.fontsDirectory = null;
@@ -36,11 +37,17 @@ export function MathField({
   className,
 }: MathFieldProps) {
   const ref = useRef<MathfieldElement>(null);
-  const emitChange = useEffectEvent((latex: string) => onChange?.(latex));
+  const emitChange = useEffectEvent((latex: string) => onChange?.(flattenDisplaylines(latex)));
 
   useEffect(() => {
     const field = ref.current;
-    if (field && field.value !== value) field.setValue(value, { silenceNotifications: true });
+    if (!field || flattenDisplaylines(field.value) === value) return;
+    try {
+      field.setValue(flattenDisplaylines(value), { silenceNotifications: true });
+    } catch (error) {
+      // A value MathLive cannot parse must not take the whole canvas down with this one node.
+      console.error('Could not load math into the field', error);
+    }
   }, [value]);
 
   useEffect(() => {
