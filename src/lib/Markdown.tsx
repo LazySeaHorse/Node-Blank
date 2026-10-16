@@ -2,10 +2,10 @@ import { memo } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
 import { cn } from './cn';
+import remarkObsidianMath from './remarkObsidianMath';
 
-const remarkPlugins = [remarkGfm, remarkMath];
+const remarkPlugins = [remarkGfm, remarkObsidianMath];
 const rehypePlugins = [rehypeKatex];
 const components: Components = {
   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />,
