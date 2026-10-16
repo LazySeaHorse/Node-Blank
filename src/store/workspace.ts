@@ -5,7 +5,7 @@ import { cloneNodes } from '@/nodes/factory';
 import { createAutosave } from '@/persistence/autosave';
 import * as repo from '@/persistence/canvasRepo';
 import { type ExportFile, exportCanvases, exportNodes, type NamedCanvas } from '@/persistence/io';
-import { getCanvasContent, startNewUndoStep, useCanvasStore } from './canvasStore';
+import { asUndoStep, getCanvasContent, useCanvasStore } from './canvasStore';
 
 /**
  * Coordinates the open canvas with storage: opening, creating, deleting, autosaving, import/export.
@@ -108,9 +108,7 @@ export function pasteNodes(nodes: AppNode[], at: XYPosition): void {
   if (nodes.length === 0) return;
   const minX = Math.min(...nodes.map((n) => n.position.x));
   const minY = Math.min(...nodes.map((n) => n.position.y));
-  startNewUndoStep();
-  useCanvasStore.getState().addNodes(cloneNodes(nodes, { x: at.x - minX, y: at.y - minY }));
-  startNewUndoStep();
+  asUndoStep(() => useCanvasStore.getState().addNodes(cloneNodes(nodes, { x: at.x - minX, y: at.y - minY })));
 }
 
 /**

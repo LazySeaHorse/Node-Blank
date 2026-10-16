@@ -3,7 +3,7 @@ import { nodeRect } from '@/lib/nodeRect';
 import { containsCentre, sectionContents } from '@/lib/sections';
 import type { CanvasGroup } from '@/model/types';
 import { newId } from '@/nodes/factory';
-import { startNewUndoStep, useCanvasStore } from './canvasStore';
+import { asUndoStep, useCanvasStore } from './canvasStore';
 
 export { nodeRect };
 
@@ -52,8 +52,6 @@ export function organiseCanvas(): void {
     }
   }
 
-  startNewUndoStep();
-  moveNodes(layout);
-  startNewUndoStep();
+  asUndoStep(() => moveNodes(layout));
   refreshGroups();
 }

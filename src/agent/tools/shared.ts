@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { AppNode, CanvasGroup } from '@/model/types';
-import { startNewUndoStep, useCanvasStore } from '@/store/canvasStore';
+import { asUndoStep, useCanvasStore } from '@/store/canvasStore';
 import { refreshGroups } from '@/store/groups';
 import { alias, resolveAlias } from '../aliases';
 import { ToolError } from '../errors';
@@ -45,18 +45,8 @@ export function requireGroup(handle: string, groups: CanvasGroup[]): CanvasGroup
   return group;
 }
 
-/**
- * Runs all of a tool's store writes as one undo step, separate from the user's edits before and
- * after. Synchronous by design: do async work first, then call this.
- */
-export function commitAiWrite<T>(fn: () => T): T {
-  startNewUndoStep();
-  try {
-    return fn();
-  } finally {
-    startNewUndoStep();
-  }
-}
+/** Runs all of a tool's store writes as one undo step, separate from the user's edits before and after. */
+export const commitAiWrite = asUndoStep;
 
 /** The visible part of the canvas in canvas coordinates. */
 export function viewportRect() {

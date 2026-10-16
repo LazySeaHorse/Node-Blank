@@ -46,6 +46,19 @@ const startNewUndoStep = () => {
   lastEditAt = Number.NEGATIVE_INFINITY;
 };
 
+/**
+ * Runs `fn`'s store writes as one undo step, separate from the edits before and after.
+ * Synchronous by design: do async work first, then call this.
+ */
+export function asUndoStep<T>(fn: () => T): T {
+  startNewUndoStep();
+  try {
+    return fn();
+  } finally {
+    startNewUndoStep();
+  }
+}
+
 const deselect = (nodes: AppNode[]) => nodes.map((n) => (n.selected ? { ...n, selected: false } : n));
 
 export const useCanvasStore = create<CanvasState>()(
@@ -93,9 +106,7 @@ export const useCanvasStore = create<CanvasState>()(
 
       deleteNodes: (ids) => {
         const doomed = new Set(ids);
-        startNewUndoStep();
-        set({ nodes: get().nodes.filter((n) => !doomed.has(n.id)) });
-        startNewUndoStep();
+        asUndoStep(() => set({ nodes: get().nodes.filter((n) => !doomed.has(n.id)) }));
       },
 
       clear: () => set({ nodes: [] }),
@@ -129,9 +140,6 @@ export const useCanvasStore = create<CanvasState>()(
     },
   ),
 );
-
-/** Makes the next content change its own undo step instead of extending the current one. */
-export { startNewUndoStep };
 
 export const undo = () => {
   useCanvasStore.temporal.getState().undo();

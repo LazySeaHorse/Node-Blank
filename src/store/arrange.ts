@@ -1,7 +1,7 @@
 import { boundsOf } from '@/lib/clusters';
 import { nodeRect } from '@/lib/nodeRect';
 import type { AppNode } from '@/model/types';
-import { startNewUndoStep, useCanvasStore } from './canvasStore';
+import { asUndoStep, useCanvasStore } from './canvasStore';
 
 export type AlignEdge = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
 
@@ -23,9 +23,7 @@ export function alignSelected(edge: AlignEdge): void {
       return [r.id, at];
     }),
   );
-  startNewUndoStep();
-  moveNodes(positions);
-  startNewUndoStep();
+  asUndoStep(() => moveNodes(positions));
 }
 
 /** Reorders the selected nodes within their layer: sections stay behind every other node. */
@@ -39,9 +37,7 @@ function reorder(toFront: boolean): void {
   };
   const next: AppNode[] = [...layer(true), ...layer(false)];
   if (next.every((n, i) => n === nodes[i])) return;
-  startNewUndoStep();
-  useCanvasStore.setState({ nodes: next });
-  startNewUndoStep();
+  asUndoStep(() => useCanvasStore.setState({ nodes: next }));
 }
 
 export const bringToFront = () => reorder(true);
