@@ -252,3 +252,32 @@ describe('writing', () => {
     expect((await callError('run_code', { id: 'n9' })).error).toBe('node_not_found');
   });
 });
+
+describe('sections', () => {
+  const section = () => createNode('section', at(0, 0), { title: 'Plan' }, { width: 400, height: 300 });
+
+  it('lists sections and the nodes inside them in the overview', async () => {
+    load([section(), createNode('math', at(50, 80)), createNode('math', at(2000, 0))]);
+    const text = await call('get_overview');
+    expect(text).toContain('Sections');
+    expect(text).toMatch(/n1 "Plan" .* n2/);
+  });
+
+  it('renames and recolours a section', async () => {
+    load([section()]);
+    await call('update_nodes', { updates: [{ id: 'n1', set: { title: 'Ideas', color: 'blue' } }] });
+    expect(canvas().nodes[0].data).toEqual({ title: 'Ideas', color: 'blue' });
+  });
+
+  it('moving a section moves what is inside it', async () => {
+    load([section(), createNode('math', at(50, 80)), createNode('math', at(2000, 0))]);
+    await call('move_nodes', { moves: [{ id: 'n1', dx: 100, dy: 10 }] });
+    expect(canvas().nodes.map((n) => n.position)).toEqual([at(100, 10), at(150, 90), at(2000, 0)]);
+  });
+
+  it('cannot create sections', async () => {
+    expect((await callError('create_nodes', { nodes: [{ kind: 'section', title: 'x' }] })).error).toBe(
+      'invalid_input',
+    );
+  });
+});

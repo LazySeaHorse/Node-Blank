@@ -23,6 +23,9 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
 - sheet: cells, rows of spreadsheet cells; formulas start with "=" and use A1 references (=SUM(A1:A3)).
 - code: source, JavaScript. run_code runs it in a sandbox and returns console output and the last value.
 - video: url, a YouTube/Vimeo link or https embed URL.
+- section: title and color (one of yellow, green, blue, purple, pink, orange, gray). A visible titled box the user
+  drew around nodes. Moving a section moves the nodes inside it; deleting one keeps them. You can rename, recolour,
+  move, resize and delete sections but not create them. They are separate from groups.
 - image: uploaded by the user; you can move, resize or delete images but not create them or see them.
 
 LAYOUT

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { besideCandidates, boundsOf, CLUSTER_PADDING, findFreeSpot, type Rect } from '@/lib/clusters';
 import { setCell } from '@/lib/grid';
-import type { AppNode, NodeDataMap, NodeKind } from '@/model/types';
+import { sectionContents } from '@/lib/sections';
+import { type AppNode, type NodeDataMap, type NodeKind, SECTION_COLORS } from '@/model/types';
 import { createNode } from '@/nodes/factory';
 import { splitLines } from '@/nodes/mathPlus/evaluate';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
@@ -25,7 +26,7 @@ import {
 
 const MAX_GRID = { rows: 200, cols: 52 };
 /** Kinds whose size can be set; the others size to their content. */
-const RESIZABLE = new Set<NodeKind>(['code', 'graph', 'video']);
+const RESIZABLE = new Set<NodeKind>(['code', 'graph', 'video', 'section']);
 
 const cellsSchema = z
   .array(z.array(z.string().max(2000)).max(MAX_GRID.cols))
@@ -155,6 +156,7 @@ const TEXT_FIELD: Partial<Record<NodeKind, string>> = {
   mathPlus: 'latex',
   code: 'source',
   video: 'url',
+  section: 'title',
 };
 
 const updateSchema = z.object({
@@ -167,6 +169,8 @@ const updateSchema = z.object({
       url: z.string().max(2000),
       functions: z.array(z.string().max(500)).min(1).max(20),
       cells: cellsSchema,
+      title: z.string().max(200),
+      color: z.enum(SECTION_COLORS),
     })
     .partial()
     .optional()
@@ -182,7 +186,7 @@ const updateSchema = z.object({
     .max(50)
     .optional()
     .describe(
-      'Exact find/replace on the text of text, math, Math+, code and video nodes. Cheaper than set for small changes.',
+      'Exact find/replace on the text of text, math, Math+, code, video and section nodes. Cheaper than set for small changes.',
     ),
   cells: z
     .array(
@@ -283,7 +287,9 @@ export const updateNodes = defineTool({
 export const moveNodes = defineTool({
   name: 'move_nodes',
   title: 'Move or resize nodes',
-  description: 'Move nodes to x/y or by dx/dy, and resize code, graph, image and video nodes. One undo step.',
+  description:
+    'Move nodes to x/y or by dx/dy, and resize code, graph, image, video and section nodes. Moving a section also ' +
+    'moves the nodes inside it. One undo step.',
   input: z.object({
     moves: z
       .array(
@@ -314,6 +320,24 @@ export const moveNodes = defineTool({
         return [node.id, { position, width: m.width, height: m.height }];
       }),
     );
+    // A moved section takes the nodes inside it along, unless those are being moved explicitly too.
+    const rects = canvasNodes().map(nodeRect);
+    for (const m of moves) {
+      const node = requireNode(m.id);
+      const to = changes.get(node.id)?.position;
+      const rect = rects.find((r) => r.id === node.id);
+      if (node.type !== 'section' || !to || !rect) continue;
+      const delta = { x: to.x - node.position.x, y: to.y - node.position.y };
+      for (const id of sectionContents(rect, rects)) {
+        const inner = requireNode(id);
+        if (changes.has(inner.id)) continue;
+        changes.set(inner.id, {
+          position: { x: inner.position.x + delta.x, y: inner.position.y + delta.y },
+          width: undefined,
+          height: undefined,
+        });
+      }
+    }
     commitAiWrite(() =>
       useCanvasStore.setState((s) => ({
         nodes: s.nodes.map((n) => {
@@ -339,7 +363,8 @@ export const moveNodes = defineTool({
 export const deleteNodes = defineTool({
   name: 'delete_nodes',
   title: 'Delete nodes',
-  description: 'Delete nodes (one undo step; the user can undo it).',
+  description:
+    'Delete nodes (one undo step; the user can undo it). Deleting a section removes only the box, not the nodes inside.',
   input: z.object({ ids: z.array(handleSchema).min(1).max(200) }),
   readOnly: false,
   destructive: true,

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { boundsOf } from '@/lib/clusters';
 import { loadEngine } from '@/lib/math/engine';
+import { sectionContents } from '@/lib/sections';
 import type { AppNode, NodeKind } from '@/model/types';
 import { nodeKinds } from '@/nodes/catalog';
 import { searchTextOf } from '@/nodes/factory';
@@ -85,6 +86,18 @@ export const getOverview = defineTool({
           'node',
         )}); use list_nodes with an area.`,
       );
+    }
+    const sections = nodes.filter((n) => n.type === 'section');
+    if (sections.length > 0) {
+      const rects = nodes.map(nodeRect);
+      lines.push('Sections (titled boxes made by the user): handle, title, bounds, nodes inside:');
+      for (const s of sections) {
+        const rect = nodeRect(s);
+        const inside = sectionContents(rect, rects).map((nid) => alias(nid));
+        lines.push(
+          `${alias(s.id)} "${oneLine(searchTextOf(s), 60)}" ${rectLabel(rect)} ${inside.length ? inside.join(', ') : 'empty'}`,
+        );
+      }
     }
     return { text: lines.join('\n'), summary: 'Read the overview' };
   },
