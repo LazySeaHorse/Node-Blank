@@ -83,7 +83,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   }, [fitView]);
   useShortcuts(readOnly);
   useClipboard(readOnly);
-  const menu = useContextMenu(readOnly);
+  const { menu, close: closeMenu } = useContextMenu(readOnly);
 
   const placeNode = (event: MouseEvent) => {
     const target = event.target as Element;
@@ -92,27 +92,25 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   };
 
   return (
-    <ContextMenu items={menu.items} disabled={readOnly} onContextMenu={menu.onContextMenu}>
-      <div ref={menu.area} className="h-full w-full">
-        <ReactFlow<AppNode>
-          nodes={displayNodes}
-          nodeTypes={nodeTypes}
-          {...sectionHandlers}
-          defaultViewport={useCanvasStore.getState().viewport}
-          onMoveEnd={(_, viewport) => setViewport(viewport)}
-          onDoubleClick={placeNode}
-          onContextMenu={menu.keepNative}
-          zoomOnDoubleClick={false}
-          minZoom={0.1}
-          maxZoom={4}
-          colorMode={theme}
-          proOptions={proOptions}
-          className={readOnly ? 'read-only' : undefined}
-          {...(readOnly ? readOnlyProps : editableProps)}
-        >
-          <Background variant={BackgroundVariant.Lines} gap={40} />
-        </ReactFlow>
-      </div>
-    </ContextMenu>
+    <>
+      <ReactFlow<AppNode>
+        nodes={displayNodes}
+        nodeTypes={nodeTypes}
+        {...sectionHandlers}
+        defaultViewport={useCanvasStore.getState().viewport}
+        onMoveEnd={(_, viewport) => setViewport(viewport)}
+        onDoubleClick={placeNode}
+        zoomOnDoubleClick={false}
+        minZoom={0.1}
+        maxZoom={4}
+        colorMode={theme}
+        proOptions={proOptions}
+        className={readOnly ? 'read-only' : undefined}
+        {...(readOnly ? readOnlyProps : editableProps)}
+      >
+        <Background variant={BackgroundVariant.Lines} gap={40} />
+      </ReactFlow>
+      <ContextMenu at={menu?.at ?? null} items={menu?.items ?? []} onClose={closeMenu} />
+    </>
   );
 }

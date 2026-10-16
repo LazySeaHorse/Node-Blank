@@ -1,33 +1,32 @@
-import { ContextMenu as Radix } from 'radix-ui';
-import type { MouseEvent, ReactNode } from 'react';
+import { DropdownMenu } from 'radix-ui';
 import { type MenuEntry, panelClass, renderEntries } from './Menu';
 
 interface ContextMenuProps {
-  /** The area that opens the menu; must be a single element. */
-  children: ReactNode;
+  /** Where the menu opens, in screen coordinates; null keeps it closed. */
+  at: { x: number; y: number } | null;
   items: MenuEntry[];
-  disabled?: boolean;
-  /** Runs before the menu opens; calling `preventDefault()` keeps it closed. */
-  onContextMenu?: (event: MouseEvent) => void;
+  onClose: () => void;
 }
 
-/** Opens `items` at the pointer when `children` receives a `contextmenu` event. */
-export function ContextMenu({ children, items, disabled, onContextMenu }: ContextMenuProps) {
+/** A menu of `items` opened at a point on screen, e.g. where the user right-clicked. */
+export function ContextMenu({ at, items, onClose }: ContextMenuProps) {
   return (
-    <Radix.Root>
-      <Radix.Trigger asChild disabled={disabled} onContextMenu={onContextMenu}>
-        {children}
-      </Radix.Trigger>
-      <Radix.Portal>
-        <Radix.Content
+    <DropdownMenu.Root open={at !== null} onOpenChange={(open) => !open && onClose()}>
+      {/* A zero-size anchor at the point; the menu is only ever opened from code. */}
+      <DropdownMenu.Trigger asChild>
+        <span aria-hidden className="pointer-events-none fixed size-0" style={{ left: at?.x, top: at?.y }} />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="start"
           // Focus stays wherever the action puts it (e.g. a title being renamed).
           onCloseAutoFocus={(event) => event.preventDefault()}
           collisionPadding={8}
           className={panelClass}
         >
-          {renderEntries(Radix, items)}
-        </Radix.Content>
-      </Radix.Portal>
-    </Radix.Root>
+          {renderEntries(DropdownMenu, items)}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
