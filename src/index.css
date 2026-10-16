@@ -85,6 +85,10 @@ math-field {
   --placeholder-color: var(--muted);
   --text-font-family: inherit;
   display: block;
+  /* React Flow nodes are user-select:none, and MathLive then disables mouse caret placement and selection. */
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
   background: transparent;
   color: inherit;
   border: none;
