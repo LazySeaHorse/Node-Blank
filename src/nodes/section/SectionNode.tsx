@@ -1,11 +1,11 @@
 import { type NodeProps, NodeResizer } from '@xyflow/react';
 import { Check } from 'lucide-react';
 import { Popover } from 'radix-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import { type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
-import { consumeRenamePending } from '@/store/sectionRename';
+import { consumeRenamePending, onRenameRequest } from '@/store/sectionRename';
 import { useUpdateNodeData } from '../useNodeData';
 
 const swatch = (color: SectionColor) => `var(--section-${color})`;
@@ -15,6 +15,11 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
   const readOnly = useReadOnly();
   const update = useUpdateNodeData<'section'>(id);
   const [editing, setEditing] = useState(() => consumeRenamePending(id));
+
+  useEffect(
+    () => onRenameRequest((target) => target === id && !readOnly && setEditing(true)),
+    [id, readOnly],
+  );
 
   const commit = (title: string) => {
     update({ title: title.trim() || 'Section' });

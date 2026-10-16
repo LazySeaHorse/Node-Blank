@@ -21,6 +21,7 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 - **Undo/redo** for everything on the canvas.
 - **Import/export** selected nodes, a canvas, or everything as JSON.
 - **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.
+- **Context menus**: right-click for add node, paste, copy, duplicate, delete, order, align and per-node actions (right-drag still pans).
 - **Organise**: groups nearby nodes and spaces them evenly (one undo step).
 - **AI control**: let a coding agent (Claude Code, Codex, Gemini CLI, …) read and edit the open canvas through a small local bridge, or a browser agent through WebMCP. See [AI control](#ai-control).
 - **Dark mode**, **offline PWA**.
@@ -31,6 +32,7 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 | --- | --- |
 | Place a node | Pick a tool in the toolbar, then double-click the canvas |
 | Pan | Scroll / trackpad, or drag with middle or right mouse button |
+| Context menu | Right-click (without dragging) the canvas, a node, a section or a selection |
 | Zoom | Pinch, or Ctrl/Cmd + scroll |
 | Select | Click, Shift+click, or drag a box on empty canvas |
 | Undo / redo | Ctrl+Z / Ctrl+Shift+Z |

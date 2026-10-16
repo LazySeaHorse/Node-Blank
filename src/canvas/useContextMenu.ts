@@ -1,8 +1,9 @@
-import { useReactFlow } from '@xyflow/react';
+import { useReactFlow, useStoreApi } from '@xyflow/react';
 import { type MouseEvent, useEffect, useRef, useState } from 'react';
+import { wrapSelectionInSection } from '@/store/sections';
 import type { MenuEntry } from '@/ui/Menu';
 import { isTyping } from './keyboard';
-import { canvasMenu } from './menus';
+import { menuFor } from './menus';
 import { useCanvasActions } from './useCanvasActions';
 
 /** A right-click that moves further than this (in px) is a pan, not a click. */
@@ -18,6 +19,8 @@ const CLICK_SLOP = 4;
 export function useContextMenu(readOnly: boolean) {
   const [items, setItems] = useState<MenuEntry[]>([]);
   const press = useRef<{ x: number; y: number; target: Element } | null>(null);
+  const flow = useStoreApi();
+  const replay = useRef<Element | null>(null);
   const area = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const { addNode, insertImage, insertVideo } = useCanvasActions();
@@ -37,6 +40,7 @@ export function useContextMenu(readOnly: boolean) {
       if (event.button !== 2 || !down?.target.isConnected) return;
       if (Math.hypot(event.clientX - down.x, event.clientY - down.y) >= CLICK_SLOP) return;
       // On the menu's own element: React Flow's pane cancels contextmenu events that reach it.
+      replay.current = down.target;
       area.current?.dispatchEvent(
         new MouseEvent('contextmenu', {
           bubbles: true,
@@ -72,9 +76,20 @@ export function useContextMenu(readOnly: boolean) {
       event.preventDefault(); // the menu skips cancelled events
       return;
     }
+    const target = replay.current ?? (event.target as Element);
+    replay.current = null;
     const at = screenToFlowPosition({ x: event.clientX, y: event.clientY });
     setItems(
-      canvasMenu(at, { addNode, insertImage, insertVideo, fitView: () => void fitView({ duration: 300 }) }),
+      menuFor(target, at, {
+        addNode,
+        insertImage,
+        insertVideo,
+        fitView: () => void fitView({ duration: 300 }),
+        wrapInSection: () => {
+          wrapSelectionInSection();
+          flow.setState({ nodesSelectionActive: false }); // as Ctrl+G does
+        },
+      }),
     );
   };
 

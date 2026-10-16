@@ -45,3 +45,74 @@ test("right-clicking inside a math field opens MathLive's menu, not ours", async
   await expect(page.locator('.ui-menu-container')).toBeVisible();
   await expect(page.getByRole('menuitem', { name: 'Add node' })).toHaveCount(0);
 });
+
+test('node menu: Duplicate copies the node', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await expect(nodes(page)).toHaveCount(1);
+  await nodes(page).locator('.prose').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Duplicate' }).click();
+  await expect(nodes(page)).toHaveCount(2);
+});
+
+test('node menu: Delete removes the node and undo brings it back', async ({ page }) => {
+  await placeNode(page, 'Text');
+  await nodes(page).locator('.prose').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Delete' }).click();
+  await expect(nodes(page)).toHaveCount(0);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(nodes(page)).toHaveCount(1);
+});
+
+async function wrapTwoTexts(page: import('@playwright/test').Page) {
+  await placeNode(page, 'Text', 500, 350);
+  await placeNode(page, 'Text', 500, 600);
+  await page.mouse.click(1300, 820);
+  await page.mouse.move(300, 250);
+  await page.mouse.down();
+  await page.mouse.move(1100, 850, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
+}
+
+test('selection menu wraps in a section; section menu ungroups it', async ({ page }) => {
+  await wrapTwoTexts(page);
+  await page
+    .locator('.react-flow__nodesselection-rect')
+    .click({ button: 'right', position: { x: 20, y: 20 } });
+  await page.getByRole('menuitem', { name: 'Wrap in section' }).click();
+  const section = page.locator('.react-flow__node-section');
+  await expect(section).toHaveCount(1);
+  await section.locator('input').press('Enter');
+
+  await section.locator('.section-handle').click({ button: 'right', position: { x: 60, y: 20 } });
+  await page.getByRole('menuitem', { name: 'Ungroup' }).click();
+  await expect(section).toHaveCount(0);
+  await expect(nodes(page)).toHaveCount(2);
+});
+
+test('section menu renames the section', async ({ page }) => {
+  await wrapTwoTexts(page);
+  await page.keyboard.press('ControlOrMeta+g');
+  const section = page.locator('.react-flow__node-section');
+  await section.locator('input').press('Enter');
+  await section.locator('.section-handle').click({ button: 'right', position: { x: 60, y: 20 } });
+  await page.getByRole('menuitem', { name: 'Rename' }).click();
+  const title = section.locator('input');
+  await expect(title).toBeFocused();
+  await title.fill('Plan');
+  await title.press('Enter');
+  await expect(section.getByText('Plan')).toBeVisible();
+});
+
+test('selection menu aligns the selected nodes', async ({ page }) => {
+  await wrapTwoTexts(page);
+  const lefts = async () =>
+    (await nodes(page).evaluateAll((els) => els.map((e) => e.getBoundingClientRect().left))).map(Math.round);
+  await page
+    .locator('.react-flow__nodesselection-rect')
+    .click({ button: 'right', position: { x: 20, y: 20 } });
+  await page.getByRole('menuitem', { name: 'Align' }).click();
+  await page.getByRole('menuitem', { name: 'Left', exact: true }).click();
+  const [a, b] = await lefts();
+  expect(a).toBe(b);
+});

@@ -1,17 +1,47 @@
 import type { XYPosition } from '@xyflow/react';
-import { Clipboard, Maximize, MousePointer2, Plus, Shapes } from 'lucide-react';
-import type { NodeKind } from '@/model/types';
+import {
+  AlignCenterHorizontal,
+  AlignCenterVertical,
+  AlignEndHorizontal,
+  AlignEndVertical,
+  AlignHorizontalJustifyStart,
+  AlignStartHorizontal,
+  AlignStartVertical,
+  ArrowDownToLine,
+  ArrowUpToLine,
+  Clipboard,
+  Copy,
+  CopyPlus,
+  Maximize,
+  MousePointer2,
+  PaintBucket,
+  PencilLine,
+  Plus,
+  Shapes,
+  Sigma,
+  SquareDashed,
+  Trash2,
+  Ungroup,
+} from 'lucide-react';
+import { copyText } from '@/lib/clipboard';
+import { type AppNode, type NodeKind, SECTION_COLORS } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
+import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
+import { type AlignEdge, alignSelected, bringToFront, sendToBack } from '@/store/arrange';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
+import { requestRename } from '@/store/sectionRename';
+import { deleteSectionWithContents } from '@/store/sections';
 import type { MenuEntry } from '@/ui/Menu';
-import { pasteAt } from './clipboard';
+import { copySelection, pasteAt } from './clipboard';
 
-export interface CanvasMenuActions {
+export interface MenuActions {
   addNode: (kind: NodeKind, at: XYPosition) => void;
   insertImage: () => void;
   insertVideo: () => void;
   fitView: () => void;
+  /** Ctrl+G: wraps the selection in a section. */
+  wrapInSection: () => void;
 }
 
 const selectAll = () => {
@@ -19,19 +49,24 @@ const selectAll = () => {
   onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: true })));
 };
 
+const deleteSelected = () => {
+  const { nodes, deleteNodes } = useCanvasStore.getState();
+  deleteNodes(nodes.filter((n) => n.selected).map((n) => n.id));
+};
+
 /** What right-clicking empty canvas offers; `at` is where the click landed, in canvas coordinates. */
-export function canvasMenu(at: XYPosition, actions: CanvasMenuActions): MenuEntry[] {
-  const kinds = Object.values(nodeSpecs);
+export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
   const insertActions: Partial<Record<NodeKind, () => void>> = {
     image: actions.insertImage,
     video: actions.insertVideo,
   };
   const add: MenuEntry[] = [];
-  for (const spec of kinds) {
+  for (const spec of Object.values(nodeSpecs)) {
+    const insert = insertActions[spec.kind];
     if (spec.placement === 'place')
       add.push({ label: spec.label, icon: spec.icon, onSelect: () => actions.addNode(spec.kind, at) });
-    else if (spec.placement === 'insert' && insertActions[spec.kind])
-      add.push({ label: spec.label, icon: spec.icon, onSelect: insertActions[spec.kind] as () => void });
+    else if (spec.placement === 'insert' && insert)
+      add.push({ label: spec.label, icon: spec.icon, onSelect: insert });
   }
   return [
     { label: 'Add node', icon: Plus, items: add },
@@ -41,4 +76,124 @@ export function canvasMenu(at: XYPosition, actions: CanvasMenuActions): MenuEntr
     { label: 'Fit view', icon: Maximize, onSelect: actions.fitView },
     { label: 'Select all', icon: MousePointer2, hint: 'Ctrl+A', onSelect: selectAll },
   ];
+}
+
+/** Items every selection of nodes has, in the order they appear. */
+const selectionActions = (): MenuEntry[] => [
+  { label: 'Copy', icon: Copy, hint: 'Ctrl+C', onSelect: () => void copySelection() },
+  {
+    label: 'Duplicate',
+    icon: CopyPlus,
+    hint: 'Ctrl+D',
+    onSelect: () => useCanvasStore.getState().duplicateSelected(),
+  },
+  { label: 'Delete', icon: Trash2, hint: 'Delete', danger: true, onSelect: deleteSelected },
+];
+
+const order: MenuEntry[] = [
+  { label: 'Bring to front', icon: ArrowUpToLine, onSelect: bringToFront },
+  { label: 'Send to back', icon: ArrowDownToLine, onSelect: sendToBack },
+];
+
+/** Extra items for particular kinds of node, shown above the common ones. */
+const kindItems: { [K in NodeKind]?: (node: Extract<AppNode, { type: K }>) => MenuEntry[] } = {
+  math: (node) => [
+    { label: 'Copy LaTeX', icon: Sigma, onSelect: () => void copyText(node.data.latex, 'LaTeX') },
+  ],
+  mathPlus: (node) => [
+    { label: 'Copy LaTeX', icon: Sigma, onSelect: () => void copyText(node.data.latex, 'LaTeX') },
+    {
+      label: 'Copy results',
+      icon: Sigma,
+      onSelect: async () => copyText(await mathPlusResultsText(node.id), 'results'),
+    },
+  ],
+};
+
+export function nodeMenu(node: AppNode): MenuEntry[] {
+  const extra = (kindItems[node.type] as ((n: AppNode) => MenuEntry[]) | undefined)?.(node) ?? [];
+  return [
+    ...extra,
+    ...(extra.length > 0 ? [{ separator: true } as const] : []),
+    ...selectionActions(),
+    { separator: true },
+    ...order,
+  ];
+}
+
+const titleCase = (word: string) => word[0].toUpperCase() + word.slice(1);
+
+export function sectionMenu(node: AppNode): MenuEntry[] {
+  const current = node.type === 'section' ? node.data.color : undefined;
+  return [
+    {
+      label: 'Rename',
+      icon: PencilLine,
+      // After the menu has closed and settled focus, or the title would lose it at once.
+      onSelect: () => void setTimeout(() => requestRename(node.id), 0),
+    },
+    {
+      label: 'Colour',
+      icon: PaintBucket,
+      items: SECTION_COLORS.map((color) => ({
+        label: titleCase(color),
+        swatch: `var(--section-${color})`,
+        checked: color === current,
+        onSelect: () => useCanvasStore.getState().updateNodeData<'section'>(node.id, { color }),
+      })),
+    },
+    { separator: true },
+    ...selectionActions().slice(0, 2),
+    { label: 'Ungroup', icon: Ungroup, onSelect: () => useCanvasStore.getState().deleteNodes([node.id]) },
+    {
+      label: 'Delete section and contents',
+      icon: Trash2,
+      danger: true,
+      onSelect: () => deleteSectionWithContents(node.id),
+    },
+  ];
+}
+
+const alignItems: { edge: AlignEdge; label: string; icon: typeof AlignStartVertical }[] = [
+  { edge: 'left', label: 'Left', icon: AlignStartVertical },
+  { edge: 'center', label: 'Centre horizontally', icon: AlignCenterVertical },
+  { edge: 'right', label: 'Right', icon: AlignEndVertical },
+  { edge: 'top', label: 'Top', icon: AlignStartHorizontal },
+  { edge: 'middle', label: 'Centre vertically', icon: AlignCenterHorizontal },
+  { edge: 'bottom', label: 'Bottom', icon: AlignEndHorizontal },
+];
+
+export function selectionMenu(actions: MenuActions): MenuEntry[] {
+  return [
+    { label: 'Wrap in section', icon: SquareDashed, hint: 'Ctrl+G', onSelect: actions.wrapInSection },
+    {
+      label: 'Align',
+      icon: AlignHorizontalJustifyStart,
+      items: alignItems.map(({ edge, label, icon }) => ({
+        label,
+        icon,
+        onSelect: () => alignSelected(edge),
+      })),
+    },
+    { separator: true },
+    ...selectionActions(),
+    { separator: true },
+    ...order,
+  ];
+}
+
+/**
+ * The menu for whatever was right-clicked: the selection box, a node (selected first if it was not
+ * part of the selection) or the empty canvas.
+ */
+export function menuFor(target: Element | null, at: XYPosition, actions: MenuActions): MenuEntry[] {
+  if (target?.closest('.react-flow__nodesselection-rect')) return selectionMenu(actions);
+  const id = target?.closest<HTMLElement>('.react-flow__node')?.dataset.id;
+  const hit = useCanvasStore.getState().nodes.find((n) => n.id === id);
+  if (!hit) return canvasMenu(at, actions);
+  const { nodes, onNodesChange } = useCanvasStore.getState();
+  if (!hit.selected)
+    onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: n.id === hit.id })));
+  if (useCanvasStore.getState().nodes.filter((n) => n.selected).length > 1) return selectionMenu(actions);
+  return hit.type === 'section' ? sectionMenu(hit) : nodeMenu(hit);
 }
