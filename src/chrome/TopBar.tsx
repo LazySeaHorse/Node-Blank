@@ -131,6 +131,7 @@ export function TopBar() {
         <Divider />
         {nodeKinds.map((kind) => {
           const spec = nodeSpecs[kind];
+          if (spec.placement === 'wrap') return null;
           return spec.placement === 'place' ? (
             <IconButton
               key={kind}

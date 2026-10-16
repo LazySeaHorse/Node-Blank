@@ -53,7 +53,7 @@ const content = {
   sheet: { cells: cellsSchema.describe('Rows of cells; formulas start with "=" and use A1 references.') },
   code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.') },
   video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.') },
-} satisfies { [K in Exclude<NodeKind, 'image'>]: Record<keyof NodeDataMap[K], z.ZodType> };
+} satisfies { [K in Exclude<NodeKind, 'image' | 'section'>]: Record<keyof NodeDataMap[K], z.ZodType> };
 
 const placementShape = {
   near: handleSchema.optional().describe('Place next to this node (right of it, else below).'),
@@ -75,7 +75,9 @@ const newNodeSchema = z.discriminatedUnion(
     z.object({ kind: z.literal(kind), ...content[kind], ...placementShape }),
   ) as unknown as [z.ZodObject, ...z.ZodObject[]],
 );
-type NewNode = { kind: Exclude<NodeKind, 'image'> } & z.infer<z.ZodObject<typeof placementShape>> &
+type NewNode = { kind: Exclude<NodeKind, 'image' | 'section'> } & z.infer<
+  z.ZodObject<typeof placementShape>
+> &
   Record<string, unknown>;
 
 /** Multi-line Math+ input is stored the way MathLive writes it, as \displaylines{a \\ b}. */

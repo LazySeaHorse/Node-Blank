@@ -2,6 +2,8 @@ import { applyNodeChanges, type NodeChange, type Viewport, type XYPosition } fro
 import isEqual from 'fast-deep-equal';
 import { temporal } from 'zundo';
 import { create } from 'zustand';
+import { nodeRect } from '@/lib/nodeRect';
+import { expandWithContents } from '@/lib/sections';
 import {
   type AppNode,
   type CanvasContent,
@@ -55,8 +57,18 @@ export const useCanvasStore = create<CanvasState>()(
 
       setViewport: (viewport) => set({ viewport }),
 
-      addNodes: (nodes) =>
-        set({ nodes: [...deselect(get().nodes), ...nodes.map((n) => ({ ...n, selected: true }))] }),
+      // Sections go first so they render behind everything else.
+      addNodes: (nodes) => {
+        const added = nodes.map((n) => ({ ...n, selected: true }));
+        const isSection = (n: AppNode) => n.type === 'section';
+        set({
+          nodes: [
+            ...added.filter(isSection),
+            ...deselect(get().nodes),
+            ...added.filter((n) => !isSection(n)),
+          ],
+        });
+      },
 
       updateNodeData: (id, patch) =>
         set({
@@ -66,7 +78,14 @@ export const useCanvasStore = create<CanvasState>()(
         }),
 
       duplicateSelected: () => {
-        const selected = get().nodes.filter((n) => n.selected);
+        const { nodes } = get();
+        // Duplicating a section takes the nodes inside it along.
+        const ids = expandWithContents(
+          new Set(nodes.filter((n) => n.selected).map((n) => n.id)),
+          new Set(nodes.filter((n) => n.type === 'section').map((n) => n.id)),
+          nodes.map(nodeRect),
+        );
+        const selected = nodes.filter((n) => ids.has(n.id));
         if (selected.length > 0) get().addNodes(cloneNodes(selected, DUPLICATE_OFFSET));
       },
 

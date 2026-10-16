@@ -4,6 +4,7 @@ import { graphSpec } from './graph/spec';
 import { imageSpec } from './image/spec';
 import { mathSpec } from './math/spec';
 import { mathPlusSpec } from './mathPlus/spec';
+import { sectionSpec } from './section/spec';
 import { sheetSpec } from './sheet/spec';
 import type { NodeSpec } from './spec';
 import { tableSpec } from './table/spec';
@@ -21,6 +22,7 @@ export const nodeSpecs: { [K in NodeKind]: NodeSpec<K> } = {
   code: codeSpec,
   image: imageSpec,
   video: videoSpec,
+  section: sectionSpec,
 };
 
 export const nodeKinds = Object.keys(nodeSpecs) as NodeKind[];

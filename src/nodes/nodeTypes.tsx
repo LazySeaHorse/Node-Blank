@@ -2,6 +2,7 @@ import type { NodeProps, NodeTypes } from '@xyflow/react';
 import { type ComponentType, lazy, Suspense } from 'react';
 import type { AppNode } from '@/model/types';
 import { ImageNode } from './image/ImageNode';
+import { SectionNode } from './section/SectionNode';
 import { TextNode } from './text/TextNode';
 import { VideoNode } from './video/VideoNode';
 
@@ -23,6 +24,7 @@ export const nodeTypes = {
   text: TextNode,
   image: ImageNode,
   video: VideoNode,
+  section: SectionNode,
   math: lazyNode(() => import('./math/MathNode')),
   mathPlus: lazyNode(() => import('./mathPlus/MathPlusNode')),
   graph: lazyNode(() => import('./graph/GraphNode')),

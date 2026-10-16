@@ -16,6 +16,13 @@
   --accent: #3b82f6;
   --accent-fg: #ffffff;
   --danger: #ef4444;
+  --section-yellow: #fde68a;
+  --section-green: #a7f3d0;
+  --section-blue: #bfdbfe;
+  --section-purple: #ddd6fe;
+  --section-pink: #fbcfe8;
+  --section-orange: #fed7aa;
+  --section-gray: #cbd5e1;
 }
 
 /* Neutral greys: no blue tint in dark mode. */
@@ -29,6 +36,13 @@
   --accent: #f97316;
   --accent-fg: #ffffff;
   --danger: #f87171;
+  --section-yellow: #d6a21f;
+  --section-green: #2f9e75;
+  --section-blue: #4a7fd6;
+  --section-purple: #8a6fd6;
+  --section-pink: #d466a3;
+  --section-orange: #d9772e;
+  --section-gray: #8a8a8a;
   color-scheme: dark;
 }
 
@@ -74,6 +88,11 @@ body,
 .react-flow__node.search-miss {
   opacity: 0.3;
   filter: grayscale(1);
+}
+
+/* The section's pointer-events:none would otherwise be inherited by its resize handles. */
+.react-flow__node-section .react-flow__resize-control {
+  pointer-events: all;
 }
 
 /* MathLive: no menu or virtual keyboard toggles; inherit theme colors. */

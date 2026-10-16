@@ -8,12 +8,14 @@ import {
 } from '@xyflow/react';
 import { type MouseEvent, useEffect, useMemo } from 'react';
 import { setAgentView, useAgentStore } from '@/agent';
+import { SECTION_Z } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
 import { nodeTypes } from '@/nodes/nodeTypes';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { useCanvasActions } from './useCanvasActions';
 import { useSearchHighlight } from './useSearch';
+import { useSections } from './useSections';
 import { useShortcuts } from './useShortcuts';
 
 const proOptions = { hideAttribution: true };
@@ -44,16 +46,26 @@ const readOnlyProps: Partial<ReactFlowProps<AppNode>> = {
 /** The open canvas. Remount (via `key`) when switching canvases so the stored viewport is applied. */
 export function Canvas({ readOnly }: { readOnly: boolean }) {
   const nodes = useCanvasStore((s) => s.nodes);
-  const onNodesChange = useCanvasStore((s) => s.onNodesChange);
   const setViewport = useCanvasStore((s) => s.setViewport);
   const theme = useUiStore((s) => s.theme);
   const touched = useAgentStore((s) => s.touched);
   const searched = useSearchHighlight(nodes);
+  const sectionHandlers = useSections();
   const displayNodes = useMemo(
     () =>
-      touched.size
-        ? searched.map((n) => (touched.has(n.id) ? { ...n, className: 'ai-touched' } : n))
-        : searched,
+      searched.map((n) => {
+        const node = touched.has(n.id) ? { ...n, className: 'ai-touched' } : n;
+        // Sections sit behind everything and only their header takes the pointer, so the canvas
+        // underneath (marquee, double-click to add a node, panning) keeps working inside them.
+        return node.type === 'section'
+          ? {
+              ...node,
+              zIndex: SECTION_Z,
+              dragHandle: '.section-handle',
+              style: { pointerEvents: 'none' as const },
+            }
+          : node;
+      }),
     [searched, touched],
   );
   const { addNode } = useCanvasActions();
@@ -78,7 +90,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
     <ReactFlow<AppNode>
       nodes={displayNodes}
       nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
+      {...sectionHandlers}
       defaultViewport={useCanvasStore.getState().viewport}
       onMoveEnd={(_, viewport) => setViewport(viewport)}
       onDoubleClick={placeNode}

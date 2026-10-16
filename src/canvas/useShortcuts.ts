@@ -1,5 +1,7 @@
+import { useStoreApi } from '@xyflow/react';
 import { useEffect } from 'react';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
+import { wrapSelectionInSection } from '@/store/sections';
 import { useUiStore } from '@/store/uiStore';
 
 /** True when keys should go to a text field (inputs, CodeMirror, MathLive, spreadsheet) rather than the canvas. */
@@ -11,6 +13,7 @@ function isTyping(target: EventTarget | null) {
 }
 
 export function useShortcuts(readOnly: boolean) {
+  const flow = useStoreApi();
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const mod = event.ctrlKey || event.metaKey;
@@ -39,6 +42,11 @@ export function useShortcuts(readOnly: boolean) {
       } else if (mod && key === 'd') {
         event.preventDefault();
         canvas.duplicateSelected();
+      } else if (mod && key === 'g') {
+        event.preventDefault(); // the browser's find-next
+        wrapSelectionInSection();
+        // Drop the leftover marquee box, which would otherwise sit on top of the new section.
+        flow.setState({ nodesSelectionActive: false });
       } else if (mod && key === 'a') {
         event.preventDefault();
         canvas.onNodesChange(canvas.nodes.map((n) => ({ type: 'select', id: n.id, selected: true })));
@@ -48,5 +56,5 @@ export function useShortcuts(readOnly: boolean) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [readOnly]);
+  }, [readOnly, flow]);
 }

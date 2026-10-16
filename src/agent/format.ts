@@ -114,5 +114,7 @@ export function nodeBody(node: AppNode, mathPlusResults?: LineResult[]): string 
       return imageLabel(node.data.src);
     case 'video':
       return node.data.url;
+    case 'section':
+      return node.data.title;
   }
 }

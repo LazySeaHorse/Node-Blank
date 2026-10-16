@@ -11,8 +11,11 @@ export interface NodeSpec<K extends NodeKind> {
   label: string;
   description: string;
   icon: LucideIcon;
-  /** `place`: becomes the active tool and is created by double-clicking the canvas. `insert`: needs input first. */
-  placement: 'place' | 'insert';
+  /**
+   * `place`: becomes the active tool and is created by double-clicking the canvas. `insert`: needs input first.
+   * `wrap`: made around the selected nodes (Ctrl+G), never from the toolbar.
+   */
+  placement: 'place' | 'insert' | 'wrap';
   schema: z.ZodType<NodeDataMap[K]>;
   defaults: () => NodeDataMap[K];
   /** Fixed starting size for resizable nodes; omitted nodes size to their content. */
