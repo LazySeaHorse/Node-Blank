@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import { Check, ChevronRight, type LucideIcon } from 'lucide-react';
 import { DropdownMenu } from 'radix-ui';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
@@ -7,15 +7,82 @@ export interface MenuItem {
   label: string;
   onSelect: () => void;
   icon?: LucideIcon;
+  /** CSS colour drawn as a dot in place of the icon. */
+  swatch?: string;
+  /** Marks the current choice in a list of options. */
+  checked?: boolean;
   /** Right-aligned hint, e.g. a keyboard shortcut. */
   hint?: string;
   disabled?: boolean;
   danger?: boolean;
 }
-export type MenuEntry = MenuItem | { separator: true } | { heading: string };
+export interface MenuSub {
+  label: string;
+  items: MenuEntry[];
+  icon?: LucideIcon;
+}
+export type MenuEntry = MenuItem | MenuSub | { separator: true } | { heading: string };
 
 const itemClass =
   'flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-surface-2 data-[disabled]:opacity-40';
+export const panelClass = 'z-50 w-60 rounded-2xl border border-border bg-surface p-1.5 text-fg shadow-2xl';
+
+/** The parts of a Radix menu that dropdown and context menus have in common. */
+type Parts = Pick<
+  typeof DropdownMenu,
+  'Item' | 'Separator' | 'Label' | 'Sub' | 'SubTrigger' | 'SubContent' | 'Portal'
+>;
+
+/** Renders menu entries with the given Radix parts, so every menu in the app looks and behaves alike. */
+export function renderEntries(parts: Parts, entries: MenuEntry[]): ReactNode {
+  return entries.map((entry, i) => {
+    if ('separator' in entry)
+      // biome-ignore lint/suspicious/noArrayIndexKey: static list, separators have no identity.
+      return <parts.Separator key={i} className="mx-1.5 my-1 h-px bg-border" />;
+    if ('heading' in entry)
+      return (
+        <parts.Label key={entry.heading} className="px-2.5 pt-2 pb-1 text-xs font-medium text-muted">
+          {entry.heading}
+        </parts.Label>
+      );
+    const Icon = entry.icon;
+    if ('items' in entry)
+      return (
+        <parts.Sub key={entry.label}>
+          <parts.SubTrigger className={cn(itemClass, 'data-[state=open]:bg-surface-2')}>
+            {Icon && <Icon className="size-4 shrink-0 text-muted" />}
+            {entry.label}
+            <ChevronRight className="ml-auto size-4 text-muted" />
+          </parts.SubTrigger>
+          <parts.Portal>
+            <parts.SubContent sideOffset={6} alignOffset={-6} className={panelClass}>
+              {renderEntries(parts, entry.items)}
+            </parts.SubContent>
+          </parts.Portal>
+        </parts.Sub>
+      );
+    return (
+      <parts.Item
+        key={entry.label}
+        disabled={entry.disabled}
+        onSelect={entry.onSelect}
+        className={cn(itemClass, entry.danger && 'text-danger data-[highlighted]:bg-danger/10')}
+      >
+        {entry.swatch ? (
+          <span
+            className="size-4 shrink-0 rounded-full border border-fg/20"
+            style={{ backgroundColor: entry.swatch }}
+          />
+        ) : (
+          Icon && <Icon className="size-4 shrink-0 text-muted" />
+        )}
+        {entry.label}
+        {entry.checked && <Check className="ml-auto size-4 text-muted" />}
+        {entry.hint && <span className="ml-auto text-xs text-muted">{entry.hint}</span>}
+      </parts.Item>
+    );
+  });
+}
 
 interface MenuProps {
   trigger: ReactNode;
@@ -31,42 +98,9 @@ export function Menu({ trigger, items, header, align = 'start', className }: Men
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align={align}
-          sideOffset={8}
-          className={cn(
-            'z-50 w-60 rounded-2xl border border-border bg-surface p-1.5 text-fg shadow-2xl',
-            className,
-          )}
-        >
+        <DropdownMenu.Content align={align} sideOffset={8} className={cn(panelClass, className)}>
           {header}
-          {items.map((entry, i) => {
-            if ('separator' in entry)
-              // biome-ignore lint/suspicious/noArrayIndexKey: static list, separators have no identity.
-              return <DropdownMenu.Separator key={i} className="mx-1.5 my-1 h-px bg-border" />;
-            if ('heading' in entry)
-              return (
-                <DropdownMenu.Label
-                  key={entry.heading}
-                  className="px-2.5 pt-2 pb-1 text-xs font-medium text-muted"
-                >
-                  {entry.heading}
-                </DropdownMenu.Label>
-              );
-            const Icon = entry.icon;
-            return (
-              <DropdownMenu.Item
-                key={entry.label}
-                disabled={entry.disabled}
-                onSelect={entry.onSelect}
-                className={cn(itemClass, entry.danger && 'text-danger data-[highlighted]:bg-danger/10')}
-              >
-                {Icon && <Icon className="size-4 shrink-0 text-muted" />}
-                {entry.label}
-                {entry.hint && <span className="ml-auto text-xs text-muted">{entry.hint}</span>}
-              </DropdownMenu.Item>
-            );
-          })}
+          {renderEntries(DropdownMenu, items)}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
