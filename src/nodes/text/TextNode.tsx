@@ -20,7 +20,13 @@ export function TextNode({ id, data, selected }: NodeProps<NodeOf<'text'>>) {
           value={data.markdown}
           onChange={(e) => update({ markdown: e.target.value })}
           onBlur={() => setEditing(false)}
-          onKeyDown={(e) => e.key === 'Escape' && e.currentTarget.blur()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Escape') return;
+            // Hand focus to the node so its shortcuts (Ctrl+D, Ctrl+C...) work again.
+            const node = e.currentTarget.closest<HTMLElement>('.react-flow__node');
+            if (node) node.focus();
+            else e.currentTarget.blur();
+          }}
           className="nodrag nowheel nokey min-h-32 w-[32rem] max-w-full resize-none bg-surface p-4 font-mono text-sm leading-relaxed text-fg outline-none [field-sizing:content]"
         />
       ) : (

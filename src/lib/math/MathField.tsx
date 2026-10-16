@@ -2,6 +2,7 @@ import { MathfieldElement } from 'mathlive';
 import 'mathlive/fonts.css';
 import { useEffect, useEffectEvent, useRef } from 'react';
 import { cn } from '@/lib/cn';
+import { useCanvasStore } from '@/store/canvasStore';
 
 // Fonts come from the bundled CSS above; no keyboard click sounds.
 MathfieldElement.fontsDirectory = null;
@@ -54,7 +55,21 @@ export function MathField({
     const field = ref.current;
     if (!field) return;
     const handleInput = () => emitChange(field.value);
+    // Clicking into a field selects its node, so Escape can hand control back to node shortcuts (Ctrl+D, Ctrl+C...).
+    const node = () => field.closest<HTMLElement>('.react-flow__node');
+    const handleFocus = () => {
+      const id = node()?.dataset.id;
+      const { nodes, onNodesChange } = useCanvasStore.getState();
+      if (!id || nodes.every((n) => !!n.selected === (n.id === id))) return;
+      onNodesChange(nodes.map((n) => ({ type: 'select', id: n.id, selected: n.id === id })));
+    };
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && field.mode !== 'latex') {
+        event.preventDefault();
+        event.stopPropagation();
+        node()?.focus();
+        return;
+      }
       if (multiline && event.key === 'Enter' && event.shiftKey) {
         event.preventDefault();
         event.stopPropagation();
@@ -62,9 +77,11 @@ export function MathField({
       }
     };
     field.addEventListener('input', handleInput);
+    field.addEventListener('focus', handleFocus);
     field.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => {
       field.removeEventListener('input', handleInput);
+      field.removeEventListener('focus', handleFocus);
       field.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [multiline]);

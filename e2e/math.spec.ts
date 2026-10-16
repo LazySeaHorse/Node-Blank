@@ -44,3 +44,17 @@ test('Math+: copy button puts the result LaTeX on the clipboard', async ({ page 
   await result.getByRole('button', { name: 'Copy LaTeX' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('frac');
 });
+
+test('Ctrl+D waits while typing in a math field; Escape hands the node back to the canvas', async ({
+  page,
+}) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(nodes(page)).toHaveCount(1);
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(nodes(page)).toHaveCount(2);
+});
