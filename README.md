@@ -46,6 +46,9 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 - **Nodes**: react-markdown, Mafs, react-spreadsheet, CodeMirror 6
 - **UI**: Radix UI, lucide icons, sonner
 
+### Credits
+The canvas is powered by [React Flow](https://reactflow.dev) ([xyflow](https://github.com/xyflow/xyflow), MIT). Math is rendered by [MathLive](https://cortexjs.io/mathlive/), [KaTeX](https://katex.org) and the [Compute Engine](https://cortexjs.io/compute-engine/).
+
 ### Getting Started
 Requires Node.js 22+.
 

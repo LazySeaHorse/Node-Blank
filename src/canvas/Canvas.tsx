@@ -16,6 +16,8 @@ import { useCanvasActions } from './useCanvasActions';
 import { useSearchHighlight } from './useSearch';
 import { useShortcuts } from './useShortcuts';
 
+const proOptions = { hideAttribution: true };
+
 /** Desktop: left-drag selects, middle/right-drag or scroll pans, pinch / Ctrl+scroll zooms. */
 const editableProps: Partial<ReactFlowProps<AppNode>> = {
   selectionOnDrag: true,
@@ -84,7 +86,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
       minZoom={0.1}
       maxZoom={4}
       colorMode={theme}
-      attributionPosition="bottom-left"
+      proOptions={proOptions}
       className={readOnly ? 'read-only' : undefined}
       {...(readOnly ? readOnlyProps : editableProps)}
     >
