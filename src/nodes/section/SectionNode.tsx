@@ -1,11 +1,10 @@
 import { type NodeProps, NodeResizer } from '@xyflow/react';
 import { Check } from 'lucide-react';
 import { Popover } from 'radix-ui';
-import { useEffect, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import { type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
-import { consumeRenamePending, onRenameRequest } from '@/store/sectionRename';
+import { useUiStore } from '@/store/uiStore';
 import { useUpdateNodeData } from '../useNodeData';
 
 const swatch = (color: SectionColor) => `var(--section-${color})`;
@@ -14,16 +13,12 @@ const swatch = (color: SectionColor) => `var(--section-${color})`;
 export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>) {
   const readOnly = useReadOnly();
   const update = useUpdateNodeData<'section'>(id);
-  const [editing, setEditing] = useState(() => consumeRenamePending(id));
-
-  useEffect(
-    () => onRenameRequest((target) => target === id && !readOnly && setEditing(true)),
-    [id, readOnly],
-  );
+  const editing = useUiStore((s) => s.renamingSection === id) && !readOnly;
+  const stopEditing = () => useUiStore.getState().stopRenaming(id);
 
   const commit = (title: string) => {
     update({ title: title.trim() || 'Section' });
-    setEditing(false);
+    stopEditing();
   };
 
   return (
@@ -58,7 +53,7 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
               onBlur={(e) => commit(e.currentTarget.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') e.currentTarget.blur();
-                if (e.key === 'Escape') setEditing(false);
+                if (e.key === 'Escape') stopEditing();
               }}
               className="nodrag nokey min-w-0 flex-1 rounded bg-surface/70 px-1.5 py-0.5 text-sm font-semibold outline-none"
             />
@@ -66,7 +61,7 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
             // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
             <span
               className="min-w-0 flex-1 truncate text-sm font-semibold"
-              onDoubleClick={() => !readOnly && setEditing(true)}
+              onDoubleClick={() => !readOnly && useUiStore.getState().renameSection(id)}
             >
               {data.title}
             </span>

@@ -2,7 +2,7 @@ import { nodeRect } from '@/lib/nodeRect';
 import { sectionContents, wrapBounds } from '@/lib/sections';
 import { createNode } from '@/nodes/factory';
 import { asUndoStep, useCanvasStore } from './canvasStore';
-import { markRenamePending } from './sectionRename';
+import { useUiStore } from './uiStore';
 
 /** Wraps the selected nodes in a new section and opens its title for editing, as one undo step. */
 export function wrapSelectionInSection(): void {
@@ -16,8 +16,8 @@ export function wrapSelectionInSection(): void {
     { title: 'Section' },
     { width: box.width, height: box.height },
   );
-  markRenamePending(section.id);
   asUndoStep(() => addNodes([section]));
+  useUiStore.getState().renameSection(section.id);
 }
 
 /** Deletes a section together with the nodes inside it, as one undo step. */

@@ -30,8 +30,8 @@ import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
 import { type AlignEdge, alignSelected, bringToFront, sendToBack } from '@/store/arrange';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
-import { requestRename } from '@/store/sectionRename';
 import { deleteSectionWithContents } from '@/store/sections';
+import { useUiStore } from '@/store/uiStore';
 import type { MenuEntry } from '@/ui/Menu';
 import { copySelection, pasteAt } from './clipboard';
 
@@ -131,7 +131,7 @@ export function sectionMenu(node: AppNode): MenuEntry[] {
       label: 'Rename',
       icon: PencilLine,
       // After the menu has closed and settled focus, or the title would lose it at once.
-      onSelect: () => void setTimeout(() => requestRename(node.id), 0),
+      onSelect: () => void setTimeout(() => useUiStore.getState().renameSection(node.id), 0),
     },
     {
       label: 'Colour',
