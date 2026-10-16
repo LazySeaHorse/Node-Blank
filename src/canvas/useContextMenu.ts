@@ -54,10 +54,21 @@ export function useContextMenu(readOnly: boolean) {
     const onCancel = () => {
       press.current = null;
     };
+    // Browsers differ in when the real event arrives (button down, button up, or after our menu has opened
+    // and sits under the pointer), so cancel it wherever it lands on the canvas, a menu or the backdrop
+    // a modal menu leaves behind. Keyboard-invoked and in-field menus stay native.
+    const onNative = (event: globalThis.MouseEvent) => {
+      const target = event.target as Element | null;
+      if (!event.isTrusted || (event.button !== 2 && !press.current) || !target || isTyping(target)) return;
+      const onBackdrop = target === document.body || target === document.documentElement;
+      if (onBackdrop || target.closest('.react-flow, [role="menu"]')) event.preventDefault();
+    };
+    window.addEventListener('contextmenu', onNative, true);
     window.addEventListener('pointerdown', onDown, true);
     window.addEventListener('pointerup', onUp, true);
     window.addEventListener('pointercancel', onCancel, true);
     return () => {
+      window.removeEventListener('contextmenu', onNative, true);
       window.removeEventListener('pointerdown', onDown, true);
       window.removeEventListener('pointerup', onUp, true);
       window.removeEventListener('pointercancel', onCancel, true);

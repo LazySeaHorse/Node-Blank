@@ -116,3 +116,33 @@ test('selection menu aligns the selected nodes', async ({ page }) => {
   const [a, b] = await lefts();
   expect(a).toBe(b);
 });
+
+test('the browser menu never shows: every real contextmenu event is cancelled', async ({ page }) => {
+  await placeNode(page, 'Text', 400, 300);
+  await page.mouse.click(1300, 800);
+  // Recorded after every other handler has run, so this is what the browser acts on.
+  await page.evaluate(() => {
+    const w = window as unknown as { seen: { trusted: boolean; prevented: boolean; on: string }[] };
+    w.seen = [];
+    window.addEventListener('contextmenu', (e) => {
+      w.seen.push({ trusted: e.isTrusted, prevented: e.defaultPrevented, on: (e.target as Element).tagName });
+    });
+  });
+  const menu = page.getByRole('menu');
+  await page.mouse.click(1000, 600, { button: 'right' }); // empty canvas
+  await expect(menu).toBeVisible();
+  await page.mouse.click(1250, 750, { button: 'right' }); // elsewhere while the menu is open
+  await page.keyboard.press('Escape');
+  await nodes(page).first().click({ button: 'right' }); // a node
+  await expect(menu).toBeVisible();
+  await menu.click({ button: 'right', position: { x: 10, y: 10 } }); // on the menu itself
+
+  const seen = await page.evaluate(() => (window as unknown as { seen: unknown[] }).seen);
+  expect(seen.length).toBeGreaterThan(0);
+  expect(
+    seen.filter(
+      (e) =>
+        (e as { trusted: boolean; prevented: boolean }).trusted && !(e as { prevented: boolean }).prevented,
+    ),
+  ).toEqual([]);
+});
