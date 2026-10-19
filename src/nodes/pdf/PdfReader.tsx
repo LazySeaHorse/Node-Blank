@@ -44,8 +44,6 @@ export default function PdfReader({ nodeId, data, doc, handle, initial, onClose 
   const update = useUpdateNodeData<'pdf'>(nodeId);
   const [view, setView] = useState<'grid' | number>(initial);
   const [zoomStep, setZoomStep] = useState(ZOOM_STEPS.indexOf(1));
-  const body = useRef<HTMLDivElement>(null);
-  const { width: bodyWidth } = useElementSize(body);
   const pageCount = doc.numPages;
 
   const pin = (page: number) => update({ pinned: togglePin(data.pinned, page, pageCount) });
@@ -98,7 +96,7 @@ export default function PdfReader({ nodeId, data, doc, handle, initial, onClose 
       className="nokey"
     >
       {/* biome-ignore lint/a11y/noStaticElementInteractions: arrow keys page through the document. */}
-      <div ref={body} className="flex min-h-full flex-col" onKeyDown={onKeyDown}>
+      <div className="flex min-h-full flex-col" onKeyDown={onKeyDown}>
         <div className="sticky top-0 z-10 -mx-6 mb-3 flex flex-wrap items-center gap-1 border-b border-border bg-surface px-6 py-2">
           {typeof view === 'number' ? (
             <>
@@ -156,16 +154,7 @@ export default function PdfReader({ nodeId, data, doc, handle, initial, onClose 
         </div>
 
         {typeof view === 'number' ? (
-          <div className="flex flex-1 justify-center overflow-auto pb-2">
-            <PdfPage
-              key={view}
-              doc={doc}
-              page={view}
-              text
-              fit={{ width: Math.min(PAGE_WIDTH, Math.max(200, bodyWidth - 8)) * ZOOM_STEPS[zoomStep] }}
-              className="self-start shadow-md ring-1 ring-border"
-            />
-          </div>
+          <PageView doc={doc} page={view} zoom={ZOOM_STEPS[zoomStep]} />
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(168px,1fr))] justify-items-center gap-x-4 gap-y-6 pb-2">
             {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
@@ -183,6 +172,24 @@ export default function PdfReader({ nodeId, data, doc, handle, initial, onClose 
         )}
       </div>
     </Modal>
+  );
+}
+
+/** One page at full size with selectable text, as wide as the window allows before zoom. */
+function PageView({ doc, page, zoom }: { doc: PDFDocumentProxy; page: number; zoom: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { width } = useElementSize(ref);
+  return (
+    <div ref={ref} className="flex-1 overflow-auto pb-2">
+      <PdfPage
+        key={page}
+        doc={doc}
+        page={page}
+        text
+        fit={{ width: Math.min(PAGE_WIDTH, Math.max(200, width - 8)) * zoom }}
+        className="mx-auto shadow-md ring-1 ring-border"
+      />
+    </div>
   );
 }
 
