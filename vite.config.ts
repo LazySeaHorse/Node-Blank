@@ -31,7 +31,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['logo/favicon.ico', 'logo/favicon.svg', 'logo/apple-touch-icon.png'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2,png,ico,svg}'],
+        globPatterns: ['**/*.{js,mjs,css,html,woff2,png,ico,svg}'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         // Only app navigations fall back to the app shell; the landing page is its own document.
         navigateFallback: '/app/index.html',
