@@ -19,6 +19,7 @@ import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
 import { useUiStore } from '@/store/uiStore';
 import * as workspace from '@/store/workspace';
+import { Badge } from '@/ui/Badge';
 import { IconButton, WithTooltip } from '@/ui/Button';
 import { askText } from '@/ui/dialogs';
 import { Mascot } from '@/ui/Mascot';
@@ -49,9 +50,9 @@ function BrandMenu({ onOpenCanvases }: { onOpenCanvases: () => void }) {
           <Mascot mood={working ? 'working' : 'idle'} className="size-11 shrink-0" />
           <div className="min-w-0">
             <div className="text-sm leading-tight font-semibold">Node-Blank</div>
-            <span className="mt-1 inline-block rounded-full bg-accent/10 px-2 py-px text-[11px] font-medium text-accent">
+            <Badge variant="info" size="sm" className="mt-1">
               Saved in this browser
-            </span>
+            </Badge>
           </div>
         </div>
       }
