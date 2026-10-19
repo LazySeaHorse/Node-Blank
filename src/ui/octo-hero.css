@@ -1,0 +1,41 @@
+/* OctoHero (src/ui/OctoHero.tsx): the octopus drops onto the canvas and squashes on landing. */
+.octo-hero-fall {
+  animation: octo-hero-fall 0.75s 0.15s cubic-bezier(0.3, 0, 0.4, 1) both;
+}
+.octo-hero-shadow {
+  animation: octo-hero-shadow 0.75s 0.15s ease-out both;
+}
+@keyframes octo-hero-fall {
+  0% {
+    transform: translateY(-160px);
+  }
+  60% {
+    transform: translateY(0) scale(1, 1);
+  }
+  72% {
+    transform: translateY(0) scale(1.06, 0.86);
+  }
+  86% {
+    transform: translateY(-10px) scale(1, 1.03);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes octo-hero-shadow {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .octo-hero-fall,
+  .octo-hero-shadow {
+    animation: none;
+  }
+}

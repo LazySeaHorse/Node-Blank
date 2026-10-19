@@ -1,7 +1,13 @@
 import { type ReactNode, useId } from 'react';
 import { cn } from '@/lib/cn';
 import { Mascot } from '@/ui/Mascot';
-import { type MascotMood, MASCOT_FEET_Y, mascotAspect, mascotCenterX, mascotViewBox } from '@/ui/mascot/moods';
+import {
+  MASCOT_FEET_Y,
+  type MascotMood,
+  mascotAspect,
+  mascotCenterX,
+  mascotViewBox,
+} from '@/ui/mascot/moods';
 import './octo-hero.css';
 
 export type OctoScene = 'canvas' | 'ai' | 'delete' | 'export' | 'error';
@@ -154,7 +160,7 @@ function SceneArt({ scene }: { scene: OctoScene }) {
   }
 }
 
-export export interface OctoHeroProps {
+export interface OctoHeroProps {
   mood: MascotMood;
   /** The drawn canvas pieces behind the octopus, picked for what the popup is about. */
   scene: OctoScene;

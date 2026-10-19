@@ -1,2 +1,2 @@
 export { Mascot, type MascotProps } from './mascot/Mascot';
-export { MASCOT_MOODS, type MascotMood, mascotAspect, mascotViewBox } from './mascot/moods';
+export type { MascotMood } from './mascot/moods';

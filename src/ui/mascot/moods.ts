@@ -6,7 +6,7 @@ export const MASCOT_MOODS = [
   'working',
   /** Waves hello: the empty canvas. */
   'wave',
-  /** Pupils glance around (and follow the cursor when `track` is on). */
+  /** A static sideways glance; the pupils follow the cursor instead when `track` is on. */
   'curious',
   /** Confetti, two tentacles up: an export or import finished. */
   'cheer',
@@ -14,15 +14,15 @@ export const MASCOT_MOODS = [
   'nervous',
   /** Spiral eyes, knotted tentacles: an error or crash. */
   'tangled',
-  /** Closed eyes and z's. */
+  /** Closed eyes and z's: idle or waiting states, e.g. a paused or offline canvas. */
   'sleepy',
-  /** Holds a cable: AI control. */
+  /** Holds a cable: AI control (the AI panel and the AI popups). */
   'plug',
-  /** Holds a PDF page. */
+  /** Holds a PDF page: the PDF node and importing a document. */
   'reading',
-  /** A floating sum sign above the head. */
+  /** A floating sum sign above the head: the AI is thinking or computing. */
   'thinking',
-  /** Grips an edge and looks up: the mobile view-only canvas. */
+  /** Grips an edge and looks up: the mobile view-only canvas and other "peeking in" screens. */
   'peek',
   /** Holds a tiny canvas grid. */
   'map',
@@ -40,6 +40,8 @@ const WIDE_FRAMES: Partial<Record<MascotMood, string>> = {
   nervous: '0 0 140 128',
   sleepy: '0 -10 140 138',
   plug: '0 0 146 128',
+  /** The ledge runs a little past the frame on three sides. */
+  peek: '-6 0 140 136',
   thinking: '0 -34 128 162',
 };
 
@@ -53,8 +55,14 @@ export function mascotAspect(mood: MascotMood): number {
   return width / height;
 }
 
+/** The octopus's centre line, in the logo mark's coordinates. Every frame is centred on it. */
+export const MASCOT_CENTER_X = 64;
+
+/** Where the tips of the resting tentacles land (the octopus's baseline), in the logo mark's coordinates. */
+export const MASCOT_FEET_Y = 117;
+
 /** Where the octopus's centre line sits across the mood's frame, from 0 (left edge) to 1 (right edge). */
 export function mascotCenterX(mood: MascotMood): number {
   const [x, , width] = mascotViewBox(mood).split(' ').map(Number);
-  return (64 - x) / width;
+  return (MASCOT_CENTER_X - x) / width;
 }

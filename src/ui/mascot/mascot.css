@@ -27,10 +27,10 @@
     transform: scaleY(0.1);
   }
 }
-/* Boxes are measured on the drawn shapes, so wider per-mood viewBoxes don't move the pivots. */
+/* Each arm pivots on its own shoulder: Mascot.tsx sets an inline transform-origin relative to the
+   mood's viewBox origin, which is what transform-box: view-box measures from. */
 .mascot-arm {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
+  transform-box: view-box;
   animation: mascot-sway 3.2s ease-in-out infinite;
 }
 .mascot-head {
@@ -41,10 +41,10 @@
   transform-origin: center;
   animation: mascot-blink 5s infinite;
 }
-.mascot-working .mascot-arm {
+.mascot[data-mood="working"] .mascot-arm {
   animation-duration: 0.9s;
 }
-.mascot-working .mascot-head {
+.mascot[data-mood="working"] .mascot-head {
   animation-duration: 0.9s;
 }
 
@@ -79,8 +79,7 @@
   }
 }
 .mascot-animated [data-part="wave"] {
-  transform-box: fill-box;
-  transform-origin: 0 100%;
+  transform-box: view-box;
   animation: mascot-wave 0.9s ease-in-out infinite;
 }
 .mascot-animated [data-part="confetti"] > * {
@@ -98,55 +97,13 @@
   animation: mascot-float 2.4s ease-in-out infinite;
 }
 
-/* Dark mode is flat, so a faint light edge keeps the ink details from sinking into the page. */
-.dark .mascot-edge {
-  filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.6));
-}
-
-/* OctoHero (src/ui/OctoHero.tsx): the octopus drops onto the canvas and squashes on landing. */
-.octo-hero-fall {
-  animation: octo-hero-fall 0.75s 0.15s cubic-bezier(0.3, 0, 0.4, 1) both;
-}
-.octo-hero-shadow {
-  animation: octo-hero-shadow 0.75s 0.15s ease-out both;
-}
-@keyframes octo-hero-fall {
-  0% {
-    transform: translateY(-160px);
-  }
-  60% {
-    transform: translateY(0) scale(1, 1);
-  }
-  72% {
-    transform: translateY(0) scale(1.06, 0.86);
-  }
-  86% {
-    transform: translateY(-10px) scale(1, 1.03);
-  }
-  100% {
-    transform: none;
-  }
-}
-@keyframes octo-hero-shadow {
-  0% {
-    opacity: 0;
-    transform: scale(0.2);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mascot-arm,
   .mascot-head,
   .mascot-eyes,
   .mascot-animated [data-part="wave"],
   .mascot-animated [data-part="confetti"] > *,
-  .mascot-animated [data-part="float"],
-  .octo-hero-fall,
-  .octo-hero-shadow {
+  .mascot-animated [data-part="float"] {
     animation: none;
   }
 }
