@@ -101,12 +101,12 @@ export function TopBar() {
   const [managerOpen, setManagerOpen] = useState(false);
   const canvas = useCurrentCanvas();
   const { tool, setTool } = useUiStore();
-  const { insertImage, insertVideo } = useCanvasActions();
+  const { insertImage, insertVideo, insertPdf } = useCanvasActions();
   const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0);
   const hasNodes = useCanvasStore((s) => s.nodes.length > 0);
 
-  const insertActions = { image: insertImage, video: insertVideo } as const;
+  const insertActions = { image: insertImage, video: insertVideo, pdf: insertPdf } as const;
 
   return (
     <Panel className="h-14 w-full gap-1 px-2.5">
@@ -131,7 +131,7 @@ export function TopBar() {
         <Divider />
         {nodeKinds.map((kind) => {
           const spec = nodeSpecs[kind];
-          if (spec.placement === 'wrap') return null;
+          if (spec.placement === 'wrap' || spec.available?.() === false) return null;
           return spec.placement === 'place' ? (
             <IconButton
               key={kind}

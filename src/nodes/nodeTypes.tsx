@@ -31,4 +31,5 @@ export const nodeTypes = {
   table: lazyNode(() => import('./table/TableNode')),
   sheet: lazyNode(() => import('./sheet/SheetNode')),
   code: lazyNode(() => import('./code/CodeNode')),
+  pdf: lazyNode(() => import('./pdf/PdfNode')),
 } satisfies Record<AppNode['type'], unknown> as NodeTypes;

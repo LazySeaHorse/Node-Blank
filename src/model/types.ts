@@ -28,6 +28,20 @@ export type NodeDataMap = {
   code: Titled & { source: string };
   image: Titled & { src: string };
   video: Titled & { url: string };
+  /** Links a PDF on the user's disk. Only metadata is stored here; the file handle lives in the `pdfFiles` table. */
+  pdf: Titled & {
+    /** Key into the `pdfFiles` table. */
+    fileId: string;
+    fileName: string;
+    /** 1-based page numbers shown after the cover, sorted and unique. Never contains 1: the cover is always shown. */
+    pinned: number[];
+    /** Which way the filmstrip runs; `row` when omitted. */
+    direction?: 'row' | 'column';
+    /** Last seen in the file, to notice when it changed on disk. */
+    pageCount?: number;
+    lastModified?: number;
+    size?: number;
+  };
   section: { title: string; color: SectionColor };
 };
 

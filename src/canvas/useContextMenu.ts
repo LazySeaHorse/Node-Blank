@@ -29,7 +29,7 @@ const onCanvas = (target: Element | null): target is Element =>
 export function useContextMenu(readOnly: boolean) {
   const [menu, setMenu] = useState<{ at: Point; items: MenuEntry[] } | null>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
-  const { addNode, insertImage, insertVideo } = useCanvasActions();
+  const { addNode, insertImage, insertVideo, insertPdf } = useCanvasActions();
   const wrapInSection = useWrapInSection();
 
   const open = useEffectEvent((target: Element, at: Point) =>
@@ -39,6 +39,7 @@ export function useContextMenu(readOnly: boolean) {
         addNode,
         insertImage,
         insertVideo,
+        insertPdf,
         fitView: () => void fitView({ duration: 300 }),
         wrapInSection,
       }),

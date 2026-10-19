@@ -44,6 +44,7 @@ export interface MenuActions {
   addNode: (kind: NodeKind, at: XYPosition) => void;
   insertImage: () => void;
   insertVideo: () => void;
+  insertPdf: () => void;
   fitView: () => void;
   /** Ctrl+G: wraps the selection in a section. */
   wrapInSection: () => void;
@@ -54,9 +55,11 @@ export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
   const insertActions: Partial<Record<NodeKind, () => void>> = {
     image: actions.insertImage,
     video: actions.insertVideo,
+    pdf: actions.insertPdf,
   };
   const add: MenuEntry[] = [];
   for (const spec of Object.values(nodeSpecs)) {
+    if (spec.available?.() === false) continue;
     const insert = insertActions[spec.kind];
     if (spec.placement === 'place')
       add.push({ label: spec.label, icon: spec.icon, onSelect: () => actions.addNode(spec.kind, at) });

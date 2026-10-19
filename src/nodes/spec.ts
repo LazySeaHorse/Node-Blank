@@ -16,6 +16,8 @@ export interface NodeSpec<K extends NodeKind> {
    * `wrap`: made around the selected nodes (Ctrl+G), never from the toolbar.
    */
   placement: 'place' | 'insert' | 'wrap';
+  /** Whether this browser can use the kind. Unavailable kinds are left out of the insert menus. Omitted: always. */
+  available?: () => boolean;
   schema: z.ZodType<NodeDataMap[K]>;
   defaults: () => NodeDataMap[K];
   /** Fixed starting size for resizable nodes; omitted nodes size to their content. */

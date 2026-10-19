@@ -55,3 +55,10 @@ describe('searchTextOf', () => {
     expect(searchTextOf(createNode('sheet', { x: 0, y: 0 }, { cells: [['a', 'b']] }))).toBe('a b');
   });
 });
+
+describe('searchTextOf for pdf', () => {
+  it('leads with the title, then the file name', () => {
+    const node = createNode('pdf', { x: 0, y: 0 }, { fileName: 'paper.pdf', title: 'Reading' });
+    expect(searchTextOf(node)).toBe('Reading\npaper.pdf');
+  });
+});

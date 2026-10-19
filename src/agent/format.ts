@@ -1,4 +1,4 @@
-import type { AppNode } from '@/model/types';
+import type { AppNode, NodeDataMap } from '@/model/types';
 import { searchTextOf } from '@/nodes/factory';
 import type { LineResult } from '@/nodes/mathPlus/evaluate';
 import { splitLines } from '@/nodes/mathPlus/evaluate';
@@ -36,6 +36,14 @@ function imageLabel(src: string): string {
   if (!src) return 'empty';
   if (src.startsWith('data:')) return `uploaded image, ${Math.round((src.length * 3) / 4 / 1024)} KB`;
   return oneLine(src);
+}
+
+/** A PDF node's metadata: its name, size and which pages are shown. The pages' text is added by read_nodes. */
+export function pdfSummary(data: NodeDataMap['pdf']): string {
+  const pages = data.pageCount === undefined ? 'page count unknown' : `${data.pageCount} pages`;
+  const pinned =
+    data.pinned.length > 0 ? `pages 1 (cover) and ${data.pinned.join(', ')}` : 'page 1 (cover) only';
+  return `${data.fileName}, ${pages}; shown to the user and readable by you: ${pinned}`;
 }
 
 const gridSize = (cells: string[][]) => `${cells.length}×${cells[0]?.length ?? 0}`;
@@ -114,6 +122,8 @@ export function nodeBody(node: AppNode, mathPlusResults?: LineResult[]): string 
       return imageLabel(node.data.src);
     case 'video':
       return node.data.url;
+    case 'pdf':
+      return pdfSummary(node.data);
     case 'section':
       return node.data.title;
   }

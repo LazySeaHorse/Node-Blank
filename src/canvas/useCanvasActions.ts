@@ -2,7 +2,9 @@ import { useReactFlow, type XYPosition } from '@xyflow/react';
 import { toast } from 'sonner';
 import { downloadJson, fitWithin, imageSize, pickFile, readAsDataUrl, slugify } from '@/lib/files';
 import type { NodeKind } from '@/model/types';
+import { nodeSpecs } from '@/nodes/catalog';
 import { createNode } from '@/nodes/factory';
+import { addPdfNode, pickPdfHandle } from '@/nodes/pdf/actions';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
 import { ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -49,6 +51,15 @@ export function useCanvasActions() {
       .addNodes([{ ...node, position: centered({ width: node.width ?? 0, height: node.height ?? 0 }) }]);
   };
 
+  const insertPdf = async () => {
+    try {
+      const handle = await pickPdfHandle();
+      if (handle) await addPdfNode(handle, centered(nodeSpecs.pdf.size));
+    } catch {
+      toast.error('Could not open that PDF');
+    }
+  };
+
   const importJson = async () => {
     const file = await pickFile('application/json,.json');
     if (!file) return;
@@ -72,5 +83,5 @@ export function useCanvasActions() {
     }
   };
 
-  return { addNode, insertImage, insertVideo, importJson, exportJson };
+  return { addNode, insertImage, insertVideo, insertPdf, importJson, exportJson };
 }

@@ -14,6 +14,7 @@ const actions = () => ({
   addNode: vi.fn(),
   insertImage: vi.fn(),
   insertVideo: vi.fn(),
+  insertPdf: vi.fn(),
   fitView: vi.fn(),
   wrapInSection: vi.fn(),
 });

@@ -72,7 +72,7 @@ const content = {
   video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
 } satisfies {
   // `suggestionDismissed` is a UI flag, not content.
-  [K in Exclude<NodeKind, 'image' | 'section'>]: Record<
+  [K in Exclude<NodeKind, 'image' | 'pdf' | 'section'>]: Record<
     Exclude<keyof NodeDataMap[K], 'suggestionDismissed'>,
     z.ZodType
   >;
@@ -98,7 +98,7 @@ const newNodeSchema = z.discriminatedUnion(
     z.object({ kind: z.literal(kind), ...content[kind], ...placementShape }),
   ) as unknown as [z.ZodObject, ...z.ZodObject[]],
 );
-type NewNode = { kind: Exclude<NodeKind, 'image' | 'section'> } & z.infer<
+type NewNode = { kind: Exclude<NodeKind, 'image' | 'pdf' | 'section'> } & z.infer<
   z.ZodObject<typeof placementShape>
 > &
   Record<string, unknown>;
@@ -268,6 +268,9 @@ export const updateNodes = defineTool({
       const node = requireNode(id);
       const data = { ...(node.data as Record<string, unknown>) };
       for (const [key, value] of Object.entries(set ?? {})) {
+        // Which pages of a PDF are shown (and so readable) is the user's call alone.
+        if (node.type === 'pdf' && key !== 'title')
+          throw new ToolError('invalid_field', `${id} is a pdf node; only its title can be changed.`);
         if (!(key in data) && !(key in ((content as Record<string, object>)[node.type] ?? {})))
           throw new ToolError('invalid_field', `${id} is a ${node.type} node; it has no "${key}" field.`);
         data[key] = value;
