@@ -15,6 +15,8 @@ interface UiState {
   aiTab: AiTab;
   /** The section whose title is open for editing, if any. */
   renamingSection: string | null;
+  /** The node whose own title is open for editing, if any. */
+  renamingNode: string | null;
   setTool: (tool: NodeKind) => void;
   toggleTheme: () => void;
   openSearch: () => void;
@@ -27,6 +29,9 @@ interface UiState {
   renameSection: (id: string) => void;
   /** Closes the title editor of section `id`, unless another section has taken over since. */
   stopRenaming: (id: string) => void;
+  renameNode: (id: string) => void;
+  /** Closes the title editor of node `id`, unless another node has taken over since. */
+  stopRenamingNode: (id: string) => void;
 }
 
 const systemTheme = (): Theme =>
@@ -42,6 +47,7 @@ export const useUiStore = create<UiState>()(
       aiPanelOpen: false,
       aiTab: 'connect',
       renamingSection: null,
+      renamingNode: null,
       setTool: (tool) => set({ tool }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       openSearch: () => set({ searchOpen: true }),
@@ -52,6 +58,8 @@ export const useUiStore = create<UiState>()(
       setAiTab: (aiTab) => set({ aiTab }),
       renameSection: (id) => set({ renamingSection: id }),
       stopRenaming: (id) => set((s) => (s.renamingSection === id ? { renamingSection: null } : s)),
+      renameNode: (id) => set({ renamingNode: id }),
+      stopRenamingNode: (id) => set((s) => (s.renamingNode === id ? { renamingNode: null } : s)),
     }),
     { name: 'node-blank-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
   ),

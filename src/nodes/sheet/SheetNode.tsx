@@ -33,6 +33,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
     <NodeShell
       selected={selected}
       title="Sheet"
+      customTitle={data.title}
       icon={Sheet}
       actions={
         <>

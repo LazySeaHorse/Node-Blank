@@ -116,9 +116,18 @@ const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
   ],
 };
 
-export function nodeMenu(node: AppNode): MenuEntry[] {
+const rename = (node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry => ({
+  label: node.data.title ? 'Rename' : 'Add title',
+  icon: PencilLine,
+  // After the menu has closed and settled focus, or the title would lose it at once.
+  onSelect: () => void setTimeout(() => useUiStore.getState().renameNode(node.id), 0),
+});
+
+export function nodeMenu(node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry[] {
   const extra = (kindItems[node.type] as ((n: AppNode) => MenuEntry[]) | undefined)?.(node) ?? [];
   return [
+    rename(node),
+    { separator: true },
     ...extra,
     ...(extra.length > 0 ? [{ separator: true } as const] : []),
     copy,

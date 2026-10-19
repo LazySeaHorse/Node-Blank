@@ -17,6 +17,7 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
     <NodeShell
       selected={selected}
       title="Table"
+      customTitle={data.title}
       icon={Table}
       actions={
         <>

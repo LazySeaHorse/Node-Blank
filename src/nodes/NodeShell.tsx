@@ -1,14 +1,18 @@
-import { NodeResizer } from '@xyflow/react';
+import { NodeResizer, useNodeId } from '@xyflow/react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import type { SectionColor } from '@/model/types';
+import { useCanvasStore } from '@/store/canvasStore';
+import { useUiStore } from '@/store/uiStore';
 
 interface NodeShellProps {
   selected: boolean;
-  /** When set, renders a header bar that doubles as a drag handle. */
+  /** When set, renders a header bar that doubles as a drag handle, showing this until the node has a title. */
   title?: string;
+  /** The node's own title (`data.title`). Without a header it appears as a slim strip above the content. */
+  customTitle?: string;
   icon?: LucideIcon;
   /** Header controls; hidden in read-only mode. */
   actions?: ReactNode;
@@ -28,6 +32,7 @@ interface NodeShellProps {
 export function NodeShell({
   selected,
   title,
+  customTitle,
   icon: Icon,
   actions,
   resize,
@@ -61,15 +66,65 @@ export function NodeShell({
         {title && (
           <header className="flex h-9 shrink-0 cursor-grab items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">
             {Icon && <Icon className="size-3.5" />}
-            <span>{title}</span>
+            <NodeTitle fallback={title} value={customTitle} />
             {!readOnly && actions && (
               <div className="nodrag ml-auto flex items-center gap-1 normal-case">{actions}</div>
             )}
           </header>
         )}
+        {!title && <NodeTitle value={customTitle} strip />}
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </div>
     </>
+  );
+}
+
+/**
+ * A node's title: its own, else `fallback` (the node kind). Double-click renames; so does Rename in the node's menu.
+ * An empty name restores the fallback. As a `strip` (nodes without a header) it shows only once a title is set.
+ */
+function NodeTitle({ fallback, value, strip }: { fallback?: string; value?: string; strip?: boolean }) {
+  const id = useNodeId();
+  const readOnly = useReadOnly();
+  const editing = useUiStore((s) => s.renamingNode === id) && !readOnly;
+  if (!id || (strip && !value && !editing)) return null;
+
+  const stopEditing = () => useUiStore.getState().stopRenamingNode(id);
+  const commit = (name: string) => {
+    useCanvasStore.getState().updateNodeData(id, { title: name.trim() || undefined });
+    stopEditing();
+  };
+
+  const text = editing ? (
+    <input
+      // biome-ignore lint/a11y/noAutofocus: entering edit mode is an explicit user action.
+      autoFocus
+      defaultValue={value ?? ''}
+      placeholder={fallback}
+      maxLength={200}
+      onFocus={(e) => e.currentTarget.select()}
+      onBlur={(e) => commit(e.currentTarget.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur();
+        if (e.key === 'Escape') stopEditing();
+      }}
+      className="nodrag nokey min-w-0 flex-1 rounded bg-surface px-1.5 py-0.5 text-xs font-semibold tracking-wide normal-case outline-none"
+    />
+  ) : (
+    // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
+    <span
+      className="min-w-0 truncate"
+      onDoubleClick={() => !readOnly && useUiStore.getState().renameNode(id)}
+    >
+      {value || fallback}
+    </span>
+  );
+  return strip ? (
+    <div className="flex shrink-0 items-center px-3 pt-2 text-xs font-semibold tracking-wide text-muted">
+      {text}
+    </div>
+  ) : (
+    text
   );
 }
 

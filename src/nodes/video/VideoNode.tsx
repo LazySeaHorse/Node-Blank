@@ -16,6 +16,7 @@ export function VideoNode({ data, selected, dragging }: NodeProps<NodeOf<'video'
     <NodeShell
       selected={selected}
       title="Video"
+      customTitle={data.title}
       icon={SquarePlay}
       resize={{ minWidth: 240, minHeight: 160, onResizing: setResizing }}
     >

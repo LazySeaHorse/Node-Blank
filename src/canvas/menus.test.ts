@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_VIEWPORT, SECTION_COLORS } from '@/model/types';
-import { createNode } from '@/nodes/factory';
+import { createNode, searchTextOf } from '@/nodes/factory';
 import { undo, useCanvasStore } from '@/store/canvasStore';
 import type { MenuEntry, MenuItem, MenuSub } from '@/ui/Menu';
 import { canvasMenu, menuFor } from './menus';
@@ -98,6 +98,17 @@ describe('node menus', () => {
     expect(state().nodes.map((n) => n.id)).not.toContain(a.id);
     undo();
     expect(state().nodes.map((n) => n.id)).toContain(a.id);
+  });
+
+  it('offers a title for any node but a section, and finds the node by it', () => {
+    const a = createNode('text', { x: 0, y: 0 });
+    state().load({ nodes: [a], viewport: DEFAULT_VIEWPORT });
+    const entries = menuFor(element('react-flow__node', a.id), at, actions());
+    expect(labels(entries)[0]).toBe('Add title');
+    state().updateNodeData<'text'>(a.id, { title: 'Intro' });
+    const titled = state().nodes[0];
+    expect(labels(menuFor(element('react-flow__node', a.id), at, actions()))[0]).toBe('Rename');
+    expect(searchTextOf(titled).startsWith('Intro')).toBe(true);
   });
 
   it('adds Math+ result copying', () => {

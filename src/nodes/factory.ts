@@ -40,7 +40,9 @@ export function stripTransient(node: AppNode): AppNode {
   return { id, type, position, data, ...(width && height ? { width, height } : {}) } as AppNode;
 }
 
+/** What search and the AI see of a node: its content, led by its title when it has one besides a section's. */
 export function searchTextOf(node: AppNode): string {
   const spec = nodeSpecs[node.type] as { searchText: (d: AppNode['data']) => string };
-  return spec.searchText(node.data);
+  const text = spec.searchText(node.data);
+  return node.type !== 'section' && node.data.title ? `${node.data.title}\n${text}` : text;
 }

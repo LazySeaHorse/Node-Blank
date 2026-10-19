@@ -33,11 +33,13 @@ const cellsSchema = z
   .min(1)
   .max(MAX_GRID.rows);
 const tint = z.enum(SECTION_COLORS).optional().describe('Background tint; omit for none.');
+const title = z.string().max(200).optional().describe('Optional name shown on the node; omit for none.');
 const content = {
-  text: { markdown: z.string().max(100_000).describe('Markdown; $...$ and $$...$$ for LaTeX math.') },
-  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.'), color: tint },
+  text: { markdown: z.string().max(100_000).describe('Markdown; $...$ and $$...$$ for LaTeX math.'), title },
+  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.'), color: tint, title },
   mathPlus: {
     color: tint,
+    title,
     latex: z
       .string()
       .max(20_000)
@@ -51,11 +53,15 @@ const content = {
       .min(1)
       .max(20)
       .describe('Functions of x, e.g. "x^2", "\\sin(x)".'),
+    title,
   },
-  table: { cells: cellsSchema.describe('Rows of cells, each a LaTeX math expression.') },
-  sheet: { cells: cellsSchema.describe('Rows of cells; formulas start with "=" and use A1 references.') },
-  code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.') },
-  video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.') },
+  table: { cells: cellsSchema.describe('Rows of cells, each a LaTeX math expression.'), title },
+  sheet: {
+    cells: cellsSchema.describe('Rows of cells; formulas start with "=" and use A1 references.'),
+    title,
+  },
+  code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'), title },
+  video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
 } satisfies { [K in Exclude<NodeKind, 'image' | 'section'>]: Record<keyof NodeDataMap[K], z.ZodType> };
 
 const placementShape = {

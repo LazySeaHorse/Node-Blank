@@ -31,6 +31,7 @@ export default function GraphNode({ id, data, selected }: NodeProps<NodeOf<'grap
     <NodeShell
       selected={selected}
       title="Graph"
+      customTitle={data.title}
       icon={ChartSpline}
       resize={{ minWidth: 260, minHeight: 240 }}
       actions={

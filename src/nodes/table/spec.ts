@@ -1,7 +1,7 @@
 import { Table } from 'lucide-react';
 import { z } from 'zod';
 import { emptyGrid } from '@/lib/grid';
-import type { NodeSpec } from '../spec';
+import { type NodeSpec, titleField } from '../spec';
 
 export const tableSpec: NodeSpec<'table'> = {
   kind: 'table',
@@ -9,7 +9,7 @@ export const tableSpec: NodeSpec<'table'> = {
   description: 'A grid of math cells',
   icon: Table,
   placement: 'place',
-  schema: z.object({ cells: z.array(z.array(z.string())) }),
+  schema: z.object({ cells: z.array(z.array(z.string())), title: titleField }),
   defaults: () => ({ cells: emptyGrid(3, 3) }),
   searchText: (d) => d.cells.flat().join(' '),
 };

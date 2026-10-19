@@ -1,6 +1,6 @@
 import { Image } from 'lucide-react';
 import { z } from 'zod';
-import type { NodeSpec } from '../spec';
+import { type NodeSpec, titleField } from '../spec';
 
 export const imageSpec: NodeSpec<'image'> = {
   kind: 'image',
@@ -8,7 +8,7 @@ export const imageSpec: NodeSpec<'image'> = {
   description: 'Upload an image',
   icon: Image,
   placement: 'insert',
-  schema: z.object({ src: z.string() }),
+  schema: z.object({ src: z.string(), title: titleField }),
   defaults: () => ({ src: '' }),
   size: { width: 300, height: 300 },
   searchText: () => '',

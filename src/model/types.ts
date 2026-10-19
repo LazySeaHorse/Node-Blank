@@ -4,17 +4,20 @@ import type { Node, Viewport } from '@xyflow/react';
 export const SECTION_COLORS = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'gray'] as const;
 export type SectionColor = (typeof SECTION_COLORS)[number];
 
+/** Optional name every node but a section can carry. Headed nodes show their kind until one is set. */
+export type Titled = { title?: string };
+
 /** Per-kind payload stored in `node.data`. This is the single source of truth for node shapes. */
 export type NodeDataMap = {
-  text: { markdown: string };
-  math: { latex: string; color?: SectionColor };
-  mathPlus: { latex: string; color?: SectionColor };
-  graph: { functions: string[] };
-  table: { cells: string[][] };
-  sheet: { cells: string[][] };
-  code: { source: string };
-  image: { src: string };
-  video: { url: string };
+  text: Titled & { markdown: string };
+  math: Titled & { latex: string; color?: SectionColor };
+  mathPlus: Titled & { latex: string; color?: SectionColor };
+  graph: Titled & { functions: string[] };
+  table: Titled & { cells: string[][] };
+  sheet: Titled & { cells: string[][] };
+  code: Titled & { source: string };
+  image: Titled & { src: string };
+  video: Titled & { url: string };
   section: { title: string; color: SectionColor };
 };
 

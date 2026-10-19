@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { NodeDataMap, NodeKind } from '@/model/types';
 
 /**
@@ -22,3 +22,6 @@ export interface NodeSpec<K extends NodeKind> {
   size?: { width: number; height: number };
   searchText: (data: NodeDataMap[K]) => string;
 }
+
+/** The optional `title` every node but a section has in its data. */
+export const titleField = z.string().max(200).optional();

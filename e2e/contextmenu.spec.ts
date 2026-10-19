@@ -199,3 +199,30 @@ test('the browser menu never shows: every real contextmenu event is cancelled', 
     ),
   ).toEqual([]);
 });
+
+test('a node can be titled from its menu, and an empty title restores the default', async ({ page }) => {
+  await placeNode(page, 'Table', 500, 300);
+  const node = nodes(page);
+  await expect(node.getByText('Table', { exact: true })).toBeVisible();
+  await node.click({ button: 'right', position: { x: 20, y: 18 } });
+  await page.getByRole('menuitem', { name: 'Add title' }).click();
+  await page.keyboard.type('Costs');
+  await page.keyboard.press('Enter');
+  await expect(node.getByText('Costs', { exact: true })).toBeVisible();
+  await expect(node.getByText('Table', { exact: true })).toHaveCount(0);
+
+  await node.getByText('Costs', { exact: true }).dblclick();
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Enter');
+  await expect(node.getByText('Table', { exact: true })).toBeVisible();
+});
+
+test('a math node shows its title above the field', async ({ page }) => {
+  await placeNode(page, 'Math', 500, 300);
+  await nodes(page).click({ button: 'right', position: { x: 10, y: 10 } });
+  await page.getByRole('menuitem', { name: 'Add title' }).click();
+  await page.keyboard.type('Objective');
+  await page.keyboard.press('Enter');
+  await expect(nodes(page).getByText('Objective')).toBeVisible();
+});

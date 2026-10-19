@@ -28,6 +28,8 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
   move, resize and delete sections but not create them. They are separate from groups.
 - image: uploaded by the user; you can move, resize or delete images but not create them or see them.
 
+Every kind but section also takes an optional title, a name the user sees on the node.
+
 LAYOUT
 - Coordinates are canvas pixels; x grows right, y grows down. Positions are top-left corners.
 - Groups are nearby nodes, recomputed from positions whenever you read. Handles like g2 stay stable while a group
