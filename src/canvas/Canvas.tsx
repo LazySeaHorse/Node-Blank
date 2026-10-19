@@ -4,6 +4,7 @@ import {
   ReactFlow,
   type ReactFlowProps,
   SelectionMode,
+  useKeyPress,
   useReactFlow,
 } from '@xyflow/react';
 import { type MouseEvent, useEffect, useMemo } from 'react';
@@ -23,12 +24,11 @@ import { useShortcuts } from './useShortcuts';
 
 const proOptions = { hideAttribution: true };
 
-/** Desktop: left-drag selects, middle/right-drag or scroll pans, pinch / Ctrl+scroll zooms. */
+/** Desktop: left-drag selects, middle/right-drag or Shift+scroll pans, scroll / pinch zooms. */
 const editableProps: Partial<ReactFlowProps<AppNode>> = {
   selectionOnDrag: true,
   selectionMode: SelectionMode.Partial,
   panOnDrag: [1, 2],
-  panOnScroll: true,
   deleteKeyCode: ['Delete', 'Backspace'],
   multiSelectionKeyCode: 'Shift',
 };
@@ -71,6 +71,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
       }),
     [searched, touched],
   );
+  // Figma-style wheel: scroll zooms, holding Shift pans instead.
+  const panningScroll = useKeyPress('Shift');
   const { addNode } = useCanvasActions();
   const { screenToFlowPosition, fitView } = useReactFlow();
 
@@ -101,6 +103,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         onMoveEnd={(_, viewport) => setViewport(viewport)}
         onDoubleClick={placeNode}
         zoomOnDoubleClick={false}
+        zoomOnScroll={!panningScroll}
+        panOnScroll={panningScroll}
         minZoom={0.1}
         maxZoom={4}
         colorMode={theme}
