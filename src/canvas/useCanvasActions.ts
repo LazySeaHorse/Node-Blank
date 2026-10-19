@@ -13,6 +13,7 @@ import type { NodeKind } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { createNode } from '@/nodes/factory';
 import { addPdfNode, pickPdfHandle } from '@/nodes/pdf/actions';
+import { pdfHandlesFromDrop } from '@/nodes/pdf/drop';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
 import { ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -66,6 +67,18 @@ export function useCanvasActions() {
     }
   };
 
+  /** Links the PDF files in a drop, side by side from `at` (the middle of the first). */
+  const dropPdfs = async (data: DataTransfer, at: XYPosition) => {
+    try {
+      const { width, height } = nodeSpecs.pdf.size ?? { width: 0, height: 0 };
+      const handles = await pdfHandlesFromDrop(data);
+      for (const [i, handle] of handles.entries())
+        await addPdfNode(handle, { x: at.x - width / 2 + i * (width + 20), y: at.y - height / 2 });
+    } catch {
+      toast.error('Could not open that PDF');
+    }
+  };
+
   const importJson = async () => {
     const file = await pickFile('application/json,.json');
     if (!file) return;
@@ -89,5 +102,5 @@ export function useCanvasActions() {
     }
   };
 
-  return { addNode, insertImage, insertVideo, insertPdf, importJson, exportJson };
+  return { addNode, insertImage, insertVideo, insertPdf, dropPdfs, importJson, exportJson };
 }

@@ -7,11 +7,13 @@ import {
   useKeyPress,
   useReactFlow,
 } from '@xyflow/react';
-import { type MouseEvent, useEffect, useMemo } from 'react';
+import { type DragEvent, type MouseEvent, useEffect, useMemo } from 'react';
 import { setAgentView, useAgentStore } from '@/agent';
 import { SECTION_Z } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
+import { nodeSpecs } from '@/nodes/catalog';
 import { nodeTypes } from '@/nodes/nodeTypes';
+import { dragHasPdf } from '@/nodes/pdf/drop';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { ContextMenu } from '@/ui/ContextMenu';
@@ -73,7 +75,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   );
   // Figma-style wheel: scroll zooms, holding Shift pans instead.
   const panningScroll = useKeyPress('Shift');
-  const { addNode } = useCanvasActions();
+  const { addNode, dropPdfs } = useCanvasActions();
   const { screenToFlowPosition, fitView } = useReactFlow();
 
   useEffect(() => {
@@ -93,6 +95,20 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
     addNode(useUiStore.getState().tool, screenToFlowPosition({ x: event.clientX, y: event.clientY }));
   };
 
+  // Only kinds this browser supports take drops, so other browsers keep their default for dragged files.
+  const pdfDroppable = (event: DragEvent) =>
+    !readOnly && nodeSpecs.pdf.available?.() !== false && dragHasPdf(event.dataTransfer);
+  const onDragOver = (event: DragEvent) => {
+    if (!pdfDroppable(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  };
+  const onDrop = (event: DragEvent) => {
+    if (!pdfDroppable(event)) return;
+    event.preventDefault();
+    void dropPdfs(event.dataTransfer, screenToFlowPosition({ x: event.clientX, y: event.clientY }));
+  };
+
   return (
     <>
       <ReactFlow<AppNode>
@@ -102,6 +118,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         defaultViewport={useCanvasStore.getState().viewport}
         onMoveEnd={(_, viewport) => setViewport(viewport)}
         onDoubleClick={placeNode}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         zoomOnDoubleClick={false}
         zoomOnScroll={!panningScroll}
         panOnScroll={panningScroll}
