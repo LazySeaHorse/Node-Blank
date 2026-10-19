@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/ui/Alert';
 import { Badge } from '@/ui/Badge';
 import { Button, IconButton } from '@/ui/Button';
 import { confirmAction } from '@/ui/dialogs';
+import { EmptyState } from '@/ui/EmptyState';
 import { Mascot } from '@/ui/Mascot';
 import { Switch } from '@/ui/Switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/Tabs';
@@ -192,21 +193,24 @@ function ActivityTab() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {calls.length === 0 ? (
-        <div className="flex select-none flex-col items-center px-6 py-8 text-center">
-          <Mascot mood="curious" animated className="mb-2 h-24" title="Curious octopus" />
-          <p className="font-medium text-fg text-sm tracking-tight">No AI activity yet</p>
-          <p className="mt-1 max-w-[260px] text-muted text-xs leading-relaxed">
-            Turn on AI control in the{' '}
-            <button
-              type="button"
-              className="cursor-pointer underline hover:text-fg"
-              onClick={() => setAiTab('connect')}
-            >
-              Connect tab
-            </button>
-            , then ask your agent to work on this canvas. Its calls show up here.
-          </p>
-        </div>
+        <EmptyState
+          size="compact"
+          mascot={<Mascot mood="curious" animated className="h-24" title="Curious octopus" />}
+          title="No AI activity yet"
+          description={
+            <>
+              Turn on AI control in the{' '}
+              <button
+                type="button"
+                className="cursor-pointer underline hover:text-fg"
+                onClick={() => setAiTab('connect')}
+              >
+                Connect tab
+              </button>
+              , then ask your agent to work on this canvas. Its calls show up here.
+            </>
+          }
+        />
       ) : (
         <>
           <ol className="min-h-0 flex-1 overflow-y-auto">
@@ -215,7 +219,7 @@ function ActivityTab() {
             ))}
           </ol>
           <div className="flex justify-end border-t border-border px-3 py-2">
-            <Button className="h-7 px-2 text-xs" onClick={() => agentEvents.clear()}>
+            <Button size="xs" onClick={() => agentEvents.clear()}>
               Clear feed
             </Button>
           </div>
@@ -300,7 +304,8 @@ export function AiLockBanner() {
       <span>AI is editing. The canvas is read-only.</span>
       <Button
         variant="primary"
-        className="h-7 rounded-full px-3 text-xs"
+        size="sm"
+        className="rounded-full"
         onClick={() => useAgentStore.getState().setEnabled(false)}
       >
         Take over

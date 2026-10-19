@@ -1,7 +1,6 @@
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Toaster, toast } from 'sonner';
-import { useIsMobile } from '@/lib/useMediaQuery';
 import { useUiStore } from '@/store/uiStore';
 import { Mascot } from '@/ui/Mascot';
 
@@ -18,15 +17,13 @@ const icons = {
   error: <CircleAlert className="size-4 text-danger" />,
 };
 
-/** App-wide toast host: surface-coloured, below the top bar on desktop and at the bottom on mobile. */
+/** App-wide toast host: surface-coloured, at the bottom centre, clear of the AI banner. */
 export function AppToaster() {
   const theme = useUiStore((s) => s.theme);
-  const mobile = useIsMobile();
   return (
     <Toaster
       theme={theme}
-      position={mobile ? 'bottom-center' : 'top-center'}
-      offset={mobile ? undefined : { top: '4.75rem' }}
+      position="bottom-center"
       icons={icons}
       toastOptions={{ unstyled: true, classNames }}
     />

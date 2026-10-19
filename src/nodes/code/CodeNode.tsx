@@ -66,10 +66,10 @@ export default function CodeNode({ id, data, selected }: NodeProps<NodeOf<'code'
       resize={{ minWidth: 280, minHeight: 200 }}
       actions={
         <>
-          <Button className="h-6 px-2 text-xs" onClick={clear}>
+          <Button size="xs" onClick={clear}>
             Clear
           </Button>
-          <Button variant="primary" className="h-6 px-2 text-xs" onClick={run}>
+          <Button variant="primary" size="xs" onClick={run}>
             <Play className="size-3" /> Run
           </Button>
         </>

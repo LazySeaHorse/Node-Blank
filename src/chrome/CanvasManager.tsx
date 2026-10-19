@@ -13,6 +13,7 @@ import { askText, confirmAction } from '@/ui/dialogs';
 import { EmptyState } from '@/ui/EmptyState';
 import { Mascot } from '@/ui/Mascot';
 import { Modal } from '@/ui/Modal';
+import { promptNewCanvas } from './newCanvas';
 import { useCanvasList } from './useCurrentCanvas';
 
 interface CanvasManagerProps {
@@ -169,7 +170,7 @@ function CanvasRow({
           </div>
         )}
         {!current && (
-          <Button variant="primary" className="h-8 px-3 text-xs" onClick={onOpen}>
+          <Button variant="primary" size="sm" onClick={onOpen}>
             Open
           </Button>
         )}
@@ -185,12 +186,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
   const close = () => onOpenChange(false);
 
   const create = async () => {
-    const name = await askText({
-      title: 'New canvas',
-      label: 'Name',
-      initial: 'Untitled canvas',
-      hero: { mood: 'map', scene: 'canvas' },
-    });
+    const name = await promptNewCanvas();
     if (name === null) return;
     await workspace.newCanvas(name);
     close();
@@ -239,7 +235,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
       </div>
       {visible && visible.length === 0 ? (
         <EmptyState
-          variant="compact"
+          size="compact"
           mascot={<Mascot mood="map" className="h-20" />}
           title={query ? 'No matches' : 'No canvases yet'}
           description={query ? 'Try a different name.' : 'Create one to get started.'}

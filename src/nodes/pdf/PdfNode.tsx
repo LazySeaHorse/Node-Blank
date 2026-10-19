@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn';
 import { useElementSize } from '@/lib/useElementSize';
 import type { NodeOf } from '@/model/types';
 import { Button, IconButton } from '@/ui/Button';
-import { Mascot } from '@/ui/mascot/Mascot';
+import { Mascot } from '@/ui/Mascot';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
 import { PdfPage } from './PdfPage';

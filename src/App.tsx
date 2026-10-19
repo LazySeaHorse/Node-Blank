@@ -57,12 +57,12 @@ export function App() {
                 >
                   <TopBar />
                 </div>
-                <div className="pointer-events-none absolute top-[4.75rem] left-1/2 -translate-x-1/2">
+                <div className="pointer-events-none absolute top-(--chrome-top) left-1/2 -translate-x-1/2">
                   <AiLockBanner />
                   <AiStatusPill />
                 </div>
                 {aiPanelOpen && (
-                  <div className="pointer-events-none absolute top-[4.75rem] right-3">
+                  <div className="pointer-events-none absolute top-(--chrome-top) right-3">
                     <AiPanel />
                   </div>
                 )}

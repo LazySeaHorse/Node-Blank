@@ -4,8 +4,6 @@ import { detectShape } from '@/lib/markdownShape';
 import { convertTextNode } from '@/store/convert';
 import { Button } from '@/ui/Button';
 
-const compact = 'rounded-md px-2 py-0.5 text-xs';
-
 /** Offers to turn a text node that is only a table, or only math, into the node made for it. */
 export function ShapeSuggestion({
   id,
@@ -26,15 +24,15 @@ export function ShapeSuggestion({
       </span>
       {shape.kind === 'table' ? (
         <>
-          <Button variant="primary" className={compact} onClick={() => convertTextNode(id, shape, 'table')}>
+          <Button variant="primary" size="xs" onClick={() => convertTextNode(id, shape, 'table')}>
             Table
           </Button>
-          <Button variant="primary" className={compact} onClick={() => convertTextNode(id, shape, 'sheet')}>
+          <Button variant="primary" size="xs" onClick={() => convertTextNode(id, shape, 'sheet')}>
             Sheet
           </Button>
         </>
       ) : (
-        <Button variant="primary" className={compact} onClick={() => convertTextNode(id, shape, 'math')}>
+        <Button variant="primary" size="xs" onClick={() => convertTextNode(id, shape, 'math')}>
           Math node
         </Button>
       )}

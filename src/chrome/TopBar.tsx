@@ -21,11 +21,11 @@ import { useUiStore } from '@/store/uiStore';
 import * as workspace from '@/store/workspace';
 import { Badge } from '@/ui/Badge';
 import { IconButton, WithTooltip } from '@/ui/Button';
-import { askText } from '@/ui/dialogs';
 import { Mascot } from '@/ui/Mascot';
 import { Menu } from '@/ui/Menu';
 import { AiButton } from './AiButton';
 import { CanvasManager } from './CanvasManager';
+import { promptNewCanvas } from './newCanvas';
 import { Divider, Panel } from './Panel';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
@@ -39,7 +39,7 @@ function BrandMenu({ onOpenCanvases }: { onOpenCanvases: () => void }) {
   const { importJson, exportJson } = useCanvasActions();
 
   const create = async () => {
-    const name = await askText({ title: 'New canvas', label: 'Name', initial: 'Untitled canvas' });
+    const name = await promptNewCanvas();
     if (name !== null) await workspace.newCanvas(name);
   };
 
