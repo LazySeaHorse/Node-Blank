@@ -8,13 +8,11 @@ import {
   AlignStartHorizontal,
   AlignStartVertical,
   ArrowDownToLine,
-  ArrowLeftRight,
   ArrowUpToLine,
   Calculator,
   Clipboard,
   Copy,
   CopyPlus,
-  Divide,
   Maximize,
   MousePointer2,
   PaintBucket,
@@ -25,13 +23,14 @@ import {
   SquareDashed,
   Trash2,
   Ungroup,
-  X,
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
-import { columnLabel } from '@/lib/gridOps';
-import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS } from '@/model/types';
+import { applyGridOp, columnLabel, GridOpError } from '@/lib/gridOps';
+import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
+import { withFill } from '@/nodes/sheet/fills';
+import { sheetSelection } from '@/nodes/sheet/selection';
 import { type AlignEdge, alignSelected, bringToFront, sendToBack } from '@/store/arrange';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
@@ -127,20 +126,74 @@ const rename = (node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry => ({
   onSelect: () => void setTimeout(() => useUiStore.getState().renameNode(node.id), 0),
 });
 
-/** Row operations offered on a sheet's row or column header; each starts a command in the sheet's command box. */
-export function sheetLineMenu(node: NodeOf<'sheet'>, line: string): MenuEntry[] {
-  const axis = line[0] === 'R' ? 'row' : 'column';
-  const start = (text: string) => () =>
-    void setTimeout(() => useUiStore.getState().prefillSheetCommand(node.id, text), 0);
-  const heading =
-    axis === 'row' ? `Row ${line.slice(1)}` : `Column ${columnLabel(Number(line.slice(1)) - 1)} (${line})`;
-  return [
-    { heading },
-    { label: `Add a multiple of another ${axis}…`, icon: Plus, onSelect: start(`${line} += `) },
-    { label: `Multiply ${axis} by…`, icon: X, onSelect: start(`${line} *= `) },
-    { label: `Divide ${axis} by…`, icon: Divide, onSelect: start(`${line} /= `) },
-    { label: `Swap with another ${axis}…`, icon: ArrowLeftRight, onSelect: start(`${line} <-> ${line[0]}`) },
+/**
+ * What right-clicking a sheet offers on its selection: a fill colour, and for a selected row or column
+ * a box for operations on it (`-= 3*R2`, `*= 1/2`, `<-> R4`), formulas included.
+ */
+export function sheetMenu(node: NodeOf<'sheet'>): MenuEntry[] {
+  const { cells, fills } = node.data;
+  const range = sheetSelection(node.id)?.toRange(cells);
+  const update = (patch: Partial<NodeOf<'sheet'>['data']>) =>
+    useCanvasStore.getState().updateNodeData<'sheet'>(node.id, patch);
+  if (!range) return [];
+
+  const targets = [...range];
+  const setFill = (color: SectionColor | null) => () => update({ fills: withFill(fills, targets, color) });
+  const entries: MenuEntry[] = [
+    {
+      label: 'Fill',
+      icon: PaintBucket,
+      items: [
+        { label: 'None', onSelect: setFill(null) },
+        ...SECTION_COLORS.map((color) => ({
+          label: titleCase(color),
+          swatch: `var(--section-${color})`,
+          onSelect: setFill(color),
+        })),
+      ],
+    },
   ];
+
+  const operate = (line: string) => (text: string) => {
+    // A full command (`R3 -= R1`) is taken as typed; anything else continues the row or column named in front.
+    const command = /^[RrCc]\d/.test(text.trim()) ? text : `${line} ${text}`;
+    try {
+      update({ cells: applyGridOp(cells, command, node.data.fractions ? 'fraction' : 'decimal') });
+    } catch (error) {
+      if (error instanceof GridOpError) return error.message;
+      throw error;
+    }
+  };
+  const { start, end } = range;
+  const rows = cells.length;
+  const columns = cells[0]?.length ?? 0;
+  if (start.row === end.row && start.column === 0 && end.column === columns - 1)
+    entries.push(
+      { separator: true },
+      { heading: `Row ${start.row + 1}` },
+      {
+        field: {
+          prefix: `R${start.row + 1}`,
+          placeholder: '-= 3*R2',
+          hint: 'Also *= 1/2, = R1 - R2, <-> R4. Formulas work too.',
+          onSubmit: operate(`R${start.row + 1}`),
+        },
+      },
+    );
+  else if (start.column === end.column && start.row === 0 && end.row === rows - 1)
+    entries.push(
+      { separator: true },
+      { heading: `Column ${columnLabel(start.column)}` },
+      {
+        field: {
+          prefix: `C${start.column + 1}`,
+          placeholder: '-= 3*C2',
+          hint: `Columns are C1, C2… from the left (this is C${start.column + 1}).`,
+          onSubmit: operate(`C${start.column + 1}`),
+        },
+      },
+    );
+  return entries;
 }
 
 export function nodeMenu(node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry[] {
@@ -235,8 +288,10 @@ export function menuFor(target: Element | null, at: XYPosition, actions: MenuAct
   const hit = useCanvasStore.getState().nodes.find((n) => n.id === id);
   if (!hit) return canvasMenu(at, actions);
   if (!hit.selected) useCanvasStore.getState().setSelection((n) => n.id === hit.id);
-  const line = target?.closest<HTMLElement>('[data-sheet-line]')?.dataset.sheetLine;
-  if (hit.type === 'sheet' && line) return sheetLineMenu(hit, line);
+  if (hit.type === 'sheet' && target?.closest('.Spreadsheet')) {
+    const onSelection = sheetMenu(hit);
+    if (onSelection.length > 0) return [...onSelection, { separator: true }, ...nodeMenu(hit)];
+  }
   if (useCanvasStore.getState().nodes.filter((n) => n.selected).length > 1) return selectionMenu(actions);
   return hit.type === 'section' ? sectionMenu(hit) : nodeMenu(hit);
 }

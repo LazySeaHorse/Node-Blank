@@ -24,7 +24,7 @@ export function ContextMenu({ at, items, onClose }: ContextMenuProps) {
           collisionPadding={8}
           className={panelClass}
         >
-          {renderEntries(DropdownMenu, items)}
+          {renderEntries(DropdownMenu, items, onClose)}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

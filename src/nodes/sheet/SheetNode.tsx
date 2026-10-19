@@ -1,7 +1,7 @@
 import type { NodeProps } from '@xyflow/react';
 import isEqual from 'fast-deep-equal';
 import { Sheet } from 'lucide-react';
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, type MouseEvent, useContext, useEffect, useMemo, useState } from 'react';
 import Spreadsheet, {
   type CellBase,
   DataViewer,
@@ -13,15 +13,14 @@ import Spreadsheet, {
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import { addColumn, addRow, removeColumn, removeRow, setCell } from '@/lib/grid';
-import { applyGridOp } from '@/lib/gridOps';
-import type { NodeOf, SectionColor } from '@/model/types';
-import { useUiStore } from '@/store/uiStore';
+import type { NodeOf } from '@/model/types';
 import { NodeShell, Stepper } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
 import { evaluateExact } from './exactEvaluate';
-import { cellKey, pruneFills, rangeLabel, withFill } from './fills';
+import { cellKey, pruneFills, rangeLabel } from './fills';
 import { ColumnIndicator, RowIndicator } from './indicators';
-import { CommandBar, FillPicker, FormulaBar } from './SheetToolbar';
+import { FormulaBar } from './SheetToolbar';
+import { publishSheetSelection } from './selection';
 
 type Cell = CellBase<string>;
 
@@ -42,7 +41,6 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
   const fractions = data.fractions ?? false;
   const [active, setActive] = useState<Point>();
   const [selection, setSelection] = useState<Selection>();
-  const commandRef = useRef<HTMLInputElement>(null);
 
   const exact = useMemo(() => (fractions ? evaluateExact(cells) : null), [fractions, cells]);
   const matrix = useMemo<Matrix<Cell>>(
@@ -56,16 +54,8 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
     [cells, fills, readOnly],
   );
 
-  // A menu on a row or column header asks for a command to be started here.
-  const request = useUiStore((s) => (s.sheetCommand?.id === id ? s.sheetCommand : null));
-  useEffect(() => {
-    const input = commandRef.current;
-    if (!request || !input) return;
-    input.value = request.text;
-    input.focus();
-    input.setSelectionRange(request.text.length, request.text.length);
-    useUiStore.getState().clearSheetCommand();
-  }, [request]);
+  // The right-click menu works on what is selected here; forget it when the node goes.
+  useEffect(() => () => publishSheetSelection(id, undefined), [id]);
 
   const handleChange = (next: Matrix<Cell>) => {
     const nextCells = next.map((row) => row.map((cell) => String(cell?.value ?? '')));
@@ -79,9 +69,14 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
   };
 
   const block = selection?.toRange(matrix);
-  const targets = block ? [...block] : active ? [active] : [];
   const label = block ? rangeLabel(block.start, block.end) : active ? cellKey(active) : '';
-  const setFill = (color: SectionColor | null) => update({ fills: withFill(fills, targets, color) });
+  // A right-click inside the selection acts on it. Inside the grid it would otherwise reselect the one cell.
+  const keepSelectionOnRightClick = (event: MouseEvent) => {
+    const cell = (event.target as HTMLElement).closest('td');
+    const row = cell?.parentElement;
+    if (event.button !== 2 || !selection || !cell || !(row instanceof HTMLTableRowElement)) return;
+    if (selection.has(matrix, { row: row.rowIndex - 1, column: cell.cellIndex - 1 })) event.stopPropagation();
+  };
   const toggleFractions = () => update({ fractions: fractions ? undefined : true });
 
   return (
@@ -90,6 +85,15 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
       title="Sheet"
       customTitle={data.title}
       icon={Sheet}
+      className="min-w-[32rem]"
+      toolbar={
+        <FormulaBar
+          label={label}
+          value={active ? (cells[active.row]?.[active.column] ?? '') : ''}
+          readOnly={readOnly}
+          onCommit={(text) => active && update({ cells: setCell(cells, active.row, active.column, text) })}
+        />
+      }
       actions={
         <>
           <button
@@ -116,37 +120,18 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
       }
     >
       {/* nokey: keep Delete/Backspace inside the grid instead of deleting the node. */}
-      <div className="nodrag nowheel nokey flex flex-col gap-1.5 border-b border-border px-2 py-1.5">
-        <div className="flex items-center gap-1.5">
-          <div className="min-w-0 flex-1">
-            <FormulaBar
-              label={label}
-              value={active ? (cells[active.row]?.[active.column] ?? '') : ''}
-              readOnly={readOnly}
-              onCommit={(text) =>
-                active && update({ cells: setCell(cells, active.row, active.column, text) })
-              }
-            />
-          </div>
-          {!readOnly && <FillPicker onPick={setFill} />}
-        </div>
-        {!readOnly && (
-          <CommandBar
-            inputRef={commandRef}
-            onRun={(command) =>
-              update({ cells: applyGridOp(cells, command, fractions ? 'fraction' : 'decimal') })
-            }
-          />
-        )}
-      </div>
-      <div className="nodrag nowheel nokey p-2 text-sm">
+      <div className="nodrag nowheel nokey p-2 text-sm" onMouseDownCapture={keepSelectionOnRightClick}>
         <ExactResults value={exact}>
           <Spreadsheet
             data={matrix}
             onChange={handleChange}
             onActivate={setActive}
-            // Leaving the grid (to the formula bar or fill picker) empties its selection; keep the last block.
-            onSelect={(next) => next.toRange(matrix) && setSelection(next)}
+            // Leaving the grid (for the formula bar, say) empties its selection; keep the last block.
+            onSelect={(next) => {
+              if (!next.toRange(matrix)) return;
+              setSelection(next);
+              publishSheetSelection(id, next);
+            }}
             RowIndicator={RowIndicator}
             ColumnIndicator={ColumnIndicator}
             DataViewer={fractions ? FractionViewer : undefined}

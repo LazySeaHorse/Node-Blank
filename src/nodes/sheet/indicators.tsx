@@ -5,14 +5,14 @@ import { columnLabel } from '@/lib/gridOps';
 const header = (selected: boolean) => cn('Spreadsheet__header', selected && 'Spreadsheet__header--selected');
 
 /**
- * Row and column headers as the grid draws them, tagged with the name the command box uses (R3, C2) so the
- * canvas can offer row operations on right-click. Rows and columns are counted from 1 in commands.
+ * Row and column headers as the grid draws them, except that a right-click selects the row or column first
+ * (unless it is already selected), so the menu that follows is about it.
  */
 export function RowIndicator({ row, label, selected, onSelect }: RowIndicatorProps) {
   return (
     <th
       className={header(selected)}
-      data-sheet-line={`R${row + 1}`}
+      onPointerDown={(event) => event.button === 2 && !selected && onSelect(row, false)}
       onClick={(event) => onSelect(row, event.shiftKey)}
       tabIndex={0}
     >
@@ -25,8 +25,8 @@ export function ColumnIndicator({ column, label, selected, onSelect }: ColumnInd
   return (
     <th
       className={header(selected)}
-      data-sheet-line={`C${column + 1}`}
-      title={`Column ${columnLabel(column)} is C${column + 1} in commands`}
+      title={`Column ${columnLabel(column)} is C${column + 1} in operations`}
+      onPointerDown={(event) => event.button === 2 && !selected && onSelect(column, false)}
       onClick={(event) => onSelect(column, event.shiftKey)}
       tabIndex={0}
     >

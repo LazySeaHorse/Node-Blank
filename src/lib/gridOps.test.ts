@@ -106,7 +106,40 @@ describe('applyGridOp', () => {
     expect(() => applyGridOp(tableau(), command, 'fraction')).toThrow(message);
   });
 
-  it('names the cell that is not a number', () => {
+  describe('with formulas', () => {
+    const grid = () => [
+      ['=SUM(B1:B2)', '2'],
+      ['4', '=A1*2'],
+    ];
+
+    it('builds formulas from the originals, so results stay live', () => {
+      const next = applyGridOp(grid(), 'R2 -= R1', 'fraction');
+      expect(next[1]).toEqual(['=4-(SUM(B1:B2))', '=(A1*2)-2']);
+      expect(next[0]).toEqual(grid()[0]);
+    });
+
+    it('scales formulas and leaves exact numbers exact', () => {
+      expect(applyGridOp(grid(), 'R1 /= 2', 'fraction')[0]).toEqual(['=(SUM(B1:B2))/2', '1']);
+      expect(applyGridOp(grid(), 'R1 *= 1/3', 'fraction')[0]).toEqual(['=(SUM(B1:B2))*(1/3)', '2/3']);
+    });
+
+    it('keeps bare cell references bare and drops pointless terms', () => {
+      const refs = [
+        ['=B2', '1'],
+        ['0', '=B1'],
+      ];
+      expect(applyGridOp(refs, 'R1 += R2', 'fraction')[0]).toEqual(['=B2', '=1+B1']);
+      expect(applyGridOp(refs, 'R2 -= R1', 'fraction')[1]).toEqual(['=-B2', '=B1-1']);
+      expect(applyGridOp(refs, 'R1 *= 1', 'fraction')[0]).toEqual(['=B2', '1']);
+      expect(applyGridOp(refs, 'R1 *= 0', 'fraction')[0]).toEqual(['0', '0']);
+    });
+
+    it('swaps formula cells too', () => {
+      expect(applyGridOp(grid(), 'R1 <-> R2', 'fraction')).toEqual([grid()[1], grid()[0]]);
+    });
+  });
+
+  it('names the cell that is not a number or formula', () => {
     const grid = [
       ['1', 'abc'],
       ['2', '3'],

@@ -4,9 +4,13 @@ import { Rational } from './rational';
 export class GridOpError extends Error {}
 
 type Axis = 'R' | 'C';
+/** What a cell holds: an exact number, or a formula (without its `=`) that stays live. */
+type Term = { kind: 'number'; value: Rational } | { kind: 'formula'; text: string };
 type Scalar = { kind: 'scalar'; scalar: Rational };
-type Line = { kind: 'line'; axis: Axis; cells: Rational[] };
+type Line = { kind: 'line'; axis: Axis; cells: Term[] };
 type Value = Scalar | Line;
+
+const ZERO: Term = { kind: 'number', value: Rational.ZERO };
 export type NumberFormat = 'fraction' | 'decimal';
 
 type Token =
@@ -69,34 +73,66 @@ class Lines {
   /** A line of the right length with nothing read from the grid, for writing over whatever is there. */
   blank(axis: Axis, index: number): Line {
     this.check(axis, index);
-    return { kind: 'line', axis, cells: Array(this.size(axis === 'R' ? 'C' : 'R')).fill(Rational.ZERO) };
+    return { kind: 'line', axis, cells: Array(this.size(axis === 'R' ? 'C' : 'R')).fill(ZERO) };
   }
 
   read(axis: Axis, index: number): Line {
     this.check(axis, index);
-    const cells = Array.from({ length: this.size(axis === 'R' ? 'C' : 'R') }, (_, position) => {
+    const cells = Array.from({ length: this.size(axis === 'R' ? 'C' : 'R') }, (_, position): Term => {
       const [row, col] = this.at(axis, index, position);
       const text = this.grid[row][col];
-      if (text.trim() === '') return Rational.ZERO;
+      if (text.trim() === '') return ZERO;
       const value = Rational.parse(text);
-      if (!value) throw new GridOpError(`Cell ${columnLabel(col)}${row + 1} ("${text}") is not a number.`);
-      return value;
+      if (value) return { kind: 'number', value };
+      if (text.startsWith('=') && text.length > 1) return { kind: 'formula', text: text.slice(1) };
+      throw new GridOpError(`Cell ${columnLabel(col)}${row + 1} ("${text}") is not a number or a formula.`);
     });
     return { kind: 'line', axis, cells };
   }
 
-  write(axis: Axis, index: number, cells: Rational[], format: NumberFormat): string[][] {
+  write(axis: Axis, index: number, cells: Term[], format: NumberFormat): string[][] {
     this.check(axis, index);
     const out = this.grid.map((row) => [...row]);
     cells.forEach((value, position) => {
       const [row, col] = this.at(axis, index, position);
-      out[row][col] = format === 'fraction' ? value.toFraction() : value.toDecimal();
+      if (value.kind === 'formula') out[row][col] = `=${value.text}`;
+      else out[row][col] = format === 'fraction' ? value.value.toFraction() : value.value.toDecimal();
     });
     return out;
   }
 }
 
 const name = (axis: Axis) => (axis === 'R' ? 'row' : 'column');
+
+/** A number as it reads inside a formula: `3`, `(1/3)`, `(-2)`. */
+const numberText = (value: Rational) => {
+  const text = value.toFraction();
+  return value.isInteger && value.num >= 0n ? text : `(${text})`;
+};
+
+/** A term as an operand of `+ - * /`: cell references and numbers stay bare, other formulas get parentheses. */
+const operand = (term: Term) => {
+  if (term.kind === 'number') return numberText(term.value);
+  return /^[A-Z]+\d+$/.test(term.text) ? term.text : `(${term.text})`;
+};
+
+const formula = (text: string): Term => ({ kind: 'formula', text });
+
+/** Combines two cells exactly when both are numbers, and into a formula as soon as one is a formula. */
+function combineTerms(op: '+' | '-', a: Term, b: Term): Term {
+  if (a.kind === 'number' && b.kind === 'number')
+    return { kind: 'number', value: op === '+' ? a.value.add(b.value) : a.value.sub(b.value) };
+  if (b.kind === 'number' && b.value.isZero) return a;
+  if (a.kind === 'number' && a.value.isZero) return op === '+' ? b : formula(`-${operand(b)}`);
+  return formula(`${operand(a)}${op}${operand(b)}`);
+}
+
+function scaleTerm(op: '*' | '/', a: Term, by: Rational): Term {
+  if (a.kind === 'number') return { kind: 'number', value: op === '*' ? a.value.mul(by) : a.value.div(by) };
+  if (op === '*' && by.isZero) return ZERO;
+  if (by.num === 1n && by.den === 1n) return a;
+  return formula(`${operand(a)}${op}${numberText(by)}`);
+}
 
 function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
   if (left.kind === 'scalar' && right.kind === 'scalar') {
@@ -114,19 +150,22 @@ function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
       );
     if (left.axis !== right.axis)
       throw new GridOpError(`Cannot mix a ${name(left.axis)} and a ${name(right.axis)}.`);
-    const cells = left.cells.map((a, i) => (op === '+' ? a.add(right.cells[i]) : a.sub(right.cells[i])));
-    return { kind: 'line', axis: left.axis, cells };
+    return {
+      kind: 'line',
+      axis: left.axis,
+      cells: left.cells.map((a, i) => combineTerms(op, a, right.cells[i])),
+    };
   }
   if (op === '+' || op === '-')
     throw new GridOpError('Cannot add a number to a whole row or column; scale it or add another one.');
   if (left.kind === 'line' && right.kind === 'scalar') {
     if (op === '/' && right.scalar.isZero) throw new GridOpError('Cannot divide by zero.');
-    const apply = (a: Rational) => (op === '*' ? a.mul(right.scalar) : a.div(right.scalar));
-    return { kind: 'line', axis: left.axis, cells: left.cells.map(apply) };
+    return { kind: 'line', axis: left.axis, cells: left.cells.map((a) => scaleTerm(op, a, right.scalar)) };
   }
-  if (op === '/') throw new GridOpError('Cannot divide a number by a whole row or column.');
-  if (left.kind === 'scalar' && right.kind === 'line')
-    return { kind: 'line', axis: right.axis, cells: right.cells.map((a) => a.mul(left.scalar)) };
+  if (left.kind === 'scalar' && right.kind === 'line') {
+    if (op === '/') throw new GridOpError('Cannot divide a number by a whole row or column.');
+    return { kind: 'line', axis: right.axis, cells: right.cells.map((a) => scaleTerm('*', a, left.scalar)) };
+  }
   throw new GridOpError('That cannot be combined.');
 }
 
@@ -186,7 +225,9 @@ const TARGET = /^([RrCc])(\d+)\s*(<->|\+=|-=|\*=|\/=|=)\s*(.+)$/;
  *   R1 -= 3*R2     R2 = R2/2     R1 = R1 - R3 + 2*R2     C2 += C1/3     R1 <-> R3
  *
  * Rows are `R1`, `R2`… and columns `C1`, `C2`… counted from 1, whatever the column letters say.
- * Every cell involved must be a plain number or fraction (empty counts as 0); the arithmetic is exact.
+ * Numbers and fractions (empty counts as 0) are combined exactly. A cell that holds a formula makes the result
+ * a formula too, built from the originals' text, so the new cell stays live: R2 -= R1 over `=SUM(B1:B3)`
+ * and `4` writes `=4-(SUM(B1:B3))`.
  */
 export function applyGridOp(grid: string[][], command: string, format: NumberFormat): string[][] {
   const match = TARGET.exec(normalise(command));
@@ -218,7 +259,7 @@ export function applyGridOp(grid: string[][], command: string, format: NumberFor
     return lines.write(
       axis,
       index,
-      cells.map(() => value.scalar),
+      cells.map((): Term => ({ kind: 'number', value: value.scalar })),
       format,
     );
   }

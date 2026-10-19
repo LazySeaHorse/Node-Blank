@@ -60,37 +60,91 @@ test('formula bar shows and edits the active cell', async ({ page }) => {
   await expect(cell(page, 2, 0)).toHaveText('20');
 });
 
-test('cell fills colour the selected cells', async ({ page }) => {
+test('right-clicking selected cells offers a fill for all of them', async ({ page }) => {
   await newSheet(page);
   await cell(page, 0, 0).click();
   await cell(page, 1, 1).click({ modifiers: ['Shift'] });
-  await sheet(page).getByLabel('Cell fill').click();
-  await page.getByLabel('Fill yellow').click();
-  await page.keyboard.press('Escape');
+  await cell(page, 1, 1).click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Fill' }).click();
+  await page.getByRole('menuitem', { name: 'Yellow' }).click();
   await expect(sheet(page).locator('td.sheet-fill-yellow')).toHaveCount(4);
+  await expect(sheet(page).getByRole('button', { name: 'Cell fill' })).toHaveCount(0);
 });
 
-test('row commands do exact arithmetic and report mistakes', async ({ page }) => {
+const rowHeader = (page: Page, row: number) =>
+  sheet(page)
+    .locator('tr')
+    .nth(row + 1)
+    .locator('th');
+const columnHeader = (page: Page, column: number) =>
+  sheet(page)
+    .locator('tr')
+    .first()
+    .locator('th')
+    .nth(column + 1);
+
+test('a selected row takes operations from the right-click menu, and the formula bar lives in the header', async ({
+  page,
+}) => {
   await newSheet(page);
+  await expect(sheet(page).locator('header').getByLabel('Formula bar')).toBeVisible();
   await sheet(page).getByRole('button', { name: 'a/b' }).click();
   await typeInto(page, 0, 0, '3');
   await typeInto(page, 0, 1, '2');
   await typeInto(page, 1, 0, '1');
   await typeInto(page, 1, 1, '1');
-  const command = page.getByLabel('Row or column operation');
 
-  await command.fill('R1 /= 3');
-  await command.press('Enter');
+  await rowHeader(page, 0).click();
+  await rowHeader(page, 0).click({ button: 'right' });
+  const box = page.getByLabel('Operation on R1');
+  await expect(box).toBeFocused();
+  await box.fill('/= 3');
+  await box.press('Enter');
+  await expect(page.getByRole('menu')).toHaveCount(0);
   await expect(cell(page, 0, 0)).toHaveText('1');
   await expect(cell(page, 0, 1)).toHaveText('2/3');
 
-  await command.fill('R2 -= R1');
-  await command.press('Enter');
-  await expect(cell(page, 1, 1)).toHaveText('1/3');
-
-  await command.fill('R9 -= R1');
-  await command.press('Enter');
+  // Right-clicking a header that is not selected selects it first; mistakes are reported in the menu.
+  await rowHeader(page, 1).click({ button: 'right' });
+  await page.getByLabel('Operation on R2').fill('-= R9');
+  await page.getByLabel('Operation on R2').press('Enter');
   await expect(page.getByRole('alert')).toContainText('does not exist');
+  await page.getByLabel('Operation on R2').fill('-= R1');
+  await page.getByLabel('Operation on R2').press('Enter');
+  await expect(cell(page, 1, 1)).toHaveText('1/3');
+});
+
+test('row operations on formulas write formulas that stay live', async ({ page }) => {
+  await newSheet(page);
+  await typeInto(page, 0, 0, '2');
+  await typeInto(page, 1, 0, '5');
+  await typeInto(page, 0, 1, '=A1*10');
+  await typeInto(page, 1, 1, '7');
+  await rowHeader(page, 1).click();
+  await rowHeader(page, 1).click({ button: 'right' });
+  await page.getByLabel('Operation on R2').fill('-= R1');
+  await page.getByLabel('Operation on R2').press('Enter');
+  await expect(cell(page, 1, 0)).toHaveText('3');
+  await expect(cell(page, 1, 1)).toHaveText('-13');
+  await cell(page, 1, 1).click();
+  await expect(page.getByLabel('Formula bar')).toHaveValue('=7-(A1*10)');
+  // Change what the formula depends on: the new cell follows.
+  await typeInto(page, 0, 0, '3');
+  await expect(cell(page, 1, 1)).toHaveText('-23');
+});
+
+test('a selected column takes operations too', async ({ page }) => {
+  await newSheet(page);
+  await typeInto(page, 0, 0, '1');
+  await typeInto(page, 1, 0, '2');
+  await typeInto(page, 0, 1, '5');
+  await typeInto(page, 1, 1, '6');
+  await columnHeader(page, 1).click();
+  await columnHeader(page, 1).click({ button: 'right' });
+  await page.getByLabel('Operation on C2').fill('-= 2*C1');
+  await page.getByLabel('Operation on C2').press('Enter');
+  await expect(cell(page, 0, 1)).toHaveText('3');
+  await expect(cell(page, 1, 1)).toHaveText('2');
 });
 
 test('fraction mode keeps typed fractions as numbers in formulas and shows results as fractions', async ({
@@ -103,14 +157,6 @@ test('fraction mode keeps typed fractions as numbers in formulas and shows resul
   await typeInto(page, 2, 0, '=A1+A2');
   await expect(cell(page, 0, 0)).toHaveText('1/3');
   await expect(cell(page, 2, 0)).toHaveText('1/2');
-});
-
-test('right-clicking a row header starts a row operation in the command box', async ({ page }) => {
-  await newSheet(page);
-  await sheet(page).locator('tr').nth(3).locator('th').click({ button: 'right' });
-  await page.getByRole('menuitem', { name: 'Add a multiple of another row…' }).click();
-  await expect(page.getByLabel('Row or column operation')).toHaveValue('R3 += ');
-  await expect(page.getByLabel('Row or column operation')).toBeFocused();
 });
 
 async function typeNote(page: Page, text: string) {

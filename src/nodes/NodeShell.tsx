@@ -14,6 +14,8 @@ interface NodeShellProps {
   /** The node's own title (`data.title`). Without a header it appears as a slim strip above the content. */
   customTitle?: string;
   icon?: LucideIcon;
+  /** Fills the header between the title and the actions, e.g. a formula bar. Stays in read-only mode. */
+  toolbar?: ReactNode;
   /** Header controls; hidden in read-only mode. */
   actions?: ReactNode;
   resize?: {
@@ -34,6 +36,7 @@ export function NodeShell({
   title,
   customTitle,
   icon: Icon,
+  toolbar,
   actions,
   resize,
   tint,
@@ -67,6 +70,11 @@ export function NodeShell({
           <header className="flex h-9 shrink-0 cursor-grab items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">
             {Icon && <Icon className="size-3.5" />}
             <NodeTitle fallback={title} value={customTitle} />
+            {toolbar && (
+              <div className="nodrag nokey ml-1 flex min-w-0 flex-1 items-center font-normal tracking-normal normal-case">
+                {toolbar}
+              </div>
+            )}
             {!readOnly && actions && (
               <div className="nodrag ml-auto flex items-center gap-1 normal-case">{actions}</div>
             )}

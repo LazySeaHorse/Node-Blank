@@ -1,7 +1,7 @@
 import { useReactFlow } from '@xyflow/react';
 import { useEffect, useEffectEvent, useState } from 'react';
 import type { MenuEntry } from '@/ui/Menu';
-import { isTyping } from './keyboard';
+import { isTextField, isTyping } from './keyboard';
 import { menuFor } from './menus';
 import { useCanvasActions } from './useCanvasActions';
 import { useWrapInSection } from './useSections';
@@ -11,9 +11,11 @@ const CLICK_SLOP = 4;
 
 type Point = { x: number; y: number };
 
-/** Fields keep their native menu; math fields and sheet headers use ours. */
+/** Fields keep their native menu; math fields and the cells and headers of a sheet (unless one is being edited) use ours. */
 const ownMenu = (target: Element) =>
-  !isTyping(target) || target.closest('math-field, [data-sheet-line]') !== null;
+  !isTyping(target) ||
+  target.closest('math-field') !== null ||
+  (target.closest('.Spreadsheet') !== null && !isTextField(target));
 
 /** Right-clicks that land on the canvas and want our menu. */
 const onCanvas = (target: Element | null): target is Element =>

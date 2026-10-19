@@ -1,6 +1,6 @@
 import { Check, ChevronRight, type LucideIcon } from 'lucide-react';
 import { DropdownMenu } from 'radix-ui';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 export interface MenuItem {
@@ -21,7 +21,17 @@ export interface MenuSub {
   items: MenuEntry[];
   icon?: LucideIcon;
 }
-export type MenuEntry = MenuItem | MenuSub | { separator: true } | { heading: string };
+/** A text box inside a menu. `onSubmit` returns an error to show under it, or nothing to accept and close. */
+export interface MenuField {
+  field: {
+    /** Fixed text in front of what is typed, e.g. the row being operated on. */
+    prefix: string;
+    placeholder?: string;
+    hint?: string;
+    onSubmit: (text: string) => string | undefined;
+  };
+}
+export type MenuEntry = MenuItem | MenuSub | MenuField | { separator: true } | { heading: string };
 
 const itemClass =
   'flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-surface-2 data-[disabled]:opacity-40';
@@ -34,8 +44,11 @@ type Parts = Pick<
 >;
 
 /** Renders menu entries with the given Radix parts, so every menu in the app looks and behaves alike. */
-export function renderEntries(parts: Parts, entries: MenuEntry[]): ReactNode {
+export function renderEntries(parts: Parts, entries: MenuEntry[], close?: () => void): ReactNode {
   return entries.map((entry, i) => {
+    if ('field' in entry)
+      // biome-ignore lint/suspicious/noArrayIndexKey: static list, a field has no identity.
+      return <FieldRow key={i} {...entry.field} close={close} />;
     if ('separator' in entry)
       // biome-ignore lint/suspicious/noArrayIndexKey: static list, separators have no identity.
       return <parts.Separator key={i} className="mx-1.5 my-1 h-px bg-border" />;
@@ -56,7 +69,7 @@ export function renderEntries(parts: Parts, entries: MenuEntry[]): ReactNode {
           </parts.SubTrigger>
           <parts.Portal>
             <parts.SubContent sideOffset={6} alignOffset={-6} className={panelClass}>
-              {renderEntries(parts, entry.items)}
+              {renderEntries(parts, entry.items, close)}
             </parts.SubContent>
           </parts.Portal>
         </parts.Sub>
@@ -82,6 +95,57 @@ export function renderEntries(parts: Parts, entries: MenuEntry[]): ReactNode {
       </parts.Item>
     );
   });
+}
+
+/** The row for a MenuField. Keys stay in the box (Radix would use them to move through items), except Escape. */
+function FieldRow({
+  prefix,
+  placeholder,
+  hint,
+  onSubmit,
+  close,
+}: MenuField['field'] & { close?: () => void }) {
+  const [error, setError] = useState<string>();
+  const input = useRef<HTMLInputElement>(null);
+  // Radix focuses the menu itself as it opens; take the caret after that.
+  useEffect(() => {
+    const timer = setTimeout(() => input.current?.focus(), 0);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <form
+      className="px-2.5 py-1.5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const text = new FormData(event.currentTarget).get('text') as string;
+        const problem = text.trim() ? onSubmit(text) : undefined;
+        setError(problem);
+        if (!problem && text.trim()) close?.();
+      }}
+    >
+      <div className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-2 py-1 focus-within:border-accent">
+        <span className="shrink-0 font-mono text-xs font-semibold text-muted">{prefix}</span>
+        <input
+          ref={input}
+          name="text"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={placeholder}
+          aria-label={`Operation on ${prefix}`}
+          onChange={() => setError(undefined)}
+          onKeyDown={(event) => event.key !== 'Escape' && event.stopPropagation()}
+          className="min-w-0 flex-1 bg-transparent font-mono text-xs outline-none placeholder:text-muted/70"
+        />
+      </div>
+      {error ? (
+        <p role="alert" className="mt-1 text-xs text-danger">
+          {error}
+        </p>
+      ) : (
+        hint && <p className="mt-1 text-xs text-muted">{hint}</p>
+      )}
+    </form>
+  );
 }
 
 interface MenuProps {
