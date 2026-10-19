@@ -19,6 +19,7 @@ import { ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
 import * as workspace from '@/store/workspace';
 import { askText } from '@/ui/dialogs';
+import { celebrate } from '@/ui/toast';
 
 /** User-facing canvas actions that need the viewport (where to put things) and UI feedback. */
 export function useCanvasActions() {
@@ -83,7 +84,7 @@ export function useCanvasActions() {
     const file = await pickFile('application/json,.json');
     if (!file) return;
     try {
-      toast.success(await workspace.importFile(parseExportFile(await file.text()), centered()));
+      celebrate(await workspace.importFile(parseExportFile(await file.text()), centered()));
     } catch (error) {
       toast.error(error instanceof ImportError ? error.message : 'Import failed');
     }

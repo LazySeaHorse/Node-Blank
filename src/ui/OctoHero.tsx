@@ -218,7 +218,7 @@ export function OctoHero({ mood, scene, tag, size = 'tall', className }: OctoHer
       </div>
 
       {tag && (
-        <span className="absolute top-3 left-3.5 rounded-full border border-border bg-surface px-2 py-[3px] font-mono text-[10px] text-fg uppercase tracking-[0.06em]">
+        <span className="absolute top-3 left-3.5 rounded-full border border-border bg-surface px-2 py-[3px] font-mono text-2xs text-fg uppercase tracking-[0.06em]">
           {tag}
         </span>
       )}

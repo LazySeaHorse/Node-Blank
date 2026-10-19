@@ -96,57 +96,6 @@ body {
   background: transparent;
 }
 
-/* ── Mascot: arms sway, the head bobs, eyes blink.
-      Faster while an agent is working. (Straight from the app.) ── */
-@keyframes mascot-sway {
-  0%,
-  100% {
-    transform: rotate(-3deg);
-  }
-  50% {
-    transform: rotate(3deg);
-  }
-}
-@keyframes mascot-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-@keyframes mascot-blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-  96% {
-    transform: scaleY(0.1);
-  }
-}
-.mascot-arm {
-  transform-box: view-box;
-  transform-origin: 64px 74px;
-  animation: mascot-sway 3.2s ease-in-out infinite;
-}
-.mascot-head {
-  transform-box: view-box;
-  animation: mascot-bob 3.2s ease-in-out infinite;
-}
-.mascot-eyes {
-  transform-box: view-box;
-  transform-origin: 64px 58px;
-  animation: mascot-blink 5s infinite;
-}
-.mascot-working .mascot-arm {
-  animation-duration: 0.9s;
-}
-.mascot-working .mascot-head {
-  animation-duration: 0.9s;
-}
-
 /* A node an AI agent just changed, frozen mid-flash. */
 .ai-touched {
   border-radius: 0.5rem;
@@ -259,11 +208,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-  .mascot-arm,
-  .mascot-head,
-  .mascot-eyes {
-    animation: none !important;
   }
   *,
   *::before,

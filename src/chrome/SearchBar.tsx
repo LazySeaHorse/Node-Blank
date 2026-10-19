@@ -22,7 +22,7 @@ export function SearchBar() {
       >
         <Search className="size-4 shrink-0" />
         <span className="hidden flex-1 text-left whitespace-nowrap xl:inline">Search nodes</span>
-        <kbd className="hidden rounded-md border border-border px-1.5 font-mono text-[11px] xl:inline">
+        <kbd className="hidden rounded-md border border-border px-1.5 font-mono text-2xs xl:inline">
           {isMac ? '⌘F' : 'Ctrl F'}
         </kbd>
       </button>
