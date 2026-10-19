@@ -6,8 +6,8 @@ describe('normalisePins', () => {
     expect(normalisePins([5, 3, 5, 9])).toEqual([3, 5, 9]);
   });
 
-  it('never keeps the cover', () => {
-    expect(normalisePins([1, 2])).toEqual([2]);
+  it('keeps the cover when it is pinned', () => {
+    expect(normalisePins([2, 1])).toEqual([1, 2]);
   });
 
   it('drops anything that is not a page number', () => {
@@ -17,6 +17,7 @@ describe('normalisePins', () => {
   it('clamps to the page count when known', () => {
     expect(normalisePins([2, 8, 12], 8)).toEqual([2, 8]);
     expect(normalisePins([2, 8, 12], 1)).toEqual([]);
+    expect(normalisePins([1, 2], 1)).toEqual([1]);
   });
 });
 
@@ -27,21 +28,27 @@ describe('togglePin', () => {
     expect(togglePin(pinned, 7)).toEqual([3]);
   });
 
-  it('ignores the cover', () => {
-    expect(togglePin([], 1)).toEqual([]);
+  it('pins the cover like any page', () => {
+    expect(togglePin([4], 1)).toEqual([1, 4]);
   });
 });
 
 describe('shownPages', () => {
-  it('leads with the cover', () => {
-    expect(shownPages([4, 2])).toEqual([1, 2, 4]);
+  it('shows the pins only', () => {
+    expect(shownPages([4, 2])).toEqual([2, 4]);
+    expect(shownPages([4, 1])).toEqual([1, 4]);
+  });
+
+  it('falls back to the cover while nothing is pinned', () => {
     expect(shownPages([])).toEqual([1]);
   });
 });
 
 describe('hiddenPageCount', () => {
   it('counts the pages not shown', () => {
-    expect(hiddenPageCount([3], 40)).toBe(38);
+    expect(hiddenPageCount([3], 40)).toBe(39);
+    expect(hiddenPageCount([], 40)).toBe(39);
+    expect(hiddenPageCount([2, 3], 40)).toBe(38);
     expect(hiddenPageCount([], 1)).toBe(0);
   });
 

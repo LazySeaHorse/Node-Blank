@@ -28,8 +28,8 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
   move, resize and delete sections but not create them. They are separate from groups.
 - image: uploaded by the user; you can move, resize or delete images but not create them or see them.
 
-- pdf: a PDF the user linked from their disk. Its cover (page 1) is always shown and the user pins other pages
-  to show them. read_nodes gives you the text of page 1 and the pinned pages only; other pages are off limits and
+- pdf: a PDF the user linked from their disk. It shows the pages the user pinned, or its cover (page 1) while
+  nothing is pinned. read_nodes gives you the text of the shown pages only; other pages are off limits and
   are never shown to you. If it says the file is not connected, ask the user to click Reconnect on the node.
   You cannot create pdf nodes or change what they show, only move, delete or retitle them.
 

@@ -33,7 +33,7 @@ export type NodeDataMap = {
     /** Key into the `pdfFiles` table. */
     fileId: string;
     fileName: string;
-    /** 1-based page numbers shown after the cover, sorted and unique. Never contains 1: the cover is always shown. */
+    /** 1-based page numbers shown on the node, sorted and unique. The cover is shown instead while this is empty. */
     pinned: number[];
     /** Which way the filmstrip runs; `row` when omitted. */
     direction?: 'row' | 'column';

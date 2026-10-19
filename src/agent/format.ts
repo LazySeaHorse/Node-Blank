@@ -42,7 +42,9 @@ function imageLabel(src: string): string {
 export function pdfSummary(data: NodeDataMap['pdf']): string {
   const pages = data.pageCount === undefined ? 'page count unknown' : `${data.pageCount} pages`;
   const pinned =
-    data.pinned.length > 0 ? `pages 1 (cover) and ${data.pinned.join(', ')}` : 'page 1 (cover) only';
+    data.pinned.length > 0
+      ? `pinned pages ${data.pinned.join(', ')}`
+      : 'page 1 (cover) only, as nothing is pinned';
   return `${data.fileName}, ${pages}; shown to the user and readable by you: ${pinned}`;
 }
 

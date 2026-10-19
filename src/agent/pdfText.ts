@@ -15,8 +15,9 @@ export function joinTextRuns(runs: readonly ({ str: string; hasEOL: boolean } | 
 }
 
 /**
- * The text of the pages the user has on show: the cover and the pinned pages, never any other. Read from
- * the document a node has open in this tab, so it is only there once the user has connected the file.
+ * The text of the pages the user has on show: the pinned pages, or the cover while nothing is pinned, never
+ * any other. Read from the document a node has open in this tab, so it is only there once the user has
+ * connected the file.
  */
 export async function shownPagesText(data: NodeOf<'pdf'>['data']): Promise<string> {
   const doc = openPdf(data.fileId);

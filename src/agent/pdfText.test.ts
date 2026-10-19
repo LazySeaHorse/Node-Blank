@@ -32,11 +32,17 @@ describe('shownPagesText', () => {
     expect(await shownPagesText(pdfData([3]))).toBe(PDF_NOT_CONNECTED);
   });
 
-  it('reads the cover and pinned pages and nothing else', async () => {
+  it('reads the pinned pages and nothing else', async () => {
     vi.mocked(openPdf).mockReturnValue(fakeDoc(5) as unknown as ReturnType<typeof openPdf>);
     const text = await shownPagesText(pdfData([3, 9]));
-    expect(text).toContain('text of page 1');
     expect(text).toContain('text of page 3');
-    for (const hidden of [2, 4, 5, 9]) expect(text).not.toContain(`page ${hidden}`);
+    for (const hidden of [1, 2, 4, 5, 9]) expect(text).not.toContain(`page ${hidden}`);
+  });
+
+  it('reads only the cover while nothing is pinned', async () => {
+    vi.mocked(openPdf).mockReturnValue(fakeDoc(5) as unknown as ReturnType<typeof openPdf>);
+    const text = await shownPagesText(pdfData([]));
+    expect(text).toContain('text of page 1');
+    for (const hidden of [2, 3, 4, 5]) expect(text).not.toContain(`page ${hidden}`);
   });
 });

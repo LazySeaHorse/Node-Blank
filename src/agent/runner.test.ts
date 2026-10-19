@@ -153,7 +153,7 @@ describe('reading', () => {
     ]);
     const text = await call('read_nodes', { ids: ['n1'] });
     expect(text).toContain('paper.pdf, 12 pages');
-    expect(text).toContain('pages 1 (cover) and 4, 7');
+    expect(text).toContain('pinned pages 4, 7');
     expect(text).toContain('PDF file not connected; ask the user to click Reconnect on the node.');
     expect(await call('search_nodes', { query: 'paper' })).toContain('n1 pdf');
   });

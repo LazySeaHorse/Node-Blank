@@ -65,14 +65,10 @@ export default function PdfReader({ nodeId, data, doc, handle, initial, onClose 
     const pinned = data.pinned.includes(page);
     return (
       <>
-        {page === COVER_PAGE ? (
-          <span className="px-2 text-xs text-muted">Cover, always shown</span>
-        ) : (
-          <Button disabled={readOnly} onClick={() => pin(page)}>
-            {pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
-            {pinned ? 'Unpin' : 'Pin'}
-          </Button>
-        )}
+        <Button disabled={readOnly} onClick={() => pin(page)}>
+          {pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+          {pinned ? 'Unpin' : 'Pin'}
+        </Button>
         <Button onClick={() => void popOut(page)}>
           <Image className="size-4" />
           Pop out as image
@@ -225,7 +221,6 @@ function Thumbnail({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const near = useNearScreen(ref);
-  const alwaysShown = page === COVER_PAGE;
   return (
     <div ref={ref} className="flex flex-col items-center gap-1.5" style={{ width: THUMBNAIL_WIDTH }}>
       <div className="group relative" style={{ minHeight: near ? undefined : THUMBNAIL_WIDTH * 1.3 }}>
@@ -235,7 +230,7 @@ function Thumbnail({
           onClick={onOpen}
           className={cn(
             'block cursor-pointer shadow-sm ring-1 transition hover:ring-2 hover:ring-accent',
-            pinned || alwaysShown ? 'ring-accent' : 'ring-border',
+            pinned ? 'ring-accent' : 'ring-border',
           )}
         >
           {near ? (
@@ -244,25 +239,23 @@ function Thumbnail({
             <div className="bg-surface-2" style={{ width: THUMBNAIL_WIDTH, height: THUMBNAIL_WIDTH * 1.3 }} />
           )}
         </button>
-        {!alwaysShown && (
-          <button
-            type="button"
-            aria-label={pinned ? `Unpin page ${page}` : `Pin page ${page}`}
-            aria-pressed={pinned}
-            disabled={readOnly}
-            onClick={onPin}
-            className={cn(
-              'absolute top-1.5 right-1.5 flex size-7 cursor-pointer items-center justify-center rounded-full shadow-md transition-opacity disabled:pointer-events-none',
-              pinned
-                ? 'bg-accent text-accent-fg'
-                : 'bg-surface text-muted opacity-0 group-focus-within:opacity-100 group-hover:opacity-100',
-            )}
-          >
-            <Pin className={cn('size-3.5', pinned && 'fill-current')} />
-          </button>
-        )}
+        <button
+          type="button"
+          aria-label={pinned ? `Unpin page ${page}` : `Pin page ${page}`}
+          aria-pressed={pinned}
+          disabled={readOnly}
+          onClick={onPin}
+          className={cn(
+            'absolute top-1.5 right-1.5 flex size-7 cursor-pointer items-center justify-center rounded-full shadow-md transition-opacity disabled:pointer-events-none',
+            pinned
+              ? 'bg-accent text-accent-fg'
+              : 'bg-surface text-muted opacity-0 group-focus-within:opacity-100 group-hover:opacity-100',
+          )}
+        >
+          <Pin className={cn('size-3.5', pinned && 'fill-current')} />
+        </button>
       </div>
-      <span className="text-xs text-muted tabular-nums">{alwaysShown ? '1 · cover' : page}</span>
+      <span className="text-xs text-muted tabular-nums">{page === COVER_PAGE ? '1 · cover' : page}</span>
     </div>
   );
 }

@@ -112,7 +112,10 @@ function Disconnected({
   );
 }
 
-/** The cover, then the pinned pages, scaled to fill the node's height (a row) or width (a column). */
+/**
+ * The pinned pages, or the cover while nothing is pinned, scaled to fill the node's height (a row) or width
+ * (a column).
+ */
 function Filmstrip({
   doc,
   data,
@@ -161,12 +164,12 @@ function Filmstrip({
           <button
             key={page}
             type="button"
-            aria-label={page === 1 ? 'Open the PDF' : `Open page ${page}`}
+            aria-label={data.pinned.length === 0 ? 'Open the PDF' : `Open page ${page}`}
             className="nodrag shrink-0 cursor-pointer self-start shadow-sm ring-1 ring-border transition hover:ring-2 hover:ring-accent"
             onPointerDown={(e) => {
               press.current = { x: e.clientX, y: e.clientY };
             }}
-            onClick={(e) => open(e, page === 1 ? 'grid' : page)}
+            onClick={(e) => open(e, data.pinned.length === 0 ? 'grid' : page)}
           >
             <PdfPage doc={doc} page={page} fit={fit} pixelRatio={pixelRatio} />
           </button>

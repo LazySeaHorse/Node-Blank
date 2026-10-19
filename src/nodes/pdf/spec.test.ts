@@ -21,7 +21,7 @@ describe('pdfSpec', () => {
       lastModified: 1,
       size: 10,
     });
-    expect(data.pinned).toEqual([3, 9]);
+    expect(data.pinned).toEqual([1, 3, 9]);
   });
 
   it('rejects page numbers that are not whole pages', () => {
