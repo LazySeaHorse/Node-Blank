@@ -46,4 +46,14 @@ describe('Markdown math, Obsidian-style', () => {
     const { container } = render(<Markdown source="costs $5 and $6 total" />);
     expect(container.querySelectorAll('.katex-error')).toHaveLength(0);
   });
+
+  it('keeps every row of a one-line aligned block, `\\` separators included', () => {
+    const rows = ['3x_1 + 2x_2 &= 225', 'x_1 + x_2 &= 117', 'Z - 19x_1 &= 0'];
+    const tex = String.raw`\begin{aligned} ${rows.join(String.raw` \\ `)} \end{aligned}`;
+    const { container } = render(<Markdown source={`$$${tex}$$`} />);
+    expect(container.querySelectorAll('.katex-error')).toHaveLength(0);
+    expect(container.querySelectorAll('.katex-display')).toHaveLength(1);
+    expect(container.querySelector('annotation')?.textContent).toBe(tex);
+    expect(container.querySelectorAll('mtr')).toHaveLength(rows.length);
+  });
 });
