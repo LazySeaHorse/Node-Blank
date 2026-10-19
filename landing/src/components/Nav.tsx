@@ -1,6 +1,6 @@
 import { GithubIcon } from '@landing/components/GithubIcon';
 import { Mascot } from '@landing/components/Mascot';
-import { motion, useScroll, useSpring } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -17,6 +17,7 @@ const LINKS = [
 export function Nav() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.3 });
+  const reduce = useReducedMotion();
   const [solid, setSolid] = useState(false);
 
   useEffect(() => {
@@ -28,10 +29,12 @@ export function Nav() {
 
   return (
     <>
-      <motion.div
-        style={{ scaleX: progress }}
-        className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-accent"
-      />
+      {!reduce && (
+        <motion.div
+          style={{ scaleX: progress }}
+          className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-accent"
+        />
+      )}
       <header
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
@@ -69,7 +72,7 @@ export function Nav() {
             </a>
             <a
               href={APP_URL}
-              className="rounded-lg bg-accent px-3.5 py-1.5 text-[13px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+              className="rounded-lg bg-accent px-3.5 py-1.5 text-[13px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 motion-safe:active:scale-[0.98]"
             >
               Open the canvas
             </a>

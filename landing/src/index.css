@@ -39,11 +39,6 @@
 
   --font-display: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  /* Flattened scale, as in the app: semibold/bold/extrabold/black all render as 500. */
-  --font-weight-semibold: 500;
-  --font-weight-bold: 500;
-  --font-weight-extrabold: 500;
-  --font-weight-black: 500;
 
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
@@ -214,8 +209,5 @@ body {
   *::after {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-  [class*="active:scale"]:active {
-    transform: none !important;
   }
 }

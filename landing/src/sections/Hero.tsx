@@ -75,7 +75,7 @@ export function Hero() {
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <a
               href={APP_URL}
-              className="group inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[14.5px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+              className="group inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[14.5px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 motion-safe:active:scale-[0.98]"
             >
               Open Node-Blank
               <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -84,7 +84,7 @@ export function Hero() {
               href={REPO_URL}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-[14.5px] font-medium text-fg cursor-pointer transition-[background-color,transform] hover:bg-surface-2 active:scale-[0.98]"
+              className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-[14.5px] font-medium text-fg cursor-pointer transition-[background-color,transform] hover:bg-surface-2 motion-safe:active:scale-[0.98]"
             >
               <GithubIcon className="size-4 text-muted transition-colors group-hover:text-fg" />
               View the source

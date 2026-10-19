@@ -60,7 +60,7 @@ export function FinalCta() {
             <div className="mt-7 flex flex-wrap items-center gap-3 pb-8">
               <a
                 href={APP_URL}
-                className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+                className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 motion-safe:active:scale-[0.98]"
               >
                 Launch Node-Blank
                 <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -69,7 +69,7 @@ export function FinalCta() {
                 href={REPO_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-5 py-3 text-[15px] font-medium text-fg cursor-pointer transition-[background-color,transform] hover:bg-surface-2 active:scale-[0.98]"
+                className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-5 py-3 text-[15px] font-medium text-fg cursor-pointer transition-[background-color,transform] hover:bg-surface-2 motion-safe:active:scale-[0.98]"
               >
                 <GithubIcon className="size-4 text-muted transition-colors group-hover:text-fg" />
                 Star the repo
