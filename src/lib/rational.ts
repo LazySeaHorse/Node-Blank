@@ -28,6 +28,31 @@ export class Rational {
     return sign === '-' ? value.neg() : value;
   }
 
+  /**
+   * The simplest fraction with a denominator up to `maxDenominator` that matches `value` to about nine
+   * digits (`0.6666666667` is 2/3), or null when there is none. Used to show computed numbers as fractions.
+   */
+  static fromNumber(value: number, maxDenominator = 10_000): Rational | null {
+    if (!Number.isFinite(value)) return null;
+    if (Number.isInteger(value)) return new Rational(BigInt(value));
+    const target = Math.abs(value);
+    const tolerance = 1e-9 * Math.max(1, target);
+    // Continued-fraction convergents p/q: each is the best fraction for its denominator size.
+    let [p0, q0, p1, q1] = [1, 0, Math.floor(target), 1];
+    let rest = target - p1;
+    while (rest > 1e-12) {
+      const inverse = 1 / rest;
+      const term = Math.floor(inverse);
+      const [p2, q2] = [term * p1 + p0, term * q1 + q0];
+      if (q2 > maxDenominator) break;
+      [p0, q0, p1, q1] = [p1, q1, p2, q2];
+      rest = inverse - term;
+      if (Math.abs(target - p1 / q1) < tolerance) break;
+    }
+    if (Math.abs(target - p1 / q1) >= tolerance) return null;
+    return new Rational(BigInt(value < 0 ? -p1 : p1), BigInt(q1));
+  }
+
   get isZero() {
     return this.num === 0n;
   }

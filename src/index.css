@@ -138,6 +138,32 @@ math-field::part(virtual-keyboard-toggle) {
   --header-background-color: var(--surface-2);
 }
 
+/* Sheet cell fills: the section palette, softened so text stays readable in both themes. */
+.react-flow .Spreadsheet__cell.sheet-fill {
+  background-color: color-mix(in srgb, var(--cell-fill) 55%, var(--surface));
+}
+.sheet-fill-yellow {
+  --cell-fill: var(--section-yellow);
+}
+.sheet-fill-green {
+  --cell-fill: var(--section-green);
+}
+.sheet-fill-blue {
+  --cell-fill: var(--section-blue);
+}
+.sheet-fill-purple {
+  --cell-fill: var(--section-purple);
+}
+.sheet-fill-pink {
+  --cell-fill: var(--section-pink);
+}
+.sheet-fill-orange {
+  --cell-fill: var(--section-orange);
+}
+.sheet-fill-gray {
+  --cell-fill: var(--section-gray);
+}
+
 /* Nodes an AI agent just changed. */
 @keyframes ai-touched {
   from {

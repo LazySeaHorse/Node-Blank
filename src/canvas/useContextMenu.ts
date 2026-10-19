@@ -11,8 +11,9 @@ const CLICK_SLOP = 4;
 
 type Point = { x: number; y: number };
 
-/** Fields keep their native menu; math fields use ours, which carries the useful part of MathLive's. */
-const ownMenu = (target: Element) => !isTyping(target) || target.closest('math-field') !== null;
+/** Fields keep their native menu; math fields and sheet headers use ours. */
+const ownMenu = (target: Element) =>
+  !isTyping(target) || target.closest('math-field, [data-sheet-line]') !== null;
 
 /** Right-clicks that land on the canvas and want our menu. */
 const onCanvas = (target: Element | null): target is Element =>

@@ -14,7 +14,13 @@ export type NodeDataMap = {
   mathPlus: Titled & { latex: string; color?: SectionColor };
   graph: Titled & { functions: string[] };
   table: Titled & { cells: string[][] };
-  sheet: Titled & { cells: string[][] };
+  sheet: Titled & {
+    cells: string[][];
+    /** Keeps numbers as exact fractions: `1/3` is a number and row operations write fractions. */
+    fractions?: boolean;
+    /** Cell fill by A1 reference, e.g. `{ B2: 'yellow' }`. */
+    fills?: Record<string, SectionColor>;
+  };
   code: Titled & { source: string };
   image: Titled & { src: string };
   video: Titled & { url: string };

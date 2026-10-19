@@ -17,6 +17,8 @@ interface UiState {
   renamingSection: string | null;
   /** The node whose own title is open for editing, if any. */
   renamingNode: string | null;
+  /** Text a menu wants in a sheet's command box; the sheet takes it, focuses the box and clears this. */
+  sheetCommand: { id: string; text: string } | null;
   setTool: (tool: NodeKind) => void;
   toggleTheme: () => void;
   openSearch: () => void;
@@ -32,6 +34,8 @@ interface UiState {
   renameNode: (id: string) => void;
   /** Closes the title editor of node `id`, unless another node has taken over since. */
   stopRenamingNode: (id: string) => void;
+  prefillSheetCommand: (id: string, text: string) => void;
+  clearSheetCommand: () => void;
 }
 
 const systemTheme = (): Theme =>
@@ -48,6 +52,7 @@ export const useUiStore = create<UiState>()(
       aiTab: 'connect',
       renamingSection: null,
       renamingNode: null,
+      sheetCommand: null,
       setTool: (tool) => set({ tool }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       openSearch: () => set({ searchOpen: true }),
@@ -60,6 +65,8 @@ export const useUiStore = create<UiState>()(
       stopRenaming: (id) => set((s) => (s.renamingSection === id ? { renamingSection: null } : s)),
       renameNode: (id) => set({ renamingNode: id }),
       stopRenamingNode: (id) => set((s) => (s.renamingNode === id ? { renamingNode: null } : s)),
+      prefillSheetCommand: (id, text) => set({ sheetCommand: { id, text } }),
+      clearSheetCommand: () => set({ sheetCommand: null }),
     }),
     { name: 'node-blank-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
   ),

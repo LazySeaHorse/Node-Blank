@@ -14,7 +14,8 @@ type Token =
   | { type: 'line'; axis: Axis; index: number }
   | { type: 'op'; value: '+' | '-' | '*' | '/' | '(' | ')' };
 
-const columnLabel = (index: number) => {
+/** Spreadsheet column letters for a zero-based index: 0 is A, 26 is AA. */
+export const columnLabel = (index: number) => {
   let label = '';
   for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26))
     label = String.fromCharCode(65 + ((n - 1) % 26)) + label;

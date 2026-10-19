@@ -44,3 +44,18 @@ describe('Rational formatting', () => {
     expect(r('-1/100000000000').toDecimal(4)).toBe('0');
   });
 });
+
+describe('Rational.fromNumber', () => {
+  it('recovers simple fractions from doubles', () => {
+    expect(Rational.fromNumber(2 / 3)?.toFraction()).toBe('2/3');
+    expect(Rational.fromNumber(-0.125)?.toFraction()).toBe('-1/8');
+    expect(Rational.fromNumber(1 / 3 + 1 / 6)?.toFraction()).toBe('1/2');
+    expect(Rational.fromNumber(7)?.toFraction()).toBe('7');
+    expect(Rational.fromNumber(225 / 7)?.toFraction()).toBe('225/7');
+  });
+
+  it('gives up on numbers with no small fraction', () => {
+    expect(Rational.fromNumber(Math.PI)).toBeNull();
+    expect(Rational.fromNumber(Number.NaN)).toBeNull();
+  });
+});

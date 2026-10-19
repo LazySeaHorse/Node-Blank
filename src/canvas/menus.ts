@@ -8,11 +8,13 @@ import {
   AlignStartHorizontal,
   AlignStartVertical,
   ArrowDownToLine,
+  ArrowLeftRight,
   ArrowUpToLine,
   Calculator,
   Clipboard,
   Copy,
   CopyPlus,
+  Divide,
   Maximize,
   MousePointer2,
   PaintBucket,
@@ -23,8 +25,10 @@ import {
   SquareDashed,
   Trash2,
   Ungroup,
+  X,
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
+import { columnLabel } from '@/lib/gridOps';
 import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
@@ -123,6 +127,22 @@ const rename = (node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry => ({
   onSelect: () => void setTimeout(() => useUiStore.getState().renameNode(node.id), 0),
 });
 
+/** Row operations offered on a sheet's row or column header; each starts a command in the sheet's command box. */
+export function sheetLineMenu(node: NodeOf<'sheet'>, line: string): MenuEntry[] {
+  const axis = line[0] === 'R' ? 'row' : 'column';
+  const start = (text: string) => () =>
+    void setTimeout(() => useUiStore.getState().prefillSheetCommand(node.id, text), 0);
+  const heading =
+    axis === 'row' ? `Row ${line.slice(1)}` : `Column ${columnLabel(Number(line.slice(1)) - 1)} (${line})`;
+  return [
+    { heading },
+    { label: `Add a multiple of another ${axis}…`, icon: Plus, onSelect: start(`${line} += `) },
+    { label: `Multiply ${axis} by…`, icon: X, onSelect: start(`${line} *= `) },
+    { label: `Divide ${axis} by…`, icon: Divide, onSelect: start(`${line} /= `) },
+    { label: `Swap with another ${axis}…`, icon: ArrowLeftRight, onSelect: start(`${line} <-> ${line[0]}`) },
+  ];
+}
+
 export function nodeMenu(node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry[] {
   const extra = (kindItems[node.type] as ((n: AppNode) => MenuEntry[]) | undefined)?.(node) ?? [];
   return [
@@ -215,6 +235,8 @@ export function menuFor(target: Element | null, at: XYPosition, actions: MenuAct
   const hit = useCanvasStore.getState().nodes.find((n) => n.id === id);
   if (!hit) return canvasMenu(at, actions);
   if (!hit.selected) useCanvasStore.getState().setSelection((n) => n.id === hit.id);
+  const line = target?.closest<HTMLElement>('[data-sheet-line]')?.dataset.sheetLine;
+  if (hit.type === 'sheet' && line) return sheetLineMenu(hit, line);
   if (useCanvasStore.getState().nodes.filter((n) => n.selected).length > 1) return selectionMenu(actions);
   return hit.type === 'section' ? sectionMenu(hit) : nodeMenu(hit);
 }

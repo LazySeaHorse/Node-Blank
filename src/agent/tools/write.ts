@@ -59,6 +59,14 @@ const content = {
   sheet: {
     cells: cellsSchema.describe('Rows of cells; formulas start with "=" and use A1 references.'),
     title,
+    fractions: z
+      .boolean()
+      .optional()
+      .describe('Exact fraction mode: cells like 1/3 are numbers and results show as fractions.'),
+    fills: z
+      .record(z.string(), z.enum(SECTION_COLORS))
+      .optional()
+      .describe('Cell background by A1 reference, e.g. {"B2": "yellow"}.'),
   },
   code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'), title },
   video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
