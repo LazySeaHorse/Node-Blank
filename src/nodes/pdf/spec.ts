@@ -3,14 +3,16 @@ import { z } from 'zod';
 import { type NodeSpec, titleField } from '../spec';
 import { normalisePins } from './pins';
 
+/** Linking files needs the File System Access API, which only Chromium browsers have. */
+export const pdfSupported = () => typeof window !== 'undefined' && 'showOpenFilePicker' in window;
+
 export const pdfSpec: NodeSpec<'pdf'> = {
   kind: 'pdf',
   label: 'PDF',
   description: 'Link a PDF from disk and pin the pages you want in view',
   icon: FileText,
   placement: 'insert',
-  // Links files through the File System Access API, which only Chromium browsers have.
-  available: () => typeof window !== 'undefined' && 'showOpenFilePicker' in window,
+  available: pdfSupported,
   schema: z.object({
     fileId: z.string(),
     fileName: z.string().max(500),
