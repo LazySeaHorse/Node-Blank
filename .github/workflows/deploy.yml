@@ -16,6 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Checks report status but never gate the deploy.
   check:
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +36,16 @@ jobs:
         with:
           name: playwright-report
           path: test-results
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
@@ -42,7 +53,7 @@ jobs:
           path: ./dist
 
   deploy:
-    needs: check
+    needs: build
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
