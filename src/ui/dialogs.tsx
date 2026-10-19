@@ -24,6 +24,7 @@ type Request =
       title: string;
       message: string;
       confirmLabel: string;
+      destructive?: boolean;
       hero?: Hero;
       resolve: (v: boolean) => void;
     };
@@ -46,6 +47,8 @@ export function confirmAction(options: {
   title: string;
   message: string;
   confirmLabel?: string;
+  /** Styles the confirm button as a destructive action. */
+  destructive?: boolean;
   hero?: Hero;
 }) {
   return new Promise<boolean>((resolve) =>
@@ -100,7 +103,10 @@ function DialogView({ request }: { request: Request }) {
           <Button variant="ghost" onClick={() => finish(null)}>
             Cancel
           </Button>
-          <Button type="submit" variant={request.kind === 'confirm' ? 'danger' : 'primary'}>
+          <Button
+            type="submit"
+            variant={request.kind === 'confirm' && request.destructive ? 'danger' : 'primary'}
+          >
             {request.kind === 'confirm' ? request.confirmLabel : 'OK'}
           </Button>
         </div>

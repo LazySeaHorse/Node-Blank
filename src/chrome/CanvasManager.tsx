@@ -108,6 +108,7 @@ function CanvasRow({
       title: 'Delete canvas?',
       message: `"${canvas.name}" will be permanently deleted.`,
       confirmLabel: 'Delete',
+      destructive: true,
       hero: { mood: 'nervous', scene: 'delete' },
     });
     if (confirmed) await workspace.removeCanvas(canvas.id);
