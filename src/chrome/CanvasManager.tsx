@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Boxes, Clock, Download, FolderArchive, Library, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { Boxes, Clock, Download, Library, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { downloadJson, slugify } from '@/lib/files';
@@ -7,8 +7,11 @@ import { timeAgo } from '@/lib/time';
 import type { CanvasContent, CanvasMeta } from '@/model/types';
 import { loadContent } from '@/persistence/canvasRepo';
 import * as workspace from '@/store/workspace';
+import { Badge } from '@/ui/Badge';
 import { Button, IconButton } from '@/ui/Button';
 import { askText, confirmAction } from '@/ui/dialogs';
+import { EmptyState } from '@/ui/EmptyState';
+import { Mascot } from '@/ui/Mascot';
 import { Modal } from '@/ui/Modal';
 import { useCanvasList } from './useCurrentCanvas';
 
@@ -85,7 +88,12 @@ function CanvasRow({
   const count = content?.nodes.length;
 
   const rename = async () => {
-    const name = await askText({ title: 'Rename canvas', label: 'Name', initial: canvas.name });
+    const name = await askText({
+      title: 'Rename canvas',
+      label: 'Name',
+      initial: canvas.name,
+      hero: { mood: 'idle', scene: 'canvas' },
+    });
     if (name !== null) await workspace.renameCanvas(canvas.id, name);
   };
 
@@ -99,6 +107,7 @@ function CanvasRow({
       title: 'Delete canvas?',
       message: `"${canvas.name}" will be permanently deleted.`,
       confirmLabel: 'Delete',
+      hero: { mood: 'nervous', scene: 'delete' },
     });
     if (confirmed) await workspace.removeCanvas(canvas.id);
   };
@@ -122,9 +131,9 @@ function CanvasRow({
         <span className="flex w-full items-center gap-2">
           <span className="truncate text-sm font-medium">{canvas.name}</span>
           {current && (
-            <span className="shrink-0 rounded-full bg-accent/10 px-2 py-px text-[11px] font-medium text-accent">
+            <Badge variant="info" size="sm">
               Open
-            </span>
+            </Badge>
           )}
         </span>
         <span className="mt-1 flex items-center gap-3 text-xs text-muted">
@@ -176,7 +185,12 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
   const close = () => onOpenChange(false);
 
   const create = async () => {
-    const name = await askText({ title: 'New canvas', label: 'Name', initial: 'Untitled canvas' });
+    const name = await askText({
+      title: 'New canvas',
+      label: 'Name',
+      initial: 'Untitled canvas',
+      hero: { mood: 'map', scene: 'canvas' },
+    });
     if (name === null) return;
     await workspace.newCanvas(name);
     close();
@@ -224,11 +238,12 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
         )}
       </div>
       {visible && visible.length === 0 ? (
-        <div className="flex flex-col items-center gap-1 py-8 text-center text-muted">
-          <FolderArchive className="mb-1 size-8 opacity-50" />
-          <p className="text-sm font-medium text-fg">{query ? 'No matches' : 'No canvases yet'}</p>
-          <p className="text-xs">{query ? 'Try a different name.' : 'Create one to get started.'}</p>
-        </div>
+        <EmptyState
+          variant="compact"
+          mascot={<Mascot mood="map" className="h-20" />}
+          title={query ? 'No matches' : 'No canvases yet'}
+          description={query ? 'Try a different name.' : 'Create one to get started.'}
+        />
       ) : (
         <ul className="flex flex-col gap-2">
           {visible?.map((canvas) => (
