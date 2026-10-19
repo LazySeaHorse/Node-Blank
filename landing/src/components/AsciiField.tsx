@@ -45,6 +45,8 @@ export function AsciiField({
     let h = 0;
     let dpr = 1;
     let raf = 0;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reduce = mq.matches;
     const start = performance.now();
 
     // Quantised palette so we touch fillStyle as rarely as possible.
@@ -67,6 +69,7 @@ export function AsciiField({
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (reduce) render(performance.now());
     };
 
     const io = new IntersectionObserver((entries) => {
@@ -80,7 +83,7 @@ export function AsciiField({
 
     const onMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (reduce) return;
       pointer.current.tx = e.clientX - rect.left;
       pointer.current.ty = e.clientY - rect.top;
       pointer.current.active = true;
@@ -97,10 +100,8 @@ export function AsciiField({
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const draw = (now: number) => {
-      raf = requestAnimationFrame(draw);
-      if (!visible.current || w === 0) return;
+    function render(now: number) {
+      if (w === 0) return;
 
       const t = reduce ? 0 : (now - start) / 1000;
       const p = pointer.current;
@@ -165,11 +166,26 @@ export function AsciiField({
           ctx.fillText(glyph, x, y);
         }
       }
-    };
+    }
 
-    raf = requestAnimationFrame(draw);
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      if (visible.current) render(now);
+    };
+    const startLoop = () => {
+      cancelAnimationFrame(raf);
+      if (reduce) render(performance.now());
+      else raf = requestAnimationFrame(loop);
+    };
+    const onMotionChange = () => {
+      reduce = mq.matches;
+      startLoop();
+    };
+    mq.addEventListener('change', onMotionChange);
+    startLoop();
     return () => {
       cancelAnimationFrame(raf);
+      mq.removeEventListener('change', onMotionChange);
       io.disconnect();
       ro.disconnect();
       window.removeEventListener('pointermove', onMove);
