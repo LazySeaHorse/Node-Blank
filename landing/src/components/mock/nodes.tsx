@@ -89,7 +89,7 @@ export function NodeCard({
       )}
     >
       {title && (
-        <header className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">
+        <header className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-medium tracking-wide text-muted uppercase">
           {Icon && <Icon className="size-3.5" />}
           <span>{title}</span>
           {actions && <div className="ml-auto flex items-center gap-1 normal-case">{actions}</div>}
@@ -118,7 +118,7 @@ export function TextNode({ touched }: { touched?: boolean }) {
   return (
     <NodeCard touched={touched} className="w-[268px]">
       <div className="p-4 text-[14px] leading-[1.6] text-fg">
-        <p className="mb-2 text-[17px] leading-tight font-bold">Where the series converges</p>
+        <p className="mb-2 text-[17px] leading-tight font-medium">Where the series converges</p>
         <p className="text-fg/85">
           Assume the terms stay bounded, then split the tail and compare against the geometric case before
           touching the remainder.

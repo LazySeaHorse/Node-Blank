@@ -68,7 +68,7 @@ export function LocalFirst() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">
             <Reveal>
-              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-extrabold tracking-[-0.03em] text-fg">
+              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
                 Nothing leaves
                 <br />
                 <span className="text-muted">the browser.</span>
@@ -89,7 +89,7 @@ export function LocalFirst() {
                       <Icon className="size-4" strokeWidth={1.9} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block font-display text-[15.5px] font-bold tracking-[-0.01em] text-fg">
+                      <span className="block font-display text-[15.5px] font-medium tracking-[-0.01em] text-fg">
                         {title}
                       </span>
                       <span className="mt-0.5 block text-[13.5px] leading-[1.55] text-muted">{text}</span>
@@ -107,7 +107,7 @@ export function LocalFirst() {
                 <div className="panel overflow-hidden">
                   <div className="flex items-center gap-2 border-b border-line px-3.5 py-2.5">
                     <FolderOpen className="size-4 text-muted" strokeWidth={1.9} />
-                    <span className="font-display text-[13px] font-bold tracking-tight text-fg">
+                    <span className="font-display text-[13px] font-medium tracking-tight text-fg">
                       Canvases
                     </span>
                     <span className="ml-auto flex items-center gap-1.5 rounded-md border border-line bg-canvas px-2 py-1 font-mono text-[10.5px] text-muted transition-colors hover:border-accent/40 hover:text-accent">
@@ -153,7 +153,7 @@ export function LocalFirst() {
                           ))}
                         </span>
                         {c.active && (
-                          <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent/12 px-2 py-0.5 text-[10px] font-semibold text-accent">
+                          <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent/12 px-2 py-0.5 text-[10px] font-medium text-accent">
                             <Check className="size-2.5" strokeWidth={3.4} /> open
                           </span>
                         )}

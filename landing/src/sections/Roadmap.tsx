@@ -35,7 +35,7 @@ export function Roadmap() {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-4">
             <Reveal>
-              <h2 className="font-display text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1] font-extrabold tracking-[-0.03em] text-fg">
+              <h2 className="font-display text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1] font-medium tracking-[-0.03em] text-fg">
                 What works today.
                 <br />
                 <span className="text-muted">What comes next.</span>

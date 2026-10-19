@@ -80,7 +80,7 @@ export function Controls() {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-4">
             <Reveal>
-              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-extrabold tracking-[-0.03em] text-fg">
+              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
                 Built for a mouse
                 <br />
                 <span className="text-muted">and a keyboard.</span>
@@ -94,7 +94,7 @@ export function Controls() {
               <div className="panel mt-8 flex items-center gap-5 p-5">
                 <MouseDiagram />
                 <div>
-                  <p className="font-display text-[15px] font-bold text-fg">Middle-drag pans</p>
+                  <p className="font-display text-[15px] font-medium text-fg">Middle-drag pans</p>
                   <p className="mt-1.5 max-w-[24ch] text-[13px] leading-[1.5] text-muted">
                     There are no right-click menus, so panning is always one press away.
                   </p>
@@ -115,7 +115,7 @@ export function Controls() {
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <span className="min-w-0">
-                      <span className="block font-display text-[16.5px] font-bold tracking-[-0.01em] text-fg sm:text-[17.5px]">
+                      <span className="block font-display text-[16.5px] font-medium tracking-[-0.01em] text-fg sm:text-[17.5px]">
                         {row.action}
                       </span>
                       <span className="mt-0.5 block text-[13.5px] leading-[1.5] text-muted">{row.note}</span>

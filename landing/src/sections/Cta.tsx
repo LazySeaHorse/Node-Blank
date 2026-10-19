@@ -12,7 +12,7 @@ export function Story() {
     <section className="relative overflow-hidden border-t border-line bg-surface py-16 sm:py-20">
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-9 px-4 sm:px-6 lg:grid-cols-12 lg:items-end lg:gap-12">
         <Reveal className="lg:col-span-8">
-          <p className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-semibold tracking-[-0.025em] text-fg text-balance">
+          <p className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-medium tracking-[-0.025em] text-fg text-balance">
             Notebooks give you pages. Whiteboards give you shapes.{' '}
             <span className="text-tip">Node-Blank gives you space.</span>
           </p>
@@ -49,7 +49,7 @@ export function FinalCta() {
       <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
         <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
-            <h2 className="font-display text-[clamp(2.4rem,6.4vw,4.6rem)] leading-[0.92] font-extrabold tracking-[-0.04em] text-fg">
+            <h2 className="font-display text-[clamp(2.4rem,6.4vw,4.6rem)] leading-[0.92] font-medium tracking-[-0.04em] text-fg">
               Open a blank
               <br />
               canvas.
@@ -60,7 +60,7 @@ export function FinalCta() {
             <div className="mt-7 flex flex-wrap items-center gap-3 pb-8">
               <a
                 href={APP_URL}
-                className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-semibold text-accent-fg transition-[filter] hover:brightness-110"
+                className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
               >
                 Launch Node-Blank
                 <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -69,7 +69,7 @@ export function FinalCta() {
                 href={REPO_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-5 py-3 text-[15px] font-semibold text-fg transition-colors hover:bg-surface-2"
+                className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-5 py-3 text-[15px] font-medium text-fg cursor-pointer transition-[background-color,transform] hover:bg-surface-2 active:scale-[0.98]"
               >
                 <GithubIcon className="size-4 text-muted transition-colors group-hover:text-fg" />
                 Star the repo
@@ -102,7 +102,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-4 py-6 sm:px-6">
         <a href="#top" className="group inline-flex items-center gap-2.5">
           <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6" />
-          <span className="font-display text-[15px] font-extrabold tracking-tight text-fg">Node-Blank</span>
+          <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
         </a>
         <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {FOOT_LINKS.map((l) => (

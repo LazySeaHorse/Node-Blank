@@ -80,7 +80,7 @@ export function NodeTypes() {
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
-              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-extrabold tracking-[-0.03em] text-fg">
+              <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
                 Nine kinds of node.
                 <br />
                 <span className="text-muted">One surface for all of them.</span>
@@ -132,7 +132,7 @@ export function NodeTypes() {
                       <span className="grid size-8 place-items-center rounded-lg bg-accent/10 text-accent">
                         <meta.icon className="size-4" strokeWidth={1.9} />
                       </span>
-                      <h3 className="font-display text-[17px] font-bold tracking-[-0.01em] text-fg">
+                      <h3 className="font-display text-[17px] font-medium tracking-[-0.01em] text-fg">
                         {meta.label}
                       </h3>
                     </div>

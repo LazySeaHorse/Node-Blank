@@ -35,13 +35,13 @@ export function Nav() {
       <header
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-          solid ? 'border-b border-line bg-canvas/85 backdrop-blur-md' : 'border-b border-transparent',
+          solid ? 'border-b border-line bg-canvas' : 'border-b border-transparent',
         )}
       >
         <nav className="mx-auto flex h-14 max-w-[1240px] items-center gap-3 px-4 sm:px-6">
           <a href="#top" className="group flex items-center gap-2.5" aria-label="Node-Blank home">
             <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
-            <span className="font-display text-[15px] font-extrabold tracking-tight text-fg">Node-Blank</span>
+            <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
           </a>
 
           <div className="ml-auto hidden items-center gap-1 lg:flex">
@@ -69,7 +69,7 @@ export function Nav() {
             </a>
             <a
               href={APP_URL}
-              className="rounded-lg bg-accent px-3.5 py-1.5 text-[13px] font-semibold text-accent-fg transition-[filter] hover:brightness-110"
+              className="rounded-lg bg-accent px-3.5 py-1.5 text-[13px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
             >
               Open the canvas
             </a>

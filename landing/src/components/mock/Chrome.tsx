@@ -129,7 +129,7 @@ export function ZoomControls({ zoom = 100 }: { zoom?: number }) {
   return (
     <Panel className="flex-col">
       <Icon icon={Plus} />
-      <span className="w-9 py-1 text-center text-xs font-semibold text-muted tabular-nums">{zoom}%</span>
+      <span className="w-9 py-1 text-center text-xs font-medium text-muted tabular-nums">{zoom}%</span>
       <Icon icon={Minus} />
       <Icon icon={Maximize} />
     </Panel>
@@ -146,8 +146,8 @@ export function AiPanelMock({ rows }: { rows: AiRow[] }) {
       <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
           <Sparkles className="size-3.5 text-accent" />
-          <h2 className="text-sm font-semibold">AI control</h2>
-          <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-amber-600 uppercase">
+          <h2 className="text-sm font-medium">AI control</h2>
+          <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-medium tracking-wider text-amber-600 uppercase">
             Experimental
           </span>
         </div>

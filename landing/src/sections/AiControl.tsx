@@ -66,7 +66,7 @@ export function AiControl() {
             <div className="lg:sticky lg:top-24">
               <Reveal>
                 <div className="flex items-start gap-4">
-                  <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-extrabold tracking-[-0.03em] text-fg">
+                  <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
                     Let your AI agent
                     <br />
                     <span className="text-muted">work on your canvas.</span>
@@ -76,7 +76,7 @@ export function AiControl() {
                 <p className="mt-5 max-w-[46ch] text-[15.5px] leading-[1.62] text-muted">
                   Run a small bridge on your computer. Claude Code, Codex and Gemini CLI can then read and
                   edit your open canvas. Browser agents connect with WebMCP. AI control is{' '}
-                  <span className="font-semibold text-fg">off every time you load the page</span>. You turn it
+                  <span className="font-medium text-fg">off every time you load the page</span>. You turn it
                   on.
                 </p>
               </Reveal>
@@ -84,7 +84,7 @@ export function AiControl() {
               <Reveal delay={0.08}>
                 <ol className="mt-8 flex flex-col gap-4">
                   <li className="flex gap-3.5">
-                    <span className="grid size-6 shrink-0 place-items-center rounded-md border border-line bg-canvas font-mono text-[11px] font-bold text-accent">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-md border border-line bg-canvas font-mono text-[11px] font-medium text-accent">
                       1
                     </span>
                     <p className="text-[14.5px] leading-[1.55] text-muted">
@@ -96,7 +96,7 @@ export function AiControl() {
                     </p>
                   </li>
                   <li className="flex gap-3.5">
-                    <span className="grid size-6 shrink-0 place-items-center rounded-md border border-line bg-canvas font-mono text-[11px] font-bold text-accent">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-md border border-line bg-canvas font-mono text-[11px] font-medium text-accent">
                       2
                     </span>
                     <p className="text-[14.5px] leading-[1.55] text-muted">
@@ -186,13 +186,13 @@ export function AiControl() {
                   href={`${REPO_URL}/blob/main/bridge/README.md`}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
+                  className="font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
                 >
                   bridge/README.md
                 </a>
                 <a
                   href={APP_URL}
-                  className="font-semibold text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
+                  className="font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
                 >
                   Open the app →
                 </a>

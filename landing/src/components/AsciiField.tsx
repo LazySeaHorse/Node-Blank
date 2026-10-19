@@ -80,6 +80,7 @@ export function AsciiField({
 
     const onMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       pointer.current.tx = e.clientX - rect.left;
       pointer.current.ty = e.clientY - rect.top;
       pointer.current.active = true;
@@ -96,16 +97,17 @@ export function AsciiField({
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const draw = (now: number) => {
       raf = requestAnimationFrame(draw);
       if (!visible.current || w === 0) return;
 
-      const t = (now - start) / 1000;
+      const t = reduce ? 0 : (now - start) / 1000;
       const p = pointer.current;
       // Ease the bloom toward the cursor so it feels like ink in water.
       p.x += (p.tx - p.x) * 0.16;
       p.y += (p.ty - p.y) * 0.16;
-      const drift = scroll.current * 0.35;
+      const drift = reduce ? 0 : scroll.current * 0.35;
 
       ctx.clearRect(0, 0, w, h);
       ctx.font = `500 ${cellH - 3}px "JetBrains Mono", ui-monospace, monospace`;
