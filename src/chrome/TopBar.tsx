@@ -90,7 +90,7 @@ function BrandMenu({ onOpenCanvases }: { onOpenCanvases: () => void }) {
             mood={working ? 'working' : 'idle'}
             className="size-8 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:-rotate-3"
           />
-          <span className="hidden xl:inline">Node-Blank</span>
+          <span className="hidden whitespace-nowrap xl:inline">Node-Blank</span>
           <ChevronDown className="size-3.5 opacity-50 transition-transform group-data-[state=open]:rotate-180" />
         </button>
       }
