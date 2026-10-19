@@ -27,7 +27,7 @@ const levelStyles: Record<LogLevel, string> = {
   log: 'text-fg',
   info: 'text-fg',
   result: 'text-accent',
-  warn: 'bg-amber-500/10 text-amber-600',
+  warn: 'bg-warning/10 text-warning',
   error: 'bg-danger/10 text-danger',
   system: 'text-muted italic',
 };

@@ -61,7 +61,7 @@ export function NodeShell({
       <div
         className={cn(
           'flex h-full w-full flex-col overflow-hidden rounded-lg border bg-surface text-fg shadow-sm transition-shadow',
-          selected ? 'border-accent shadow-md ring-2 ring-accent/25' : 'border-border',
+          selected ? 'border-accent shadow-md ring-2 ring-accent/30' : 'border-border',
           className,
         )}
         style={tint && { backgroundColor: `color-mix(in srgb, var(--section-${tint}) 35%, var(--surface))` }}
