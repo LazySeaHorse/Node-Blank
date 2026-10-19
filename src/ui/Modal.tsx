@@ -3,6 +3,11 @@ import { Dialog } from 'radix-ui';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { IconButton } from './Button';
+import type { MascotMood } from './mascot/moods';
+import { OctoHero, type OctoScene } from './OctoHero';
+
+/** A mascot header drawn above the title. */
+export type Hero = { mood: MascotMood; scene: OctoScene; tag?: string; size?: 'tall' | 'compact' };
 
 interface ModalProps {
   open: boolean;
@@ -16,6 +21,8 @@ interface ModalProps {
   footer?: ReactNode;
   /** `large` fills most of the window, for readers and editors. */
   size?: 'default' | 'large';
+  /** Opens the popup with the mascot on a drawn canvas. */
+  hero?: Hero;
   className?: string;
 }
 
@@ -28,6 +35,7 @@ export function Modal({
   children,
   footer,
   size = 'default',
+  hero,
   className,
 }: ModalProps) {
   return (
@@ -37,26 +45,50 @@ export function Modal({
         <Dialog.Content
           aria-describedby={undefined}
           className={cn(
-            'fixed top-1/2 left-1/2 z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-surface text-fg shadow-2xl',
+            'fixed top-1/2 left-1/2 z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[18px] border border-border bg-surface text-fg shadow-2xl',
             size === 'large' ? 'h-[92vh] max-w-6xl' : 'max-h-[85vh] max-w-md',
             className,
           )}
         >
-          <div className="flex items-start justify-between gap-3 bg-gradient-to-b from-surface-2 to-transparent px-6 pt-5 pb-3">
+          {hero && (
+            <div className="relative shrink-0">
+              <OctoHero {...hero} />
+              <Dialog.Close asChild>
+                <IconButton
+                  icon={X}
+                  label="Close"
+                  size="sm"
+                  className="absolute top-2.5 right-2.5 rounded-full border border-border bg-surface"
+                />
+              </Dialog.Close>
+            </div>
+          )}
+          <div
+            className={cn(
+              'flex items-start justify-between gap-3',
+              hero ? 'px-[22px] pt-1 pb-2' : 'bg-gradient-to-b from-surface-2 to-transparent px-6 pt-5 pb-3',
+            )}
+          >
             <div className="min-w-0">
-              <Dialog.Title className="flex items-center gap-2 text-xl font-medium tracking-tight">
+              <Dialog.Title className="flex items-center gap-2 text-xl leading-tight font-semibold tracking-[-0.015em]">
                 {icon && <span className="text-accent [&>svg]:size-5">{icon}</span>}
                 {title}
               </Dialog.Title>
               {description && (
-                <Dialog.Description className="mt-1 text-sm text-muted">{description}</Dialog.Description>
+                <Dialog.Description className="mt-1 text-sm leading-relaxed text-muted">
+                  {description}
+                </Dialog.Description>
               )}
             </div>
-            <Dialog.Close asChild>
-              <IconButton icon={X} label="Close" size="sm" />
-            </Dialog.Close>
+            {!hero && (
+              <Dialog.Close asChild>
+                <IconButton icon={X} label="Close" size="sm" />
+              </Dialog.Close>
+            )}
           </div>
-          <div className="min-h-0 overflow-y-auto px-6 pt-2 pb-5">{children}</div>
+          <div className={cn('min-h-0 overflow-y-auto pt-2 pb-5', hero ? 'px-[22px]' : 'px-6')}>
+            {children}
+          </div>
           {footer && (
             <div className="flex items-center justify-between gap-3 border-t border-border bg-surface-2/40 px-6 py-3.5">
               {footer}
