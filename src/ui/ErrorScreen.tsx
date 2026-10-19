@@ -32,7 +32,10 @@ export function ErrorScreen({ error }: { error?: unknown }) {
   );
 }
 
-type Props = { children: ReactNode };
+type Props = {
+  children: ReactNode /** Rendered instead of the full-page screen, e.g. a card for one failed node. */;
+  fallback?: (error: unknown) => ReactNode;
+};
 type State = { error: unknown; failed: boolean };
 
 /** Catches render errors below it and shows {@link ErrorScreen} instead of a blank page. */
@@ -48,6 +51,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   render() {
-    return this.state.failed ? <ErrorScreen error={this.state.error} /> : this.props.children;
+    if (!this.state.failed) return this.props.children;
+    const { fallback } = this.props;
+    return fallback ? fallback(this.state.error) : <ErrorScreen error={this.state.error} />;
   }
 }
