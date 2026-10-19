@@ -38,8 +38,9 @@ export function AsciiField({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
+    const ctx0 = canvas.getContext('2d', { alpha: true });
+    if (!ctx0) return;
+    const ctx: CanvasRenderingContext2D = ctx0;
 
     let w = 0;
     let h = 0;
