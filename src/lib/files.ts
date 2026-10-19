@@ -26,6 +26,9 @@ export function imageSize(src: string): Promise<{ width: number; height: number 
   });
 }
 
+/** The longest side an image node gets when it is added to the canvas. */
+export const MAX_IMAGE_SIZE = 480;
+
 /** Scales a box down (never up) so neither side exceeds `max`. */
 export function fitWithin(size: { width: number; height: number }, max: number) {
   const scale = Math.min(1, max / Math.max(size.width, size.height));

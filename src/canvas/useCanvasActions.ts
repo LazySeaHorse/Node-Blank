@@ -1,6 +1,14 @@
 import { useReactFlow, type XYPosition } from '@xyflow/react';
 import { toast } from 'sonner';
-import { downloadJson, fitWithin, imageSize, pickFile, readAsDataUrl, slugify } from '@/lib/files';
+import {
+  downloadJson,
+  fitWithin,
+  imageSize,
+  MAX_IMAGE_SIZE,
+  pickFile,
+  readAsDataUrl,
+  slugify,
+} from '@/lib/files';
 import type { NodeKind } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { createNode } from '@/nodes/factory';
@@ -10,8 +18,6 @@ import { ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
 import * as workspace from '@/store/workspace';
 import { askText } from '@/ui/dialogs';
-
-const MAX_IMAGE_SIZE = 480;
 
 /** User-facing canvas actions that need the viewport (where to put things) and UI feedback. */
 export function useCanvasActions() {

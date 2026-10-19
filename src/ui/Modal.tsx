@@ -14,6 +14,8 @@ interface ModalProps {
   children: ReactNode;
   /** Pinned below the scrolling body. */
   footer?: ReactNode;
+  /** `large` fills most of the window, for readers and editors. */
+  size?: 'default' | 'large';
   className?: string;
 }
 
@@ -25,6 +27,7 @@ export function Modal({
   icon,
   children,
   footer,
+  size = 'default',
   className,
 }: ModalProps) {
   return (
@@ -34,7 +37,8 @@ export function Modal({
         <Dialog.Content
           aria-describedby={undefined}
           className={cn(
-            'fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-surface text-fg shadow-2xl',
+            'fixed top-1/2 left-1/2 z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-surface text-fg shadow-2xl',
+            size === 'large' ? 'h-[92vh] max-w-6xl' : 'max-h-[85vh] max-w-md',
             className,
           )}
         >
