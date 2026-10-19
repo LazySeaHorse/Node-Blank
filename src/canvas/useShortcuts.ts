@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
-import { isTyping } from './keyboard';
+import { isTextField, isTyping } from './keyboard';
 import { useWrapInSection } from './useSections';
 
 export function useShortcuts(readOnly: boolean) {
@@ -21,17 +21,21 @@ export function useShortcuts(readOnly: boolean) {
         ui.closeSearch();
         return;
       }
-      if (readOnly || isTyping(event.target)) return;
+      if (readOnly) return;
+
+      // A field being edited keeps its own history. Anything else, even inside a node that swallows
+      // other canvas keys (a spreadsheet with a cell selected), steps back through the canvas.
+      if (mod && (key === 'z' || key === 'y')) {
+        if (isTextField(event.target)) return;
+        event.preventDefault();
+        if (key === 'y' || event.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (isTyping(event.target)) return;
 
       const canvas = useCanvasStore.getState();
-      if (mod && key === 'z') {
-        event.preventDefault();
-        if (event.shiftKey) redo();
-        else undo();
-      } else if (mod && key === 'y') {
-        event.preventDefault();
-        redo();
-      } else if (mod && key === 'd') {
+      if (mod && key === 'd') {
         event.preventDefault();
         canvas.duplicateSelected();
       } else if (mod && key === 'g') {
