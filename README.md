@@ -18,7 +18,10 @@ I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and w
 ### Features
 - **Node types**: Text (Markdown + LaTeX), Math, Math+ (evaluates expressions; `a := 2` variables are shared across Math+ nodes, top to bottom), Graph (plot several functions of x), Table (math cells), Sheet (spreadsheet with formulas), Script (sandboxed JavaScript), Image and Video.
 - **Multiple canvases**, autosaved to your browser's IndexedDB. No accounts, no cloud.
-- **Undo/redo** for everything on the canvas.
+- **Undo/redo** for everything on the canvas. While you type in a cell or field, Ctrl+Z is that field's own history; otherwise it steps back through the canvas, so a spreadsheet cell reverts as a whole.
+- **Titles**: right-click any node, Add title (headed nodes show their type until you name them; double-click a title to edit it).
+- **Sheets**: formula bar, cell fill colours, an `a/b` toggle that keeps fractions exact, and a command box for row and column operations: `R1 -= 3*R2`, `R2 *= 1/2`, `R1 <-> R3`, `C2 += C1/3` (rows `R1…`, columns `C1…`, counted from 1). Right-click a row or column header to start one.
+- **Smart notes**: a text node that is only a table or only maths offers to become a Table/Sheet or a Math node.
 - **Import/export** selected nodes, a canvas, or everything as JSON.
 - **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.
 - **Context menus**: right-click for add node, paste, copy, duplicate, delete, order, align and per-node actions; math nodes add insert, insert matrix, text colour and background (right-drag still pans).

@@ -70,7 +70,13 @@ const content = {
   },
   code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'), title },
   video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
-} satisfies { [K in Exclude<NodeKind, 'image' | 'section'>]: Record<keyof NodeDataMap[K], z.ZodType> };
+} satisfies {
+  // `suggestionDismissed` is a UI flag, not content.
+  [K in Exclude<NodeKind, 'image' | 'section'>]: Record<
+    Exclude<keyof NodeDataMap[K], 'suggestionDismissed'>,
+    z.ZodType
+  >;
+};
 
 const placementShape = {
   near: handleSchema.optional().describe('Place next to this node (right of it, else below).'),

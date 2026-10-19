@@ -220,6 +220,7 @@ test('a node can be titled from its menu, and an empty title restores the defaul
 
 test('a math node shows its title above the field', async ({ page }) => {
   await placeNode(page, 'Math', 500, 300);
+  await expect(nodes(page).locator('math-field')).toBeVisible();
   await nodes(page).click({ button: 'right', position: { x: 10, y: 10 } });
   await page.getByRole('menuitem', { name: 'Add title' }).click();
   await page.keyboard.type('Objective');

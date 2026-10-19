@@ -5,7 +5,11 @@ test.beforeEach(async ({ page }) => openApp(page));
 
 const sheet = (page: Page) => nodes(page).filter({ has: page.locator('.Spreadsheet') });
 const cell = (page: Page, row: number, col: number): Locator =>
-  sheet(page).locator('tr').nth(row + 1).locator('td.Spreadsheet__cell').nth(col);
+  sheet(page)
+    .locator('tr')
+    .nth(row + 1)
+    .locator('td.Spreadsheet__cell')
+    .nth(col);
 
 async function typeInto(page: Page, row: number, col: number, text: string) {
   // Enter moves the active cell down, and the grid's overlay for it covers the next click target.
@@ -30,6 +34,8 @@ test('Ctrl+Z on a selected cell undoes the cell edit, not an earlier edit elsewh
   await page.waitForTimeout(500); // past the undo coalescing window, so the sheet edit is its own step
 
   await placeNode(page, 'Sheet', 700, 250);
+  await expect(sheet(page)).toHaveCount(1);
+  await page.waitForTimeout(500); // edits within 400ms of each other share one undo step; keep the sheet's own
   await typeInto(page, 0, 0, '12');
   await expect(cell(page, 0, 0)).toHaveText('12');
   await cell(page, 0, 0).click();
@@ -105,4 +111,40 @@ test('right-clicking a row header starts a row operation in the command box', as
   await page.getByRole('menuitem', { name: 'Add a multiple of another row…' }).click();
   await expect(page.getByLabel('Row or column operation')).toHaveValue('R3 += ');
   await expect(page.getByLabel('Row or column operation')).toBeFocused();
+});
+
+async function typeNote(page: Page, text: string) {
+  await placeNode(page, 'Text', 500, 300);
+  await nodes(page).dblclick();
+  await page.locator('textarea').fill(text);
+  await page.keyboard.press('Escape');
+  await page.mouse.click(1000, 700);
+}
+
+test('a note that is only a table offers a table or a sheet', async ({ page }) => {
+  await typeNote(page, '| Item | Cost |\n| --- | --- |\n| Tea | 3 |');
+  await expect(nodes(page).getByText('This is only a table.')).toBeVisible();
+  await nodes(page).getByRole('button', { name: 'Sheet' }).click();
+  await expect(sheet(page)).toHaveCount(1);
+  await expect(cell(page, 1, 0)).toHaveText('Tea');
+});
+
+test('a note that is only maths offers a math node', async ({ page }) => {
+  await typeNote(page, '$$x^2 + 1$$');
+  await nodes(page).getByRole('button', { name: 'Math node' }).click();
+  await expect(nodes(page).locator('math-field')).toHaveCount(1);
+});
+
+test('the offer can be dismissed and stays away', async ({ page }) => {
+  await typeNote(page, '$$x^2 + 1$$');
+  await nodes(page).getByRole('button', { name: 'Dismiss suggestion' }).click();
+  await expect(nodes(page).getByText('This is only maths.')).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('.react-flow__pane')).toBeVisible();
+  await expect(nodes(page).getByText('This is only maths.')).toHaveCount(0);
+});
+
+test('prose around a table gets no offer', async ({ page }) => {
+  await typeNote(page, 'Prices:\n\n| Item | Cost |\n| --- | --- |\n| Tea | 3 |');
+  await expect(nodes(page).getByText('This is only a table.')).toHaveCount(0);
 });

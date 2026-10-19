@@ -5,6 +5,7 @@ import { Markdown } from '@/lib/Markdown';
 import type { NodeOf } from '@/model/types';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
+import { ShapeSuggestion } from './ShapeSuggestion';
 
 export function TextNode({ id, data, selected }: NodeProps<NodeOf<'text'>>) {
   const readOnly = useReadOnly();
@@ -30,10 +31,19 @@ export function TextNode({ id, data, selected }: NodeProps<NodeOf<'text'>>) {
           className="nodrag nowheel nokey min-h-32 w-[32rem] max-w-full resize-none bg-surface p-4 font-mono text-sm leading-relaxed text-fg outline-none [field-sizing:content]"
         />
       ) : (
-        // biome-ignore lint/a11y/noStaticElementInteractions: double-click to edit mirrors desktop canvas apps.
-        <div className="p-4" onDoubleClick={() => !readOnly && setEditing(true)}>
-          <Markdown source={data.markdown} />
-        </div>
+        <>
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: double-click to edit mirrors desktop canvas apps. */}
+          <div className="p-4" onDoubleClick={() => !readOnly && setEditing(true)}>
+            <Markdown source={data.markdown} />
+          </div>
+          {!readOnly && !data.suggestionDismissed && (
+            <ShapeSuggestion
+              id={id}
+              markdown={data.markdown}
+              onDismiss={() => update({ suggestionDismissed: true })}
+            />
+          )}
+        </>
       )}
     </NodeShell>
   );

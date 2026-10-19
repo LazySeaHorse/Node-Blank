@@ -9,7 +9,11 @@ export type Titled = { title?: string };
 
 /** Per-kind payload stored in `node.data`. This is the single source of truth for node shapes. */
 export type NodeDataMap = {
-  text: Titled & { markdown: string };
+  text: Titled & {
+    markdown: string;
+    /** Set once the "this is only a table / only math" offer has been waved away. */
+    suggestionDismissed?: boolean;
+  };
   math: Titled & { latex: string; color?: SectionColor };
   mathPlus: Titled & { latex: string; color?: SectionColor };
   graph: Titled & { functions: string[] };

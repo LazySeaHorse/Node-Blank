@@ -8,7 +8,7 @@ export const textSpec: NodeSpec<'text'> = {
   description: 'Markdown with $LaTeX$ math',
   icon: Type,
   placement: 'place',
-  schema: z.object({ markdown: z.string(), title: titleField }),
+  schema: z.object({ markdown: z.string(), title: titleField, suggestionDismissed: z.boolean().optional() }),
   defaults: () => ({ markdown: 'Double-click to edit.\n\nSupports **Markdown** and math like $E=mc^2$.' }),
   searchText: (d) => d.markdown,
 };
