@@ -29,6 +29,19 @@ describe('io', () => {
     expect(parseExportFile(JSON.stringify(file))).toEqual(file);
   });
 
+  it('round-trips pdf nodes as metadata only', () => {
+    const pdf = createNode(
+      'pdf',
+      { x: 0, y: 0 },
+      { fileId: 'f', fileName: 'a.pdf', pinned: [3, 8], pageCount: 20 },
+    );
+    const file = exportNodes([pdf]);
+    expect(parseExportFile(JSON.stringify(file))).toEqual(file);
+    expect(Object.keys(file.nodes[0].data).sort()).toEqual(
+      ['direction', 'fileId', 'fileName', 'pageCount', 'pinned'].sort(),
+    );
+  });
+
   it('rejects malformed JSON', () => {
     expect(() => parseExportFile('{nope')).toThrow(ImportError);
   });
@@ -48,7 +61,7 @@ describe('io', () => {
 
   it('rejects unknown node kinds', () => {
     const file = exportNodes([createNode('math', { x: 0, y: 0 })]);
-    const broken = { ...file, nodes: [{ ...file.nodes[0], type: 'pdf' }] };
+    const broken = { ...file, nodes: [{ ...file.nodes[0], type: 'hologram' }] };
     expect(() => parseExportFile(JSON.stringify(broken))).toThrow(ImportError);
   });
 });

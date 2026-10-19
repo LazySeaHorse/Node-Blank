@@ -13,6 +13,7 @@ import { useWorkspace } from '@/store/workspace';
 import { alias, resolveAlias } from '../aliases';
 import { defineTool } from '../defineTool';
 import { nodeBody, nodeLine, oneLine, placement } from '../format';
+import { shownPagesText } from '../pdfText';
 import {
   canvasNodes,
   currentGroups,
@@ -187,17 +188,22 @@ export const readNodes = defineTool({
     const nodes = ids.map(requireNode);
     const { groupOf } = currentGroups();
     const results = nodes.some((n) => n.type === 'mathPlus') ? await mathPlusResults() : {};
-    const blocks = nodes.map((node) => {
-      const body = nodeBody(node, results[node.id]);
-      const slice = body.slice(offset, offset + maxChars);
-      const group = groupOf.get(node.id);
-      const head = `## ${alias(node.id)} ${node.type} ${placement(node)}${group ? ` ${alias(group, 'g')}` : ''}`;
-      const more =
-        offset + maxChars < body.length
-          ? `\n[chars ${offset}-${offset + slice.length} of ${body.length}; pass offset=${offset + slice.length} for more]`
-          : '';
-      return `${head}\n${slice}${more}`;
-    });
+    const blocks = await Promise.all(
+      nodes.map(async (node) => {
+        const body =
+          node.type === 'pdf'
+            ? `${nodeBody(node)}\n${await shownPagesText(node.data)}`
+            : nodeBody(node, results[node.id]);
+        const slice = body.slice(offset, offset + maxChars);
+        const group = groupOf.get(node.id);
+        const head = `## ${alias(node.id)} ${node.type} ${placement(node)}${group ? ` ${alias(group, 'g')}` : ''}`;
+        const more =
+          offset + maxChars < body.length
+            ? `\n[chars ${offset}-${offset + slice.length} of ${body.length}; pass offset=${offset + slice.length} for more]`
+            : '';
+        return `${head}\n${slice}${more}`;
+      }),
+    );
     return { text: blocks.join('\n\n'), summary: `Read ${nodes.map((n) => alias(n.id)).join(', ')}` };
   },
 });

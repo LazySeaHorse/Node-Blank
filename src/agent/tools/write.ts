@@ -271,7 +271,10 @@ export const updateNodes = defineTool({
         // Which pages of a PDF are shown (and so readable) is the user's call alone.
         if (node.type === 'pdf' && key !== 'title')
           throw new ToolError('invalid_field', `${id} is a pdf node; only its title can be changed.`);
-        if (!(key in data) && !(key in ((content as Record<string, object>)[node.type] ?? {})))
+        if (
+          !(key in data) &&
+          !(key in ((node.type === 'pdf' ? { title } : (content as Record<string, object>)[node.type]) ?? {}))
+        )
           throw new ToolError('invalid_field', `${id} is a ${node.type} node; it has no "${key}" field.`);
         data[key] = value;
       }

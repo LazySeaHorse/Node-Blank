@@ -147,6 +147,17 @@ describe('reading', () => {
     expect(text).not.toContain('AAAA');
   });
 
+  it('describes a pdf by its pinned pages and, unconnected, shares no text', async () => {
+    load([
+      createNode('pdf', at(0, 0), { fileId: 'f', fileName: 'paper.pdf', pageCount: 12, pinned: [4, 7] }),
+    ]);
+    const text = await call('read_nodes', { ids: ['n1'] });
+    expect(text).toContain('paper.pdf, 12 pages');
+    expect(text).toContain('pages 1 (cover) and 4, 7');
+    expect(text).toContain('PDF file not connected; ask the user to click Reconnect on the node.');
+    expect(await call('search_nodes', { query: 'paper' })).toContain('n1 pdf');
+  });
+
   it('searches with snippets', async () => {
     load([createNode('text', at(0, 0), { markdown: 'The quick brown fox' }), createNode('math', at(0, 400))]);
     expect(await call('search_nodes', { query: 'BROWN' })).toBe('n1 text g1: The quick brown fox');
@@ -182,6 +193,20 @@ describe('writing', () => {
     expect(
       (await callError('create_nodes', { nodes: [{ kind: 'text', markdown: '', width: 300 }] })).error,
     ).toBe('not_resizable');
+  });
+
+  it('cannot create pdf nodes or change which pages one shows', async () => {
+    load([createNode('pdf', at(0, 0), { fileId: 'f', fileName: 'paper.pdf', pinned: [4] })]);
+    expect((await callError('create_nodes', { nodes: [{ kind: 'pdf', fileId: 'x' }] })).error).toBe(
+      'invalid_input',
+    );
+    expect((await callError('update_nodes', { updates: [{ id: 'n1', set: { url: 'x' } }] })).error).toBe(
+      'invalid_field',
+    );
+    await call('update_nodes', { updates: [{ id: 'n1', set: { pinned: [2, 3] } }] });
+    expect(canvas().nodes[0].data).toMatchObject({ pinned: [4] });
+    await call('update_nodes', { updates: [{ id: 'n1', set: { title: 'Reading' } }] });
+    expect(canvas().nodes[0].data).toMatchObject({ pinned: [4], title: 'Reading' });
   });
 
   it('applies exact find/replace edits and rejects missing or ambiguous ones', async () => {

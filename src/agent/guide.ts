@@ -7,7 +7,7 @@ export function buildGuide(): string {
 
 WHAT IT IS
 Node-Blank is an infinite canvas of free-floating nodes (no edges): notes, math, graphs, tables, spreadsheets,
-scripts, images and videos. You work on the one canvas open in the user's tab.
+scripts, images, videos and PDFs. You work on the one canvas open in the user's tab.
 
 NODE KINDS
 ${kinds}
@@ -27,6 +27,11 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
   drew around nodes. Moving a section moves the nodes inside it; deleting one keeps them. You can rename, recolour,
   move, resize and delete sections but not create them. They are separate from groups.
 - image: uploaded by the user; you can move, resize or delete images but not create them or see them.
+
+- pdf: a PDF the user linked from their disk. Its cover (page 1) is always shown and the user pins other pages
+  to show them. read_nodes gives you the text of page 1 and the pinned pages only; other pages are off limits and
+  are never shown to you. If it says the file is not connected, ask the user to click Reconnect on the node.
+  You cannot create pdf nodes or change what they show, only move, delete or retitle them.
 
 Every kind but section also takes an optional title, a name the user sees on the node.
 
