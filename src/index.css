@@ -98,7 +98,17 @@ body,
 }
 
 /* Keyboard focus ring shared by buttons, inputs and other controls. */
-:where(button, [role="button"], [role="tab"], [role="switch"], a, input, select, textarea, summary):focus-visible {
+:where(
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  a,
+  input,
+  select,
+  textarea,
+  summary
+):focus-visible {
   /* An outline, not a box-shadow: dark mode strips shadows. */
   outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
   outline-offset: 0;
