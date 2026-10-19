@@ -7,6 +7,7 @@ import { cn } from '@/lib/cn';
 import { useElementSize } from '@/lib/useElementSize';
 import type { NodeOf } from '@/model/types';
 import { Button, IconButton } from '@/ui/Button';
+import { Mascot } from '@/ui/mascot/Mascot';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
 import { PdfPage } from './PdfPage';
@@ -87,7 +88,13 @@ function Disconnected({
   const busy = connection.status === 'checking' || connection.status === 'loading';
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center">
-      <FileText className="size-8 text-muted" />
+      {connection.status === 'error' ? (
+        <Mascot mood="tangled" className="size-14" />
+      ) : busy ? (
+        <Mascot mood="reading" animated className="size-14" />
+      ) : (
+        <FileText className="size-8 text-muted" />
+      )}
       <div className="max-w-full truncate text-sm font-medium">{data.fileName}</div>
       <div className="text-xs text-muted">
         {connection.status === 'error'
@@ -178,7 +185,7 @@ function Filmstrip({
       {hidden !== undefined && hidden > 0 && (
         <button
           type="button"
-          className="nodrag absolute right-3 bottom-3 cursor-pointer rounded-full bg-fg/80 px-2.5 py-1 text-xs font-medium text-canvas shadow-md backdrop-blur hover:bg-fg"
+          className="nodrag absolute right-3 bottom-3 cursor-pointer rounded-full bg-fg/80 px-2.5 py-1 text-xs font-medium text-canvas shadow-md hover:bg-fg"
           onClick={() => onOpen('grid')}
         >
           +{hidden} page{hidden === 1 ? '' : 's'}
