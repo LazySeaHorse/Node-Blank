@@ -1,3 +1,10 @@
+@import "@fontsource/outfit/300.css";
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/outfit/700.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/700.css";
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 @import "katex/dist/katex.min.css";
@@ -16,6 +23,8 @@
   --accent: #3b82f6;
   --accent-fg: #ffffff;
   --danger: #ef4444;
+  --success: hsl(163 94% 24%);
+  --warning: hsl(26 90% 37%);
   --section-yellow: #fde68a;
   --section-green: #a7f3d0;
   --section-blue: #bfdbfe;
@@ -36,6 +45,8 @@
   --accent: #f97316;
   --accent-fg: #ffffff;
   --danger: #f87171;
+  --success: hsl(158 64% 52%);
+  --warning: hsl(43 96% 56%);
   --section-yellow: #d6a21f;
   --section-green: #2f9e75;
   --section-blue: #4a7fd6;
@@ -56,6 +67,23 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+}
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Flat weights like lil-mappo: everything above medium renders as medium. */
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
+  --font-weight-extrabold: 500;
+  --font-weight-black: 500;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-micro: 0.5rem;
+  --text-micro--line-height: 0.75rem;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html,
@@ -66,7 +94,14 @@ body,
   overflow: hidden;
   background: var(--canvas);
   color: var(--fg);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Keyboard focus ring shared by buttons, inputs and other controls. */
+:where(button, [role="button"], [role="tab"], [role="switch"], a, input, select, textarea, summary):focus-visible {
+  /* An outline, not a box-shadow: dark mode strips shadows. */
+  outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  outline-offset: 0;
 }
 
 /* React Flow */
@@ -176,6 +211,11 @@ math-field::part(virtual-keyboard-toggle) {
 .react-flow__node.ai-touched {
   border-radius: 0.5rem;
   animation: ai-touched 1.6s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__node.ai-touched {
+    animation: none;
+  }
 }
 
 /* Mascot: arms sway, the head bobs, eyes blink. Faster while an agent is working. */
