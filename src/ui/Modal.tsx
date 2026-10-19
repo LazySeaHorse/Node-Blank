@@ -3,11 +3,13 @@ import { Dialog } from 'radix-ui';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { IconButton } from './Button';
-import type { MascotMood } from './mascot/moods';
-import { OctoHero, type OctoScene } from './OctoHero';
+import { OctoHero, type OctoHeroProps } from './OctoHero';
 
 /** A mascot header drawn above the title. */
-export type Hero = { mood: MascotMood; scene: OctoScene; tag?: string; size?: 'tall' | 'compact' };
+export type Hero = Omit<OctoHeroProps, 'className'>;
+
+/** Horizontal padding of the header, body and footer when a hero is shown. */
+const HERO_PX = 'px-[22px]';
 
 interface ModalProps {
   open: boolean;
@@ -58,7 +60,8 @@ export function Modal({
                   icon={X}
                   label="Close"
                   size="sm"
-                  className="absolute top-2.5 right-2.5 rounded-full border border-border bg-surface"
+                  round
+                  className="absolute top-2.5 right-2.5 border border-border bg-surface"
                 />
               </Dialog.Close>
             </div>
@@ -66,7 +69,7 @@ export function Modal({
           <div
             className={cn(
               'flex items-start justify-between gap-3',
-              hero ? 'px-[22px] pt-1 pb-2' : 'bg-gradient-to-b from-surface-2 to-transparent px-6 pt-5 pb-3',
+              hero ? `${HERO_PX} pt-1 pb-2` : 'bg-gradient-to-b from-surface-2 to-transparent px-6 pt-5 pb-3',
             )}
           >
             <div className="min-w-0">
@@ -86,11 +89,14 @@ export function Modal({
               </Dialog.Close>
             )}
           </div>
-          <div className={cn('min-h-0 overflow-y-auto pt-2 pb-5', hero ? 'px-[22px]' : 'px-6')}>
-            {children}
-          </div>
+          <div className={cn('min-h-0 overflow-y-auto pt-2 pb-5', hero ? HERO_PX : 'px-6')}>{children}</div>
           {footer && (
-            <div className="flex items-center justify-between gap-3 border-t border-border bg-surface-2/40 px-6 py-3.5">
+            <div
+              className={cn(
+                'flex items-center justify-between gap-3 border-t border-border bg-surface-2/40 py-3.5',
+                hero ? HERO_PX : 'px-6',
+              )}
+            >
               {footer}
             </div>
           )}

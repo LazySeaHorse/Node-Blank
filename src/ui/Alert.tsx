@@ -1,15 +1,16 @@
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/cn';
 
-export type AlertVariant = 'default' | 'destructive' | 'info' | 'warning' | 'success';
+export type AlertVariant = 'default' | 'danger' | 'info' | 'warning' | 'success';
 export type AlertSize = 'default' | 'sm';
 
 const base =
   'relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-xl border leading-relaxed has-[>svg]:grid-cols-[auto_1fr] [&>svg]:shrink-0 [&>svg]:text-current';
 
+/** `default` is a neutral card; the other tones tint it. (Badge's `default` is a solid accent fill.) */
 const variants: Record<AlertVariant, string> = {
   default: 'border-border bg-surface text-fg',
-  destructive: 'border-border bg-surface text-danger *:data-[slot=alert-description]:text-danger/90',
+  danger: 'border-border bg-surface text-danger *:data-[slot=alert-description]:text-danger/90',
   info: 'border-accent/15 bg-accent/5 [&>svg]:text-accent',
   warning: 'border-warning/20 bg-warning/5 [&>svg]:text-warning',
   success: 'border-success/20 bg-success/5 [&>svg]:text-success',
@@ -30,7 +31,7 @@ export function Alert({
     <div
       data-slot="alert"
       // Only errors interrupt a screen reader; other notes are static.
-      role={variant === 'destructive' ? 'alert' : 'note'}
+      role={variant === 'danger' ? 'alert' : 'note'}
       className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     />

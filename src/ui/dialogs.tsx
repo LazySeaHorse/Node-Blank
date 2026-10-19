@@ -79,17 +79,19 @@ function DialogView({ request }: { request: Request }) {
         }}
       >
         {request.kind === 'text' ? (
-          <Field label={request.label} htmlFor="dialog-text" className="mb-0">
-            <input
-              id="dialog-text"
-              // biome-ignore lint/a11y/noAutofocus: the dialog exists to collect this value.
-              autoFocus
-              value={text}
-              placeholder={request.placeholder}
-              onChange={(e) => setText(e.target.value)}
-              onFocus={(e) => e.target.select()}
-              className="w-full rounded-md border border-border bg-canvas px-3 py-2 text-sm text-fg outline-none focus:border-accent"
-            />
+          <Field label={request.label ?? request.title}>
+            {(control) => (
+              <input
+                {...control}
+                // biome-ignore lint/a11y/noAutofocus: the dialog exists to collect this value.
+                autoFocus
+                value={text}
+                placeholder={request.placeholder}
+                onChange={(e) => setText(e.target.value)}
+                onFocus={(e) => e.target.select()}
+                className="w-full rounded-md border border-border bg-canvas px-3 py-2 text-sm text-fg outline-none focus:border-accent"
+              />
+            )}
           </Field>
         ) : (
           <p className="text-sm leading-relaxed text-muted">{request.message}</p>

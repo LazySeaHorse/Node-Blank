@@ -1,18 +1,21 @@
-import type { ComponentProps, ReactNode } from 'react';
+import { type ReactNode, useId } from 'react';
 import { cn } from '@/lib/cn';
 import { Mascot } from '@/ui/Mascot';
-import { type MascotMood, mascotAspect, mascotViewBox } from '@/ui/mascot/moods';
+import { type MascotMood, MASCOT_FEET_Y, mascotAspect, mascotCenterX, mascotViewBox } from '@/ui/mascot/moods';
+import './octo-hero.css';
 
 export type OctoScene = 'canvas' | 'ai' | 'delete' | 'export' | 'error';
 
+/** Octopus box and baseline per hero size: `octoY` is where the feet land, `octo` the box height. */
 const SIZES = {
   tall: { height: 150, octoY: 118, octo: 92 },
   compact: { height: 110, octoY: 88, octo: 68 },
 };
 
-/** Scenes are drawn in a 560 x 150 frame, the octopus's feet landing at (280, 118). */
+/** Scenes are drawn in a 560 wide frame, the octopus's feet landing at x 280 and y MASCOT_FEET_Y. */
 const FRAME_WIDTH = 560;
-const FRAME_FEET_Y = 118;
+/** The shadow under the feet, as a share of the octopus's height. */
+const SHADOW = { width: 0.42, height: 0.09 };
 
 const ACCENT = 'var(--accent)';
 const LINE = 'var(--border)';
@@ -151,7 +154,7 @@ function SceneArt({ scene }: { scene: OctoScene }) {
   }
 }
 
-interface OctoHeroProps {
+export export interface OctoHeroProps {
   mood: MascotMood;
   /** The drawn canvas pieces behind the octopus, picked for what the popup is about. */
   scene: OctoScene;
@@ -163,15 +166,19 @@ interface OctoHeroProps {
 
 /**
  * The top of a popup: a drawn dotted canvas with a few node cards, and the octopus dropping onto it,
- * squashing on landing. Put it first inside a dialog, above a `PopupBody`.
+ * squashing on landing. Put it first inside a dialog.
  */
 export function OctoHero({ mood, scene, tag, size = 'tall', className }: OctoHeroProps) {
   const { height, octoY, octo } = SIZES[size];
+  const patternId = useId();
   const width = octo * mascotAspect(mood);
-  const [vx, vy, vw, vh] = mascotViewBox(mood).split(' ').map(Number);
-  // Feet sit at y 117 of the base frame; place the box so they land on the hero's baseline.
-  const top = octoY - ((117 - vy) / vh) * octo;
-  const center = ((64 - vx) / vw) * width;
+  const [, vy, , vh] = mascotViewBox(mood).split(' ').map(Number);
+  // Place the box so the feet land on the hero's baseline.
+  const feet = (MASCOT_FEET_Y - vy) / vh;
+  const top = octoY - feet * octo;
+  const center = mascotCenterX(mood);
+  const shadowW = octo * SHADOW.width;
+  const shadowH = octo * SHADOW.height;
 
   return (
     <div
@@ -185,33 +192,33 @@ export function OctoHero({ mood, scene, tag, size = 'tall', className }: OctoHer
       <svg
         data-slot="octo-hero-scene"
         role="presentation"
-        viewBox={`0 ${FRAME_FEET_Y - octoY} ${FRAME_WIDTH} ${height}`}
+        viewBox={`0 ${MASCOT_FEET_Y - octoY} ${FRAME_WIDTH} ${height}`}
         preserveAspectRatio="xMidYMid slice"
         className="absolute inset-0 h-full w-full"
       >
         <defs>
-          <pattern id={`octo-dots-${scene}`} width="16" height="16" patternUnits="userSpaceOnUse">
+          <pattern id={patternId} width="16" height="16" patternUnits="userSpaceOnUse">
             <circle cx="2" cy="2" r="1.2" fill={LINE} />
           </pattern>
         </defs>
-        <rect x="0" y="-100" width={FRAME_WIDTH} height="400" fill={`url(#octo-dots-${scene})`} />
+        <rect x="0" y="-100" width={FRAME_WIDTH} height="400" fill={`url(#${patternId})`} />
         <SceneArt scene={scene} />
       </svg>
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[62%] to-surface" />
 
       <span
-        className="octo-hero-shadow -ml-[19px] -mt-[4px] absolute h-[8px] w-[38px] rounded-full bg-black/20 blur-[2px]"
-        style={{ left: '50%', top: octoY }}
+        className="octo-hero-shadow absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/20 blur-[2px]"
+        style={{ left: '50%', top: octoY, width: shadowW, height: shadowH }}
       />
       <div
         data-slot="octo-hero-octo"
-        className="absolute"
-        style={{ left: '50%', marginLeft: `${-center}px`, top, width, height: octo }}
+        className="absolute -translate-x-1/2"
+        style={{ left: `calc(50% + ${(0.5 - center) * width}px)`, top, width, height: octo }}
       >
         <div
           className="octo-hero-fall h-full w-full"
-          style={{ transformOrigin: `${(center / width) * 100}% ${((117 - vy) / vh) * 100}%` }}
+          style={{ transformOrigin: `${center * 100}% ${feet * 100}%` }}
         >
           <Mascot mood={mood} animated className="h-full w-full" />
         </div>
@@ -223,27 +230,5 @@ export function OctoHero({ mood, scene, tag, size = 'tall', className }: OctoHer
         </span>
       )}
     </div>
-  );
-}
-
-/** The text and fields under an `OctoHero`. */
-export function PopupBody({ className, ...props }: ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="popup-body"
-      className={cn('relative flex flex-col gap-2 px-[22px] pb-5', className)}
-      {...props}
-    />
-  );
-}
-
-/** The buttons at the end of a popup: secondary first, the main action last. */
-export function PopupActions({ className, ...props }: ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="popup-actions"
-      className={cn('mt-3 flex flex-wrap justify-end gap-2', className)}
-      {...props}
-    />
   );
 }

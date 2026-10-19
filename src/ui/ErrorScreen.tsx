@@ -12,20 +12,19 @@ export const isStaleChunkError = (error: unknown) =>
 export function ErrorScreen({ error }: { error?: unknown }) {
   const stale = isStaleChunkError(error);
   return (
-    <div
-      role="alert"
-      className="flex min-h-dvh w-screen flex-col items-center justify-center gap-2 bg-bg px-6 text-center text-fg"
-    >
+    <div className="flex min-h-dvh w-screen flex-col items-center justify-center gap-2 bg-canvas px-6 text-center text-fg">
       <Mascot mood="tangled" animated className="mb-2 size-32" title="Tangled octopus" />
-      <h1 className="font-semibold text-xl tracking-tight">
-        {stale ? 'A new version is available' : 'Something went wrong'}
-      </h1>
-      <p className="max-w-sm text-muted text-sm leading-relaxed">
-        {stale
-          ? 'This page is out of date and could not load a piece of itself. Reload to get the latest version.'
-          : 'The app hit an unexpected error. Reloading usually fixes it.'}{' '}
-        Your canvases are saved in this browser, so nothing is lost.
-      </p>
+      <div role="alert" className="flex flex-col items-center gap-2">
+        <h1 className="font-semibold text-xl tracking-tight">
+          {stale ? 'A new version is available' : 'Something went wrong'}
+        </h1>
+        <p className="max-w-sm text-muted text-sm leading-relaxed">
+          {stale
+            ? 'This page is out of date and could not load a piece of itself. Reload to get the latest version.'
+            : 'The app hit an unexpected error. Reloading usually fixes it.'}{' '}
+          Your canvases are saved in this browser, so nothing is lost.
+        </p>
+      </div>
       <Button variant="primary" className="mt-3" onClick={() => window.location.reload()}>
         Reload
       </Button>

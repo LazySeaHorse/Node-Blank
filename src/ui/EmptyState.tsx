@@ -3,14 +3,15 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 interface EmptyStateProps {
+  /** Icon tile. Mutually exclusive with `mascot`; if both are given, `mascot` wins. */
   icon?: LucideIcon;
-  /** Replaces the icon tile, e.g. a mascot. */
+  /** Mascot art in place of the icon tile. Mutually exclusive with `icon`. */
   mascot?: ReactNode;
   title: string;
-  description?: string;
+  description?: ReactNode;
   action?: ReactNode;
-  /** 'modal' is roomy; 'compact' fits menus and small panels. */
-  variant?: 'modal' | 'compact';
+  /** 'default' is roomy; 'compact' fits menus and small panels. */
+  size?: 'default' | 'compact';
   className?: string;
 }
 
@@ -20,14 +21,14 @@ export function EmptyState({
   title,
   description,
   action,
-  variant = 'modal',
+  size = 'default',
   className,
 }: EmptyStateProps) {
-  const compact = variant === 'compact';
+  const compact = size === 'compact';
   return (
     <div
       className={cn(
-        'flex select-none flex-col items-center justify-center text-center',
+        'flex flex-col items-center justify-center text-center',
         compact ? 'px-4 py-8' : 'px-6 py-12',
         className,
       )}

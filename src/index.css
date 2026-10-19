@@ -14,6 +14,7 @@
 
 /* Semantic color tokens; components only use these. */
 :root {
+  --chrome-top: 4.75rem;
   --canvas: #f8fafc;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
@@ -81,7 +82,7 @@
   --font-weight-black: 500;
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
-  --text-micro: 0.5rem;
+  --text-micro: 0.625rem;
   --text-micro--line-height: 0.75rem;
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -97,21 +98,24 @@ body,
   font-family: var(--font-sans);
 }
 
-/* Keyboard focus ring shared by buttons, inputs and other controls. */
-:where(
-  button,
-  [role="button"],
-  [role="tab"],
-  [role="switch"],
-  a,
-  input,
-  select,
-  textarea,
-  summary
-):focus-visible {
-  /* An outline, not a box-shadow: dark mode strips shadows. */
-  outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
-  outline-offset: 0;
+/* Keyboard focus ring shared by buttons, inputs and other controls.
+   In the base layer so utilities (outline-none, focus-visible:outline-*) can override it. */
+@layer base {
+  :where(
+    button,
+    [role="button"],
+    [role="tab"],
+    [role="switch"],
+    a,
+    input,
+    select,
+    textarea,
+    summary
+  ):focus-visible {
+    /* An outline, not a box-shadow: dark mode strips shadows. */
+    outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
+    outline-offset: 0;
+  }
 }
 
 /* React Flow */
