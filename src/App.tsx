@@ -1,12 +1,12 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { Tooltip } from 'radix-ui';
 import { useEffect } from 'react';
-import { Toaster } from 'sonner';
 import { useAgentStore } from '@/agent';
 import { Canvas } from '@/canvas/Canvas';
 import { ReadOnlyContext } from '@/canvas/readOnly';
 import { AgentConnector } from '@/chrome/AgentConnector';
 import { AiLockBanner, AiPanel, AiStatusPill } from '@/chrome/AiPanel';
+import { EmptyCanvas } from '@/chrome/EmptyCanvas';
 import { MobileBar } from '@/chrome/MobileBar';
 import { useThemeClass } from '@/chrome/ThemeToggle';
 import { TopBar } from '@/chrome/TopBar';
@@ -16,10 +16,10 @@ import { useIsMobile } from '@/lib/useMediaQuery';
 import { useUiStore } from '@/store/uiStore';
 import { initWorkspace, useWorkspace } from '@/store/workspace';
 import { DialogHost } from '@/ui/dialogs';
+import { AppToaster } from '@/ui/toast';
 
 export function App() {
   const currentId = useWorkspace((s) => s.currentId);
-  const theme = useUiStore((s) => s.theme);
   const mobile = useIsMobile();
   const locked = useAgentStore((s) => s.locked);
   const aiPanelOpen = useUiStore((s) => s.aiPanelOpen);
@@ -44,6 +44,7 @@ export function App() {
         <ReactFlowProvider>
           <main className="relative h-dvh w-screen">
             <Canvas key={currentId} readOnly={readOnly} />
+            {!readOnly && <EmptyCanvas />}
             {mobile ? (
               <div className="pointer-events-none absolute inset-x-0 top-0">
                 <MobileBar />
@@ -73,7 +74,7 @@ export function App() {
           </main>
           <AgentConnector />
           <DialogHost />
-          <Toaster theme={theme} position="bottom-center" richColors />
+          <AppToaster />
         </ReactFlowProvider>
       </Tooltip.Provider>
     </ReadOnlyContext>

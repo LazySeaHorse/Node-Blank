@@ -1,5 +1,6 @@
 import { ChevronDown, Eye } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '@/ui/Badge';
 import { Mascot } from '@/ui/Mascot';
 import { CanvasManager } from './CanvasManager';
 import { Panel } from './Panel';
@@ -21,9 +22,9 @@ export function MobileBar() {
         <span className="truncate">{canvas?.name ?? '…'}</span>
         <ChevronDown className="size-3.5 shrink-0 text-muted" />
       </button>
-      <span className="flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted">
-        <Eye className="size-3.5" /> View only
-      </span>
+      <Badge variant="muted" size="sm">
+        <Eye /> View only
+      </Badge>
       <ThemeToggle />
       <CanvasManager open={managerOpen} onOpenChange={setManagerOpen} readOnly />
     </Panel>

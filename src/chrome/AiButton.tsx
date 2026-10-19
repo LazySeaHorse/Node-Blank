@@ -27,7 +27,7 @@ export function AiButton() {
         <span
           className={cn(
             'size-2 rounded-full',
-            enabled ? 'bg-emerald-500' : 'bg-border',
+            enabled ? 'bg-success' : 'bg-border',
             locked && 'animate-pulse',
           )}
         />

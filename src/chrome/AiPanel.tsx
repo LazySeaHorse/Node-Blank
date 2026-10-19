@@ -1,5 +1,4 @@
 import { Check, ChevronDown, CircleAlert, LoaderCircle, Sparkles, X } from 'lucide-react';
-import { Tabs } from 'radix-ui';
 import { useMemo, useState } from 'react';
 import {
   type AgentEvent,
@@ -15,9 +14,13 @@ import { timeAgo } from '@/lib/time';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
 import { type AiTab, useUiStore } from '@/store/uiStore';
+import { Alert, AlertDescription, AlertTitle } from '@/ui/Alert';
+import { Badge } from '@/ui/Badge';
 import { Button, IconButton } from '@/ui/Button';
 import { confirmAction } from '@/ui/dialogs';
+import { Mascot } from '@/ui/Mascot';
 import { Switch } from '@/ui/Switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/Tabs';
 import { Panel } from './Panel';
 
 const MCP_URL = 'http://127.0.0.1:47801/mcp';
@@ -36,39 +39,33 @@ export async function enableAiControl(): Promise<void> {
       'Connected agents will be able to read and edit this canvas. First, nearby nodes are grouped and spaced ' +
       'evenly (Organise); undo reverts that. While an agent is editing, the canvas is read-only for you.',
     confirmLabel: 'Organise and turn on',
+    hero: { mood: 'plug', scene: 'ai' },
   });
   if (!ok) return;
   if (useCanvasStore.getState().nodes.length > 0) organiseCanvas();
   useAgentStore.getState().setEnabled(true);
 }
 
-const Dot = ({ on }: { on: boolean }) => (
-  <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', on ? 'bg-emerald-500' : 'bg-border')} />
-);
-
 function StatusBlock() {
   const { enabled, bridgeConnected, webMcpTools } = useAgentStore();
   const connected = enabled && bridgeConnected;
+  const variant = connected ? 'success' : enabled ? 'warning' : 'info';
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-surface-2 p-3 text-xs">
-      <div className="flex gap-2.5">
-        <Dot on={connected} />
-        <div>
-          <div className="font-medium">{bridgeConnected ? 'Bridge connected' : 'Bridge not connected'}</div>
-          <div className="mt-0.5 text-muted">
-            {!enabled
-              ? 'Turn AI control on to let a coding agent read and edit this canvas.'
-              : bridgeConnected
-                ? 'A coding agent can use the tools below.'
-                : 'Run the bridge on this computer, then this tab connects by itself.'}
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col gap-2">
+      <Alert variant={variant} size="sm">
+        <AlertTitle>{bridgeConnected ? 'Bridge connected' : 'Bridge not connected'}</AlertTitle>
+        <AlertDescription>
+          {!enabled
+            ? 'Turn AI control on to let a coding agent read and edit this canvas.'
+            : bridgeConnected
+              ? 'A coding agent can use the tools below.'
+              : 'Run the bridge on this computer, then this tab connects by itself.'}
+        </AlertDescription>
+      </Alert>
       {webMcpTools > 0 && (
-        <div className="flex items-center gap-2.5">
-          <Dot on />
-          <span className="font-medium">WebMCP: {webMcpTools} tools registered</span>
-        </div>
+        <Alert variant="success" size="sm">
+          <AlertTitle>WebMCP: {webMcpTools} tools registered</AlertTitle>
+        </Alert>
       )}
     </div>
   );
@@ -88,7 +85,7 @@ function ConnectTab() {
           <label htmlFor="ai-enable" className="text-xs font-medium">
             Allow AI agents to control this canvas
           </label>
-          <p className="mt-0.5 text-[11px] text-muted">Off each time you open the app.</p>
+          <p className="mt-0.5 text-2xs text-muted">Off each time you open the app.</p>
         </div>
         <Switch
           id="ai-enable"
@@ -123,7 +120,7 @@ function ConnectTab() {
             {SETUP_COMMANDS.map(([agent, command]) => (
               <div key={agent}>
                 <span className="text-fg">{agent}</span>
-                <code className="mt-0.5 block rounded-lg bg-surface-2 px-2 py-1.5 font-mono text-[11px] break-all text-fg select-all">
+                <code className="mt-0.5 block rounded-lg bg-surface-2 px-2 py-1.5 font-mono text-2xs break-all text-fg select-all">
                   {command}
                 </code>
               </div>
@@ -143,12 +140,14 @@ function ConnectTab() {
           <ChevronDown className={cn('size-3.5 transition-transform', toolsOpen && 'rotate-180')} />
         </button>
         {toolsOpen && (
-          <ul className="mt-2 flex flex-col gap-1 text-[11px] text-muted">
+          <ul className="mt-2 flex flex-col gap-1 text-2xs text-muted">
             {tools.map((tool) => (
               <li key={tool.name} className="flex items-center justify-between gap-2">
                 <span>{tool.title}</span>
                 {!tool.annotations.readOnlyHint && (
-                  <span className="text-[9px] tracking-wider uppercase opacity-70">edits</span>
+                  <Badge variant="muted" size="micro">
+                    edits
+                  </Badge>
                 )}
               </li>
             ))}
@@ -174,13 +173,13 @@ function ActivityRow({ event }: { event: AgentEvent }) {
       >
         <span className="mt-0.5 shrink-0">
           {event.phase === 'started' && <LoaderCircle className="size-3.5 animate-spin text-accent" />}
-          {event.phase === 'succeeded' && <Check className="size-3.5 text-emerald-500" />}
+          {event.phase === 'succeeded' && <Check className="size-3.5 text-success" />}
           {failed && <CircleAlert className="size-3.5 text-danger" />}
         </span>
         <span className={cn('min-w-0 flex-1 text-xs break-words', failed && 'text-danger')}>
           {failed ? event.error : (event.summary ?? event.tool)}
         </span>
-        <time className="shrink-0 text-[10px] text-muted tabular-nums">{timeAgo(event.at)}</time>
+        <time className="shrink-0 text-micro text-muted tabular-nums">{timeAgo(event.at)}</time>
       </button>
     </li>
   );
@@ -193,10 +192,10 @@ function ActivityTab() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {calls.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 p-6 text-center text-xs text-muted">
-          <Sparkles className="size-5" />
-          <p>No AI activity yet.</p>
-          <p>
+        <div className="flex select-none flex-col items-center px-6 py-8 text-center">
+          <Mascot mood="curious" animated className="mb-2 h-24" title="Curious octopus" />
+          <p className="font-medium text-fg text-sm tracking-tight">No AI activity yet</p>
+          <p className="mt-1 max-w-[260px] text-muted text-xs leading-relaxed">
             Turn on AI control in the{' '}
             <button
               type="button"
@@ -226,9 +225,6 @@ function ActivityTab() {
   );
 }
 
-const tabClass =
-  'flex-1 cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-muted transition-colors data-[state=active]:bg-surface data-[state=active]:text-fg data-[state=active]:shadow-sm';
-
 export function AiPanel() {
   const tab = useUiStore((s) => s.aiTab);
   const setTab = useUiStore((s) => s.setAiTab);
@@ -243,32 +239,24 @@ export function AiPanel() {
         <div className="flex items-center gap-2">
           <Sparkles className="size-3.5 text-accent" />
           <h2 className="text-sm font-semibold">AI control</h2>
-          <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-amber-600 uppercase dark:text-amber-400">
+          <Badge variant="warning" size="micro">
             Experimental
-          </span>
+          </Badge>
         </div>
         <IconButton icon={X} label="Close AI panel" size="sm" onClick={close} />
       </header>
-      <Tabs.Root
-        value={tab}
-        onValueChange={(v) => setTab(v as AiTab)}
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        <Tabs.List className="mx-3 mt-3 flex shrink-0 gap-1 rounded-xl bg-surface-2 p-1">
-          <Tabs.Trigger value="connect" className={tabClass}>
-            Connect
-          </Tabs.Trigger>
-          <Tabs.Trigger value="activity" className={tabClass}>
-            Activity
-          </Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="connect" className="min-h-0 flex-1 overflow-y-auto">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as AiTab)} className="flex min-h-0 flex-1 flex-col">
+        <TabsList className="mx-3 mt-3 shrink-0">
+          <TabsTrigger value="connect">Connect</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+        <TabsContent value="connect" className="min-h-0 flex-1 overflow-y-auto">
           <ConnectTab />
-        </Tabs.Content>
-        <Tabs.Content value="activity" className="flex min-h-0 flex-1 flex-col pt-2">
+        </TabsContent>
+        <TabsContent value="activity" className="flex min-h-0 flex-1 flex-col pt-2">
           <ActivityTab />
-        </Tabs.Content>
-      </Tabs.Root>
+        </TabsContent>
+      </Tabs>
     </Panel>
   );
 }
@@ -287,9 +275,13 @@ export function AiStatusPill() {
     <button
       type="button"
       onClick={() => openAiPanel('activity')}
-      className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium shadow-lg hover:bg-surface-2"
+      className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-2xs font-medium shadow-lg hover:bg-surface-2"
     >
-      <span className={cn('size-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+      {connected ? (
+        <Mascot mood="curious" className="-my-1 -ml-1.5 size-6" />
+      ) : (
+        <span className="size-2 rounded-full bg-warning" />
+      )}
       {connected ? 'AI connected' : 'AI on, waiting for an agent'}
       <span className="text-muted">
         {count} {count === 1 ? 'call' : 'calls'}
@@ -304,7 +296,7 @@ export function AiLockBanner() {
   if (!locked) return null;
   return (
     <Panel className="gap-3 rounded-full py-1.5 pr-1.5 pl-4 text-sm" role="status">
-      <LoaderCircle className="size-4 animate-spin text-accent" />
+      <Mascot mood="working" animated className="-my-1 size-7 shrink-0" />
       <span>AI is editing. The canvas is read-only.</span>
       <Button
         variant="primary"

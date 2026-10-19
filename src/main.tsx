@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { cleanOrphanPdfFiles } from './nodes/pdf/fileStore';
+import { ErrorBoundary } from './ui/ErrorScreen';
 import './index.css';
 
 registerSW({ immediate: true });
@@ -14,6 +15,8 @@ if (!root) throw new Error('Missing #root element');
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );
