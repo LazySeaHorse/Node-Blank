@@ -188,7 +188,7 @@ export function sheetMenu(node: NodeOf<'sheet'>): MenuEntry[] {
         field: {
           prefix: `C${start.column + 1}`,
           placeholder: '-= 3*C2',
-          hint: `Columns are C1, C2… from the left (this is C${start.column + 1}).`,
+          hint: `Columns are C1, C2… from the left (this is C${start.column + 1}). Also = C1 / C2; text is skipped.`,
           onSubmit: operate(`C${start.column + 1}`),
         },
       },

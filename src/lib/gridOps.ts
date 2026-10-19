@@ -4,13 +4,22 @@ import { Rational } from './rational';
 export class GridOpError extends Error {}
 
 type Axis = 'R' | 'C';
-/** What a cell holds: an exact number, or a formula (without its `=`) that stays live. */
-type Term = { kind: 'number'; value: Rational } | { kind: 'formula'; text: string };
+/**
+ * What a cell holds: an exact number (`blank` when the cell was empty, which adds as 0 but is skipped when
+ * multiplying or dividing), a formula (without its `=`) that stays live, or text, which every operation skips.
+ */
+type Term =
+  | { kind: 'number'; value: Rational; blank?: true }
+  | { kind: 'formula'; text: string }
+  | { kind: 'text'; text: string };
 type Scalar = { kind: 'scalar'; scalar: Rational };
 type Line = { kind: 'line'; axis: Axis; cells: Term[] };
 type Value = Scalar | Line;
 
 const ZERO: Term = { kind: 'number', value: Rational.ZERO };
+const BLANK: Term = { kind: 'number', value: Rational.ZERO, blank: true };
+/** What an operation leaves where a cell cannot take part in it. */
+const SKIPPED: Term = { kind: 'text', text: '' };
 export type NumberFormat = 'fraction' | 'decimal';
 
 type Token =
@@ -81,11 +90,11 @@ class Lines {
     const cells = Array.from({ length: this.size(axis === 'R' ? 'C' : 'R') }, (_, position): Term => {
       const [row, col] = this.at(axis, index, position);
       const text = this.grid[row][col];
-      if (text.trim() === '') return ZERO;
+      if (text.trim() === '') return BLANK;
       const value = Rational.parse(text);
       if (value) return { kind: 'number', value };
       if (text.startsWith('=') && text.length > 1) return { kind: 'formula', text: text.slice(1) };
-      throw new GridOpError(`Cell ${columnLabel(col)}${row + 1} ("${text}") is not a number or a formula.`);
+      return { kind: 'text', text };
     });
     return { kind: 'line', axis, cells };
   }
@@ -95,7 +104,8 @@ class Lines {
     const out = this.grid.map((row) => [...row]);
     cells.forEach((value, position) => {
       const [row, col] = this.at(axis, index, position);
-      if (value.kind === 'formula') out[row][col] = `=${value.text}`;
+      if (value.kind === 'text') out[row][col] = value.text;
+      else if (value.kind === 'formula') out[row][col] = `=${value.text}`;
       else out[row][col] = format === 'fraction' ? value.value.toFraction() : value.value.toDecimal();
     });
     return out;
@@ -120,6 +130,7 @@ const formula = (text: string): Term => ({ kind: 'formula', text });
 
 /** Combines two cells exactly when both are numbers, and into a formula as soon as one is a formula. */
 function combineTerms(op: '+' | '-', a: Term, b: Term): Term {
+  if (a.kind === 'text' || b.kind === 'text') return SKIPPED;
   if (a.kind === 'number' && b.kind === 'number')
     return { kind: 'number', value: op === '+' ? a.value.add(b.value) : a.value.sub(b.value) };
   if (b.kind === 'number' && b.value.isZero) return a;
@@ -128,10 +139,21 @@ function combineTerms(op: '+' | '-', a: Term, b: Term): Term {
 }
 
 function scaleTerm(op: '*' | '/', a: Term, by: Rational): Term {
+  if (a.kind === 'text') return SKIPPED;
   if (a.kind === 'number') return { kind: 'number', value: op === '*' ? a.value.mul(by) : a.value.div(by) };
   if (op === '*' && by.isZero) return ZERO;
   if (by.num === 1n && by.den === 1n) return a;
   return formula(`${operand(a)}${op}${numberText(by)}`);
+}
+
+/** Cell by cell product or quotient of two lines. Text, empty cells and a zero divisor leave the cell empty. */
+function pairTerms(op: '*' | '/', a: Term, b: Term): Term {
+  const unusable = (t: Term) => t.kind === 'text' || (t.kind === 'number' && t.blank);
+  if (unusable(a) || unusable(b)) return SKIPPED;
+  if (op === '/' && b.kind === 'number' && b.value.isZero) return SKIPPED;
+  if (a.kind === 'number' && b.kind === 'number')
+    return { kind: 'number', value: op === '*' ? a.value.mul(b.value) : a.value.div(b.value) };
+  return formula(`${operand(a)}${op}${operand(b)}`);
 }
 
 function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
@@ -144,16 +166,14 @@ function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
     };
   }
   if (left.kind === 'line' && right.kind === 'line') {
-    if (op === '*' || op === '/')
-      throw new GridOpError(
-        `Cannot ${op === '*' ? 'multiply' : 'divide'} two ${name(left.axis)}s; scale one by a number.`,
-      );
     if (left.axis !== right.axis)
       throw new GridOpError(`Cannot mix a ${name(left.axis)} and a ${name(right.axis)}.`);
     return {
       kind: 'line',
       axis: left.axis,
-      cells: left.cells.map((a, i) => combineTerms(op, a, right.cells[i])),
+      cells: left.cells.map((a, i) =>
+        op === '*' || op === '/' ? pairTerms(op, a, right.cells[i]) : combineTerms(op, a, right.cells[i]),
+      ),
     };
   }
   if (op === '+' || op === '-')
@@ -225,7 +245,9 @@ const TARGET = /^([RrCc])(\d+)\s*(<->|\+=|-=|\*=|\/=|=)\s*(.+)$/;
  *   R1 -= 3*R2     R2 = R2/2     R1 = R1 - R3 + 2*R2     C2 += C1/3     R1 <-> R3
  *
  * Rows are `R1`, `R2`… and columns `C1`, `C2`… counted from 1, whatever the column letters say.
- * Numbers and fractions (empty counts as 0) are combined exactly. A cell that holds a formula makes the result
+ * Numbers and fractions (empty counts as 0) are combined exactly. Text is never an error: it is skipped and
+ * the result there is empty, as it is for an empty cell or a zero divisor when a line is multiplied or divided
+ * by another (`C3 = C1/C2`). A cell that holds a formula makes the result
  * a formula too, built from the originals' text, so the new cell stays live: R2 -= R1 over `=SUM(B1:B3)`
  * and `4` writes `=4-(SUM(B1:B3))`.
  */

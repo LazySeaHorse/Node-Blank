@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyGridOp, GridOpError } from './gridOps';
+import { applyGridOp } from './gridOps';
 
 // A simplex tableau: three constraint rows and the objective row.
 const tableau = () => [
@@ -98,7 +98,6 @@ describe('applyGridOp', () => {
     ['C9 = C1', /Column C9 does not exist/],
     ['R1 /= 0', /divide by zero/],
     ['R1 += 5', /Cannot add a number/],
-    ['R1 += R2*R3', /two rows/],
     ['R1 += C1', /Cannot mix|cannot be written|different length/i],
     ['R1 <-> C1', /Cannot swap/],
     ['R1 -= (R2', /closing parenthesis/],
@@ -139,12 +138,51 @@ describe('applyGridOp', () => {
     });
   });
 
-  it('names the cell that is not a number or formula', () => {
-    const grid = [
-      ['1', 'abc'],
-      ['2', '3'],
+  describe('text and empty cells', () => {
+    const data = [
+      ['Qty', 'Cost', ''],
+      ['10', '4', ''],
+      ['9', '0', ''],
+      ['', '2', ''],
+      ['x', '5', ''],
     ];
-    expect(() => applyGridOp(grid, 'R1 += R2', 'fraction')).toThrow(/Cell B1 \("abc"\)/);
-    expect(() => applyGridOp(grid, 'R1 += R2', 'fraction')).toThrow(GridOpError);
+
+    it('divides one column by another, leaving text, empty cells and a zero divisor empty', () => {
+      const out = applyGridOp(data, 'C3 = C1 / C2', 'fraction');
+      expect(out.map((row) => row[2])).toEqual(['', '5/2', '', '', '']);
+      expect(out.map((row) => row[0])).toEqual(['Qty', '10', '9', '', 'x']);
+    });
+
+    it('multiplies columns the same way', () => {
+      expect(applyGridOp(data, 'C3 = C1 * C2', 'fraction').map((row) => row[2])).toEqual([
+        '',
+        '40',
+        '0',
+        '',
+        '',
+      ]);
+    });
+
+    it('keeps formulas live when dividing columns', () => {
+      const grid = [
+        ['=SUM(A2:A3)', '2'],
+        ['1', '1'],
+        ['2', '1'],
+      ];
+      expect(applyGridOp(grid, 'C1 = C1 / C2', 'fraction')[0][0]).toBe('=(SUM(A2:A3))/2');
+    });
+
+    it('skips text when adding or scaling instead of failing', () => {
+      const grid = [
+        ['1', 'abc'],
+        ['2', '3'],
+      ];
+      expect(applyGridOp(grid, 'R1 += R2', 'fraction')[0]).toEqual(['3', '']);
+      expect(applyGridOp(grid, 'R1 *= 2', 'fraction')[0]).toEqual(['2', '']);
+    });
+
+    it('moves text along when swapping', () => {
+      expect(applyGridOp(data, 'C1 <-> C2', 'fraction')[0]).toEqual(['Cost', 'Qty', '']);
+    });
   });
 });
