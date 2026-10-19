@@ -86,8 +86,7 @@ function DialogView({ request }: { request: Request }) {
             {(control) => (
               <input
                 {...control}
-                // biome-ignore lint/a11y/noAutofocus: the dialog exists to collect this value.
-                autoFocus
+                data-autofocus
                 value={text}
                 placeholder={request.placeholder}
                 onChange={(e) => setText(e.target.value)}
