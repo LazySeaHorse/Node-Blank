@@ -1,6 +1,6 @@
 # Node-Blank
 
-A lightweight, in-browser personal canvas where you can throw down whatever you're working on. Math, markdown, videos, code, graphs... you name it!
+A desktop-first spatial workbench for STEM study and technical problem solving. Keep textbook pages, math derivations, calculations, and graphs in one view.
 
 <table>
   <tr>
@@ -10,15 +10,15 @@ A lightweight, in-browser personal canvas where you can throw down whatever you'
 </table>
 
 ### What is this?
-Node-Blank is a desktop-first infinite canvas that focuses on a snappy, offline-first experience specifically optimized for mouse and keyboard users. It serves as a digital scratchpad where various types of content - from LaTeX formulas to interactive graphs - can be arranged freely in a 2D space.
+Node-Blank is an offline spatial workspace optimized for mouse and keyboard users. It serves as a unified desktop workbench where you can place reference PDFs, Markdown explanations, evaluated LaTeX formulas, function graphs, and linear algebra spreadsheets side by side.
 
 ### Why did I make this?
-I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and wasn't tethered to a specific ecosystem or tablet hardware. It started as a simple way to jot down math expressions and markdown side-by-side, but it has since matured into a robust tool with close to a dozen node types. The goal was to create something that stays out of your way and lets you think.
+Most digital study tools require a tablet and stylus. Computational notebooks hide reference text behind linear code cells. Node-Blank gives keyboard-driven desktop learners an open 2D space to work through derivations, check calculations, and consult textbook material at the same time.
 
 ### Features
-- **Node types**: Text (Markdown + LaTeX), Math, Math+ (evaluates expressions; `a := 2` variables are shared across Math+ nodes, top to bottom), Graph (plot several functions of x), Table (math cells), Sheet (spreadsheet with formulas), Script (sandboxed JavaScript), Image, Video and Web.
+- **Node types**: Text (Markdown + LaTeX), Math (LaTeX display), Math+ (evaluates expressions with exact fractions and decimal results; `a := 2` variables pass top-to-bottom, left-to-right), Graph (plot several functions of x), Table (math notation cells), Sheet (spreadsheet with formulas, exact fractions, and row/column operations), Script (sandboxed JavaScript with 5-second limit), Image, Video, Web, and PDF (link local files, pin pages, pop pages out as images).
 - **Web node**: browse any site inside the canvas, with an address bar, back/forward/reload and Open in tab. Pages that forbid framing (Gemini, for one) need the companion Chrome extension. See [Web node](#web-node).
-- **Multiple canvases**, autosaved to your browser's IndexedDB. No accounts, no cloud.
+- **Multiple canvases**, autosaved to your browser's IndexedDB. Optional client-side AES-GCM encrypted cloud sync via JSONBin.
 - **Undo/redo** for everything on the canvas. While you type in a cell or field, Ctrl+Z is that field's own history; otherwise it steps back through the canvas, so a spreadsheet cell reverts as a whole.
 - **Titles**: right-click any node, Add title (headed nodes show their type until you name them; double-click a title to edit it).
 - **Sheets**: formula bar in the header; right-click selected cells for a fill colour; select a row or column (click its number or letter) and right-click to type an operation on it: `-= 3*R2`, `*= 1/2`, `<-> R4`, `-= 2*C1` (rows `R1…`, columns `C1…`, counted from 1). Formula cells work too, and the result stays a live formula. The `a/b` toggle keeps fractions exact.
@@ -103,7 +103,7 @@ Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>
 
 ### Roadmap
 - [x] **Rewrite on React + React Flow** (replaced the custom canvas, pan/zoom and touchpad handling)
-- [x] **Text, Math, Math+, Graph, Table, Sheet, Script, Image and Video nodes**
+- [x] **Text, Math, Math+, Graph, Table, Sheet, Script, Image, Video, Web, and PDF nodes**
 - [x] **Multiple canvases**, with rename, export and delete
 - [x] **Math+ with variables shared across nodes**
 - [x] **Undo/redo for everything**
@@ -117,11 +117,10 @@ Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>
 - [x] **Node groups and Organise**
 - [x] **Mobile viewer**
 - [x] **AI control** through the local Go bridge (MCP over HTTP) and WebMCP, with an activity feed and Take over
+- [x] **PDF node**
+- [x] **Encrypted cloud saves (JSONBin AES-GCM)**
 - [ ] **Themes!**
-- [ ] **PDF node**
 - [ ] **Link 2+ nodes**
 - [ ] **Import export via QR**
-- [ ] **Encrypted saves**
-- [ ] **Bring-your-own Firebase cloud saves**
 - [ ] **Drawings on canvas**
 - [ ] **Export PDF**
