@@ -8,6 +8,7 @@ export class FakeBinStore implements BinStore {
   failCreateAfter = Number.POSITIVE_INFINITY;
   failUpdate = false;
   updates = 0;
+  reads = 0;
   private n = 0;
   async create(data: unknown) {
     if (this.n >= this.failCreateAfter) throw new SyncError('network', 'offline');
@@ -16,6 +17,7 @@ export class FakeBinStore implements BinStore {
     return id;
   }
   async read(id: string) {
+    this.reads++;
     if (!this.bins.has(id)) throw new SyncError('not-found', 'gone');
     return structuredClone(this.bins.get(id));
   }

@@ -78,7 +78,7 @@ const deletes = (direction: 'push' | 'pull', status: SyncStatus) =>
   direction === 'push' ? status === 'deleted-here' : status === 'deleted-in-cloud';
 
 /**
- * Checks the cloud afresh, then runs `direction` on the canvas unless that would overwrite or delete
+ * Runs `direction` on the canvas, going by the last check, unless that would overwrite or delete
  * something the user has not agreed to losing.
  */
 async function syncOne(id: string, name: string, direction: 'push' | 'pull') {

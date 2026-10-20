@@ -57,6 +57,17 @@ describe('sync engine', () => {
     });
   });
 
+  it('goes by the last check: a push or pull after it reads no index', async () => {
+    const id = await repo.createCanvas('A', text('a'));
+    await check();
+    const reads = store.reads;
+    await push(id);
+    expect(store.reads).toBe(reads);
+    await pull(id);
+    // Only the canvas's own bin is read.
+    expect(store.reads).toBe(reads + 1);
+  });
+
   it('pushes a canvas, after which it is in sync', async () => {
     const id = await repo.createCanvas('Notes', text('hello'));
     await check();

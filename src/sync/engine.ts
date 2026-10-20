@@ -164,7 +164,7 @@ const FATAL: SyncErrorKind[] = ['auth', 'password', 'network', 'rate-limit'];
 export const syncAll = (direction: 'push' | 'pull') =>
   exclusive(() =>
     markBusy('all', async () => {
-      const entries = await lookAtCloud();
+      const entries = useSync.getState().entries ?? (await lookAtCloud());
       const { statuses, cloudOnly, deletedHere } = compareAll(
         await repo.listCanvases(),
         await repo.listSyncRecords(),
@@ -201,9 +201,12 @@ export function reset() {
   useSync.setState({ entries: null, checkedAt: null, busy: [] });
 }
 
-/** Checks the cloud and returns where every canvas stands, for deciding what an action would overwrite. */
+/**
+ * Where every canvas stands, for deciding what an action would overwrite. It goes by the last check, and
+ * only looks at the cloud if there has been none: refreshing is up to the user.
+ */
 export async function inspect() {
-  await check();
+  if (!useSync.getState().entries) await check();
   return compareAll(
     await repo.listCanvases(),
     await repo.listSyncRecords(),
