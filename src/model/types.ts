@@ -28,6 +28,8 @@ export type NodeDataMap = {
   code: Titled & { source: string };
   image: Titled & { src: string };
   video: Titled & { url: string };
+  /** A live web page in an iframe. `url` follows the page as it navigates; `pageTitle` is its last reported title. */
+  web: Titled & { url: string; pageTitle?: string };
   /** Links a PDF on the user's disk. Only metadata is stored here; the file handle lives in the `pdfFiles` table. */
   pdf: Titled & {
     /** Key into the `pdfFiles` table. */

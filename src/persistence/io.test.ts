@@ -42,6 +42,12 @@ describe('io', () => {
     );
   });
 
+  it('round-trips web nodes', () => {
+    const web = createNode('web', { x: 0, y: 0 }, { url: 'https://example.com/', pageTitle: 'Example' });
+    const file = exportNodes([web]);
+    expect(parseExportFile(JSON.stringify(file))).toEqual(file);
+  });
+
   it('rejects malformed JSON', () => {
     expect(() => parseExportFile('{nope')).toThrow(ImportError);
   });

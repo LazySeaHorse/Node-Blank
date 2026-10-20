@@ -6,6 +6,7 @@ import { type AppNode, type NodeDataMap, type NodeKind, SECTION_COLORS } from '@
 import { createNode } from '@/nodes/factory';
 import { splitLines } from '@/nodes/mathPlus/evaluate';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
+import { normaliseWebUrl } from '@/nodes/web/url';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { nodeRect } from '@/store/groups';
 import { alias } from '../aliases';
@@ -26,7 +27,7 @@ import {
 
 const MAX_GRID = { rows: 200, cols: 52 };
 /** Kinds whose size can be set; the others size to their content. */
-const RESIZABLE = new Set<NodeKind>(['code', 'graph', 'video', 'section']);
+const RESIZABLE = new Set<NodeKind>(['code', 'graph', 'video', 'web', 'section']);
 
 const cellsSchema = z
   .array(z.array(z.string().max(2000)).max(MAX_GRID.cols))
@@ -70,10 +71,17 @@ const content = {
   },
   code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'), title },
   video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
+  web: {
+    url: z
+      .string()
+      .max(2000)
+      .describe('http(s) address of a web page; a bare domain like example.com works.'),
+    title,
+  },
 } satisfies {
-  // `suggestionDismissed` is a UI flag, not content.
+  // `suggestionDismissed` is a UI flag and `pageTitle` what the page reported, not content.
   [K in Exclude<NodeKind, 'image' | 'pdf' | 'section'>]: Record<
-    Exclude<keyof NodeDataMap[K], 'suggestionDismissed'>,
+    Exclude<keyof NodeDataMap[K], 'suggestionDismissed' | 'pageTitle'>,
     z.ZodType
   >;
 };
@@ -88,7 +96,7 @@ const placementShape = {
     .min(40)
     .max(4000)
     .optional()
-    .describe('code, graph and video only; others size to content.'),
+    .describe('code, graph, video and web only; others size to content.'),
   height: z.number().min(40).max(4000).optional(),
 };
 
@@ -115,6 +123,13 @@ function checkVideo(url: unknown) {
     throw new ToolError('invalid_url', `"${url}" is not a video or embeddable https URL.`);
 }
 
+/** The address in the form the Web node stores it. */
+function checkWeb(url: unknown): string {
+  const normalised = typeof url === 'string' ? normaliseWebUrl(url) : null;
+  if (!normalised) throw new ToolError('invalid_url', `"${url}" is not an http(s) web address.`);
+  return normalised;
+}
+
 export const createNodes = defineTool({
   name: 'create_nodes',
   title: 'Create nodes',
@@ -132,6 +147,7 @@ export const createNodes = defineTool({
     for (const spec of specs as NewNode[]) {
       const { kind, near, group, x, y, width, height, ...data } = spec;
       if (kind === 'video') checkVideo(data.url);
+      if (kind === 'web') data.url = checkWeb(data.url);
       if (kind === 'mathPlus') data.latex = normaliseMathPlus(String(data.latex));
       if ((width || height) && !RESIZABLE.has(kind))
         throw new ToolError('not_resizable', `${kind} nodes size to their content; omit width and height.`);
@@ -178,6 +194,7 @@ const TEXT_FIELD: Partial<Record<NodeKind, string>> = {
   mathPlus: 'latex',
   code: 'source',
   video: 'url',
+  web: 'url',
   section: 'title',
 };
 
@@ -208,7 +225,7 @@ const updateSchema = z.object({
     .max(50)
     .optional()
     .describe(
-      'Exact find/replace on the text of text, math, Math+, code, video and section nodes. Cheaper than set for small changes.',
+      'Exact find/replace on the text of text, math, Math+, code, video, web and section nodes. Cheaper than set for small changes.',
     ),
   cells: z
     .array(
@@ -296,6 +313,7 @@ export const updateNodes = defineTool({
         data.cells = setCells(data.cells as string[][], cells, id);
       }
       if (node.type === 'video') checkVideo(data.url);
+      if (node.type === 'web' && data.url !== node.data.url) data.url = checkWeb(data.url);
       if (node.type === 'mathPlus') data.latex = normaliseMathPlus(String(data.latex));
       return { node, data };
     });
@@ -316,7 +334,7 @@ export const moveNodes = defineTool({
   name: 'move_nodes',
   title: 'Move or resize nodes',
   description:
-    'Move nodes to x/y or by dx/dy, and resize code, graph, image, video and section nodes. Moving a section also ' +
+    'Move nodes to x/y or by dx/dy, and resize code, graph, image, video, web and section nodes. Moving a section also ' +
     'moves the nodes inside it. One undo step.',
   input: z.object({
     moves: z

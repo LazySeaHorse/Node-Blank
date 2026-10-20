@@ -195,6 +195,23 @@ describe('writing', () => {
     ).toBe('not_resizable');
   });
 
+  it('creates web nodes with a normalised address and refuses other schemes', async () => {
+    await call('create_nodes', { nodes: [{ kind: 'web', url: 'example.com', width: 700 }] });
+    expect(canvas().nodes[0]).toMatchObject({
+      type: 'web',
+      data: { url: 'https://example.com/' },
+      width: 700,
+    });
+    expect(
+      (await callError('create_nodes', { nodes: [{ kind: 'web', url: 'javascript:alert(1)' }] })).error,
+    ).toBe('invalid_url');
+    await call('update_nodes', { updates: [{ id: 'n1', set: { url: 'http://localhost:3000' } }] });
+    expect(canvas().nodes[0].data).toMatchObject({ url: 'http://localhost:3000/' });
+    expect((await callError('update_nodes', { updates: [{ id: 'n1', set: { url: 'data:x' } }] })).error).toBe(
+      'invalid_url',
+    );
+  });
+
   it('cannot create pdf nodes or change which pages one shows', async () => {
     load([createNode('pdf', at(0, 0), { fileId: 'f', fileName: 'paper.pdf', pinned: [4] })]);
     expect((await callError('create_nodes', { nodes: [{ kind: 'pdf', fileId: 'x' }] })).error).toBe(

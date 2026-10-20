@@ -102,12 +102,12 @@ export function TopBar() {
   const [managerOpen, setManagerOpen] = useState(false);
   const canvas = useCurrentCanvas();
   const { tool, setTool } = useUiStore();
-  const { insertImage, insertVideo, insertPdf } = useCanvasActions();
+  const { insertImage, insertVideo, insertWeb, insertPdf } = useCanvasActions();
   const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0);
   const hasNodes = useCanvasStore((s) => s.nodes.length > 0);
 
-  const insertActions = { image: insertImage, video: insertVideo, pdf: insertPdf } as const;
+  const insertActions = { image: insertImage, video: insertVideo, web: insertWeb, pdf: insertPdf } as const;
 
   return (
     <Panel className="h-14 w-full gap-1 px-2.5">

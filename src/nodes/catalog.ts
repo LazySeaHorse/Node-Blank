@@ -11,6 +11,7 @@ import type { NodeSpec } from './spec';
 import { tableSpec } from './table/spec';
 import { textSpec } from './text/spec';
 import { videoSpec } from './video/spec';
+import { webSpec } from './web/spec';
 
 /** Registry of node kinds, in toolbar order. */
 export const nodeSpecs: { [K in NodeKind]: NodeSpec<K> } = {
@@ -23,6 +24,7 @@ export const nodeSpecs: { [K in NodeKind]: NodeSpec<K> } = {
   code: codeSpec,
   image: imageSpec,
   video: videoSpec,
+  web: webSpec,
   pdf: pdfSpec,
   section: sectionSpec,
 };

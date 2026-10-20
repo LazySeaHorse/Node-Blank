@@ -15,6 +15,7 @@ import { createNode } from '@/nodes/factory';
 import { addPdfNode, pickPdfHandle } from '@/nodes/pdf/actions';
 import { pdfHandlesFromDrop } from '@/nodes/pdf/drop';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
+import { normaliseWebUrl } from '@/nodes/web/url';
 import { ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
 import * as workspace from '@/store/workspace';
@@ -54,6 +55,24 @@ export function useCanvasActions() {
       return;
     }
     const node = createNode('video', { x: 0, y: 0 }, { url });
+    useCanvasStore
+      .getState()
+      .addNodes([{ ...node, position: centered({ width: node.width ?? 0, height: node.height ?? 0 }) }]);
+  };
+
+  const insertWeb = async () => {
+    const text = await askText({
+      title: 'Open a website',
+      label: 'Web address',
+      placeholder: 'https://gemini.google.com/app',
+    });
+    if (!text) return;
+    const url = normaliseWebUrl(text);
+    if (!url) {
+      toast.error('That does not look like a web address');
+      return;
+    }
+    const node = createNode('web', { x: 0, y: 0 }, { url });
     useCanvasStore
       .getState()
       .addNodes([{ ...node, position: centered({ width: node.width ?? 0, height: node.height ?? 0 }) }]);
@@ -103,5 +122,5 @@ export function useCanvasActions() {
     }
   };
 
-  return { addNode, insertImage, insertVideo, insertPdf, dropPdfs, importJson, exportJson };
+  return { addNode, insertImage, insertVideo, insertWeb, insertPdf, dropPdfs, importJson, exportJson };
 }

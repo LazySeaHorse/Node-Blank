@@ -14,6 +14,7 @@ const actions = () => ({
   addNode: vi.fn(),
   insertImage: vi.fn(),
   insertVideo: vi.fn(),
+  insertWeb: vi.fn(),
   insertPdf: vi.fn(),
   fitView: vi.fn(),
   wrapInSection: vi.fn(),
@@ -49,12 +50,14 @@ describe('canvas menu', () => {
     const add = find(entries, 'Add node');
     if (!add || !isSub(add)) throw new Error('missing Add node submenu');
     const labels = add.items.filter(isItem).map((i) => i.label);
-    expect(labels).toEqual(expect.arrayContaining(['Text', 'Math', 'Image', 'Video']));
+    expect(labels).toEqual(expect.arrayContaining(['Text', 'Math', 'Image', 'Video', 'Web']));
     expect(labels).not.toContain('Section');
     (find(add.items, 'Text') as MenuItem).onSelect();
     expect(a.addNode).toHaveBeenCalledWith('text', { x: 10, y: 20 });
     (find(add.items, 'Image') as MenuItem).onSelect();
     expect(a.insertImage).toHaveBeenCalled();
+    (find(add.items, 'Web') as MenuItem).onSelect();
+    expect(a.insertWeb).toHaveBeenCalled();
   });
 
   it('offers paste, organise, fit view and select all', () => {

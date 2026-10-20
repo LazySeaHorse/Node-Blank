@@ -123,6 +123,7 @@ export function nodeBody(node: AppNode, mathPlusResults?: LineResult[]): string 
     case 'image':
       return imageLabel(node.data.src);
     case 'video':
+    case 'web':
       return node.data.url;
     case 'pdf':
       return pdfSummary(node.data);

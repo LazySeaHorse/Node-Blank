@@ -7,6 +7,7 @@ import { ImageNode } from './image/ImageNode';
 import { SectionNode } from './section/SectionNode';
 import { TextNode } from './text/TextNode';
 import { VideoNode } from './video/VideoNode';
+import { WebNode } from './web/WebNode';
 
 /** One node failing to load or render must not take the whole canvas down. */
 function NodeFailed({ error }: { error: unknown }) {
@@ -43,6 +44,7 @@ export const nodeTypes = {
   text: TextNode,
   image: ImageNode,
   video: VideoNode,
+  web: WebNode,
   section: SectionNode,
   math: lazyNode(() => import('./math/MathNode')),
   mathPlus: lazyNode(() => import('./mathPlus/MathPlusNode')),

@@ -56,6 +56,19 @@ describe('searchTextOf', () => {
   });
 });
 
+describe('web nodes', () => {
+  it('start empty at a browser-like size', () => {
+    const node = createNode('web', { x: 0, y: 0 });
+    expect(node).toMatchObject({ type: 'web', width: 900, height: 640 });
+    expect(node.data).toEqual({ url: '' });
+  });
+
+  it('search by page title and address', () => {
+    const node = createNode('web', { x: 0, y: 0 }, { url: 'https://example.com/', pageTitle: 'Example' });
+    expect(searchTextOf(node)).toBe('Example https://example.com/');
+  });
+});
+
 describe('searchTextOf for pdf', () => {
   it('leads with the title, then the file name', () => {
     const node = createNode('pdf', { x: 0, y: 0 }, { fileName: 'paper.pdf', title: 'Reading' });

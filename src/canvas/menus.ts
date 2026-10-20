@@ -44,6 +44,7 @@ export interface MenuActions {
   addNode: (kind: NodeKind, at: XYPosition) => void;
   insertImage: () => void;
   insertVideo: () => void;
+  insertWeb: () => void;
   insertPdf: () => void;
   fitView: () => void;
   /** Ctrl+G: wraps the selection in a section. */
@@ -55,6 +56,7 @@ export function canvasMenu(at: XYPosition, actions: MenuActions): MenuEntry[] {
   const insertActions: Partial<Record<NodeKind, () => void>> = {
     image: actions.insertImage,
     video: actions.insertVideo,
+    web: actions.insertWeb,
     pdf: actions.insertPdf,
   };
   const add: MenuEntry[] = [];
