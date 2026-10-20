@@ -11,9 +11,10 @@ test('copies a selected node and pastes it at the cursor', async ({ page }) => {
   await page.mouse.move(900, 600);
   await page.keyboard.press('ControlOrMeta+v');
   await expect(nodes(page)).toHaveCount(2);
+  // At the cursor, snapped to the 24px grid.
   const box = await nodes(page).nth(1).boundingBox();
-  expect(box?.x).toBeCloseTo(900, -1);
-  expect(box?.y).toBeCloseTo(600, -1);
+  expect(Math.abs((box?.x ?? 0) - 900)).toBeLessThanOrEqual(12);
+  expect(Math.abs((box?.y ?? 0) - 600)).toBeLessThanOrEqual(12);
   await page.keyboard.press('ControlOrMeta+v');
   await expect(nodes(page)).toHaveCount(3);
 });
