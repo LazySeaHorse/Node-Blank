@@ -140,7 +140,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         zoomOnDoubleClick={false}
         zoomOnScroll={!panningScroll}
         panOnScroll={panningScroll}
-        minZoom={0.05}
+        minZoom={0.1}
         maxZoom={4}
         colorMode={theme}
         proOptions={proOptions}

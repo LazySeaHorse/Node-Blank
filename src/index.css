@@ -344,8 +344,7 @@ math-field::part(virtual-keyboard-toggle) {
   opacity: 0;
   transition: opacity 0.14s;
 }
-[data-zoom="mid"] .node-actions,
-[data-zoom="far"] .node-actions {
+[data-zoom="mid"] .node-actions {
   display: none;
 }
 .node:is(:hover, :focus-within) .node-actions,
@@ -401,35 +400,8 @@ math-field::part(virtual-keyboard-toggle) {
 }
 /*
  * Zoomed out, a node gives up detail (data-zoom is set on the canvas). `mid`: tabs keep their size and the
- * controls go. `far`: the tile's contents hide behind its title, set large like a label on a map; a section
- * keeps its tab, which then labels the region.
+ * controls go.
  */
-.node-poster {
-  display: none;
-  position: absolute;
-  inset: 0;
-  align-items: safe flex-end;
-  padding: calc(5px * var(--tz, 1)) calc(10px * var(--tz, 1));
-  overflow: hidden;
-  font-size: calc(15px * var(--tz, 1));
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  pointer-events: none;
-}
-[data-zoom="far"] .node-tab:not(.section-handle) {
-  visibility: hidden;
-}
-[data-zoom="far"] .node-tile:not(.node-section) > :not(.node-poster) {
-  visibility: hidden;
-}
-[data-zoom="far"] .node-poster {
-  display: flex;
-}
-/* The title is drawn from an attribute, so the node's text is in the page once, not twice. */
-.node-poster::before {
-  content: attr(data-title);
-}
 /*
  * Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. They come before the
  * tile in the node, which is positioned, so they need lifting above it to take the pointer.
