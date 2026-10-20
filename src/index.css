@@ -313,10 +313,6 @@ math-field::part(virtual-keyboard-toggle) {
 .node:hover {
   --tone: color-mix(in srgb, var(--tone-base) 92%, var(--fg));
 }
-/* Typing in a node brightens its tile to the surface colour. */
-.node-tile:focus-within {
-  --tone: var(--surface);
-}
 .node-actions {
   opacity: 0;
   transition: opacity 0.14s;
@@ -336,6 +332,18 @@ math-field::part(virtual-keyboard-toggle) {
 }
 .multi-select .selected .node-tile {
   outline-style: dashed;
+}
+/* A page or video taking the mouse turns the tab and ring green. */
+.node[data-live] .node-tab {
+  --tab: var(--live);
+  color: var(--canvas);
+}
+.node[data-live] .node-tile {
+  outline-color: var(--live);
+}
+/* Typing in a node brightens its tile to the surface colour. */
+.node:not([data-live]) .node-tile:focus-within {
+  --tone: var(--surface);
 }
 .react-flow__node:focus-visible {
   outline: none;

@@ -191,6 +191,7 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
     <NodeShell
       kind="web"
       selected={selected}
+      live={interactive}
       // The page's own title heads the node, until the user names it.
       title={data.pageTitle || undefined}
       customTitle={data.title}

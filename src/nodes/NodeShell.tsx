@@ -28,6 +28,8 @@ interface NodeShellProps {
   };
   /** Background tint, from the section palette. */
   tint?: SectionColor;
+  /** The embedded page or video is taking the mouse, so the node says so. */
+  live?: boolean;
   /** Classes for the tile, e.g. its padding and minimum width. */
   className?: string;
   children: ReactNode;
@@ -46,6 +48,7 @@ export function NodeShell({
   actions,
   resize,
   tint,
+  live,
   className,
   children,
 }: NodeShellProps) {
@@ -68,11 +71,16 @@ export function NodeShell({
           handleClassName="!size-3.5 !rounded-none !border-0 !bg-transparent"
         />
       )}
-      <div className="node flex h-full w-full flex-col" style={{ '--tone-base': tone } as CSSProperties}>
+      <div
+        className="node flex h-full w-full flex-col"
+        data-live={live || undefined}
+        style={{ '--tone-base': tone } as CSSProperties}
+      >
         <div className="flex shrink-0 items-end" style={{ height: NODE_TAB_HEIGHT }}>
           <div className="node-tab cursor-grab">
             <Icon className="size-3.5 shrink-0 opacity-70" />
             <NodeTitle fallback={title ?? label} value={customTitle} />
+            {live && <span className="shrink-0 text-2xs font-normal opacity-80">· Live</span>}
           </div>
           {!readOnly && actions && (
             <div className="node-actions nodrag ml-auto flex items-center gap-1 self-center">{actions}</div>
