@@ -4,7 +4,7 @@ import { useStore } from '@xyflow/react';
 export type ZoomTier = 'near' | 'mid' | 'far';
 
 const MID_BELOW = 0.72;
-const FAR_BELOW = 0.42;
+const FAR_BELOW = 0.1;
 
 export const zoomTier = (zoom: number): ZoomTier =>
   zoom < FAR_BELOW ? 'far' : zoom < MID_BELOW ? 'mid' : 'near';
