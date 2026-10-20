@@ -12,6 +12,7 @@ export const webSpec: NodeSpec<'web'> = {
   schema: z.object({
     url: z.string(),
     pageTitle: z.string().max(300).optional(),
+    keepLoaded: z.boolean().optional(),
     title: titleField,
     color: colorField,
   }),

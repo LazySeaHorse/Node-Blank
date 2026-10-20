@@ -14,6 +14,7 @@ import {
   Copy,
   CopyPlus,
   Maximize,
+  Moon,
   MousePointer2,
   PaintBucket,
   PencilLine,
@@ -112,6 +113,7 @@ const copyLatex = (latex: string): MenuEntry => ({
 /** Extra items for particular kinds of node, shown above the common ones. */
 const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
   math: (node) => [...mathMenu(node), { separator: true }, copyLatex(node.data.latex)],
+  web: (node) => [unloadOffscreen(node)],
   mathPlus: (node) => [
     ...mathMenu(node),
     { separator: true },
@@ -123,6 +125,14 @@ const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
     },
   ],
 };
+
+const unloadOffscreen = (node: NodeOf<'web'>): MenuEntry => ({
+  label: 'Unload when off-screen',
+  icon: Moon,
+  checked: !node.data.keepLoaded,
+  onSelect: () =>
+    useCanvasStore.getState().updateNodeData<'web'>(node.id, { keepLoaded: !node.data.keepLoaded }),
+});
 
 const rename = (node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry => ({
   label: node.data.title ? 'Rename' : 'Add title',

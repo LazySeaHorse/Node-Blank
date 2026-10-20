@@ -126,7 +126,9 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   // An iframe swallows mouse events, so it only becomes interactive once its node is selected and still.
   const interactive = selected && !dragging && !resizing;
   // Far from the screen the page is unmounted, to give its memory and CPU back; it resumes where it was.
-  const loaded = useNearScreen(id) || selected;
+  // A node set to keep its page loaded is the exception.
+  const near = useNearScreen(id);
+  const loaded = data.keepLoaded || near || selected;
 
   const relaunch = (url: string | null) => {
     setPage(null);

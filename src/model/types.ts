@@ -31,8 +31,9 @@ export type NodeDataMap = {
   code: Titled & { source: string };
   image: Titled & { src: string };
   video: Titled & { url: string };
-  /** A live web page in an iframe. `url` follows the page as it navigates; `pageTitle` is its last reported title. */
-  web: Titled & { url: string; pageTitle?: string };
+  /** A live web page in an iframe. `url` follows the page as it navigates; `pageTitle` is its last reported title.
+   * `keepLoaded` stops the page being unloaded while it is far from the screen, which it otherwise is. */
+  web: Titled & { url: string; pageTitle?: string; keepLoaded?: boolean };
   /** Links a PDF on the user's disk. Only metadata is stored here; the file handle lives in the `pdfFiles` table. */
   pdf: Titled & {
     /** Key into the `pdfFiles` table. */
