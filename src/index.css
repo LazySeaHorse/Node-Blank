@@ -303,6 +303,11 @@ math-field::part(virtual-keyboard-toggle) {
 .node-tile {
   transition: background-color 0.15s;
 }
+/* A section is an empty tile; its dashed edge says it only holds other nodes. */
+.node-section {
+  outline: 1.5px dashed color-mix(in srgb, var(--fg) 22%, transparent);
+  outline-offset: -1.5px;
+}
 .node:hover {
   --tone: color-mix(in srgb, var(--tone-base) 92%, var(--fg));
 }
