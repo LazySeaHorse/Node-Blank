@@ -9,6 +9,7 @@ import {
 } from '@xyflow/react';
 import { type DragEvent, type MouseEvent, useEffect, useMemo } from 'react';
 import { setAgentView, useAgentStore } from '@/agent';
+import { cn } from '@/lib/cn';
 import { SECTION_Z } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
@@ -55,6 +56,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   const theme = useUiStore((s) => s.theme);
   const touched = useAgentStore((s) => s.touched);
   const searched = useSearchHighlight(nodes);
+  const multipleSelected = useMemo(() => nodes.filter((n) => n.selected).length > 1, [nodes]);
   const sectionHandlers = useSections();
   const displayNodes = useMemo(
     () =>
@@ -127,7 +129,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         maxZoom={4}
         colorMode={theme}
         proOptions={proOptions}
-        className={readOnly ? 'read-only' : undefined}
+        className={cn(readOnly && 'read-only', multipleSelected && 'multi-select')}
         {...(readOnly ? readOnlyProps : editableProps)}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />

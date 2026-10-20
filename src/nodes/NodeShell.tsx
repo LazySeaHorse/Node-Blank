@@ -64,7 +64,7 @@ export function NodeShell({
           onResizeStart={() => resize.onResizing?.(true)}
           onResizeEnd={() => resize.onResizing?.(false)}
           lineClassName="!border-transparent"
-          handleClassName="!size-3 !rounded-none !border-0 !bg-transparent"
+          handleClassName="!size-3.5 !rounded-none !border-0 !bg-transparent"
         />
       )}
       <div className="node flex h-full w-full flex-col" style={{ '--tone-base': tone } as CSSProperties}>

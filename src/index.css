@@ -155,7 +155,7 @@ body,
   --xy-background-pattern-color: var(--dot);
   --xy-selection-background-color: color-mix(in srgb, var(--accent) 10%, transparent);
   --xy-selection-border: 1px solid var(--accent);
-  --xy-resize-background-color: var(--accent);
+  --xy-resize-background-color: transparent;
 }
 
 /* Read-only nodes are not selectable, which makes React Flow ignore pointer events on them.
@@ -290,6 +290,76 @@ math-field::part(virtual-keyboard-toggle) {
   border-radius: 0 0.8125rem 0.8125rem 0.8125rem;
   background: var(--tone);
   color: var(--fg);
+}
+
+/*
+ * Node states. Dark mode strips box-shadows, so selection and focus are outlines, and only the lift of a
+ * dragged node uses a shadow (a bonus in light mode). Everything animates transform or opacity.
+ */
+.node {
+  transition: transform 0.18s var(--ease-spring);
+}
+.node-tab,
+.node-tile {
+  transition: background-color 0.15s;
+}
+.node:hover {
+  --tone: color-mix(in srgb, var(--tone-base) 92%, var(--fg));
+}
+/* Typing in a node brightens its tile to the surface colour. */
+.node-tile:focus-within {
+  --tone: var(--surface);
+}
+.node-actions {
+  opacity: 0;
+  transition: opacity 0.14s;
+}
+.node:is(:hover, :focus-within) .node-actions,
+.react-flow__node.selected .node-actions {
+  opacity: 1;
+}
+.react-flow__node.selected .node-tab {
+  --tab: var(--fg);
+  margin-left: -2px;
+  padding-left: calc(0.625rem + 2px);
+  color: var(--canvas);
+}
+.react-flow__node.selected .node-tile {
+  outline: 2px solid var(--fg);
+}
+.multi-select .selected .node-tile {
+  outline-style: dashed;
+}
+.react-flow__node:focus-visible {
+  outline: none;
+}
+.react-flow__node:focus-visible .node-tile {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+/* A dragged node is picked up: lifted, and tilted a touch. */
+.react-flow__node.dragging .node {
+  transform: translateY(-4px) rotate(-0.4deg);
+  transform-origin: 1.5rem 0;
+}
+.react-flow__node.dragging .node-tile {
+  box-shadow: 0 18px 24px -12px rgb(0 0 0 / 0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .node {
+    transition: none;
+  }
+  .react-flow__node.dragging .node {
+    transform: none;
+  }
+}
+/* Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. */
+.react-flow__node .react-flow__resize-control.handle.bottom.right {
+  transform: translate(-100%, -100%);
+  background-image: radial-gradient(circle, var(--fg) 1.1px, transparent 1.5px);
+  background-size: 4px 4px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  opacity: 0.55;
 }
 
 /* Nodes an AI agent just changed. */
