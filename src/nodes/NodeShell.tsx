@@ -92,9 +92,7 @@ export function NodeShell({
           )}
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
           {/* Far out, the tile shows only its title, large. */}
-          <div className="node-poster" aria-hidden="true">
-            {customTitle || title || label}
-          </div>
+          <div className="node-poster" aria-hidden="true" data-title={customTitle || title || label} />
         </div>
       </div>
     </>

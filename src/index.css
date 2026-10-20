@@ -401,6 +401,10 @@ math-field::part(virtual-keyboard-toggle) {
 [data-zoom="far"] .node-poster {
   display: flex;
 }
+/* The title is drawn from an attribute, so the node's text is in the page once, not twice. */
+.node-poster::before {
+  content: attr(data-title);
+}
 /* Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. */
 .react-flow__node .react-flow__resize-control.handle.bottom.right {
   transform: translate(-100%, -100%);

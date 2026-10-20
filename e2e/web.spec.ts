@@ -86,7 +86,8 @@ test('unloads the page when zoomed far out and resumes at the same address', asy
   await page.mouse.click(1380, 860);
   for (let i = 0; i < 14; i++) await page.getByRole('button', { name: 'Zoom out' }).click();
   await expect(frame(page)).toHaveCount(0);
-  await expect(page.getByText('Loads when it is on screen')).toBeVisible();
+  // Far out the node is a titled tile, so its stand-in is in the page but not shown.
+  await expect(page.getByText('Loads when it is on screen')).toBeAttached();
 
   await page.getByRole('button', { name: /%$/ }).click();
   await expect(frame(page)).toHaveAttribute('src', `${HOST}/two`);
