@@ -7,7 +7,8 @@ import type { NodeDataMap, NodeOf } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { NodeShell } from '../NodeShell';
 import { type FrameCommand, parseFrameState, sendFrameCommand } from './frameMessages';
-import { normaliseWebUrl } from './url';
+import { hostnameOf, normaliseWebUrl } from './url';
+import { useNearScreen } from './useLoaded';
 
 /** No `allow-top-navigation`: a page that tries to break out of its frame stays in it. */
 const SANDBOX =
@@ -124,6 +125,8 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   const address = normaliseWebUrl(data.url);
   // An iframe swallows mouse events, so it only becomes interactive once its node is selected and still.
   const interactive = selected && !dragging && !resizing;
+  // Far from the screen the page is unmounted, to give its memory and CPU back; it resumes where it was.
+  const loaded = useNearScreen(id) || selected;
 
   const relaunch = (url: string | null) => {
     setPage(null);
@@ -145,6 +148,12 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   };
 
   const reload = () => (page ? command('reload') : relaunch(address));
+
+  // The saved address is where an unloaded page picks up again.
+  const unload = useEffectEvent(() => relaunch(normaliseWebUrl(data.url)));
+  useEffect(() => {
+    if (!loaded) unload();
+  }, [loaded]);
 
   // The page reported in. Its own address is saved without being loaded again.
   const onMessage = useEffectEvent((event: MessageEvent) => {
@@ -214,7 +223,11 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
         </div>
       }
     >
-      {launch.url ? (
+      {!launch.url ? (
+        <Hint>Type a web address above and press Enter.</Hint>
+      ) : !loaded ? (
+        <Sleeping title={data.pageTitle} url={launch.url} />
+      ) : (
         <div className={cn('relative min-h-0 flex-1', interactive && 'nodrag nowheel')}>
           <iframe
             key={launch.id}
@@ -237,10 +250,20 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
             )}
           />
         </div>
-      ) : (
-        <Hint>Type a web address above and press Enter.</Hint>
       )}
     </NodeShell>
+  );
+}
+
+/** Stands in for a page that is not running: what it was, and that it comes back by itself. */
+function Sleeping({ title, url }: { title?: string; url: string }) {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-center">
+      <Globe className="mb-1 size-6 text-muted" />
+      <p className="max-w-full truncate text-sm font-medium">{title || hostnameOf(url)}</p>
+      {title && <p className="max-w-full truncate text-xs text-muted">{hostnameOf(url)}</p>}
+      <p className="text-xs text-muted">Loads when it is on screen</p>
+    </div>
   );
 }
 

@@ -74,3 +74,20 @@ test('the framed page only receives pointer events once its node is selected', a
   await page.mouse.click(1380, 860);
   await expect(frame(page)).toHaveClass(/pointer-events-none/);
 });
+
+test('unloads the page when zoomed far out and resumes at the same address', async ({ page }) => {
+  await serve(page, true);
+  await insertWeb(page, `${HOST}/one`);
+  await addressBar(page).fill(`${HOST}/two`);
+  await addressBar(page).press('Enter');
+  await expect(addressBar(page)).toHaveValue(`${HOST}/two`);
+
+  // A selected node stays running, so deselect it before zooming out.
+  await page.mouse.click(1380, 860);
+  for (let i = 0; i < 14; i++) await page.getByRole('button', { name: 'Zoom out' }).click();
+  await expect(frame(page)).toHaveCount(0);
+  await expect(page.getByText('Loads when it is on screen')).toBeVisible();
+
+  await page.getByRole('button', { name: /%$/ }).click();
+  await expect(frame(page)).toHaveAttribute('src', `${HOST}/two`);
+});
