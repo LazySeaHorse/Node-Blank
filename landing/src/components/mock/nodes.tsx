@@ -1,5 +1,25 @@
 import type { LucideIcon } from 'lucide-react';
-import { ChartSpline, Check, Play, Plus, Sheet, SquarePlay, SquareTerminal, Table } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calculator,
+  ChartSpline,
+  Check,
+  ExternalLink,
+  FileText,
+  Globe,
+  Image as ImageIcon,
+  Play,
+  Plus,
+  RotateCw,
+  Rows3,
+  Sheet,
+  Sigma,
+  SquarePlay,
+  SquareTerminal,
+  Table,
+  Type,
+} from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 /* ────────────────────────────────────────────────────────────────
@@ -54,20 +74,34 @@ const Sup = ({ children }: { children: React.ReactNode }) => (
 );
 
 /* ────────────────────────────────────────────────────────────────
-   Node shell — the app's NodeShell: surface card, hairline border,
-   optional header bar (Graph, Sheet, Table, Script, Video).
+   Node shell — Dossier tab + fused tile design (matching NodeShell):
+   surface card or tinted tone, concave fillets, tab icon and title,
+   and clean states.
    ──────────────────────────────────────────────────────────────── */
 
+export type SectionColor =
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'pink'
+  | 'orange'
+  | 'gray';
+
+export const swatch = (color: SectionColor) => `var(--section-${color})`;
+
 export type NodeChromeProps = {
-  /** Header bar; nodes without a title (Text, Math, Math+, Image) have none. */
   title?: string;
   icon?: LucideIcon;
   selected?: boolean;
   touched?: boolean;
-  className?: string;
-  children: React.ReactNode;
-  /** Controls on the right of the header */
+  tint?: SectionColor;
+  live?: boolean;
+  toolbar?: React.ReactNode;
   actions?: React.ReactNode;
+  className?: string;
+  tileClassName?: string;
+  children: React.ReactNode;
 };
 
 export function NodeCard({
@@ -75,27 +109,47 @@ export function NodeCard({
   icon: Icon,
   selected,
   touched,
-  className,
-  children,
+  tint,
+  live,
+  toolbar,
   actions,
+  className,
+  tileClassName,
+  children,
 }: NodeChromeProps) {
+  const tone = tint
+    ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))`
+    : 'var(--surface)';
+
   return (
     <div
       className={cn(
-        'flex flex-col overflow-hidden rounded-lg border bg-surface text-fg shadow-sm',
-        selected ? 'border-accent shadow-md ring-2 ring-accent/25' : 'border-border',
+        'node node-card flex flex-col',
+        selected && 'selected',
         touched && 'ai-touched',
         className,
       )}
+      data-live={live || undefined}
+      style={{ '--tone-base': tone } as React.CSSProperties}
     >
-      {title && (
-        <header className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-medium tracking-wide text-muted uppercase">
-          {Icon && <Icon className="size-3.5" />}
-          <span>{title}</span>
-          {actions && <div className="ml-auto flex items-center gap-1 normal-case">{actions}</div>}
-        </header>
-      )}
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <div className="flex shrink-0 items-end" style={{ height: '28px' }}>
+        <div className="node-tab">
+          {Icon && <Icon className="size-3.5 shrink-0 opacity-70" />}
+          {title && <span className="truncate">{title}</span>}
+          {live && <span className="shrink-0 text-2xs font-normal opacity-80">· Live</span>}
+        </div>
+        {actions && (
+          <div className="node-actions ml-auto flex items-center gap-1 self-center pr-1">{actions}</div>
+        )}
+      </div>
+      <div className={cn('node-tile flex min-h-0 flex-1 flex-col', tileClassName)}>
+        {toolbar && (
+          <header className="flex h-9 shrink-0 items-center gap-1 border-b border-border/60 px-2 text-xs">
+            {toolbar}
+          </header>
+        )}
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      </div>
     </div>
   );
 }
@@ -103,9 +157,9 @@ export function NodeCard({
 function Stepper({ label }: { label: string }) {
   return (
     <div className="flex items-center overflow-hidden rounded border border-border bg-surface text-xs font-medium text-muted">
-      <span className="px-2 py-0.5">−</span>
+      <span className="px-1.5 py-0.5">−</span>
       <span className="px-1">{label}</span>
-      <span className="px-2 py-0.5">+</span>
+      <span className="px-1.5 py-0.5">+</span>
     </div>
   );
 }
@@ -114,9 +168,28 @@ function Stepper({ label }: { label: string }) {
    1. Text — Markdown + LaTeX
    ──────────────────────────────────────────────────────────────── */
 
-export function TextNode({ touched }: { touched?: boolean }) {
+export function TextNode({
+  title = 'Text',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
-    <NodeCard touched={touched} className="w-[268px]">
+    <NodeCard
+      title={title}
+      icon={Type}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      className={cn('w-[268px]', className)}
+    >
       <div className="p-4 text-[14px] leading-[1.6] text-fg">
         <p className="mb-2 text-[17px] leading-tight font-medium">Where the series converges</p>
         <p className="text-fg/85">
@@ -140,10 +213,29 @@ export function TextNode({ touched }: { touched?: boolean }) {
    2. Math — LaTeX, typeset
    ──────────────────────────────────────────────────────────────── */
 
-export function MathNode({ selected, touched }: { selected?: boolean; touched?: boolean }) {
+export function MathNode({
+  title = 'Math',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
-    <NodeCard selected={selected} touched={touched} className="w-[292px] px-3 py-2">
-      <div className="tex flex items-center text-[19px] text-fg">
+    <NodeCard
+      title={title}
+      icon={Sigma}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      className={cn('w-[292px]', className)}
+    >
+      <div className="tex flex items-center px-4 py-3 text-[19px] text-fg">
         <V>x</V> ={' '}
         <Frac
           up={
@@ -215,9 +307,28 @@ const MATH_PLUS_RESULTS: { value: string; approx?: string; assigned?: boolean }[
   { value: '√13', approx: '3.6056' },
 ];
 
-export function MathPlusNode({ touched }: { touched?: boolean }) {
+export function MathPlusNode({
+  title = 'Math+',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
-    <NodeCard touched={touched} className="w-[262px] border-l-4 border-l-accent">
+    <NodeCard
+      title={title}
+      icon={Calculator}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      className={cn('w-[262px]', className)}
+    >
       <div className="tex flex flex-col gap-0.5 px-3 py-2 text-[17px] text-fg">
         {MATH_PLUS_INPUT.map((line) => (
           <div key={line.id}>{line.node}</div>
@@ -309,14 +420,28 @@ function pathFor(f: (x: number) => number) {
   return d.trim();
 }
 
-export function GraphNode({ touched }: { touched?: boolean }) {
+export function GraphNode({
+  title = 'Graph',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
     <NodeCard
-      title="Graph"
+      title={title}
       icon={ChartSpline}
+      tint={tint}
+      selected={selected}
       touched={touched}
-      className="w-[344px]"
-      actions={<Plus className="size-3.5 m-1" />}
+      className={cn('w-[344px]', className)}
+      actions={<Plus className="m-1 size-3.5 text-muted hover:text-fg" />}
     >
       <ul className="divide-y divide-border border-b border-border">
         {FUNCS.map((fn, i) => (
@@ -386,14 +511,28 @@ const Sub = ({ children }: { children: React.ReactNode }) => (
   <sub className="text-[0.58em] leading-none">{children}</sub>
 );
 
-export function TableNode({ touched }: { touched?: boolean }) {
+export function TableNode({
+  title = 'Table',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   const cell = 'tex min-h-8 min-w-20 border border-border px-1.5 py-1 text-[15px]';
   return (
     <NodeCard
-      title="Table"
+      title={title}
       icon={Table}
+      tint={tint}
+      selected={selected}
       touched={touched}
-      className="w-[290px]"
+      className={cn('w-[290px]', className)}
       actions={
         <>
           <Stepper label="Row" />
@@ -470,13 +609,27 @@ const SHEET: (string | number)[][] = [
   ['Σ', '10', '38'],
 ];
 
-export function SheetNode({ touched }: { touched?: boolean }) {
+export function SheetNode({
+  title = 'Sheet',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
     <NodeCard
-      title="Sheet"
+      title={title}
       icon={Sheet}
+      tint={tint}
+      selected={selected}
       touched={touched}
-      className="w-[300px]"
+      className={cn('w-[300px]', className)}
       actions={
         <>
           <Stepper label="Row" />
@@ -558,13 +711,27 @@ const CODE: { id: string; node: React.ReactNode }[] = [
   },
 ];
 
-export function CodeNode({ touched }: { touched?: boolean }) {
+export function CodeNode({
+  title = 'Script',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
     <NodeCard
-      title="Script"
+      title={title}
       icon={SquareTerminal}
+      tint={tint}
+      selected={selected}
       touched={touched}
-      className="w-[316px]"
+      className={cn('w-[316px]', className)}
       actions={
         <>
           <span className="inline-flex h-6 items-center rounded-lg px-2 text-xs font-medium text-muted">
@@ -599,9 +766,28 @@ export function CodeNode({ touched }: { touched?: boolean }) {
    8. Image
    ──────────────────────────────────────────────────────────────── */
 
-export function ImageNode({ touched }: { touched?: boolean }) {
+export function ImageNode({
+  title = 'Image',
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
   return (
-    <NodeCard touched={touched} className="w-[228px]">
+    <NodeCard
+      title={title}
+      icon={ImageIcon}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      className={cn('w-[240px]', className)}
+    >
       <svg
         viewBox="0 0 220 140"
         className="block w-full"
@@ -641,9 +827,31 @@ export function ImageNode({ touched }: { touched?: boolean }) {
    9. Video
    ──────────────────────────────────────────────────────────────── */
 
-export function VideoNode({ touched }: { touched?: boolean }) {
+export function VideoNode({
+  title = 'Video',
+  tint,
+  selected,
+  touched,
+  live,
+  className,
+}: {
+  title?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  live?: boolean;
+  className?: string;
+} = {}) {
   return (
-    <NodeCard title="Video" icon={SquarePlay} touched={touched} className="w-[262px]">
+    <NodeCard
+      title={title}
+      icon={SquarePlay}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      live={live}
+      className={cn('w-[262px]', className)}
+    >
       <div className="relative aspect-video overflow-hidden bg-[#0f172a]">
         <div
           className="absolute inset-0 opacity-70"
@@ -677,5 +885,249 @@ export function VideoNode({ touched }: { touched?: boolean }) {
         </div>
       </div>
     </NodeCard>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10. Web — browser node with address bar and live page
+   ──────────────────────────────────────────────────────────────── */
+
+export function WebNode({
+  title = 'Canvas API - MDN',
+  url = 'https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API',
+  tint,
+  selected,
+  touched,
+  live = true,
+  className,
+}: {
+  title?: string;
+  url?: string;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  live?: boolean;
+  className?: string;
+} = {}) {
+  return (
+    <NodeCard
+      title={title}
+      icon={Globe}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      live={live}
+      className={cn('w-[340px]', className)}
+      toolbar={
+        <div className="flex min-w-0 flex-1 items-center gap-1">
+          <button
+            type="button"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded text-muted opacity-60"
+            aria-label="Back"
+          >
+            <ArrowLeft className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded text-muted opacity-40"
+            aria-label="Forward"
+          >
+            <ArrowRight className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded text-muted hover:text-fg"
+            aria-label="Reload"
+          >
+            <RotateCw className="size-3" />
+          </button>
+          <div className="relative flex min-w-0 flex-1 items-center rounded-md border border-border/80 bg-surface px-2 py-0.5 text-xs text-muted shadow-2xs">
+            <Globe className="mr-1.5 size-3 shrink-0 text-muted" />
+            <span className="truncate font-mono text-[11px] text-fg/90">{url}</span>
+          </div>
+          <button
+            type="button"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded text-muted hover:text-fg"
+            aria-label="Open in new tab"
+          >
+            <ExternalLink className="size-3" />
+          </button>
+        </div>
+      }
+    >
+      <div className="flex flex-col bg-surface text-xs">
+        <div className="border-b border-border/60 bg-[#f8fafc] px-3.5 py-2.5">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+              Web API
+            </span>
+            <span className="text-[11px] text-muted">HTML &amp; Canvas</span>
+          </div>
+          <h4 className="mt-1 text-sm font-semibold tracking-tight text-fg">CanvasRenderingContext2D</h4>
+        </div>
+        <div className="space-y-2.5 p-3.5 leading-relaxed text-fg/90">
+          <p className="text-[12px] text-muted">
+            Provides the 2D rendering context for the drawing surface of a &lt;canvas&gt; element, used
+            for drawing shapes, text, and images.
+          </p>
+          <div className="rounded-lg border border-border/70 bg-surface-2/60 p-2.5 font-mono text-[11px] leading-tight text-fg">
+            <div>
+              <span className="text-purple-600">const</span> ctx = canvas.
+              <span className="text-blue-600">getContext</span>(
+              <span className="text-emerald-600">'2d'</span>);
+            </div>
+            <div className="mt-1 text-muted">// Render graphic directly on canvas</div>
+            <div>
+              ctx.<span className="text-blue-600">fillStyle</span> ={' '}
+              <span className="text-emerald-600">'#0b7f51'</span>;
+            </div>
+            <div>
+              ctx.<span className="text-blue-600">fillRect</span>(
+              <span className="text-amber-600">10</span>, <span className="text-amber-600">10</span>,{' '}
+              <span className="text-amber-600">150</span>, <span className="text-amber-600">80</span>);
+            </div>
+          </div>
+        </div>
+      </div>
+    </NodeCard>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   11. PDF — document viewer with pinned pages filmstrip
+   ──────────────────────────────────────────────────────────────── */
+
+export function PdfNode({
+  title = 'quantum-mechanics-notes.pdf',
+  pageCount = 18,
+  tint,
+  selected,
+  touched,
+  className,
+}: {
+  title?: string;
+  pageCount?: number;
+  tint?: SectionColor;
+  selected?: boolean;
+  touched?: boolean;
+  className?: string;
+} = {}) {
+  return (
+    <NodeCard
+      title={title}
+      icon={FileText}
+      tint={tint}
+      selected={selected}
+      touched={touched}
+      className={cn('w-[340px]', className)}
+      actions={<Rows3 className="m-1 size-3.5 text-muted" aria-label="Rows view" />}
+    >
+      <div className="flex items-center justify-between border-b border-border/60 bg-surface-2/40 px-3 py-1.5 text-xs text-muted">
+        <span className="font-medium text-fg/80">
+          3 pages pinned <span className="font-normal text-muted">· {pageCount} pages</span>
+        </span>
+        <span className="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-accent">
+          PDF.js
+        </span>
+      </div>
+      <div className="flex gap-2.5 overflow-hidden bg-surface-2/30 p-3">
+        {/* Page 1 */}
+        <div className="relative flex h-36 w-24 shrink-0 flex-col rounded border border-border/80 bg-surface p-2 shadow-2xs select-none">
+          <div className="mx-auto h-1.5 w-12 rounded-full bg-fg/20" />
+          <div className="mt-1.5 space-y-1">
+            <div className="h-1 w-full rounded-full bg-muted/20" />
+            <div className="h-1 w-4/5 rounded-full bg-muted/20" />
+            <div className="h-1 w-full rounded-full bg-muted/20" />
+            <div className="h-1 w-3/4 rounded-full bg-muted/20" />
+          </div>
+          <div className="my-auto rounded bg-surface-2/80 p-1">
+            <div className="mx-auto h-6 w-12 rounded border border-dashed border-accent/40 bg-accent/5" />
+          </div>
+          <div className="mt-auto flex items-center justify-between text-[9px] text-muted">
+            <span className="font-mono">p. 1</span>
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+          </div>
+        </div>
+
+        {/* Page 4 */}
+        <div className="relative flex h-36 w-24 shrink-0 flex-col rounded border border-border/80 bg-surface p-2 shadow-2xs select-none">
+          <div className="space-y-1">
+            <div className="h-1 w-full rounded-full bg-muted/20" />
+            <div className="h-1 w-5/6 rounded-full bg-muted/20" />
+          </div>
+          <div className="my-auto py-1 text-center font-serif text-[10px] italic text-fg">
+            iℏ ∂ψ/∂t = Ĥψ
+          </div>
+          <div className="space-y-1">
+            <div className="h-1 w-full rounded-full bg-muted/20" />
+            <div className="h-1 w-3/4 rounded-full bg-muted/20" />
+            <div className="h-1 w-4/5 rounded-full bg-muted/20" />
+          </div>
+          <div className="mt-auto flex items-center justify-between text-[9px] text-muted">
+            <span className="font-mono">p. 4</span>
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+          </div>
+        </div>
+
+        {/* Page 7 */}
+        <div className="relative flex h-36 w-24 shrink-0 flex-col rounded border border-border/80 bg-surface p-2 shadow-2xs select-none">
+          <div className="space-y-1">
+            <div className="h-1 w-full rounded-full bg-muted/20" />
+            <div className="h-1 w-2/3 rounded-full bg-muted/20" />
+          </div>
+          <div className="my-auto flex flex-col items-center justify-center py-0.5">
+            <svg viewBox="0 0 40 24" className="h-6 w-10 text-accent">
+              <path d="M 2 20 Q 20 2 38 20" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="2" y1="20" x2="38" y2="20" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
+            </svg>
+            <span className="mt-0.5 text-[8px] text-muted">Fig 2.1</span>
+          </div>
+          <div className="mt-auto flex items-center justify-between text-[9px] text-muted">
+            <span className="font-mono">p. 7</span>
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+          </div>
+        </div>
+      </div>
+    </NodeCard>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   12. Section — pastel background tone with dashed outline
+   ──────────────────────────────────────────────────────────────── */
+
+export function SectionNode({
+  title = 'Section',
+  color = 'yellow',
+  selected,
+  className,
+  children,
+}: {
+  title?: string;
+  color?: SectionColor;
+  selected?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        'node flex flex-col',
+        selected && 'selected',
+        className,
+      )}
+      style={{
+        '--tone-base': `color-mix(in srgb, ${swatch(color)} 18%, transparent)`,
+      } as React.CSSProperties}
+    >
+      <div className="flex shrink-0 items-end" style={{ height: '28px' }}>
+        <div className="node-tab section-handle">
+          <span className="truncate font-medium">{title}</span>
+        </div>
+      </div>
+      <div className="node-tile node-section min-h-0 flex-1 p-3">
+        {children}
+      </div>
+    </div>
   );
 }

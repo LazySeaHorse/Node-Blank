@@ -7,27 +7,30 @@ import {
   GraphNode,
   MathNode,
   MathPlusNode,
-  TableNode,
-  TextNode,
+  PdfNode,
+  SectionNode,
+  WebNode,
 } from '@landing/components/mock/nodes';
 import { APP_URL, REPO_URL } from '@landing/components/Nav';
-import { ArrowRight, ArrowUpRight, Database, MousePointerClick, WifiOff } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Database, MousePointerClick, ShieldCheck } from 'lucide-react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 const FACTS = [
-  { icon: Database, text: 'Saves as you work' },
-  { icon: WifiOff, text: 'Works offline' },
+  { icon: Database, text: 'Local-first offline storage in your browser' },
+  { icon: ShieldCheck, text: 'Optional client-side encrypted cloud sync' },
   { icon: MousePointerClick, text: 'Built for mouse and keyboard' },
 ];
 
 const HERO_NODES = [
-  { x: 28, y: 96, node: <MathNode selected /> },
-  { x: 28, y: 184, node: <GraphNode /> },
-  { x: 408, y: 92, node: <TextNode /> },
-  { x: 424, y: 366, node: <MathPlusNode /> },
-  { x: 700, y: 92, node: <CodeNode /> },
-  { x: 690, y: 290, node: <TableNode /> },
+  { x: 18, y: 72, node: <SectionNode title="Analysis" color="blue" className="h-[540px] w-[366px]" /> },
+  { x: 28, y: 110, node: <MathNode selected /> },
+  { x: 28, y: 204, node: <GraphNode /> },
+  { x: 404, y: 76, node: <WebNode /> },
+  { x: 404, y: 326, node: <PdfNode /> },
+  { x: 746, y: 72, node: <SectionNode title="Calculations" color="yellow" className="h-[540px] w-[276px]" /> },
+  { x: 758, y: 110, node: <CodeNode /> },
+  { x: 758, y: 350, node: <MathPlusNode tint="yellow" /> },
 ];
 
 export function Hero() {
@@ -68,8 +71,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-5 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted">
-            Write math. Plot graphs. Run code. Drop in images and video. Put it all on one canvas, exactly
-            where you want it. Your work saves in your browser. There is no account and no cloud.
+            Write math. Plot graphs. Run code. Embed live websites and PDFs. Drop in video and images.
+            Organize with sections. Everything lives on one infinite canvas that saves locally in your
+            browser, with optional encrypted cloud sync.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-3">

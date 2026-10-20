@@ -21,7 +21,7 @@ export function Story() {
           <dl className="flex flex-col gap-3 border-l-2 border-line pl-5">
             {[
               ['Fast', 'It opens in a tab. There is nothing to install.'],
-              ['Private', 'Your work stays on your device.'],
+              ['Private', 'Local-first in IndexedDB with optional encrypted cloud sync.'],
               ['Free', 'It is open source. No account needed.'],
             ].map(([k, v]) => (
               <div key={k}>
@@ -94,6 +94,7 @@ const FOOT_LINKS = [
   { label: 'GitHub', href: REPO_URL },
   { label: 'Releases', href: `${REPO_URL}/releases` },
   { label: 'AI bridge', href: `${REPO_URL}/blob/main/bridge/README.md` },
+  { label: 'Chrome extension', href: `${REPO_URL}/tree/main/extension` },
 ];
 
 export function Footer() {

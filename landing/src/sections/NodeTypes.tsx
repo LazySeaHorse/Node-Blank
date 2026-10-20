@@ -5,10 +5,12 @@ import {
   ImageNode,
   MathNode,
   MathPlusNode,
+  PdfNode,
   SheetNode,
   TableNode,
   TextNode,
   VideoNode,
+  WebNode,
 } from '@landing/components/mock/nodes';
 import { Reveal } from '@landing/components/Reveal';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -25,6 +27,8 @@ const BLURB: Record<Kind, string> = {
   code: 'Run JavaScript on the canvas. It runs in a sandbox, so it cannot reach the page or the network.',
   image: 'Drop in a picture. It moves and zooms with the rest of your canvas.',
   video: 'Embed a video. It keeps playing while you work around it.',
+  web: 'Browse live websites and docs right beside your notes on the canvas.',
+  pdf: 'Link a local PDF and pin pages into view. They stay sharp at any canvas zoom.',
 };
 
 function NodeStage({ kind }: { kind: Kind }) {
@@ -47,6 +51,10 @@ function NodeStage({ kind }: { kind: Kind }) {
       return <ImageNode />;
     case 'video':
       return <VideoNode />;
+    case 'web':
+      return <WebNode />;
+    case 'pdf':
+      return <PdfNode />;
   }
 }
 
@@ -81,12 +89,13 @@ export function NodeTypes() {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
-                Nine kinds of node.
+                Eleven kinds of node.
                 <br />
-                <span className="text-muted">One surface for all of them.</span>
+                <span className="text-muted">Plus sections to organize them.</span>
               </h2>
               <p className="mt-4 max-w-[60ch] text-[15.5px] leading-[1.6] text-muted">
-                Pick a tool. Double-click the canvas. Your node appears.
+                Text, Math, Math+, Graph, Table, Sheet, Script, Image, Video, Web, PDF, and Sections. Pick a
+                tool. Double-click the canvas. Your node appears.
               </p>
             </div>
             <div className="flex gap-2">

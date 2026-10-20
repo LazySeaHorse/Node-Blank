@@ -23,10 +23,11 @@ const AI_NODES = [
 
 const AI_ROWS = [
   { text: 'Appended a function to g1 (Graph)', ago: 'just now', running: true },
-  { text: 'Changed a := 2 to a := 7 in n3 (Math+)', ago: '2s ago' },
-  { text: 'Updated cell C5 in n6 (Sheet)', ago: '5s ago' },
-  { text: 'Read n1 (Math)', ago: '8s ago' },
-  { text: 'Organised the canvas', ago: '12s ago' },
+  { text: 'Extracted text from doc.pdf (PDF)', ago: '2s ago' },
+  { text: 'Changed a := 2 to a := 7 in n3 (Math+)', ago: '4s ago' },
+  { text: 'Updated cell C5 in n6 (Sheet)', ago: '7s ago' },
+  { text: 'Read n1 (Math)', ago: '10s ago' },
+  { text: 'Organised the canvas', ago: '15s ago' },
 ];
 
 export function AiControl() {
@@ -75,7 +76,8 @@ export function AiControl() {
                 </div>
                 <p className="mt-5 max-w-[46ch] text-[15.5px] leading-[1.62] text-muted">
                   Run a small bridge on your computer. Claude Code, Codex and Gemini CLI can then read and
-                  edit your open canvas. Browser agents connect with WebMCP. AI control is{' '}
+                  edit your open canvas, extract text from attached PDFs, and manipulate nodes. Install the
+                  companion Chrome extension for live framing of protected websites. AI control is{' '}
                   <span className="font-medium text-fg">off every time you load the page</span>. You turn it
                   on.
                 </p>
@@ -149,7 +151,9 @@ export function AiControl() {
               <Reveal delay={0.16}>
                 <ul className="mt-6 flex flex-col gap-2.5">
                   {[
-                    'Short names like n3 and g2 keep the agent focused.',
+                    'Short names like n3, p1, and g2 keep the agent focused.',
+                    'Direct PDF text extraction lets agents read and analyze attached documents.',
+                    'Companion Chrome extension enables live framing of protected websites.',
                     'Each agent edit is one undo step. Press Ctrl+Z to go back.',
                     'While the agent works, you can only look. Changed nodes flash.',
                   ].map((t) => (
@@ -189,6 +193,14 @@ export function AiControl() {
                   className="font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
                 >
                   bridge/README.md
+                </a>
+                <a
+                  href={`${REPO_URL}/tree/main/extension`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
+                >
+                  Chrome extension
                 </a>
                 <a
                   href={APP_URL}

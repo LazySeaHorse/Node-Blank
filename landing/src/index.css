@@ -6,7 +6,7 @@
    language as the product. Light mode.
    ───────────────────────────────────────────────────────────── */
 :root {
-  --canvas: #f8fafc;
+  --canvas: #ffffff;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
   --border: #e2e8f0;
@@ -15,6 +15,20 @@
   --accent: #3b82f6;
   --accent-fg: #ffffff;
   --danger: #ef4444;
+
+  --section-yellow: #fde68a;
+  --section-green: #a7f3d0;
+  --section-blue: #bfdbfe;
+  --section-purple: #ddd6fe;
+  --section-pink: #fbcfe8;
+  --section-orange: #fed7aa;
+  --section-gray: #cbd5e1;
+  /* Canvas dots. */
+  --dot: #cdd0d4;
+  /* Secondary text on a node tile: AA on the plain tile and on every tint. */
+  --node-muted: #565a62;
+  /* A node taken over by the page or video in it. */
+  --live: #0b7f51;
 
   /* Mascot / warm secondary (the app's dark-mode accent + octopus tips) */
   --tip: #f97316;
@@ -33,6 +47,15 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
+  --color-dot: var(--dot);
+  --color-live: var(--live);
+  --color-section-yellow: var(--section-yellow);
+  --color-section-green: var(--section-green);
+  --color-section-blue: var(--section-blue);
+  --color-section-purple: var(--section-purple);
+  --color-section-pink: var(--section-pink);
+  --color-section-orange: var(--section-orange);
+  --color-section-gray: var(--section-gray);
   --color-tip: var(--tip);
   --color-tip-soft: var(--tip-soft);
   --color-tip-light: var(--tip-light);
@@ -93,16 +116,170 @@ body {
 
 /* A node an AI agent just changed, frozen mid-flash. */
 .ai-touched {
-  border-radius: 0.5rem;
+  border-radius: 0.8125rem;
   outline: 4px solid color-mix(in srgb, var(--accent) 38%, transparent);
 }
 
-/* ── The canvas background: React Flow's Lines variant, gap 40 ── */
+/* ── The canvas background: React Flow's Dots variant, 20px dot grid ── */
 .canvas-grid {
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Dossier node styling: tab fused to a flat tile.
+   ───────────────────────────────────────────────────────────── */
+.node {
+  /* Matches NODE_TAB_HEIGHT in src/nodes/spec.ts. */
+  --node-tab-height: 28px;
+  --tone: var(--tone-base, var(--surface));
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.node-tab {
+  --tab: var(--tone);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--node-tab-height);
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 0.875rem 0 0.625rem;
+  border-radius: 0.6875rem 0.6875rem 0 0;
+  background: var(--tab);
+  color: var(--fg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+}
+
+/* The concave fillet where the tab's right edge meets the tile. */
+.node-tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  background: radial-gradient(circle at 100% 0, transparent calc(0.6875rem - 0.5px), var(--tab) 0.6875rem);
+  pointer-events: none;
+}
+
+.node-tile {
+  --surface-2: color-mix(in srgb, var(--fg) 6%, var(--tone));
+  --border: color-mix(in srgb, var(--fg) 14%, var(--tone));
+  --muted: var(--node-muted);
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0.8125rem 0.8125rem 0.8125rem;
+  background: var(--tone);
+  color: var(--fg);
+}
+
+/* Tone changes (hover, focus, tint) fade. */
+.node-tab,
+.node-tile {
+  transition: background-color 0.15s;
+}
+
+/*
+ * A hairline round the tab and tile, so a plain tile shows on the plain canvas.
+ */
+.node-card {
+  --ring: color-mix(in srgb, var(--fg) 13%, var(--tone));
+}
+.node-card .node-tab {
+  z-index: 1;
+  margin-bottom: -1px;
+  border: 1px solid var(--ring);
+  border-bottom: 0;
+}
+.node-card .node-tab::before {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  width: 1px;
+  height: 0.6875rem;
+  background: var(--tab);
+}
+.node-card .node-tab::after {
+  left: calc(100% + 1px);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent calc(0.6875rem - 0.5px),
+    var(--ring) 0.6875rem,
+    var(--ring) calc(0.6875rem + 0.5px),
+    var(--tab) calc(0.6875rem + 1px)
+  );
+}
+.node-card .node-tile {
+  border: 1px solid var(--ring);
+}
+
+/* Selected and live node edges */
+.node.selected,
+.node.selected.node-card,
+.node.selected .node-card,
+.node-card.selected,
+:where(.selected) > .node-card,
+.react-flow__node.selected .node-card {
+  --ring: var(--fg);
+}
+.node-card[data-live],
+.node[data-live] .node-card,
+.node[data-live].node-card {
+  --ring: var(--live);
+}
+
+/* Section container */
+.node-section {
+  outline: 1.5px dashed color-mix(in srgb, var(--fg) 22%, transparent);
+  outline-offset: -1.5px;
+}
+
+.node:hover {
+  --tone: color-mix(in srgb, var(--tone-base, var(--surface)) 92%, var(--fg));
+}
+
+.node-actions {
+  opacity: 0.85;
+  transition: opacity 0.14s;
+}
+.node:is(:hover, :focus-within) .node-actions,
+.node.selected .node-actions {
+  opacity: 1;
+}
+
+/* Selection states */
+.node.selected .node-tab,
+.node-card.selected .node-tab,
+.selected > .node-card .node-tab,
+.react-flow__node.selected .node-tab {
+  --tab: var(--fg);
+  margin-left: -2px;
+  padding-left: calc(0.625rem + 2px);
+  color: var(--canvas);
+}
+.node.selected .node-tile,
+.node-card.selected .node-tile,
+.selected > .node-card .node-tile,
+.react-flow__node.selected .node-tile {
+  outline: 2px solid var(--fg);
+}
+
+/* Live state: a page or video taking the canvas turns tab and ring green */
+.node[data-live] .node-tab,
+.node-card[data-live] .node-tab {
+  --tab: var(--live);
+  color: var(--canvas);
+}
+.node[data-live] .node-tile,
+.node-card[data-live] .node-tile {
+  outline-color: var(--live);
 }
 
 /* ── Math typography for the mock nodes.

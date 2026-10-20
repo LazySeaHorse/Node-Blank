@@ -5,7 +5,9 @@ import {
   ChartSpline,
   Check,
   ChevronDown,
+  FileText,
   FolderOpen,
+  Globe,
   Image as ImageIcon,
   LayoutGrid,
   LoaderCircle,
@@ -39,6 +41,8 @@ export const NODE_KINDS = [
   'code',
   'image',
   'video',
+  'web',
+  'pdf',
 ] as const;
 
 export type Kind = (typeof NODE_KINDS)[number];
@@ -53,6 +57,8 @@ export const KIND_META: Record<Kind, { label: string; icon: LucideIcon; hint: st
   code: { label: 'Script', icon: SquareTerminal, hint: 'Sandboxed JavaScript' },
   image: { label: 'Image', icon: ImageIcon, hint: 'Drop an image in' },
   video: { label: 'Video', icon: SquarePlay, hint: 'Embed a video' },
+  web: { label: 'Web', icon: Globe, hint: 'Browse live websites' },
+  pdf: { label: 'PDF', icon: FileText, hint: 'Pin pages from local PDFs' },
 };
 
 /* Everything below is src/chrome/*, drawn without behaviour. */

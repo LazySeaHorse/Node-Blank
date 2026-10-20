@@ -1,7 +1,6 @@
 import { Reveal } from '@landing/components/Reveal';
 import {
   Check,
-  CloudOff,
   Download,
   FolderOpen,
   HardDrive,
@@ -9,17 +8,22 @@ import {
   Moon,
   RotateCcw,
   ScanSearch,
+  ShieldCheck,
   Smartphone,
   Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 const FEATURES = [
-  { icon: CloudOff, title: 'No account, no cloud', text: 'Nothing to sign in to. Nothing to sync.' },
   {
     icon: HardDrive,
-    title: 'Saves as you work',
-    text: 'Close the tab at any time. Your canvas is there when you return.',
+    title: 'Saves in IndexedDB',
+    text: 'Saves continuously to browser storage. No account required, works completely offline.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Client-side encrypted sync',
+    text: 'Optional cloud sync via JSONBin with AES-GCM password encryption. Zero server knowledge.',
   },
   {
     icon: RotateCcw,
@@ -69,12 +73,13 @@ export function LocalFirst() {
           <div className="lg:col-span-5">
             <Reveal>
               <h2 className="font-display text-[clamp(2rem,3.9vw,3.1rem)] leading-[0.98] font-medium tracking-[-0.03em] text-fg">
-                Nothing leaves
+                Local-first by default.
                 <br />
-                <span className="text-muted">the browser.</span>
+                <span className="text-muted">Private by design.</span>
               </h2>
               <p className="mt-4 max-w-[42ch] text-[15.5px] leading-[1.62] text-muted">
-                Your canvases stay on your device. No server ever sees them.
+                Your canvases stay on your device in IndexedDB. No account required, works offline, and
+                cloud sync is strictly client-side AES-GCM encrypted.
               </p>
             </Reveal>
 

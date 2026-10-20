@@ -9,7 +9,27 @@ type Row = {
 
 const ROWS: Row[] = [
   { id: 'place', action: 'Place a node', note: 'Pick a tool. Double-click the canvas.' },
-  { id: 'pan', action: 'Pan', note: 'Scroll, or drag with the middle or right mouse button.' },
+  {
+    id: 'pan',
+    action: 'Pan the canvas',
+    note: 'Scroll, or drag with the middle or right mouse button.',
+  },
+  {
+    id: 'context',
+    action: 'Context menus',
+    note: 'Right-click canvas, nodes, sections, sheet cells, or math for quick actions and styling.',
+  },
+  {
+    id: 'section',
+    action: 'Wrap in section',
+    keys: ['Ctrl', 'G'],
+    note: 'Wrap the selected nodes in a titled, coloured section.',
+  },
+  {
+    id: 'snap',
+    action: 'Dot grid snapping',
+    note: 'Nodes and sections cleanly snap to the background dot grid when moved.',
+  },
   { id: 'zoom', action: 'Zoom', note: 'Pinch, or hold Ctrl/Cmd and scroll.' },
   { id: 'select', action: 'Select', note: 'Click, Shift+click, or drag a box on empty canvas.' },
   { id: 'undo', action: 'Undo / redo', keys: ['Ctrl', 'Z'], note: 'Add Shift to redo.' },
@@ -94,9 +114,10 @@ export function Controls() {
               <div className="panel mt-8 flex items-center gap-5 p-5">
                 <MouseDiagram />
                 <div>
-                  <p className="font-display text-[15px] font-medium text-fg">Middle-drag pans</p>
-                  <p className="mt-1.5 max-w-[24ch] text-[13px] leading-[1.5] text-muted">
-                    There are no right-click menus, so panning is always one press away.
+                  <p className="font-display text-[15px] font-medium text-fg">Middle-drag or right-drag pans</p>
+                  <p className="mt-1.5 max-w-[26ch] text-[13px] leading-[1.5] text-muted">
+                    Right-click opens context menus (canvas, nodes, sections, sheet cells, and math);
+                    middle-drag or right-drag pans the canvas.
                   </p>
                 </div>
               </div>

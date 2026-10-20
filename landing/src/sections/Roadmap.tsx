@@ -2,7 +2,10 @@ import { Reveal } from '@landing/components/Reveal';
 import { Check, Circle, GitBranch } from 'lucide-react';
 
 const SHIPPED = [
-  'Nine node types',
+  'Eleven node types + sections',
+  'PDF node',
+  'Encrypted saves',
+  'Your own cloud saves',
   'Multiple canvases',
   'Math+ with shared variables',
   'Undo and redo',
@@ -19,12 +22,9 @@ const SHIPPED = [
 
 const NEXT = [
   'Themes',
-  'PDF node',
   'Link nodes together',
-  'Share by QR code',
-  'Encrypted saves',
-  'Your own cloud saves',
   'Draw on the canvas',
+  'Share by QR code',
   'Export to PDF',
 ];
 
