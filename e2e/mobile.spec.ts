@@ -44,3 +44,24 @@ test('mobile shows no context menu', async ({ page }) => {
   await page.locator('.react-flow__pane').dispatchEvent('contextmenu', { clientX: 200, clientY: 400 });
   await expect(page.getByRole('menu')).toHaveCount(0);
 });
+
+test('mobile can reach the cloud sync settings', async ({ page }) => {
+  await page.route('https://api.jsonbin.io/**', (route) => route.abort());
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'node-blank-sync',
+      JSON.stringify({ state: { key: 'k', keyKind: 'master', manifestId: 'm' }, version: 0 }),
+    ),
+  );
+  await openApp(page);
+  await page.getByRole('button', { name: 'Untitled canvas' }).click();
+  const manager = page.getByRole('dialog', { name: 'Canvases' });
+  await expect(manager.getByRole('button', { name: 'Cloud sync settings' })).toBeVisible();
+  // The password is never stored, so a device that has the key still has to be given it.
+  await expect(manager.getByText('Enter your password to sync with the cloud')).toBeVisible();
+  await manager.getByRole('button', { name: 'Cloud sync settings' }).click();
+  await expect(page.getByRole('dialog', { name: 'Cloud sync' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(manager.getByRole('button', { name: 'New canvas' })).toHaveCount(0);
+  await expect(manager.getByRole('button', { name: 'Push all' })).toHaveCount(0);
+});

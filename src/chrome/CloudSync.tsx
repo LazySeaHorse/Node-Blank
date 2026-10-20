@@ -69,7 +69,7 @@ async function syncOne(id: string, name: string, direction: 'push' | 'pull') {
 }
 
 /** The sync line under a canvas: where it stands, and buttons to check, pull and push it. */
-export function CanvasSyncRow({ id, name }: { id: string; name: string }) {
+export function CanvasSyncRow({ id, name, pullOnly }: { id: string; name: string; pullOnly: boolean }) {
   const status = useSyncStatus()?.statuses[id];
   const entry = useSync((s) => s.entries?.[id]);
   const busy = useSync((s) => s.busy === 'all' || s.busy.includes(id));
@@ -101,13 +101,15 @@ export function CanvasSyncRow({ id, name }: { id: string; name: string }) {
           disabled={busy || status === 'local-only'}
           onClick={() => void syncOne(id, name, 'pull')}
         />
-        <IconButton
-          icon={CloudUpload}
-          label="Push to the cloud"
-          size="sm"
-          disabled={busy}
-          onClick={() => void syncOne(id, name, 'push')}
-        />
+        {!pullOnly && (
+          <IconButton
+            icon={CloudUpload}
+            label="Push to the cloud"
+            size="sm"
+            disabled={busy}
+            onClick={() => void syncOne(id, name, 'push')}
+          />
+        )}
       </div>
     </div>
   );
@@ -147,8 +149,11 @@ export function CloudOnlyList() {
   );
 }
 
-/** Cloud sync's controls for the whole list: settings, a check, and pulling or pushing everything safe to. */
-export function SyncBar({ onOpenSettings }: { onOpenSettings: () => void }) {
+/**
+ * Cloud sync's controls for the whole list: settings, a check, and pulling or pushing everything safe to.
+ * `pullOnly` drops pushing, for a device that cannot edit.
+ */
+export function SyncBar({ onOpenSettings, pullOnly }: { onOpenSettings: () => void; pullOnly: boolean }) {
   const settings = useSyncSettings();
   const configured = isConfigured(settings);
   const status = useSyncStatus();
@@ -168,7 +173,7 @@ export function SyncBar({ onOpenSettings }: { onOpenSettings: () => void }) {
   };
 
   return (
-    <div className="flex w-full items-center gap-2">
+    <div className="flex w-full flex-wrap items-center gap-2">
       <IconButton icon={Settings} label="Cloud sync settings" onClick={onOpenSettings} />
       {configured ? (
         <>
@@ -190,9 +195,11 @@ export function SyncBar({ onOpenSettings }: { onOpenSettings: () => void }) {
           <Button size="sm" disabled={working || toPull === 0} onClick={() => void bulk('pull')}>
             <CloudDownload className="size-4" /> Pull all{toPull > 0 && ` (${toPull})`}
           </Button>
-          <Button size="sm" disabled={working || toPush === 0} onClick={() => void bulk('push')}>
-            <CloudUpload className="size-4" /> Push all{toPush > 0 && ` (${toPush})`}
-          </Button>
+          {!pullOnly && (
+            <Button size="sm" disabled={working || toPush === 0} onClick={() => void bulk('push')}>
+              <CloudUpload className="size-4" /> Push all{toPush > 0 && ` (${toPush})`}
+            </Button>
+          )}
         </>
       ) : (
         <button

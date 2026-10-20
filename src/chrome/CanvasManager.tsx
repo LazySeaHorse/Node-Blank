@@ -181,7 +181,7 @@ function CanvasRow({
           </Button>
         )}
       </div>
-      {syncing && <CanvasSyncRow id={canvas.id} name={canvas.name} />}
+      {syncing && <CanvasSyncRow id={canvas.id} name={canvas.name} pullOnly={readOnly} />}
     </li>
   );
 }
@@ -191,7 +191,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
   const currentId = workspace.useWorkspace((s) => s.currentId);
   const [query, setQuery] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const syncing = useSyncEnabled() && !readOnly;
+  const syncing = useSyncEnabled();
   const close = () => onOpenChange(false);
 
   const create = async () => {
@@ -216,7 +216,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
       className="max-w-xl"
       footer={
         <div className="flex w-full flex-col gap-3">
-          {!readOnly && <SyncBar onOpenSettings={() => setSettingsOpen(true)} />}
+          <SyncBar pullOnly={readOnly} onOpenSettings={() => setSettingsOpen(true)} />
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs text-muted">
               {canvases?.length ?? 0} canvas{canvases?.length === 1 ? '' : 'es'}
