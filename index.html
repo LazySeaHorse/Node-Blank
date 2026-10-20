@@ -3,20 +3,96 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Node-Blank — an infinite canvas for your work</title>
+    <title>Node-Blank — Infinite Canvas for Math, Markdown, Web &amp; Code</title>
     <meta
       name="description"
-      content="Node-Blank is an infinite canvas for math, Markdown, graphs, spreadsheets, code and video. It saves in your browser. No account. Works offline."
+      content="A lightweight, local-first infinite canvas for math, Markdown, live web pages, PDFs, spreadsheets, graphs, and code. Private by default with optional encrypted cloud sync and AI agent control."
     />
+    <meta
+      name="keywords"
+      content="infinite canvas, local-first canvas, math scratchpad, markdown canvas, latex editor, interactive graphs, spreadsheet, web node, pdf reader, encrypted cloud sync, ai coding agent, mcp bridge"
+    />
+    <meta name="author" content="Node-Blank" />
+    <link rel="canonical" href="https://blank.lazycatto.tech/" />
+
+    <!-- Favicons & App Icons -->
     <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
     <link rel="icon" href="/logo/favicon.ico" sizes="48x48" />
     <link rel="apple-touch-icon" href="/logo/apple-touch-icon.png" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1012" media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blank.lazycatto.tech/" />
+    <meta property="og:title" content="Node-Blank — Infinite Canvas for Math, Web, Code &amp; Notes" />
+    <meta
+      property="og:description"
+      content="A lightweight, local-first infinite canvas for math, Markdown, live web pages, PDFs, spreadsheets, graphs, and code. Private by default with optional encrypted sync."
+    />
+    <meta property="og:image" content="https://blank.lazycatto.tech/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Node-Blank — Infinite Canvas Preview" />
+    <meta property="og:site_name" content="Node-Blank" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://blank.lazycatto.tech/" />
+    <meta name="twitter:title" content="Node-Blank — Infinite Canvas for Math, Web, Code &amp; Notes" />
+    <meta
+      name="twitter:description"
+      content="A lightweight, local-first infinite canvas for math, Markdown, live web pages, PDFs, spreadsheets, graphs, and code. Private by default with optional encrypted sync."
+    />
+    <meta name="twitter:image" content="https://blank.lazycatto.tech/og-image.png" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300..700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Schema.org Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://blank.lazycatto.tech/#app",
+            "name": "Node-Blank",
+            "url": "https://blank.lazycatto.tech/",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "All",
+            "browserRequirements": "Requires modern Chromium, Firefox, or WebKit browser",
+            "description": "An infinite canvas for math, Markdown, live web pages, PDFs, spreadsheets, graphs, and code. Offline-first with optional client-side encrypted sync and AI control.",
+            "screenshot": "https://blank.lazycatto.tech/og-image.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "11 Node Kinds (Text, Math, Math+, Graph, Table, Sheet, Script, Image, Video, Web, PDF)",
+              "Sections with color grouping and dot-grid snap",
+              "Local-first storage with Dexie (IndexedDB)",
+              "Optional client-side encrypted cloud sync via JSONBin",
+              "AI agent control via local HTTP/WebSocket bridge and WebMCP",
+              "Offline PWA support and dark mode"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://blank.lazycatto.tech/#website",
+            "url": "https://blank.lazycatto.tech/",
+            "name": "Node-Blank",
+            "description": "An infinite canvas that stays out of your way."
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
