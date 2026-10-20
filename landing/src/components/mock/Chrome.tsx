@@ -20,6 +20,7 @@ import {
   Sheet,
   Sigma,
   Sparkles,
+  SquareDashed,
   SquarePlay,
   SquareTerminal,
   Table,
@@ -45,7 +46,22 @@ export const NODE_KINDS = [
   'pdf',
 ] as const;
 
-export type Kind = (typeof NODE_KINDS)[number];
+export const ALL_KINDS = [
+  'text',
+  'math',
+  'mathPlus',
+  'graph',
+  'table',
+  'sheet',
+  'code',
+  'image',
+  'video',
+  'web',
+  'pdf',
+  'section',
+] as const;
+
+export type Kind = (typeof ALL_KINDS)[number];
 
 export const KIND_META: Record<Kind, { label: string; icon: LucideIcon; hint: string }> = {
   text: { label: 'Text', icon: Type, hint: 'Markdown + LaTeX' },
@@ -59,6 +75,7 @@ export const KIND_META: Record<Kind, { label: string; icon: LucideIcon; hint: st
   video: { label: 'Video', icon: SquarePlay, hint: 'Embed a video' },
   web: { label: 'Web', icon: Globe, hint: 'Browse live websites' },
   pdf: { label: 'PDF', icon: FileText, hint: 'Pin pages from local PDFs' },
+  section: { label: 'Section', icon: SquareDashed, hint: 'Group and organise nodes' },
 };
 
 /* Everything below is src/chrome/*, drawn without behaviour. */

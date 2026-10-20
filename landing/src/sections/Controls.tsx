@@ -114,7 +114,9 @@ export function Controls() {
               <div className="panel mt-8 flex items-center gap-5 p-5">
                 <MouseDiagram />
                 <div>
-                  <p className="font-display text-[15px] font-medium text-fg">Middle-drag or right-drag pans</p>
+                  <p className="font-display text-[15px] font-medium text-fg">
+                    Middle-drag or right-drag pans
+                  </p>
                   <p className="mt-1.5 max-w-[26ch] text-[13px] leading-[1.5] text-muted">
                     Right-click opens context menus (canvas, nodes, sections, sheet cells, and math);
                     middle-drag or right-drag pans the canvas.

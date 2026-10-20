@@ -20,13 +20,7 @@ const SHIPPED = [
   'AI activity feed',
 ];
 
-const NEXT = [
-  'Themes',
-  'Link nodes together',
-  'Draw on the canvas',
-  'Share by QR code',
-  'Export to PDF',
-];
+const NEXT = ['Themes', 'Link nodes together', 'Draw on the canvas', 'Share by QR code', 'Export to PDF'];
 
 export function Roadmap() {
   return (

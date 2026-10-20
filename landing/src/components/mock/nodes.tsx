@@ -69,7 +69,7 @@ export const BigOp = ({
   </span>
 );
 
-const Sup = ({ children }: { children: React.ReactNode }) => (
+export const Sup = ({ children }: { children: React.ReactNode }) => (
   <sup className="text-[0.62em] leading-none">{children}</sup>
 );
 
@@ -79,14 +79,7 @@ const Sup = ({ children }: { children: React.ReactNode }) => (
    and clean states.
    ──────────────────────────────────────────────────────────────── */
 
-export type SectionColor =
-  | 'yellow'
-  | 'green'
-  | 'blue'
-  | 'purple'
-  | 'pink'
-  | 'orange'
-  | 'gray';
+export type SectionColor = 'yellow' | 'green' | 'blue' | 'purple' | 'pink' | 'orange' | 'gray';
 
 export const swatch = (color: SectionColor) => `var(--section-${color})`;
 
@@ -117,9 +110,7 @@ export function NodeCard({
   tileClassName,
   children,
 }: NodeChromeProps) {
-  const tone = tint
-    ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))`
-    : 'var(--surface)';
+  const tone = tint ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))` : 'var(--surface)';
 
   return (
     <div
@@ -967,24 +958,26 @@ export function WebNode({
         </div>
         <div className="space-y-2.5 p-3.5 leading-relaxed text-fg/90">
           <p className="text-[12px] text-muted">
-            Provides the 2D rendering context for the drawing surface of a &lt;canvas&gt; element, used
-            for drawing shapes, text, and images.
+            Provides the 2D rendering context for the drawing surface of a &lt;canvas&gt; element, used for
+            drawing shapes, text, and images.
           </p>
           <div className="rounded-lg border border-border/70 bg-surface-2/60 p-2.5 font-mono text-[11px] leading-tight text-fg">
             <div>
               <span className="text-purple-600">const</span> ctx = canvas.
-              <span className="text-blue-600">getContext</span>(
-              <span className="text-emerald-600">'2d'</span>);
+              <span className="text-blue-600">getContext</span>(<span className="text-emerald-600">'2d'</span>
+              {');'}
             </div>
-            <div className="mt-1 text-muted">// Render graphic directly on canvas</div>
+            <div className="mt-1 text-muted">{'// Render graphic directly on canvas'}</div>
             <div>
               ctx.<span className="text-blue-600">fillStyle</span> ={' '}
-              <span className="text-emerald-600">'#0b7f51'</span>;
+              <span className="text-emerald-600">'#0b7f51'</span>
+              {';'}
             </div>
             <div>
-              ctx.<span className="text-blue-600">fillRect</span>(
-              <span className="text-amber-600">10</span>, <span className="text-amber-600">10</span>,{' '}
-              <span className="text-amber-600">150</span>, <span className="text-amber-600">80</span>);
+              ctx.<span className="text-blue-600">fillRect</span>(<span className="text-amber-600">10</span>,{' '}
+              <span className="text-amber-600">10</span>, <span className="text-amber-600">150</span>,{' '}
+              <span className="text-amber-600">80</span>
+              {');'}
             </div>
           </div>
         </div>
@@ -1055,9 +1048,7 @@ export function PdfNode({
             <div className="h-1 w-full rounded-full bg-muted/20" />
             <div className="h-1 w-5/6 rounded-full bg-muted/20" />
           </div>
-          <div className="my-auto py-1 text-center font-serif text-[10px] italic text-fg">
-            iℏ ∂ψ/∂t = Ĥψ
-          </div>
+          <div className="my-auto py-1 text-center font-serif text-[10px] italic text-fg">iℏ ∂ψ/∂t = Ĥψ</div>
           <div className="space-y-1">
             <div className="h-1 w-full rounded-full bg-muted/20" />
             <div className="h-1 w-3/4 rounded-full bg-muted/20" />
@@ -1111,23 +1102,19 @@ export function SectionNode({
 }) {
   return (
     <div
-      className={cn(
-        'node flex flex-col',
-        selected && 'selected',
-        className,
-      )}
-      style={{
-        '--tone-base': `color-mix(in srgb, ${swatch(color)} 18%, transparent)`,
-      } as React.CSSProperties}
+      className={cn('node flex flex-col', selected && 'selected', className)}
+      style={
+        {
+          '--tone-base': `color-mix(in srgb, ${swatch(color)} 18%, transparent)`,
+        } as React.CSSProperties
+      }
     >
       <div className="flex shrink-0 items-end" style={{ height: '28px' }}>
         <div className="node-tab section-handle">
           <span className="truncate font-medium">{title}</span>
         </div>
       </div>
-      <div className="node-tile node-section min-h-0 flex-1 p-3">
-        {children}
-      </div>
+      <div className="node-tile node-section min-h-0 flex-1 p-3">{children}</div>
     </div>
   );
 }

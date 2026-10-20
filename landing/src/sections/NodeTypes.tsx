@@ -1,4 +1,4 @@
-import { KIND_META, type Kind, NODE_KINDS } from '@landing/components/mock/Chrome';
+import { ALL_KINDS, KIND_META, type Kind } from '@landing/components/mock/Chrome';
 import {
   CodeNode,
   GraphNode,
@@ -6,9 +6,12 @@ import {
   MathNode,
   MathPlusNode,
   PdfNode,
+  SectionNode,
   SheetNode,
+  Sup,
   TableNode,
   TextNode,
+  V,
   VideoNode,
   WebNode,
 } from '@landing/components/mock/nodes';
@@ -28,7 +31,8 @@ const BLURB: Record<Kind, string> = {
   image: 'Drop in a picture. It moves and zooms with the rest of your canvas.',
   video: 'Embed a video. It keeps playing while you work around it.',
   web: 'Browse live websites and docs right beside your notes on the canvas.',
-  pdf: 'Link a local PDF and pin pages into view. They stay sharp at any canvas zoom.',
+  pdf: 'Link a local PDF and pin pages into view. Extract text directly for AI workflows.',
+  section: 'Wrap nodes into a titled, coloured section with Ctrl+G. Moving the section moves what is inside.',
 };
 
 function NodeStage({ kind }: { kind: Kind }) {
@@ -55,6 +59,26 @@ function NodeStage({ kind }: { kind: Kind }) {
       return <WebNode />;
     case 'pdf':
       return <PdfNode />;
+    case 'section':
+      return (
+        <SectionNode title="Derivations" color="yellow" className="h-[280px] w-[320px]">
+          <div className="flex flex-col gap-2.5 p-1">
+            <div className="rounded-md border border-border bg-surface p-2.5 shadow-xs">
+              <div className="tex text-[15px] text-fg">
+                <V>e</V>
+                <Sup>
+                  <V>i</V>π
+                </Sup>{' '}
+                + 1 = 0
+              </div>
+            </div>
+            <p className="text-xs text-muted">
+              Press <kbd className="kbd text-[10px]">Ctrl</kbd>+<kbd className="kbd text-[10px]">G</kbd> to
+              wrap selected nodes in a section.
+            </p>
+          </div>
+        </SectionNode>
+      );
   }
 }
 
@@ -121,7 +145,7 @@ export function NodeTypes() {
             onScroll={measure}
             className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] sm:-mx-6 sm:px-6 [&::-webkit-scrollbar]:hidden"
           >
-            {NODE_KINDS.map((kind) => {
+            {ALL_KINDS.map((kind) => {
               const meta = KIND_META[kind];
               return (
                 <li

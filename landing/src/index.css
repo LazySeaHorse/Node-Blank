@@ -221,11 +221,11 @@ body {
 }
 
 /* Selected and live node edges */
+.selected > .node-card,
 .node.selected,
 .node.selected.node-card,
 .node.selected .node-card,
 .node-card.selected,
-:where(.selected) > .node-card,
 .react-flow__node.selected .node-card {
   --ring: var(--fg);
 }

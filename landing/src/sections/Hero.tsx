@@ -28,7 +28,11 @@ const HERO_NODES = [
   { x: 28, y: 204, node: <GraphNode /> },
   { x: 404, y: 76, node: <WebNode /> },
   { x: 404, y: 326, node: <PdfNode /> },
-  { x: 746, y: 72, node: <SectionNode title="Calculations" color="yellow" className="h-[540px] w-[276px]" /> },
+  {
+    x: 746,
+    y: 72,
+    node: <SectionNode title="Calculations" color="yellow" className="h-[540px] w-[276px]" />,
+  },
   { x: 758, y: 110, node: <CodeNode /> },
   { x: 758, y: 350, node: <MathPlusNode tint="yellow" /> },
 ];

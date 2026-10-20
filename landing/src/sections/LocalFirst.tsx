@@ -78,8 +78,8 @@ export function LocalFirst() {
                 <span className="text-muted">Private by design.</span>
               </h2>
               <p className="mt-4 max-w-[42ch] text-[15.5px] leading-[1.62] text-muted">
-                Your canvases stay on your device in IndexedDB. No account required, works offline, and
-                cloud sync is strictly client-side AES-GCM encrypted.
+                Your canvases stay on your device in IndexedDB. No account required, works offline, and cloud
+                sync is strictly client-side AES-GCM encrypted.
               </p>
             </Reveal>
 
