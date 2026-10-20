@@ -1,5 +1,6 @@
 import { type CanvasContent, type CanvasMeta, DEFAULT_VIEWPORT } from '@/model/types';
 import { newId } from '@/nodes/factory';
+import type { SyncRecord } from '@/sync/status';
 import { db } from './db';
 
 const EMPTY_CONTENT: CanvasContent = { nodes: [], viewport: DEFAULT_VIEWPORT };
@@ -36,8 +37,31 @@ export async function renameCanvas(id: string, name: string): Promise<void> {
 }
 
 export async function deleteCanvas(id: string): Promise<void> {
-  await db.transaction('rw', db.canvases, db.contents, async () => {
+  await db.transaction('rw', db.canvases, db.contents, db.syncRecords, async () => {
     await db.canvases.delete(id);
     await db.contents.delete(id);
+    await db.syncRecords.delete(id);
+  });
+}
+
+export const listSyncRecords = (): Promise<SyncRecord[]> => db.syncRecords.toArray();
+
+export const putSyncRecord = (record: SyncRecord): Promise<unknown> => db.syncRecords.put(record);
+
+/**
+ * Stores a canvas that came from the cloud, adding it or replacing the local one with the same id, and
+ * notes that it now matches cloud revision `rev`.
+ */
+export async function savePulled(
+  id: string,
+  name: string,
+  content: CanvasContent,
+  rev: string,
+): Promise<void> {
+  const updatedAt = Date.now();
+  await db.transaction('rw', db.canvases, db.contents, db.syncRecords, async () => {
+    await db.canvases.put({ id, name, updatedAt });
+    await db.contents.put({ id, ...content });
+    await db.syncRecords.put({ id, rev, localUpdatedAt: updatedAt });
   });
 }

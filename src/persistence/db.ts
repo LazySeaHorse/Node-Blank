@@ -1,5 +1,6 @@
 import { Dexie, type EntityTable } from 'dexie';
 import type { CanvasContent, CanvasMeta } from '@/model/types';
+import type { SyncRecord } from '@/sync/status';
 
 export type CanvasContentRow = CanvasContent & { id: string };
 
@@ -14,6 +15,7 @@ export const db = new Dexie('node-blank') as Dexie & {
   canvases: EntityTable<CanvasMeta, 'id'>;
   contents: EntityTable<CanvasContentRow, 'id'>;
   pdfFiles: EntityTable<PdfFileRow, 'id'>;
+  syncRecords: EntityTable<SyncRecord, 'id'>;
 };
 
 db.version(1).stores({
@@ -25,4 +27,11 @@ db.version(2).stores({
   canvases: 'id, updatedAt',
   contents: 'id',
   pdfFiles: 'id',
+});
+
+db.version(3).stores({
+  canvases: 'id, updatedAt',
+  contents: 'id',
+  pdfFiles: 'id',
+  syncRecords: 'id',
 });

@@ -5,15 +5,19 @@ import {
   deleteCanvas,
   getCanvas,
   listCanvases,
+  listSyncRecords,
   loadContent,
+  putSyncRecord,
   renameCanvas,
   saveContent,
+  savePulled,
 } from './canvasRepo';
 import { db } from './db';
 
 beforeEach(async () => {
   await db.canvases.clear();
   await db.contents.clear();
+  await db.syncRecords.clear();
 });
 
 describe('canvasRepo', () => {
@@ -52,5 +56,25 @@ describe('canvasRepo', () => {
     await deleteCanvas(id);
     expect(await getCanvas(id)).toBeUndefined();
     expect(await db.contents.get(id)).toBeUndefined();
+  });
+
+  it('stores a pulled canvas, adding or replacing, and remembers the cloud revision it matches', async () => {
+    const content = { nodes: [createNode('text', { x: 1, y: 2 })], viewport: { x: 0, y: 0, zoom: 2 } };
+    await savePulled('cloud-id', 'From cloud', content, 'r1');
+    const meta = await getCanvas('cloud-id');
+    expect(meta).toMatchObject({ id: 'cloud-id', name: 'From cloud' });
+    expect(await loadContent('cloud-id')).toEqual(content);
+    expect(await listSyncRecords()).toEqual([{ id: 'cloud-id', rev: 'r1', localUpdatedAt: meta?.updatedAt }]);
+
+    await savePulled('cloud-id', 'Renamed', { nodes: [], viewport: content.viewport }, 'r2');
+    expect(await listCanvases()).toHaveLength(1);
+    expect((await listSyncRecords())[0].rev).toBe('r2');
+  });
+
+  it('forgets the sync record with the canvas', async () => {
+    const id = await createCanvas('A');
+    await putSyncRecord({ id, rev: 'r', localUpdatedAt: 1 });
+    await deleteCanvas(id);
+    expect(await listSyncRecords()).toEqual([]);
   });
 });
