@@ -7,7 +7,7 @@ import {
   useKeyPress,
   useReactFlow,
 } from '@xyflow/react';
-import { type DragEvent, type MouseEvent, useEffect, useMemo } from 'react';
+import { type CSSProperties, type DragEvent, type MouseEvent, useEffect, useMemo } from 'react';
 import { setAgentView, useAgentStore } from '@/agent';
 import { cn } from '@/lib/cn';
 import { SECTION_Z } from '@/lib/sections';
@@ -24,6 +24,7 @@ import { useContextMenu } from './useContextMenu';
 import { useSearchHighlight } from './useSearch';
 import { useSections } from './useSections';
 import { useShortcuts } from './useShortcuts';
+import { useZoomTier } from './zoomTier';
 
 const proOptions = { hideAttribution: true };
 
@@ -58,6 +59,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   const searched = useSearchHighlight(nodes);
   const multipleSelected = useMemo(() => nodes.filter((n) => n.selected).length > 1, [nodes]);
   const sectionHandlers = useSections();
+  const { tier, scale } = useZoomTier();
   const displayNodes = useMemo(
     () =>
       searched.map((n) => {
@@ -130,6 +132,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         colorMode={theme}
         proOptions={proOptions}
         className={cn(readOnly && 'read-only', multipleSelected && 'multi-select')}
+        data-zoom={tier}
+        style={{ '--tz': scale } as CSSProperties}
         {...(readOnly ? readOnlyProps : editableProps)}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />

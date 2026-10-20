@@ -91,6 +91,10 @@ export function NodeShell({
             <header className="nodrag nokey flex h-9 shrink-0 items-center gap-1 px-2">{toolbar}</header>
           )}
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          {/* Far out, the tile shows only its title, large. */}
+          <div className="node-poster" aria-hidden="true">
+            {customTitle || title || label}
+          </div>
         </div>
       </div>
     </>
