@@ -15,7 +15,7 @@
 /* Semantic color tokens; components only use these. */
 :root {
   --chrome-top: 4.75rem;
-  --canvas: #f7f7f6;
+  --canvas: #ffffff;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
   --border: #e2e8f0;
