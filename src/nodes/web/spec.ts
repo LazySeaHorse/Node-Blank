@@ -13,6 +13,7 @@ export const webSpec: NodeSpec<'web'> = {
     url: z.string(),
     pageTitle: z.string().max(300).optional(),
     keepLoaded: z.boolean().optional(),
+    autoLoad: z.boolean().optional(),
     title: titleField,
     color: colorField,
   }),

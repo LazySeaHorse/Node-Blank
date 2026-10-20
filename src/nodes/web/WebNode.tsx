@@ -128,7 +128,13 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   // Far from the screen the page is unmounted, to give its memory and CPU back; it resumes where it was.
   // A node set to keep its page loaded is the exception.
   const near = useNearScreen(id);
-  const loaded = data.keepLoaded || near || selected;
+  const wanted = data.keepLoaded || near || selected;
+  // Unless the node loads by itself, a click is what starts its page, each time it has been unloaded.
+  const [started, setStarted] = useState(false);
+  const loaded = wanted && (data.autoLoad || started);
+  useEffect(() => {
+    if (!wanted) setStarted(false);
+  }, [wanted]);
 
   const relaunch = (url: string | null) => {
     setPage(null);
@@ -151,7 +157,11 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
     else navigate(url);
   };
 
-  const reload = () => (page ? command('reload') : relaunch(address));
+  const reload = () => {
+    setStarted(true);
+    if (page) command('reload');
+    else relaunch(address);
+  };
 
   // The saved address is where an unloaded page picks up again.
   const unload = useEffectEvent(() => relaunch(normaliseWebUrl(data.url)));
@@ -222,7 +232,7 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
       {!launch.url ? (
         <Hint>Type a web address above and press Enter.</Hint>
       ) : !loaded ? (
-        <Sleeping title={data.pageTitle} url={launch.url} />
+        <Sleeping title={data.pageTitle} url={launch.url} onLoad={reload} />
       ) : (
         <>
           {!extension && !readOnly && !noticeDismissed && (
@@ -268,14 +278,20 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   );
 }
 
-/** Stands in for a page that is not running: what it was, and that it comes back by itself. */
-function Sleeping({ title, url }: { title?: string; url: string }) {
+/** Stands in for a page that is not running: what it was, and a button to start it. */
+function Sleeping({ title, url, onLoad }: { title?: string; url: string; onLoad: () => void }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-center">
       <Globe className="mb-1 size-6 text-muted" />
       <p className="max-w-full truncate text-sm font-medium">{title || hostnameOf(url)}</p>
       {title && <p className="max-w-full truncate text-xs text-muted">{hostnameOf(url)}</p>}
-      <p className="text-xs text-muted">Loads when it is on screen</p>
+      <button
+        type="button"
+        onClick={onLoad}
+        className="nodrag nokey mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:bg-surface-2"
+      >
+        <RotateCw className="size-3.5" /> Load page
+      </button>
     </div>
   );
 }

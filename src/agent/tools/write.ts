@@ -94,9 +94,9 @@ const content = {
     color: tint,
   },
 } satisfies {
-  // `suggestionDismissed` and `keepLoaded` are UI flags and `pageTitle` what the page reported, not content.
+  // `suggestionDismissed`, `keepLoaded` and `autoLoad` are UI flags and `pageTitle` what the page reported, not content.
   [K in Exclude<NodeKind, 'image' | 'pdf' | 'section'>]: Record<
-    Exclude<keyof NodeDataMap[K], 'suggestionDismissed' | 'keepLoaded' | 'pageTitle'>,
+    Exclude<keyof NodeDataMap[K], 'suggestionDismissed' | 'keepLoaded' | 'autoLoad' | 'pageTitle'>,
     z.ZodType
   >;
 };

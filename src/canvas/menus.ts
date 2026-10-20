@@ -18,6 +18,7 @@ import {
   MousePointer2,
   PaintBucket,
   PencilLine,
+  Play,
   Plus,
   Shapes,
   Sigma,
@@ -113,7 +114,7 @@ const copyLatex = (latex: string): MenuEntry => ({
 /** Extra items for particular kinds of node, shown above the common ones. */
 const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
   math: (node) => [...mathMenu(node), { separator: true }, copyLatex(node.data.latex)],
-  web: (node) => [unloadOffscreen(node)],
+  web: (node) => [loadAutomatically(node), unloadOffscreen(node)],
   mathPlus: (node) => [
     ...mathMenu(node),
     { separator: true },
@@ -125,6 +126,13 @@ const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
     },
   ],
 };
+
+const loadAutomatically = (node: NodeOf<'web'>): MenuEntry => ({
+  label: 'Load automatically',
+  icon: Play,
+  checked: node.data.autoLoad === true,
+  onSelect: () => useCanvasStore.getState().updateNodeData<'web'>(node.id, { autoLoad: !node.data.autoLoad }),
+});
 
 const unloadOffscreen = (node: NodeOf<'web'>): MenuEntry => ({
   label: 'Unload when off-screen',

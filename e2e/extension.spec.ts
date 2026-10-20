@@ -49,6 +49,8 @@ async function openSite(context: BrowserContext, site: string) {
   await page.getByRole('button', { name: 'Insert web', exact: true }).click();
   await page.getByRole('textbox', { name: 'Web address' }).fill(site);
   await page.getByRole('button', { name: 'OK' }).click();
+  // A page waits for a click to load.
+  await page.getByRole('button', { name: 'Load page' }).click();
   return page;
 }
 

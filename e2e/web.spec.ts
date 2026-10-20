@@ -27,6 +27,8 @@ async function insertWeb(page: Page, address: string) {
   await page.getByRole('textbox', { name: 'Web address' }).fill(address);
   await page.getByRole('button', { name: 'OK' }).click();
   await expect(nodes(page)).toHaveCount(1);
+  // A page waits for a click to load.
+  await page.getByRole('button', { name: 'Load page' }).click();
 }
 
 const frame = (page: Page) => page.locator('.react-flow__node iframe');
@@ -84,13 +86,31 @@ test('unloads the page when zoomed far out and resumes at the same address', asy
 
   // A selected node stays running, so deselect it before zooming out.
   await page.mouse.click(1380, 860);
-  for (let i = 0; i < 14; i++) await page.getByRole('button', { name: 'Zoom out' }).click();
-  await expect(frame(page)).toHaveCount(0);
+  // Clicks made while the view is still animating can be lost, so keep zooming until the page is gone.
+  await expect(async () => {
+    await page.getByRole('button', { name: 'Zoom out' }).click();
+    await expect(frame(page)).toHaveCount(0, { timeout: 400 });
+  }).toPass();
   // Far out the node is a titled tile, so its stand-in is in the page but not shown.
-  await expect(page.getByText('Loads when it is on screen')).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Load page' })).toBeAttached();
 
+  // Coming back does not load it again: that takes a click, and it resumes at the same address.
   await page.getByRole('button', { name: /%$/ }).click();
+  await expect(frame(page)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Load page' }).click();
   await expect(frame(page)).toHaveAttribute('src', `${HOST}/two`);
+});
+
+test('loads by itself when set to', async ({ page }) => {
+  await serve(page, false);
+  await insertWeb(page, `${HOST}/one`);
+  // A selected page takes the mouse for itself, so deselect it first.
+  await page.mouse.click(1380, 860);
+  await page.locator('.react-flow__node').click({ button: 'right', position: { x: 20, y: 120 } });
+  await page.getByRole('menuitem', { name: 'Load automatically' }).click();
+  await page.waitForTimeout(800); // autosave debounce
+  await page.reload();
+  await expect(frame(page)).toHaveAttribute('src', `${HOST}/one`);
 });
 
 test('suggests the extension when it is not installed', async ({ page }) => {
