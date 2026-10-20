@@ -21,18 +21,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 const BLURB: Record<Kind, string> = {
-  text: 'Write in Markdown. Add LaTeX math anywhere in the text.',
-  math: 'Type LaTeX and see typeset math. Press Shift+Enter for a new line.',
-  mathPlus: 'Write a := 2 and every Math+ node can use it. Change it once, and all results update.',
-  graph: 'Plot many functions of x on one graph. Add a line to add a curve.',
-  table: 'A grid where each cell holds math. Integrals, sums and limits look right.',
-  sheet: 'A spreadsheet with formulas and cell references.',
-  code: 'Run JavaScript on the canvas. It runs in a sandbox, so it cannot reach the page or the network.',
-  image: 'Drop in a picture. It moves and zooms with the rest of your canvas.',
-  video: 'Embed a video. It keeps playing while you work around it.',
-  web: 'Browse live websites and docs right beside your notes on the canvas.',
-  pdf: 'Link a local PDF and pin pages into view. Extract text directly for AI workflows.',
-  section: 'Wrap nodes into a titled, coloured section with Ctrl+G. Moving the section moves what is inside.',
+  text: 'Write notes in Markdown with inline LaTeX math.',
+  math: 'Typeset LaTeX formulas for clean problem statements and proofs.',
+  mathPlus: 'Evaluate expressions to exact fractions and decimals. Shared variables pass from top to bottom.',
+  graph: 'Plot multiple mathematical functions of x on one coordinate grid.',
+  table: 'Format mathematical cells with integrals, sums, and matrix notation.',
+  sheet: 'Spreadsheet with exact fractions. Run row and column operations for matrix reductions.',
+  code: 'Execute sandboxed JavaScript on the canvas without network access.',
+  image: 'Add reference diagrams. Scale and position them beside your notes.',
+  video: 'Embed lecture videos that play while you solve problems.',
+  web: 'Browse online documentation, course pages, and calculators on the canvas.',
+  pdf: 'Open local PDFs. Pin pages into strips, view text, and pop pages out as images.',
+  section: 'Group related nodes into titled, colored sections with Ctrl+G.',
 };
 
 function NodeStage({ kind }: { kind: Kind }) {
@@ -118,8 +118,8 @@ export function NodeTypes() {
                 <span className="text-muted">Plus sections to organize them.</span>
               </h2>
               <p className="mt-4 max-w-[60ch] text-[15.5px] leading-[1.6] text-muted">
-                Text, Math, Math+, Graph, Table, Sheet, Script, Image, Video, Web, PDF, and Sections. Pick a
-                tool. Double-click the canvas. Your node appears.
+                Reference PDFs, LaTeX math, evaluated CAS formulas, function graphs, and linear algebra
+                sheets. Pick a tool. Double-click the canvas to place it.
               </p>
             </div>
             <div className="flex gap-2">

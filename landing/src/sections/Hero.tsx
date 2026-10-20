@@ -65,19 +65,18 @@ export function Hero() {
         {/* copy */}
         <motion.div style={{ y: copyY }} className="lg:col-span-5">
           <h1 className="font-display text-[clamp(2.5rem,5.6vw,4.35rem)] leading-[0.94] font-medium tracking-[-0.035em] text-fg text-balance">
-            An{' '}
+            The{' '}
             <span className="relative inline-block">
-              <span className="relative z-10">infinite</span>
+              <span className="relative z-10">spatial workbench</span>
               <span className="absolute inset-x-[-0.06em] bottom-[0.1em] z-0 h-[0.18em] -rotate-[0.5deg] rounded-[2px] bg-tip/30" />
               <span className="absolute inset-x-[-0.06em] bottom-[0.1em] z-0 h-[3px] -rotate-[0.5deg] rounded-[2px] bg-tip" />
             </span>{' '}
-            canvas that stays out of your way.
+            for STEM problem solving.
           </h1>
 
           <p className="mt-5 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted">
-            Write math. Plot graphs. Run code. Embed live websites and PDFs. Drop in video and images.
-            Organize with sections. Everything lives on one infinite canvas that saves locally in your
-            browser, with optional encrypted cloud sync.
+            Pin textbook PDFs, write LaTeX derivations, calculate exact math, and plot graphs on one desktop
+            canvas. Built for keyboard and mouse.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-3">

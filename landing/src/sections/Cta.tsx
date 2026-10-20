@@ -13,16 +13,18 @@ export function Story() {
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-9 px-4 sm:px-6 lg:grid-cols-12 lg:items-end lg:gap-12">
         <Reveal className="lg:col-span-8">
           <p className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-medium tracking-[-0.025em] text-fg text-balance">
-            Notebooks give you pages. Whiteboards give you shapes.{' '}
-            <span className="text-tip">Node-Blank gives you space.</span>
+            Linear notebooks separate your steps.{' '}
+            <span className="text-tip">
+              Node-Blank keeps your textbook, derivation, calculation, and graph together.
+            </span>
           </p>
         </Reveal>
         <Reveal delay={0.08} className="lg:col-span-4">
           <dl className="flex flex-col gap-3 border-l-2 border-line pl-5">
             {[
-              ['Fast', 'It opens in a tab. There is nothing to install.'],
+              ['Fast', 'Opens in a tab. Nothing to install.'],
               ['Private', 'Local-first in IndexedDB with optional encrypted cloud sync.'],
-              ['Free', 'It is open source. No account needed.'],
+              ['Free', 'Open source. No account needed.'],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt className="font-mono text-[10.5px] tracking-[0.14em] text-muted uppercase">{k}</dt>
