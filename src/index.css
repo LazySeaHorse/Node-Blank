@@ -15,7 +15,7 @@
 /* Semantic color tokens; components only use these. */
 :root {
   --chrome-top: 4.75rem;
-  --canvas: #f8fafc;
+  --canvas: #f7f7f6;
   --surface: #ffffff;
   --surface-2: #f1f5f9;
   --border: #e2e8f0;
@@ -33,11 +33,29 @@
   --section-pink: #fbcfe8;
   --section-orange: #fed7aa;
   --section-gray: #cbd5e1;
+  /* Canvas dots. */
+  --dot: #cdd0d4;
+  /* Node tiles: one low-chroma tone per kind, so contents stay the loudest thing on a node. */
+  --tone-text: #f4eccb;
+  --tone-math: #dce3fa;
+  --tone-mathPlus: var(--tone-math);
+  --tone-graph: #f8dcd3;
+  --tone-table: #dfebd2;
+  --tone-sheet: #d5ebdd;
+  --tone-code: #e4e4ee;
+  --tone-image: #e6dcf2;
+  --tone-video: #f5e0c3;
+  --tone-web: #d3e9f0;
+  --tone-pdf: #f0dadd;
+  /* Secondary text on a tone: AA on every tone above. */
+  --node-muted: #565a62;
+  /* A node taken over by the page or video in it. */
+  --live: #0b7f51;
 }
 
 /* Neutral greys: no blue tint in dark mode. */
 .dark {
-  --canvas: #0a0a0a;
+  --canvas: #0f1012;
   --surface: #171717;
   --surface-2: #212121;
   --border: #2e2e2e;
@@ -55,6 +73,19 @@
   --section-pink: #d466a3;
   --section-orange: #d9772e;
   --section-gray: #8a8a8a;
+  --dot: #2b2d32;
+  --tone-text: #2a271a;
+  --tone-math: #1d2339;
+  --tone-graph: #35211b;
+  --tone-table: #232b17;
+  --tone-sheet: #172b22;
+  --tone-code: #090a0c;
+  --tone-image: #2a2037;
+  --tone-video: #33271a;
+  --tone-web: #162b33;
+  --tone-pdf: #35202a;
+  --node-muted: #a8a9ae;
+  --live: #3ddc97;
   color-scheme: dark;
 }
 
