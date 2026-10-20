@@ -3,6 +3,7 @@ import { GithubIcon } from '@landing/components/GithubIcon';
 import { Mascot } from '@landing/components/Mascot';
 import { APP_URL, REPO_URL } from '@landing/components/Nav';
 import { Reveal } from '@landing/components/Reveal';
+import { Link } from '@landing/router';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 /* ── The pitch in one line ── */
@@ -93,31 +94,41 @@ export function FinalCta() {
 
 const FOOT_LINKS = [
   { label: 'Open the canvas', href: APP_URL },
+  { label: 'STEM Tools', href: '/tools' },
+  { label: 'Blog & Guides', href: '/blog' },
   { label: 'GitHub', href: REPO_URL },
   { label: 'Releases', href: `${REPO_URL}/releases` },
   { label: 'AI bridge', href: `${REPO_URL}/blob/main/bridge/README.md` },
   { label: 'Chrome extension', href: `${REPO_URL}/tree/main/extension` },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Use', href: '/terms' },
 ];
 
 export function Footer() {
   return (
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-4 py-6 sm:px-6">
-        <a href="#top" className="group inline-flex items-center gap-2.5">
+        <Link href="/" className="group inline-flex items-center gap-2.5">
           <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6" />
           <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
-        </a>
+        </Link>
         <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {FOOT_LINKS.map((l) => (
             <li key={l.label}>
-              <a
-                href={l.href}
-                target={l.href.startsWith('http') ? '_blank' : undefined}
-                rel="noreferrer"
-                className="text-[13.5px] text-muted transition-colors hover:text-accent"
-              >
-                {l.label}
-              </a>
+              {l.href.startsWith('http') || l.href.startsWith('/app') ? (
+                <a
+                  href={l.href}
+                  target={l.href.startsWith('http') ? '_blank' : undefined}
+                  rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
+                  className="text-[13.5px] text-muted transition-colors hover:text-accent"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link href={l.href} className="text-[13.5px] text-muted transition-colors hover:text-accent">
+                  {l.label}
+                </Link>
+              )}
             </li>
           ))}
         </ul>

@@ -1,5 +1,6 @@
 import { GithubIcon } from '@landing/components/GithubIcon';
 import { Mascot } from '@landing/components/Mascot';
+import { Link } from '@landing/router';
 import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
@@ -8,10 +9,11 @@ export const APP_URL = '/app/';
 export const REPO_URL = 'https://github.com/LazySeaHorse/Node-Blank';
 
 const LINKS = [
-  { href: '#nodes', label: 'Nodes' },
-  { href: '#controls', label: 'Controls' },
-  { href: '#ai', label: 'AI' },
-  { href: '#local', label: 'Your data' },
+  { href: '/#nodes', label: 'Nodes' },
+  { href: '/#controls', label: 'Controls' },
+  { href: '/#ai', label: 'AI' },
+  { href: '/#local', label: 'Your data' },
+  { href: '/tools', label: 'STEM Tools' },
 ];
 
 export function Nav() {
@@ -42,21 +44,21 @@ export function Nav() {
         )}
       >
         <nav className="mx-auto flex h-14 max-w-[1240px] items-center gap-3 px-4 sm:px-6">
-          <a href="#top" className="group flex items-center gap-2.5" aria-label="Node-Blank home">
+          <Link href="/" className="group flex items-center gap-2.5" ariaLabel="Node-Blank home">
             <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
             <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
-          </a>
+          </Link>
 
           <div className="ml-auto hidden items-center gap-1 lg:flex">
             {LINKS.map((l) => (
-              <a
+              <Link
                 key={l.href}
                 href={l.href}
                 className="group relative rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted transition-colors hover:text-fg"
               >
                 <span className="relative z-10">{l.label}</span>
                 <span className="absolute inset-x-2.5 bottom-1 h-px origin-left scale-x-0 bg-accent transition-transform duration-200 group-hover:scale-x-100" />
-              </a>
+              </Link>
             ))}
           </div>
 

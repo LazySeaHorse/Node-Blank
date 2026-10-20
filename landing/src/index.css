@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ─────────────────────────────────────────────────────────────
    Node-Blank semantic colour tokens — lifted verbatim from the
@@ -34,6 +37,28 @@
   --tip: #f97316;
   --tip-soft: #fb923c;
   --tip-light: #fdba74;
+}
+
+.dark {
+  --canvas: #0f1012;
+  --surface: #171717;
+  --surface-2: #212121;
+  --border: #2e2e2e;
+  --fg: #e5e5e5;
+  --muted: #a3a3a3;
+  --accent: #f97316;
+  --accent-fg: #ffffff;
+  --danger: #f87171;
+  --section-yellow: #d6a21f;
+  --section-green: #2f9e75;
+  --section-blue: #4a7fd6;
+  --section-purple: #8a6fd6;
+  --section-pink: #d466a3;
+  --section-orange: #d9772e;
+  --section-gray: #8a8a8a;
+  --dot: #2b2d32;
+  --node-muted: #a8a9ae;
+  --live: #10b981;
 }
 
 @theme inline {
