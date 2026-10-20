@@ -25,6 +25,10 @@ const text = (markdown: string) => {
 const markdownOf = async (id: string) =>
   ((await repo.loadContent(id)).nodes[0].data as { markdown: string }).markdown;
 
+/** The cloud as another device sees it. */
+const otherDevice = async () =>
+  (await import('./cloud')).Cloud.connect(store, useSyncSettings.getState().manifestId, 'pw');
+
 const statuses = async () =>
   compareAll(await repo.listCanvases(), await repo.listSyncRecords(), useSync.getState().entries ?? {});
 
@@ -81,7 +85,9 @@ describe('sync engine', () => {
   it('brings a canvas this device lacks, with its id', async () => {
     const id = await repo.createCanvas('Remote', text('from afar'));
     await push(id);
+    // A device that never had it: no canvas and no record of one.
     await repo.deleteCanvas(id);
+    await repo.forgetSyncRecord(id);
     await check();
     expect((await statuses()).cloudOnly.map((c) => c.id)).toEqual([id]);
     await pull(id);
@@ -116,6 +122,7 @@ describe('sync engine', () => {
     const other = await repo.createCanvas('B', text('b'));
     await push(other);
     await repo.deleteCanvas(other);
+    await repo.forgetSyncRecord(other);
 
     const result = await syncAll('pull');
     // A changed in the cloud only (its record is behind); B is only in the cloud.
@@ -132,5 +139,66 @@ describe('sync engine', () => {
     expect(result.done).toBe(0);
     expect(result.failed).toHaveLength(1);
     expect(result.failed[0].message).toContain('offline');
+  });
+
+  it('deletes in the cloud what was deleted here, and lets another device learn of it', async () => {
+    const id = await repo.createCanvas('Doomed', text('bye'));
+    await push(id);
+    await repo.deleteCanvas(id);
+    await check();
+    expect((await statuses()).deletedHere.map((c) => c.id)).toEqual([id]);
+
+    await push(id);
+    const after = await statuses();
+    expect(after.deletedHere).toEqual([]);
+    expect(after.cloudOnly).toEqual([]);
+    expect(await repo.getSyncRecord(id)).toBeUndefined();
+    expect(useSync.getState().entries?.[id]?.deleted).toBe(true);
+  });
+
+  it('deletes here what the cloud deleted, if it was not changed since', async () => {
+    const id = await repo.createCanvas('Doomed', text('bye'));
+    await push(id);
+    await (await otherDevice()).remove(id);
+    await check();
+    expect((await statuses()).statuses[id]).toBe('deleted-in-cloud');
+
+    await pull(id);
+    expect(await repo.getCanvas(id)).toBeUndefined();
+    expect(await repo.getSyncRecord(id)).toBeUndefined();
+  });
+
+  it('brings back a canvas deleted here, when asked', async () => {
+    const id = await repo.createCanvas('Oops', text('keep me'));
+    await push(id);
+    await repo.deleteCanvas(id);
+    await pull(id);
+    expect(await markdownOf(id)).toBe('keep me');
+    expect((await statuses()).statuses[id]).toBe('synced');
+  });
+
+  it('does not delete in bulk what was changed here after the cloud deleted it', async () => {
+    const id = await repo.createCanvas('Edited', text('v1'));
+    await push(id);
+    await new Promise((r) => setTimeout(r, 5));
+    await repo.saveContent(id, text('v2'));
+    // The cloud's copy is deleted by another device.
+    await (await otherDevice()).remove(id);
+    await check();
+    expect((await statuses()).statuses[id]).toBe('conflict');
+    const result = await syncAll('pull');
+    expect(result.done).toBe(0);
+    expect(await repo.getCanvas(id)).toBeDefined();
+  });
+
+  it('pushes deletions in bulk', async () => {
+    const a = await repo.createCanvas('A', text('a'));
+    const b = await repo.createCanvas('B', text('b'));
+    await push(a);
+    await push(b);
+    await repo.deleteCanvas(a);
+    expect(await syncAll('push')).toEqual({ done: 1, failed: [] });
+    expect(useSync.getState().entries?.[a]?.deleted).toBe(true);
+    expect(useSync.getState().entries?.[b]?.deleted).toBeUndefined();
   });
 });

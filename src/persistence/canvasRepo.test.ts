@@ -3,7 +3,9 @@ import { createNode } from '@/nodes/factory';
 import {
   createCanvas,
   deleteCanvas,
+  forgetSyncRecord,
   getCanvas,
+  getSyncRecord,
   listCanvases,
   listSyncRecords,
   loadContent,
@@ -71,10 +73,13 @@ describe('canvasRepo', () => {
     expect((await listSyncRecords())[0].rev).toBe('r2');
   });
 
-  it('forgets the sync record with the canvas', async () => {
+  it('keeps the sync record of a deleted canvas, until it is forgotten', async () => {
     const id = await createCanvas('A');
     await putSyncRecord({ id, rev: 'r', localUpdatedAt: 1 });
     await deleteCanvas(id);
+    expect(await getCanvas(id)).toBeUndefined();
+    expect(await getSyncRecord(id)).toEqual({ id, rev: 'r', localUpdatedAt: 1 });
+    await forgetSyncRecord(id);
     expect(await listSyncRecords()).toEqual([]);
   });
 });

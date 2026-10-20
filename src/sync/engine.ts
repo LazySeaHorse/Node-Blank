@@ -92,10 +92,21 @@ async function lookAtCloud(): Promise<Record<string, CloudEntry>> {
   return entries;
 }
 
+/** Deleting here is only ever pushed for a canvas that was synced, which is what its sync record shows. */
+async function deleteInCloud(id: string): Promise<void> {
+  const entry = await (await cloudOf()).remove(id);
+  await repo.forgetSyncRecord(id);
+  remember({ [id]: entry });
+}
+
 async function sendCanvas(id: string): Promise<void> {
   await workspace.flushSave();
   const meta = await repo.getCanvas(id);
-  if (!meta) throw new SyncError('not-found', 'That canvas is not on this device.');
+  if (!meta) {
+    if (!(await repo.getSyncRecord(id)))
+      throw new SyncError('not-found', 'That canvas is not on this device.');
+    return deleteInCloud(id);
+  }
   const content = await repo.loadContent(id);
   const entry = await (await cloudOf()).push(id, { name: meta.name, content });
   await repo.putSyncRecord({ id, rev: entry.rev, localUpdatedAt: meta.updatedAt });
@@ -105,6 +116,13 @@ async function sendCanvas(id: string): Promise<void> {
 async function fetchCanvas(id: string): Promise<void> {
   await workspace.flushSave();
   const { entry, canvas } = await (await cloudOf()).pull(id);
+  if (!canvas) {
+    // Deleted in the cloud: the canvas goes from here too.
+    await workspace.removeCanvas(id);
+    await repo.forgetSyncRecord(id);
+    remember({ [id]: entry });
+    return;
+  }
   const nodes = keepLocalImages(canvas.content.nodes, (await repo.loadContent(id)).nodes);
   await workspace.savePulledCanvas(id, canvas.name, { ...canvas.content, nodes }, entry.rev);
   remember({ [id]: entry });
@@ -127,20 +145,20 @@ const FATAL: SyncErrorKind[] = ['auth', 'password', 'network', 'rate-limit'];
 
 /**
  * Pushes (or pulls) every canvas that can go without overwriting changes: those only changed on this side,
- * or missing on the other. Canvases changed on both sides are left for the user to settle one by one.
+ * or missing on the other. Deletions travel too: a canvas deleted on one side is deleted on the other. Canvases changed on both sides are left for the user to settle one by one.
  */
 export const syncAll = (direction: 'push' | 'pull') =>
   exclusive(() =>
     markBusy('all', async () => {
       const entries = await lookAtCloud();
-      const { statuses, cloudOnly } = compareAll(
+      const { statuses, cloudOnly, deletedHere } = compareAll(
         await repo.listCanvases(),
         await repo.listSyncRecords(),
         entries,
       );
       const ids =
         direction === 'push'
-          ? Object.keys(statuses).filter((id) => pushable(statuses[id]))
+          ? [...Object.keys(statuses).filter((id) => pushable(statuses[id])), ...deletedHere.map((c) => c.id)]
           : [...Object.keys(statuses).filter((id) => pullable(statuses[id])), ...cloudOnly.map((c) => c.id)];
       const result: BulkResult = { done: 0, failed: [] };
       for (const id of ids) {

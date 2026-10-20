@@ -36,13 +36,17 @@ export async function renameCanvas(id: string, name: string): Promise<void> {
   await db.canvases.update(id, { name, updatedAt: Date.now() });
 }
 
+/** The canvas goes; its sync record stays, so a sync can tell it was deleted here rather than never pulled. */
 export async function deleteCanvas(id: string): Promise<void> {
-  await db.transaction('rw', db.canvases, db.contents, db.syncRecords, async () => {
+  await db.transaction('rw', db.canvases, db.contents, async () => {
     await db.canvases.delete(id);
     await db.contents.delete(id);
-    await db.syncRecords.delete(id);
   });
 }
+
+export const getSyncRecord = (id: string): Promise<SyncRecord | undefined> => db.syncRecords.get(id);
+
+export const forgetSyncRecord = (id: string): Promise<void> => db.syncRecords.delete(id);
 
 export const listSyncRecords = (): Promise<SyncRecord[]> => db.syncRecords.toArray();
 

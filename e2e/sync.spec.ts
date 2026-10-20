@@ -73,3 +73,41 @@ test('sets up cloud sync, pushes a canvas encrypted, and shows it in sync', asyn
   expect(bins.size).toBe(2);
   expect(JSON.stringify([...bins.values()])).not.toContain('Untitled canvas');
 });
+
+test('a canvas deleted here is deleted in the cloud with a tombstone', async ({ page }) => {
+  const bins = await serveJsonbin(page);
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'node-blank-sync',
+      JSON.stringify({ state: { key: 'good-key', keyKind: 'master', manifestId: '' }, version: 0 }),
+    ),
+  );
+  await openApp(page);
+  const manager = await openCanvases(page);
+  await manager.getByRole('button', { name: 'Cloud sync settings' }).click();
+  const settings = page.getByRole('dialog', { name: 'Cloud sync' });
+  await settings.getByLabel('Encryption password', { exact: true }).fill('hunter2');
+  await settings.getByLabel('Repeat password').fill('hunter2');
+  await settings.getByRole('button', { name: 'Start cloud save' }).click();
+  await expect(settings).toBeHidden();
+
+  await manager.getByRole('button', { name: 'Check', exact: true }).click();
+  await manager.getByRole('button', { name: 'Push all (1)' }).click();
+  await expect(manager.getByText('In sync')).toBeVisible();
+
+  // Delete it here: it moves to the list of deletions the cloud has not heard of.
+  await manager.getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('dialog', { name: 'Delete canvas?' }).getByRole('button', { name: 'Delete' }).click();
+  // Answering the confirmation closes the dialog behind it.
+  const again = await openCanvases(page);
+  await again.getByRole('button', { name: 'Check', exact: true }).click();
+  await expect(again.getByText('Deleted here, still in the cloud')).toBeVisible();
+
+  // Pushing the deletion leaves a tombstone, and the canvas's bins are gone.
+  // Deleting the only canvas left a fresh empty one, which goes up too.
+  await again.getByRole('button', { name: 'Push all (2)' }).click();
+  await page.getByRole('button', { name: 'Push and delete' }).click();
+  await expect(again.getByText('Deleted here, still in the cloud')).toBeHidden();
+  // The manifest, and the fresh canvas's one bin: the deleted canvas left no bins behind.
+  await expect.poll(() => bins.size).toBe(2);
+});

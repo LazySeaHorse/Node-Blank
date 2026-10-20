@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { downloadJson, slugify } from '@/lib/files';
 import { timeAgo } from '@/lib/time';
 import type { CanvasContent, CanvasMeta } from '@/model/types';
-import { loadContent } from '@/persistence/canvasRepo';
+import { listSyncRecords, loadContent } from '@/persistence/canvasRepo';
 import * as workspace from '@/store/workspace';
 import { Badge } from '@/ui/Badge';
 import { Button, IconButton } from '@/ui/Button';
@@ -109,9 +109,12 @@ function CanvasRow({
   };
 
   const remove = async () => {
+    const synced = (await listSyncRecords()).some((r) => r.id === canvas.id);
     const confirmed = await confirmAction({
       title: 'Delete canvas?',
-      message: `"${canvas.name}" will be permanently deleted.`,
+      message: synced
+        ? `"${canvas.name}" will be deleted from this device. Its cloud copy stays until you push the deletion.`
+        : `"${canvas.name}" will be permanently deleted.`,
       confirmLabel: 'Delete',
       destructive: true,
       hero: { mood: 'nervous', scene: 'delete' },
@@ -269,7 +272,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
           ))}
         </ul>
       )}
-      {syncing && <CloudOnlyList />}
+      {syncing && <CloudOnlyList pullOnly={readOnly} />}
       <SyncSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </Modal>
   );

@@ -25,15 +25,23 @@ const manifestSchema = z.object({
   index: z.string(),
 });
 
-const entrySchema = z.object({
-  name: z.string(),
-  /** When the copy was uploaded. */
-  updatedAt: z.number(),
-  /** Changes with every upload: how a device tells whether the cloud copy is the one it last saw. */
-  rev: z.string(),
-  /** The bins holding the pieces, in order. */
-  bins: z.array(z.string()).min(1),
-});
+const entrySchema = z
+  .object({
+    /** Empty for a deleted canvas, whose name is not kept. */
+    name: z.string(),
+    /** When the copy was uploaded, or the canvas deleted. */
+    updatedAt: z.number(),
+    /** Changes with every upload and deletion: how a device tells whether the cloud copy is the one it last saw. */
+    rev: z.string(),
+    /** The bins holding the pieces, in order; none once deleted. */
+    bins: z.array(z.string()),
+    /**
+     * A tombstone: the canvas was deleted. It stays in the index so devices that still have the canvas learn
+     * of it, rather than putting it back.
+     */
+    deleted: z.boolean().optional(),
+  })
+  .refine((entry) => entry.deleted || entry.bins.length > 0);
 
 const indexSchema = z.object({
   canvases: z.record(z.string(), entrySchema),
@@ -97,9 +105,11 @@ export class Cloud {
     await this.store.update(this.manifestId, await manifestOf(this.key, this.kdf, index));
   }
 
-  async pull(id: string): Promise<{ entry: CloudEntry; canvas: CloudCanvas }> {
+  /** The cloud copy of `id`; `canvas` is null if it was deleted. */
+  async pull(id: string): Promise<{ entry: CloudEntry; canvas: CloudCanvas | null }> {
     const entry = (await this.readIndex()).canvases[id];
     if (!entry) throw new SyncError('not-found', 'The cloud has no copy of this canvas.');
+    if (entry.deleted) return { entry, canvas: null };
     const pieces: string[] = [];
     for (const bin of entry.bins) pieces.push(parse(pieceSchema, await this.store.read(bin), 'canvas').d);
     return { entry, canvas: await unpackCanvas(this.key, id, entry.rev, pieces) };
@@ -127,6 +137,16 @@ export class Cloud {
     }
     // The push has succeeded; tidying the old bins must not undo it.
     await this.discard(replaced, written).catch(() => undefined);
+    return entry;
+  }
+
+  /** Deletes the cloud copy of `id`, leaving a tombstone in its place. */
+  async remove(id: string, now = Date.now()): Promise<CloudEntry> {
+    const index = await this.readIndex();
+    const entry: CloudEntry = { name: '', updatedAt: now, rev: crypto.randomUUID(), bins: [], deleted: true };
+    const written = { ...index, canvases: { ...index.canvases, [id]: entry } };
+    await this.writeIndex(written);
+    await this.discard([...index.trash, ...(index.canvases[id]?.bins ?? [])], written).catch(() => undefined);
     return entry;
   }
 

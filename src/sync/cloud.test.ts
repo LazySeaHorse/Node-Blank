@@ -56,8 +56,8 @@ describe('Cloud', () => {
     const other = await Cloud.connect(store, cloud.manifestId, 'pw');
     const { entry: seen, canvas: got } = await other.pull('c1');
     expect(seen.rev).toBe(entry.rev);
-    expect(got.name).toBe('Notes');
-    expect(got.content.nodes[0].id).toBe(sent.content.nodes[0].id);
+    expect(got?.name).toBe('Notes');
+    expect(got?.content.nodes[0].id).toBe(sent.content.nodes[0].id);
   });
 
   it('gives each upload a new revision and deletes the bins it replaced', async () => {
@@ -85,7 +85,7 @@ describe('Cloud', () => {
     await expect(cloud.push('c1', canvas('A', 'new'))).rejects.toBeInstanceOf(SyncError);
     store.failUpdate = false;
     expect((await cloud.readIndex()).canvases.c1.rev).toBe(first.rev);
-    expect((await cloud.pull('c1')).canvas.content.nodes[0].data).toMatchObject({ markdown: 'old' });
+    expect((await cloud.pull('c1')).canvas?.content.nodes[0].data).toMatchObject({ markdown: 'old' });
     // The bins the failed push made were cleared away again.
     expect(store.bins.size).toBe(2);
   });
@@ -114,5 +114,40 @@ describe('Cloud', () => {
     const cloud = await Cloud.create(store, 'pw', ITERATIONS);
     const error = await cloud.pull('missing').catch((e) => e);
     expect(error.kind).toBe('not-found');
+  });
+
+  it('leaves a tombstone when a canvas is deleted, and frees its bins', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    const live = await cloud.push('c1', canvas('Secret plans'));
+    const tomb = await cloud.remove('c1', 99);
+    expect(tomb).toMatchObject({ name: '', updatedAt: 99, bins: [], deleted: true });
+    expect(tomb.rev).not.toBe(live.rev);
+    expect((await cloud.readIndex()).canvases.c1).toEqual(tomb);
+    for (const bin of live.bins) expect(store.bins.has(bin)).toBe(false);
+    // Only the manifest is left.
+    expect(store.bins.size).toBe(1);
+  });
+
+  it('pulls a tombstone as a deletion', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    await cloud.push('c1', canvas('A'));
+    await cloud.remove('c1');
+    const { entry, canvas: gone } = await cloud.pull('c1');
+    expect(entry.deleted).toBe(true);
+    expect(gone).toBeNull();
+  });
+
+  it('lets a push bring a deleted canvas back', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    await cloud.push('c1', canvas('A'));
+    await cloud.remove('c1');
+    const back = await cloud.push('c1', canvas('A', 'again'));
+    expect(back.deleted).toBeUndefined();
+    expect((await cloud.pull('c1')).canvas?.name).toBe('A');
+  });
+
+  it('can delete a canvas the cloud never had, leaving a tombstone all the same', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    expect((await cloud.remove('never')).deleted).toBe(true);
   });
 });

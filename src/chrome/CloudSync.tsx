@@ -1,4 +1,4 @@
-import { Cloud, CloudDownload, CloudUpload, RefreshCw, Settings } from 'lucide-react';
+import { Cloud, CloudDownload, CloudUpload, RefreshCw, Settings, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/cn';
 import { timeAgo } from '@/lib/time';
@@ -18,6 +18,9 @@ const LABELS: Record<SyncStatus, { text: string; variant: BadgeVariant }> = {
   conflict: { text: 'Changed in both places', variant: 'warning' },
   'local-only': { text: 'Not in the cloud', variant: 'muted' },
   'cloud-only': { text: 'Not on this device', variant: 'muted' },
+  'deleted-here': { text: 'Deleted here', variant: 'warning' },
+  'deleted-in-cloud': { text: 'Deleted in the cloud', variant: 'warning' },
+  gone: { text: 'Deleted', variant: 'muted' },
 };
 
 /** Runs a sync action, saying what went wrong in a toast instead of throwing. Gives nothing back if it failed. */
@@ -52,19 +55,62 @@ const confirmOverwrite = (name: string, direction: 'push' | 'pull', status: Sync
     hero: { mood: 'nervous', scene: 'delete' },
   });
 
+const confirmDeleteHere = (name: string, changedHere: boolean) =>
+  confirmAction({
+    title: 'Delete this canvas here too?',
+    message: `"${name}" was deleted in the cloud${changedHere ? ', but you have changed it here since' : ''}. Pulling deletes it from this device as well.`,
+    confirmLabel: 'Delete here',
+    destructive: true,
+    hero: { mood: 'nervous', scene: 'delete' },
+  });
+
+const confirmDeleteInCloud = (name: string) =>
+  confirmAction({
+    title: 'Delete from the cloud?',
+    message: `"${name}" was deleted on this device. This deletes its cloud copy too, so other devices lose it when they next pull.`,
+    confirmLabel: 'Delete from cloud',
+    destructive: true,
+    hero: { mood: 'nervous', scene: 'delete' },
+  });
+
+/** Whether `direction` on a canvas in this state would delete it, on either side. */
+const deletes = (direction: 'push' | 'pull', status: SyncStatus) =>
+  direction === 'push' ? status === 'deleted-here' : status === 'deleted-in-cloud';
+
 /**
- * Checks the cloud afresh, then runs `direction` on the canvas unless that would overwrite changes
- * the user has not agreed to losing.
+ * Checks the cloud afresh, then runs `direction` on the canvas unless that would overwrite or delete
+ * something the user has not agreed to losing.
  */
 async function syncOne(id: string, name: string, direction: 'push' | 'pull') {
   await attempt(async () => {
-    const { statuses, cloudOnly } = await inspect();
-    const status = statuses[id] ?? (cloudOnly.some((c) => c.id === id) ? 'cloud-only' : undefined);
+    const { statuses, cloudOnly, deletedHere } = await inspect();
+    const status =
+      statuses[id] ??
+      (cloudOnly.some((c) => c.id === id)
+        ? 'cloud-only'
+        : deletedHere.some((c) => c.id === id)
+          ? 'deleted-here'
+          : undefined);
     if (!status) return;
-    const loses = direction === 'push' ? status === 'cloud-newer' : status === 'local-newer';
-    if ((loses || status === 'conflict') && !(await confirmOverwrite(name, direction, status))) return;
+    const cloudDeleted = useSync.getState().entries?.[id]?.deleted === true;
+    if (direction === 'pull' && cloudDeleted) {
+      if (!(await confirmDeleteHere(name, status === 'conflict'))) return;
+    } else if (direction === 'push' && status === 'deleted-here') {
+      if (!(await confirmDeleteInCloud(name))) return;
+    } else {
+      // Pushing over a cloud deletion only brings the canvas back, which loses nothing.
+      const loses = direction === 'push' ? status === 'cloud-newer' : status === 'local-newer';
+      const clash = status === 'conflict' && !(direction === 'push' && cloudDeleted);
+      if ((loses || clash) && !(await confirmOverwrite(name, direction, status))) return;
+    }
     await (direction === 'push' ? push(id) : pull(id));
-    toast.success(direction === 'push' ? `Pushed "${name}"` : `Pulled "${name}"`);
+    toast.success(
+      deletes(direction, status)
+        ? `Deleted "${name}" ${direction === 'push' ? 'from the cloud' : 'here'}`
+        : direction === 'push'
+          ? `Pushed "${name}"`
+          : `Pulled "${name}"`,
+    );
   });
 }
 
@@ -115,37 +161,76 @@ export function CanvasSyncRow({ id, name, pullOnly }: { id: string; name: string
   );
 }
 
-/** Copies in the cloud that this device does not have yet. */
-export function CloudOnlyList() {
-  const cloudOnly = useSyncStatus()?.cloudOnly ?? [];
+/** Canvases that are not on this device: ones it never had, and ones it deleted that the cloud still holds. */
+export function CloudOnlyList({ pullOnly }: { pullOnly: boolean }) {
+  const status = useSyncStatus();
   const busy = useSync((s) => s.busy);
-  if (cloudOnly.length === 0) return null;
+  const working = (id: string) => busy === 'all' || busy.includes(id);
+  const cloudOnly = status?.cloudOnly ?? [];
+  const deletedHere = status?.deletedHere ?? [];
+  if (cloudOnly.length === 0 && deletedHere.length === 0) return null;
   return (
-    <section className="mt-4">
-      <h3 className="mb-2 font-medium text-muted text-xs">In the cloud, not on this device</h3>
-      <ul className="flex flex-col gap-2">
-        {cloudOnly.map(({ id, entry }) => (
-          <li
-            key={id}
-            className="flex items-center gap-3 rounded-2xl border border-border border-dashed p-2.5"
-          >
-            <Cloud className="size-4 shrink-0 text-muted" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-sm">{entry.name}</p>
-              <p className="text-muted text-xs">Pushed {timeAgo(entry.updatedAt)}</p>
-            </div>
-            <Button
-              size="sm"
-              variant="primary"
-              disabled={busy === 'all' || busy.includes(id)}
-              onClick={() => void syncOne(id, entry.name, 'pull')}
-            >
-              <CloudDownload className="size-4" /> Pull
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <>
+      {cloudOnly.length > 0 && (
+        <section className="mt-4">
+          <h3 className="mb-2 font-medium text-muted text-xs">In the cloud, not on this device</h3>
+          <ul className="flex flex-col gap-2">
+            {cloudOnly.map(({ id, entry }) => (
+              <li
+                key={id}
+                className="flex items-center gap-3 rounded-2xl border border-border border-dashed p-2.5"
+              >
+                <Cloud className="size-4 shrink-0 text-muted" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-sm">{entry.name}</p>
+                  <p className="text-muted text-xs">Pushed {timeAgo(entry.updatedAt)}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  disabled={working(id)}
+                  onClick={() => void syncOne(id, entry.name, 'pull')}
+                >
+                  <CloudDownload className="size-4" /> Pull
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {deletedHere.length > 0 && (
+        <section className="mt-4">
+          <h3 className="mb-2 font-medium text-muted text-xs">Deleted here, still in the cloud</h3>
+          <ul className="flex flex-col gap-2">
+            {deletedHere.map(({ id, entry }) => (
+              <li
+                key={id}
+                className="flex items-center gap-3 rounded-2xl border border-border border-dashed p-2.5"
+              >
+                <Trash2 className="size-4 shrink-0 text-muted" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-sm">{entry.name}</p>
+                  <p className="text-muted text-xs">Pushed {timeAgo(entry.updatedAt)}</p>
+                </div>
+                <Button size="sm" disabled={working(id)} onClick={() => void syncOne(id, entry.name, 'pull')}>
+                  <CloudDownload className="size-4" /> Restore
+                </Button>
+                {!pullOnly && (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={working(id)}
+                    onClick={() => void syncOne(id, entry.name, 'push')}
+                  >
+                    Delete from cloud
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </>
   );
 }
 
@@ -161,13 +246,33 @@ export function SyncBar({ onOpenSettings, pullOnly }: { onOpenSettings: () => vo
   const busy = useSync((s) => s.busy === 'all');
   const working = useSync((s) => s.busy === 'all' || s.busy.length > 0);
 
-  const toPush = status ? Object.values(status.statuses).filter(pushable).length : 0;
+  const toPush = status
+    ? Object.values(status.statuses).filter(pushable).length + status.deletedHere.length
+    : 0;
+  const deletionsHere = status?.deletedHere.length ?? 0;
+  const deletionsInCloud = status
+    ? Object.values(status.statuses).filter((s) => s === 'deleted-in-cloud').length
+    : 0;
   const toPull = status
     ? Object.values(status.statuses).filter(pullable).length + status.cloudOnly.length
     : 0;
   const conflicts = status ? Object.values(status.statuses).filter((s) => s === 'conflict').length : 0;
 
   const bulk = async (direction: 'push' | 'pull') => {
+    const deleting = direction === 'push' ? deletionsHere : deletionsInCloud;
+    if (deleting > 0) {
+      const sure = await confirmAction({
+        title: direction === 'push' ? 'Delete from the cloud too?' : 'Delete here too?',
+        message:
+          direction === 'push'
+            ? `${plural(deleting, 'canvas')} deleted on this device will also be deleted from the cloud.`
+            : `${plural(deleting, 'canvas')} deleted in the cloud will also be deleted from this device.`,
+        confirmLabel: direction === 'push' ? 'Push and delete' : 'Pull and delete',
+        destructive: true,
+        hero: { mood: 'nervous', scene: 'delete' },
+      });
+      if (!sure) return;
+    }
     const result = await attempt(() => syncAll(direction));
     if (result) reportBulk(result, direction === 'push' ? 'Pushed' : 'Pulled');
   };
