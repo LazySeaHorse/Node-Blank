@@ -1,13 +1,14 @@
 import {
   Background,
   BackgroundVariant,
+  type NodeChange,
   ReactFlow,
   type ReactFlowProps,
   SelectionMode,
   useKeyPress,
   useReactFlow,
 } from '@xyflow/react';
-import { type CSSProperties, type DragEvent, type MouseEvent, useEffect, useMemo } from 'react';
+import { type CSSProperties, type DragEvent, type MouseEvent, useCallback, useEffect, useMemo } from 'react';
 import { setAgentView, useAgentStore } from '@/agent';
 import { cn } from '@/lib/cn';
 import { SECTION_Z } from '@/lib/sections';
@@ -19,6 +20,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
+import { GRID, withSnappedResize } from './snap';
 import { useCanvasActions } from './useCanvasActions';
 import { useContextMenu } from './useContextMenu';
 import { useSearchHighlight } from './useSearch';
@@ -27,6 +29,8 @@ import { useShortcuts } from './useShortcuts';
 import { useZoomTier } from './zoomTier';
 
 const proOptions = { hideAttribution: true };
+/** Diameter of a background dot. */
+const DOT = 1.5;
 
 /** Desktop: left-drag selects, middle/right-drag or Shift+scroll pans, scroll / pinch zooms. */
 const editableProps: Partial<ReactFlowProps<AppNode>> = {
@@ -35,6 +39,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   panOnDrag: [1, 2],
   deleteKeyCode: ['Delete', 'Backspace'],
   multiSelectionKeyCode: 'Shift',
+  snapToGrid: true,
+  snapGrid: [GRID, GRID],
 };
 
 /** Mobile: look, don't touch. */
@@ -59,6 +65,12 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   const searched = useSearchHighlight(nodes);
   const multipleSelected = useMemo(() => nodes.filter((n) => n.selected).length > 1, [nodes]);
   const sectionHandlers = useSections();
+  const { onNodesChange: applyChanges } = sectionHandlers;
+  const onNodesChange = useCallback(
+    (changes: NodeChange<AppNode>[]) =>
+      applyChanges(withSnappedResize(changes, useCanvasStore.getState().nodes)),
+    [applyChanges],
+  );
   const { tier, scale } = useZoomTier();
   const displayNodes = useMemo(
     () =>
@@ -119,6 +131,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         nodes={displayNodes}
         nodeTypes={nodeTypes}
         {...sectionHandlers}
+        onNodesChange={onNodesChange}
         defaultViewport={useCanvasStore.getState().viewport}
         onMoveEnd={(_, viewport) => setViewport(viewport)}
         onDoubleClick={placeNode}
@@ -136,7 +149,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         style={{ '--tz': scale } as CSSProperties}
         {...(readOnly ? readOnlyProps : editableProps)}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
+        {/* Offset so the dots sit on the grid lines that nodes snap to. */}
+        <Background variant={BackgroundVariant.Dots} gap={GRID} size={DOT} offset={(DOT - GRID) / 2} />
       </ReactFlow>
       <ContextMenu at={menu?.at ?? null} items={menu?.items ?? []} onClose={closeMenu} />
     </>

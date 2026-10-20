@@ -32,7 +32,8 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
       <div
         className="node flex h-full w-full flex-col"
         style={
-          { '--tone-base': `color-mix(in srgb, ${swatch(data.color)} 18%, var(--canvas))` } as CSSProperties
+          // See-through, so the dot grid shows under the section.
+          { '--tone-base': `color-mix(in srgb, ${swatch(data.color)} 18%, transparent)` } as CSSProperties
         }
       >
         <div className="flex shrink-0 items-end" style={{ height: NODE_TAB_HEIGHT }}>
