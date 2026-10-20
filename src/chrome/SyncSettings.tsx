@@ -144,7 +144,7 @@ function SettingsForm({ onDone }: { onDone: () => void }) {
 
       <Field
         label="Encryption password"
-        hint="Asked for again each time you open the app. It is never stored or sent."
+        hint="Stored on this device next to the key, so you are not asked again. It is never sent anywhere."
       >
         {(control) => (
           <input

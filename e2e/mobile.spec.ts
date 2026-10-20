@@ -57,7 +57,7 @@ test('mobile can reach the cloud sync settings', async ({ page }) => {
   await page.getByRole('button', { name: 'Untitled canvas' }).click();
   const manager = page.getByRole('dialog', { name: 'Canvases' });
   await expect(manager.getByRole('button', { name: 'Cloud sync settings' })).toBeVisible();
-  // The password is never stored, so a device that has the key still has to be given it.
+  // A device that has the key but not the password still has to be given it.
   await expect(manager.getByText('Enter your password to sync with the cloud')).toBeVisible();
   await manager.getByRole('button', { name: 'Cloud sync settings' }).click();
   await expect(page.getByRole('dialog', { name: 'Cloud sync' })).toBeVisible();

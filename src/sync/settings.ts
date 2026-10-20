@@ -8,7 +8,7 @@ interface SyncSettings {
   keyKind: KeyKind;
   /** The bin holding the cloud save's index; any device that knows it, the key and the password can join. */
   manifestId: string;
-  /** Only in memory: it is asked for again in every session, so it is never stored on the device. */
+  /** Kept on this device with the key, so syncing never asks for it; whoever can read this storage can read the save. */
   password: string;
   set: (patch: Partial<Omit<SyncSettings, 'set' | 'forget'>>) => void;
   /** Forgets the key, the bin and the password on this device. The cloud save is left as it is. */
@@ -26,7 +26,7 @@ export const useSyncSettings = create<SyncSettings>()(
     }),
     {
       name: 'node-blank-sync',
-      partialize: ({ key, keyKind, manifestId }) => ({ key, keyKind, manifestId }),
+      partialize: ({ key, keyKind, manifestId, password }) => ({ key, keyKind, manifestId, password }),
     },
   ),
 );
