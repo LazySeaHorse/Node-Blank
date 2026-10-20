@@ -56,13 +56,13 @@ test('the address bar loads a new page when the frame cannot report', async ({ p
 test('follows what the framed page reports and navigates through it', async ({ page }) => {
   await serve(page, true);
   await insertWeb(page, `${HOST}/one`);
-  await expect(addressBar(page)).toHaveAttribute('title', 'Page /one');
+  await expect(page.locator('.react-flow__node').getByText('Page /one')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Back' })).toBeEnabled();
 
   await addressBar(page).fill(`${HOST}/two`);
   await addressBar(page).press('Enter');
   // The page navigated itself and reported the result; the iframe element was not reloaded by the app.
-  await expect(addressBar(page)).toHaveAttribute('title', 'Page /two');
+  await expect(page.locator('.react-flow__node').getByText('Page /two')).toBeVisible();
   await expect(addressBar(page)).toHaveValue(`${HOST}/two`);
   await expect(frame(page)).toHaveAttribute('src', `${HOST}/one`);
 });
@@ -90,4 +90,28 @@ test('unloads the page when zoomed far out and resumes at the same address', asy
 
   await page.getByRole('button', { name: /%$/ }).click();
   await expect(frame(page)).toHaveAttribute('src', `${HOST}/two`);
+});
+
+test('suggests the extension when it is not installed', async ({ page }) => {
+  await serve(page, false);
+  await insertWeb(page, `${HOST}/one`);
+  await expect(page.getByText('Node-Blank Web extension lets them')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open in tab', exact: true })).toHaveCount(2);
+});
+
+test('stays quiet when the extension is installed', async ({ page }) => {
+  // What the extension's content script does before the app starts.
+  await page.addInitScript(() => {
+    const mark = () => {
+      document.documentElement.dataset.nodeBlankWeb = '1.0.0';
+    };
+    if (document.documentElement) mark();
+    else document.addEventListener('readystatechange', mark, { once: true });
+  });
+  await openApp(page);
+  await serve(page, true);
+  await insertWeb(page, `${HOST}/one`);
+  await expect(frame(page)).toBeVisible();
+  await expect(page.getByText('Node-Blank Web extension lets them')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Open in tab', exact: true })).toHaveCount(1);
 });

@@ -1,5 +1,5 @@
 import type { NodeProps } from '@xyflow/react';
-import { ArrowLeft, ArrowRight, ExternalLink, Globe, RotateCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ExternalLink, Globe, RotateCw, X } from 'lucide-react';
 import { type ComponentProps, type ReactNode, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
@@ -9,6 +9,7 @@ import { NodeShell } from '../NodeShell';
 import { type FrameCommand, parseFrameState, sendFrameCommand } from './frameMessages';
 import { hostnameOf, normaliseWebUrl } from './url';
 import { useNearScreen } from './useLoaded';
+import { useWebExtension } from './useWebExtension';
 
 /** No `allow-top-navigation`: a page that tries to break out of its frame stays in it. */
 const SANDBOX =
@@ -55,27 +56,25 @@ function BarButton({
 /** Address field: shows the page's address, and takes a new one on Enter. */
 function AddressBar({
   url,
-  title,
   favicon,
   readOnly,
   onSubmit,
 }: {
   url: string;
-  title?: string;
   favicon?: string;
   readOnly: boolean;
   onSubmit: (text: string) => void;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
+  const [brokenIcon, setBrokenIcon] = useState<string>();
   return (
     <div className="relative min-w-0 flex-1">
-      {favicon ? (
+      {favicon && favicon !== brokenIcon ? (
         <img
-          key={favicon}
           src={favicon}
           alt=""
           referrerPolicy="no-referrer"
-          onError={(e) => e.currentTarget.remove()}
+          onError={() => setBrokenIcon(favicon)}
           className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2"
         />
       ) : (
@@ -83,7 +82,6 @@ function AddressBar({
       )}
       <input
         aria-label="Web address"
-        title={title}
         value={draft ?? url}
         readOnly={readOnly}
         spellCheck={false}
@@ -111,6 +109,8 @@ function AddressBar({
 export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'>>) {
   const readOnly = useReadOnly();
   const [resizing, setResizing] = useState(false);
+  const extension = useWebExtension();
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   // What the iframe is told to load. A remount (new `id`) is how a page is reloaded from scratch.
   const [launch, setLaunch] = useState(() => ({ url: normaliseWebUrl(data.url), id: 0 }));
@@ -132,6 +132,8 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
     setPage(null);
     setLaunch((l) => ({ url, id: l.id + 1 }));
   };
+
+  const openInTab = () => address && window.open(address, '_blank', 'noopener,noreferrer');
 
   const command = (cmd: FrameCommand) => sendFrameCommand(iframe.current?.contentWindow, cmd);
 
@@ -188,7 +190,9 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
   return (
     <NodeShell
       selected={selected}
-      title="Web"
+      // The page's own title heads the node, until the user names it.
+      title={data.pageTitle || 'Web'}
+      titleClassName="max-w-40 normal-case"
       customTitle={data.title}
       icon={Globe}
       resize={{ minWidth: 320, minHeight: 240, onResizing: setResizing }}
@@ -207,19 +211,8 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
             onClick={() => command('forward')}
           />
           <BarButton icon={RotateCw} label="Reload" disabled={!address} onClick={reload} />
-          <AddressBar
-            url={data.url}
-            title={data.pageTitle}
-            favicon={page?.favicon}
-            readOnly={readOnly}
-            onSubmit={submit}
-          />
-          <BarButton
-            icon={ExternalLink}
-            label="Open in tab"
-            disabled={!address}
-            onClick={() => address && window.open(address, '_blank', 'noopener,noreferrer')}
-          />
+          <AddressBar url={data.url} favicon={page?.favicon} readOnly={readOnly} onSubmit={submit} />
+          <BarButton icon={ExternalLink} label="Open in tab" disabled={!address} onClick={openInTab} />
         </div>
       }
     >
@@ -228,28 +221,45 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
       ) : !loaded ? (
         <Sleeping title={data.pageTitle} url={launch.url} />
       ) : (
-        <div className={cn('relative min-h-0 flex-1', interactive && 'nodrag nowheel')}>
-          <iframe
-            key={launch.id}
-            ref={iframe}
-            src={launch.url}
-            title={data.pageTitle || 'Web page'}
-            sandbox={SANDBOX}
-            allow={ALLOW}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            // The extension's script reports as the page loads; if it does not, there is no extension to ask.
-            onLoad={() => {
-              if (performance.now() - reportedAt.current < REPORT_WAIT_MS) return;
-              clearTimeout(reportTimer.current);
-              reportTimer.current = setTimeout(() => setPage(null), REPORT_WAIT_MS);
-            }}
-            className={cn(
-              'absolute inset-0 size-full border-0 bg-white',
-              !interactive && 'pointer-events-none',
-            )}
-          />
-        </div>
+        <>
+          {!extension && !readOnly && !noticeDismissed && (
+            <div className="nodrag nokey flex shrink-0 items-center gap-2 border-b border-border bg-surface-2 px-3 py-1 text-xs text-muted">
+              <p className="min-w-0 flex-1 truncate">
+                Most sites refuse to load here. The Node-Blank Web extension lets them.
+              </p>
+              <button
+                type="button"
+                onClick={openInTab}
+                className="shrink-0 cursor-pointer font-medium text-accent hover:underline"
+              >
+                Open in tab
+              </button>
+              <BarButton icon={X} label="Dismiss" onClick={() => setNoticeDismissed(true)} />
+            </div>
+          )}
+          <div className={cn('relative min-h-0 flex-1', interactive && 'nodrag nowheel')}>
+            <iframe
+              key={launch.id}
+              ref={iframe}
+              src={launch.url}
+              title={data.pageTitle || 'Web page'}
+              sandbox={SANDBOX}
+              allow={ALLOW}
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+              // The extension's script reports as the page loads; if it does not, there is no extension to ask.
+              onLoad={() => {
+                if (performance.now() - reportedAt.current < REPORT_WAIT_MS) return;
+                clearTimeout(reportTimer.current);
+                reportTimer.current = setTimeout(() => setPage(null), REPORT_WAIT_MS);
+              }}
+              className={cn(
+                'absolute inset-0 size-full border-0 bg-white',
+                !interactive && 'pointer-events-none',
+              )}
+            />
+          </div>
+        </>
       )}
     </NodeShell>
   );

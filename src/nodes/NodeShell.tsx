@@ -11,6 +11,8 @@ interface NodeShellProps {
   selected: boolean;
   /** When set, renders a header bar that doubles as a drag handle, showing this until the node has a title. */
   title?: string;
+  /** Classes for the title in the header, e.g. to cap its width. */
+  titleClassName?: string;
   /** The node's own title (`data.title`). Without a header it appears as a slim strip above the content. */
   customTitle?: string;
   icon?: LucideIcon;
@@ -34,6 +36,7 @@ interface NodeShellProps {
 export function NodeShell({
   selected,
   title,
+  titleClassName,
   customTitle,
   icon: Icon,
   toolbar,
@@ -69,7 +72,7 @@ export function NodeShell({
         {title && (
           <header className="flex h-9 shrink-0 cursor-grab items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">
             {Icon && <Icon className="size-3.5" />}
-            <NodeTitle fallback={title} value={customTitle} />
+            <NodeTitle fallback={title} value={customTitle} className={titleClassName} />
             {toolbar && (
               <div className="nodrag nokey ml-1 flex min-w-0 flex-1 items-center font-normal tracking-normal normal-case">
                 {toolbar}
@@ -91,7 +94,17 @@ export function NodeShell({
  * A node's title: its own, else `fallback` (the node kind). Double-click renames; so does Rename in the node's menu.
  * An empty name restores the fallback. As a `strip` (nodes without a header) it shows only once a title is set.
  */
-function NodeTitle({ fallback, value, strip }: { fallback?: string; value?: string; strip?: boolean }) {
+function NodeTitle({
+  fallback,
+  value,
+  strip,
+  className,
+}: {
+  fallback?: string;
+  value?: string;
+  strip?: boolean;
+  className?: string;
+}) {
   const id = useNodeId();
   const readOnly = useReadOnly();
   const editing = useUiStore((s) => s.renamingNode === id) && !readOnly;
@@ -121,7 +134,7 @@ function NodeTitle({ fallback, value, strip }: { fallback?: string; value?: stri
   ) : (
     // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
     <span
-      className="min-w-0 truncate"
+      className={cn('min-w-0 truncate', className)}
       onDoubleClick={() => !readOnly && useUiStore.getState().renameNode(id)}
     >
       {value || fallback}
