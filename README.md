@@ -16,7 +16,8 @@ Node-Blank is a desktop-first infinite canvas that focuses on a snappy, offline-
 I wanted a LiquidText/Margin Note 4-like experience that didn't feel heavy and wasn't tethered to a specific ecosystem or tablet hardware. It started as a simple way to jot down math expressions and markdown side-by-side, but it has since matured into a robust tool with close to a dozen node types. The goal was to create something that stays out of your way and lets you think.
 
 ### Features
-- **Node types**: Text (Markdown + LaTeX), Math, Math+ (evaluates expressions; `a := 2` variables are shared across Math+ nodes, top to bottom), Graph (plot several functions of x), Table (math cells), Sheet (spreadsheet with formulas), Script (sandboxed JavaScript), Image and Video.
+- **Node types**: Text (Markdown + LaTeX), Math, Math+ (evaluates expressions; `a := 2` variables are shared across Math+ nodes, top to bottom), Graph (plot several functions of x), Table (math cells), Sheet (spreadsheet with formulas), Script (sandboxed JavaScript), Image, Video and Web.
+- **Web node**: browse any site inside the canvas, with an address bar, back/forward/reload and Open in tab. Pages that forbid framing (Gemini, for one) need the companion Chrome extension. See [Web node](#web-node).
 - **Multiple canvases**, autosaved to your browser's IndexedDB. No accounts, no cloud.
 - **Undo/redo** for everything on the canvas. While you type in a cell or field, Ctrl+Z is that field's own history; otherwise it steps back through the canvas, so a spreadsheet cell reverts as a whole.
 - **Titles**: right-click any node, Add title (headed nodes show their type until you name them; double-click a title to edit it).
@@ -68,6 +69,11 @@ npm run lint       # Biome
 npm run build      # typecheck + production build
 ```
 
+### Web node
+Insert a Web node from the toolbar and type an address (`example.com` is fine). The page runs live in the node: click the node to use it, drag its header to move it. Pages far off screen, or on a canvas zoomed far out, are unloaded and come back at the address you left them on.
+
+Most big sites (Gemini, Google, GitHub, ...) send headers that forbid being shown in a frame. The [`extension/`](extension/README.md) folder holds a small Chrome extension that removes those headers, only in Node-Blank tabs, and lets the node follow the page's address and title. Load it unpacked (`chrome://extensions`, Developer mode, Load unpacked, pick `extension/`); the README there also covers using several Google accounts. Without it the node still shows sites that allow framing, and suggests the extension.
+
 ### AI control
 Off on every page load. Open the AI panel (robot button in the toolbar) and turn it on; the canvas is organised first so agents can find their way around (undo reverts that).
 
@@ -90,6 +96,7 @@ src/
   agent/        AI tools (transport-agnostic), bridge client, WebMCP adapter, activity log
 app/            HTML entry for the app, served at /app/
 landing/        the marketing page served at / (its own entry, styles and static UI mocks)
+extension/      Chrome extension that lets Web nodes frame sites that refuse it
 bridge/         Go bridge between coding agents (MCP over HTTP) and the open tab (WebSocket)
 ```
 Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>/spec.ts` and a component, then register it in `nodes/catalog.ts` and `nodes/nodeTypes.tsx`.
