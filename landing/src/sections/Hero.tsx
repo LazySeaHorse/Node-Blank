@@ -23,18 +23,18 @@ const FACTS = [
 ];
 
 const HERO_NODES = [
-  { x: 18, y: 72, node: <SectionNode title="Analysis" color="blue" className="h-[540px] w-[366px]" /> },
-  { x: 28, y: 110, node: <MathNode selected /> },
-  { x: 28, y: 204, node: <GraphNode /> },
-  { x: 404, y: 76, node: <WebNode /> },
-  { x: 404, y: 326, node: <PdfNode /> },
+  { x: 18, y: 72, node: <SectionNode title="Analysis" color="blue" className="h-[552px] w-[366px]" /> },
+  { x: 28, y: 112, node: <MathNode selected /> },
+  { x: 28, y: 206, node: <GraphNode /> },
+  { x: 402, y: 76, node: <WebNode /> },
+  { x: 402, y: 328, node: <PdfNode /> },
   {
-    x: 746,
+    x: 742,
     y: 72,
-    node: <SectionNode title="Calculations" color="yellow" className="h-[540px] w-[276px]" />,
+    node: <SectionNode title="Calculations" color="blue" className="h-[552px] w-[276px]" />,
   },
-  { x: 758, y: 110, node: <CodeNode /> },
-  { x: 758, y: 350, node: <MathPlusNode tint="yellow" /> },
+  { x: 754, y: 112, node: <CodeNode /> },
+  { x: 754, y: 352, node: <MathPlusNode tint="blue" /> },
 ];
 
 export function Hero() {
@@ -61,7 +61,7 @@ export function Hero() {
         />
       </div>
 
-      <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-8">
+      <div className="mx-auto grid max-w-[1360px] 2xl:max-w-[1440px] grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10 xl:gap-12">
         {/* copy */}
         <motion.div style={{ y: copyY }} className="lg:col-span-5">
           <h1 className="font-display text-[clamp(2.5rem,5.6vw,4.35rem)] leading-[0.94] font-medium tracking-[-0.035em] text-fg text-balance">
@@ -111,7 +111,7 @@ export function Hero() {
         </motion.div>
 
         {/* the app */}
-        <motion.div style={{ y: artY }} className="relative lg:col-span-7">
+        <motion.div style={{ y: artY }} className="relative lg:col-span-7 lg:-mr-3 xl:-mr-6">
           <div className="relative">
             <AppMock nodes={HERO_NODES} />
             <Mascot track={false} className="absolute -bottom-9 -left-5 z-20 size-20 sm:-left-8 sm:size-24" />

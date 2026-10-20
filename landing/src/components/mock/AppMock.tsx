@@ -2,9 +2,9 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { TopBar, ZoomControls } from './Chrome';
 
-/** The app at a fixed desktop width, scaled to fit its column. Nothing in it responds to the pointer. */
-const W = 1040;
-const H = 640;
+/** The app at a desktop width, scaled to fit its column. Nothing in it responds to the pointer. */
+const W = 1080;
+const H = 650;
 
 export type Placed = { x: number; y: number; node: ReactNode };
 
@@ -40,7 +40,7 @@ export function AppMock({
       ref={ref}
       aria-hidden
       className={cn(
-        'canvas-grid pointer-events-none relative w-full overflow-hidden rounded-xl border border-border bg-canvas select-none',
+        'canvas-grid pointer-events-none relative w-full overflow-hidden rounded-2xl border border-border/80 bg-canvas shadow-2xl shadow-slate-900/10 ring-1 ring-border/60 select-none',
         className,
       )}
       style={{ aspectRatio: `${W} / ${H}` }}
@@ -63,7 +63,7 @@ export function AppMock({
           <TopBar aiOn={aiOn} />
         </div>
         {overlay}
-        <div className="absolute right-3 bottom-3">
+        <div className="absolute right-3.5 bottom-3.5">
           <ZoomControls zoom={zoom} />
         </div>
       </div>

@@ -61,7 +61,7 @@ function NodeStage({ kind }: { kind: Kind }) {
       return <PdfNode />;
     case 'section':
       return (
-        <SectionNode title="Derivations" color="yellow" className="h-[280px] w-[320px]">
+        <SectionNode title="Derivations" color="blue" className="h-[280px] w-[320px]">
           <div className="flex flex-col gap-2.5 p-1">
             <div className="rounded-md border border-border bg-surface p-2.5 shadow-xs">
               <div className="tex text-[15px] text-fg">
