@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CloudEntry } from './cloud';
-import { compareCanvas, pullable, pushable, type SyncRecord } from './status';
+import { compareAll, compareCanvas, pullable, pushable, type SyncRecord } from './status';
 
 const local = { id: 'a', name: 'A', updatedAt: 100 };
 const remote: CloudEntry = { name: 'A', updatedAt: 90, rev: 'r1', bins: ['b'] };
@@ -46,5 +46,23 @@ describe('bulk actions', () => {
       expect(pushable(s)).toBe(false);
       expect(pullable(s)).toBe(false);
     }
+  });
+});
+
+describe('compareAll', () => {
+  it('lists each local canvas and the cloud copies this device lacks, newest first', () => {
+    const entry = (rev: string, updatedAt: number): CloudEntry => ({
+      name: rev,
+      updatedAt,
+      rev,
+      bins: ['b'],
+    });
+    const result = compareAll([local, { id: 'b', name: 'B', updatedAt: 5 }], [record], {
+      a: remote,
+      x: entry('x', 1),
+      y: entry('y', 9),
+    });
+    expect(result.statuses).toEqual({ a: 'synced', b: 'local-only' });
+    expect(result.cloudOnly.map((c) => c.id)).toEqual(['y', 'x']);
   });
 });

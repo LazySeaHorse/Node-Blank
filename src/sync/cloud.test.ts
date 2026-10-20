@@ -1,39 +1,12 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createNode } from '@/nodes/factory';
+import { FakeBinStore } from '@/test/fakeBinStore';
 import { Cloud } from './cloud';
 import { SyncError } from './errors';
-import type { BinStore } from './jsonbin';
 
 const ITERATIONS = 1000;
 const viewport = { x: 0, y: 0, zoom: 1 };
-
-/** A store in memory that counts what is asked of it, and can be made to refuse. */
-class FakeStore implements BinStore {
-  bins = new Map<string, unknown>();
-  failRemove = new Set<string>();
-  failCreateAfter = Number.POSITIVE_INFINITY;
-  failUpdate = false;
-  private n = 0;
-  async create(data: unknown) {
-    if (this.n >= this.failCreateAfter) throw new SyncError('network', 'offline');
-    const id = `bin${++this.n}`;
-    this.bins.set(id, structuredClone(data));
-    return id;
-  }
-  async read(id: string) {
-    if (!this.bins.has(id)) throw new SyncError('not-found', 'gone');
-    return structuredClone(this.bins.get(id));
-  }
-  async update(id: string, data: unknown) {
-    if (this.failUpdate) throw new SyncError('network', 'offline');
-    this.bins.set(id, structuredClone(data));
-  }
-  async remove(id: string) {
-    if (this.failRemove.has(id)) throw new SyncError('other', 'nope');
-    if (!this.bins.delete(id)) throw new SyncError('not-found', 'gone');
-  }
-}
 
 const canvas = (name: string, text = 'hello') => {
   const node = createNode('text', { x: 0, y: 0 });
@@ -41,9 +14,9 @@ const canvas = (name: string, text = 'hello') => {
   return { name, content: { nodes: [node], viewport } };
 };
 
-let store: FakeStore;
+let store: FakeBinStore;
 beforeEach(() => {
-  store = new FakeStore();
+  store = new FakeBinStore();
 });
 
 describe('Cloud', () => {

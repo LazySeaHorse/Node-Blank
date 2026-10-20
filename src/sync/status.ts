@@ -38,3 +38,27 @@ export function compareCanvas(
 /** Whether a bulk push or pull may act on a canvas in this state without asking: anything else could lose changes. */
 export const pushable = (status: SyncStatus) => status === 'local-newer' || status === 'local-only';
 export const pullable = (status: SyncStatus) => status === 'cloud-newer' || status === 'cloud-only';
+
+export interface CanvasSync {
+  /** The status of each canvas on this device. */
+  statuses: Record<string, SyncStatus>;
+  /** Cloud copies this device does not have, with the entry that describes each. */
+  cloudOnly: { id: string; entry: CloudEntry }[];
+}
+
+/** Every canvas's status, from what is on this device and the last look at the cloud. */
+export function compareAll(
+  locals: CanvasMeta[],
+  records: SyncRecord[],
+  remote: Record<string, CloudEntry>,
+): CanvasSync {
+  const recordOf = new Map(records.map((r) => [r.id, r]));
+  const statuses: Record<string, SyncStatus> = {};
+  for (const meta of locals) statuses[meta.id] = compareCanvas(meta, recordOf.get(meta.id), remote[meta.id]);
+  const here = new Set(locals.map((m) => m.id));
+  const cloudOnly = Object.entries(remote)
+    .filter(([id]) => !here.has(id))
+    .map(([id, entry]) => ({ id, entry }))
+    .sort((a, b) => b.entry.updatedAt - a.entry.updatedAt);
+  return { statuses, cloudOnly };
+}

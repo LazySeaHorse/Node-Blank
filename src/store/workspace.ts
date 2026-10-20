@@ -1,6 +1,6 @@
 import type { XYPosition } from '@xyflow/react';
 import { create } from 'zustand';
-import type { AppNode } from '@/model/types';
+import type { AppNode, CanvasContent } from '@/model/types';
 import { cloneNodes } from '@/nodes/factory';
 import { createAutosave } from '@/persistence/autosave';
 import * as repo from '@/persistence/canvasRepo';
@@ -75,6 +75,22 @@ export async function removeCanvas(id: string): Promise<void> {
     const [next] = await repo.listCanvases();
     await openCanvas(next?.id ?? (await repo.createCanvas(DEFAULT_NAME)));
   }
+}
+
+/**
+ * Stores a canvas that came from the cloud. If it is the open one, a save still waiting would put the old
+ * content back over it, so that is dropped and the canvas on screen is replaced.
+ */
+export async function savePulledCanvas(
+  id: string,
+  name: string,
+  content: CanvasContent,
+  rev: string,
+): Promise<void> {
+  const open = id === currentId();
+  if (open) autosave.cancel();
+  await repo.savePulled(id, name, content, rev);
+  if (open) useCanvasStore.getState().load(content);
 }
 
 async function namedCanvas(id: string): Promise<NamedCanvas> {
