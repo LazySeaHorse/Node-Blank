@@ -32,6 +32,7 @@ export default function GraphNode({ id, data, selected }: NodeProps<NodeOf<'grap
       kind="graph"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       resize={{ minWidth: 260, minHeight: 240 }}
       actions={
         <button

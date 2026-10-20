@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { z } from 'zod';
-import type { NodeDataMap, NodeKind } from '@/model/types';
+import { type NodeDataMap, type NodeKind, SECTION_COLORS } from '@/model/types';
 
 /**
  * Everything the app needs to know about a node kind, minus its React component.
@@ -30,3 +30,5 @@ export const NODE_TAB_HEIGHT = 28;
 
 /** The optional `title` every node but a section has in its data. */
 export const titleField = z.string().max(200).optional();
+/** The optional tint every node but a section has in its data. */
+export const colorField = z.enum(SECTION_COLORS).optional();

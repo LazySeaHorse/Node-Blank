@@ -17,6 +17,7 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
       kind="table"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       actions={
         <>
           <Stepper label="Row" onDecrement={() => edit(removeRow)} onIncrement={() => edit(addRow)} />

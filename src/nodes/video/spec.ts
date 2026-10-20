@@ -1,6 +1,6 @@
 import { SquarePlay } from 'lucide-react';
 import { z } from 'zod';
-import { type NodeSpec, titleField } from '../spec';
+import { colorField, type NodeSpec, titleField } from '../spec';
 
 export const videoSpec: NodeSpec<'video'> = {
   kind: 'video',
@@ -8,7 +8,7 @@ export const videoSpec: NodeSpec<'video'> = {
   description: 'Embed a YouTube or Vimeo video',
   icon: SquarePlay,
   placement: 'insert',
-  schema: z.object({ url: z.string(), title: titleField }),
+  schema: z.object({ url: z.string(), title: titleField, color: colorField }),
   defaults: () => ({ url: '' }),
   size: { width: 560, height: 350 },
   searchText: (d) => d.url,

@@ -83,6 +83,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
       kind="sheet"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       className="min-w-[32rem]"
       toolbar={
         <FormulaBar

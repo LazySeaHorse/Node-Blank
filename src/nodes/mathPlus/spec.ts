@@ -1,7 +1,6 @@
 import { Calculator } from 'lucide-react';
 import { z } from 'zod';
-import { SECTION_COLORS } from '@/model/types';
-import { type NodeSpec, titleField } from '../spec';
+import { colorField, type NodeSpec, titleField } from '../spec';
 
 export const mathPlusSpec: NodeSpec<'mathPlus'> = {
   kind: 'mathPlus',
@@ -9,7 +8,7 @@ export const mathPlusSpec: NodeSpec<'mathPlus'> = {
   description: 'Evaluate expressions; variables (a := 2) are shared across Math+ nodes',
   icon: Calculator,
   placement: 'place',
-  schema: z.object({ latex: z.string(), color: z.enum(SECTION_COLORS).optional(), title: titleField }),
+  schema: z.object({ latex: z.string(), title: titleField, color: colorField }),
   defaults: () => ({ latex: '' }),
   searchText: (d) => d.latex,
 };

@@ -1,7 +1,7 @@
 import { Image } from 'lucide-react';
 import { z } from 'zod';
 import { fitWithin, MAX_IMAGE_SIZE } from '@/lib/files';
-import { NODE_TAB_HEIGHT, type NodeSpec, titleField } from '../spec';
+import { colorField, NODE_TAB_HEIGHT, type NodeSpec, titleField } from '../spec';
 
 export const imageSpec: NodeSpec<'image'> = {
   kind: 'image',
@@ -9,7 +9,7 @@ export const imageSpec: NodeSpec<'image'> = {
   description: 'Upload an image',
   icon: Image,
   placement: 'insert',
-  schema: z.object({ src: z.string(), title: titleField }),
+  schema: z.object({ src: z.string(), title: titleField, color: colorField }),
   defaults: () => ({ src: '' }),
   size: { width: 300, height: 300 },
   searchText: () => '',

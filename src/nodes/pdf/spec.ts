@@ -1,6 +1,6 @@
 import { FileText } from 'lucide-react';
 import { z } from 'zod';
-import { type NodeSpec, titleField } from '../spec';
+import { colorField, type NodeSpec, titleField } from '../spec';
 import { normalisePins } from './pins';
 
 /** Linking files needs the File System Access API, which only Chromium browsers have. */
@@ -22,6 +22,7 @@ export const pdfSpec: NodeSpec<'pdf'> = {
     lastModified: z.number().optional(),
     size: z.number().nonnegative().optional(),
     title: titleField,
+    color: colorField,
   }),
   defaults: () => ({ fileId: '', fileName: '', pinned: [], direction: 'row' }),
   size: { width: 560, height: 360 },

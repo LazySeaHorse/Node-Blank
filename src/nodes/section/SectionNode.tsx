@@ -1,14 +1,12 @@
 import { type NodeProps, NodeResizer } from '@xyflow/react';
-import { Check } from 'lucide-react';
 import { Popover } from 'radix-ui';
 import type { CSSProperties } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
-import { type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
+import type { NodeOf, SectionColor } from '@/model/types';
 import { useUiStore } from '@/store/uiStore';
+import { ColorSwatches, swatch } from '../ColorSwatches';
 import { NODE_TAB_HEIGHT } from '../spec';
 import { useUpdateNodeData } from '../useNodeData';
-
-const swatch = (color: SectionColor) => `var(--section-${color})`;
 
 /** A titled, tinted box behind other nodes. Only its tab grabs it; the tile lets clicks through to the canvas. */
 export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>) {
@@ -86,20 +84,9 @@ function ColorPicker({ value, onChange }: { value: SectionColor; onChange: (colo
         <Popover.Content
           align="end"
           sideOffset={6}
-          className="z-50 flex gap-1.5 rounded-xl border border-border bg-surface p-2 shadow-xl"
+          className="z-50 rounded-xl border border-border bg-surface p-2 shadow-xl"
         >
-          {SECTION_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              aria-label={color}
-              onClick={() => onChange(color)}
-              className="flex size-6 cursor-pointer items-center justify-center rounded-full border border-fg/20"
-              style={{ backgroundColor: swatch(color) }}
-            >
-              {color === value && <Check className="size-3.5 text-slate-900/70" />}
-            </button>
-          ))}
+          <ColorSwatches value={value} onChange={onChange} />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

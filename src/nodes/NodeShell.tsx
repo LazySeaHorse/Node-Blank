@@ -1,15 +1,17 @@
 import { NodeResizer, useNodeId } from '@xyflow/react';
+import { Popover } from 'radix-ui';
 import type { CSSProperties, ReactNode } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import type { NodeKind, SectionColor } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
+import { ColorSwatches, swatch } from './ColorSwatches';
 import { nodeSpecs } from './catalog';
 import { NODE_TAB_HEIGHT } from './spec';
 
 interface NodeShellProps {
-  /** Picks the tone, and the label and icon of the tab. */
+  /** Picks the label and icon of the tab. */
   kind: NodeKind;
   selected: boolean;
   /** The tab's text until the node has a title of its own; defaults to the kind's label. */
@@ -26,7 +28,7 @@ interface NodeShellProps {
     keepAspectRatio?: boolean;
     onResizing?: (resizing: boolean) => void;
   };
-  /** Background tint, from the section palette. */
+  /** The node's own tint (`data.color`), from the section palette; plain surface when omitted. */
   tint?: SectionColor;
   /** The embedded page or video is taking the mouse, so the node says so. */
   live?: boolean;
@@ -37,7 +39,7 @@ interface NodeShellProps {
 
 /**
  * Common chrome for every node: a tab (kind icon and title, which doubles as the drag handle) fused to a
- * flat tonal tile. Both sit inside the node's box, so selection, resizing and layout see one rectangle.
+ * flat tile, plain or tinted. Both sit inside the node's box, so selection, resizing and layout see one rectangle.
  */
 export function NodeShell({
   kind,
@@ -54,9 +56,7 @@ export function NodeShell({
 }: NodeShellProps) {
   const readOnly = useReadOnly();
   const { icon: Icon, label } = nodeSpecs[kind];
-  const tone = tint
-    ? `color-mix(in srgb, var(--section-${tint}) 35%, var(--surface))`
-    : `var(--tone-${kind})`;
+  const tone = tint ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))` : 'var(--surface)';
   return (
     <>
       {resize && (
@@ -72,14 +72,14 @@ export function NodeShell({
         />
       )}
       <div
-        className="node flex h-full w-full flex-col"
+        className="node node-card flex h-full w-full flex-col"
         data-live={live || undefined}
         style={{ '--tone-base': tone } as CSSProperties}
       >
         <div className="flex shrink-0 items-end" style={{ height: NODE_TAB_HEIGHT }}>
           <div className="node-tab cursor-grab">
             <Icon className="size-3.5 shrink-0 opacity-70" />
-            <NodeTitle fallback={title ?? label} value={customTitle} />
+            <NodeTitle fallback={title ?? label} value={customTitle} color={tint} />
             {live && <span className="shrink-0 text-2xs font-normal opacity-80">· Live</span>}
           </div>
           {!readOnly && actions && (
@@ -101,9 +101,9 @@ export function NodeShell({
 
 /**
  * A node's title: its own, else `fallback` (the node kind). Double-click renames; so does Rename in the node's menu.
- * An empty name restores the fallback.
+ * An empty name restores the fallback. While renaming, swatches above the tab recolour the node.
  */
-function NodeTitle({ fallback, value }: { fallback: string; value?: string }) {
+function NodeTitle({ fallback, value, color }: { fallback: string; value?: string; color?: SectionColor }) {
   const id = useNodeId();
   const readOnly = useReadOnly();
   const editing = useUiStore((s) => s.renamingNode === id) && !readOnly;
@@ -114,22 +114,41 @@ function NodeTitle({ fallback, value }: { fallback: string; value?: string }) {
     useCanvasStore.getState().updateNodeData(id, { title: name.trim() || undefined });
     stopEditing();
   };
+  const recolour = (next?: SectionColor) => useCanvasStore.getState().updateNodeData(id, { color: next });
 
+  // No onOpenChange: the field's blur commits and closes, so a click outside never drops a half-typed name.
   return editing ? (
-    <input
-      // biome-ignore lint/a11y/noAutofocus: entering edit mode is an explicit user action.
-      autoFocus
-      defaultValue={value ?? ''}
-      placeholder={fallback}
-      maxLength={200}
-      onFocus={(e) => e.currentTarget.select()}
-      onBlur={(e) => commit(e.currentTarget.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') e.currentTarget.blur();
-        if (e.key === 'Escape') stopEditing();
-      }}
-      className="nodrag nokey min-w-0 max-w-56 rounded bg-surface px-1.5 py-0.5 text-xs font-medium text-fg [field-sizing:content] outline-none"
-    />
+    <Popover.Root open>
+      <Popover.Anchor asChild>
+        <input
+          // biome-ignore lint/a11y/noAutofocus: entering edit mode is an explicit user action.
+          autoFocus
+          defaultValue={value ?? ''}
+          placeholder={fallback}
+          maxLength={200}
+          onFocus={(e) => e.currentTarget.select()}
+          onBlur={(e) => commit(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+            if (e.key === 'Escape') stopEditing();
+          }}
+          className="nodrag nokey min-w-0 max-w-56 rounded bg-surface px-1.5 py-0.5 text-xs font-medium text-fg [field-sizing:content] outline-none"
+        />
+      </Popover.Anchor>
+      <Popover.Portal>
+        <Popover.Content
+          side="top"
+          align="start"
+          sideOffset={8}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          aria-label="Node colour"
+          className="z-50 rounded-xl border border-border bg-surface p-2 shadow-xl"
+        >
+          <ColorSwatches value={color} onChange={recolour} onClear={() => recolour(undefined)} />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   ) : (
     // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
     <span

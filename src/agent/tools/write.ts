@@ -36,11 +36,15 @@ const cellsSchema = z
 const tint = z.enum(SECTION_COLORS).optional().describe('Background tint; omit for none.');
 const title = z.string().max(200).optional().describe('Optional name shown on the node; omit for none.');
 const content = {
-  text: { markdown: z.string().max(100_000).describe('Markdown; $...$ and $$...$$ for LaTeX math.'), title },
-  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.'), color: tint, title },
-  mathPlus: {
-    color: tint,
+  text: {
+    markdown: z.string().max(100_000).describe('Markdown; $...$ and $$...$$ for LaTeX math.'),
     title,
+    color: tint,
+  },
+  math: { latex: z.string().max(20_000).describe('LaTeX, typeset only.'), title, color: tint },
+  mathPlus: {
+    title,
+    color: tint,
     latex: z
       .string()
       .max(20_000)
@@ -55,11 +59,13 @@ const content = {
       .max(20)
       .describe('Functions of x, e.g. "x^2", "\\sin(x)".'),
     title,
+    color: tint,
   },
-  table: { cells: cellsSchema.describe('Rows of cells, each a LaTeX math expression.'), title },
+  table: { cells: cellsSchema.describe('Rows of cells, each a LaTeX math expression.'), title, color: tint },
   sheet: {
     cells: cellsSchema.describe('Rows of cells; formulas start with "=" and use A1 references.'),
     title,
+    color: tint,
     fractions: z
       .boolean()
       .optional()
@@ -69,14 +75,23 @@ const content = {
       .optional()
       .describe('Cell background by A1 reference, e.g. {"B2": "yellow"}.'),
   },
-  code: { source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'), title },
-  video: { url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'), title },
+  code: {
+    source: z.string().max(100_000).describe('JavaScript, run in a sandboxed worker.'),
+    title,
+    color: tint,
+  },
+  video: {
+    url: z.string().max(2000).describe('YouTube or Vimeo link, or another https embed URL.'),
+    title,
+    color: tint,
+  },
   web: {
     url: z
       .string()
       .max(2000)
       .describe('http(s) address of a web page; a bare domain like example.com works.'),
     title,
+    color: tint,
   },
 } satisfies {
   // `suggestionDismissed` is a UI flag and `pageTitle` what the page reported, not content.

@@ -35,19 +35,7 @@
   --section-gray: #cbd5e1;
   /* Canvas dots. */
   --dot: #cdd0d4;
-  /* Node tiles: one low-chroma tone per kind, so contents stay the loudest thing on a node. */
-  --tone-text: #f4eccb;
-  --tone-math: #dce3fa;
-  --tone-mathPlus: var(--tone-math);
-  --tone-graph: #f8dcd3;
-  --tone-table: #dfebd2;
-  --tone-sheet: #d5ebdd;
-  --tone-code: #e4e4ee;
-  --tone-image: #e6dcf2;
-  --tone-video: #f5e0c3;
-  --tone-web: #d3e9f0;
-  --tone-pdf: #f0dadd;
-  /* Secondary text on a tone: AA on every tone above. */
+  /* Secondary text on a node tile: AA on the plain tile and on every tint. */
   --node-muted: #565a62;
   /* A node taken over by the page or video in it. */
   --live: #0b7f51;
@@ -74,16 +62,6 @@
   --section-orange: #d9772e;
   --section-gray: #8a8a8a;
   --dot: #2b2d32;
-  --tone-text: #2a271a;
-  --tone-math: #1d2339;
-  --tone-graph: #35211b;
-  --tone-table: #232b17;
-  --tone-sheet: #172b22;
-  --tone-code: #090a0c;
-  --tone-image: #2a2037;
-  --tone-video: #33271a;
-  --tone-web: #162b33;
-  --tone-pdf: #35202a;
   --node-muted: #a8a9ae;
   --live: #3ddc97;
   color-scheme: dark;
@@ -245,8 +223,8 @@ math-field::part(virtual-keyboard-toggle) {
 }
 
 /*
- * Node chrome: a tab (kind icon and title) fused to a flat tonal tile, one rectangle in React Flow's eyes.
- * The tile re-points the neutral tokens at its own tone so contents sit on it without clashing.
+ * Node chrome: a tab (kind icon and title) fused to a flat tile, one rectangle in React Flow's eyes.
+ * The tile re-points the neutral tokens at its own tone (plain surface, or the node's tint) so contents sit on it.
  */
 .node {
   /* Matches NODE_TAB_HEIGHT. */
@@ -296,16 +274,63 @@ math-field::part(virtual-keyboard-toggle) {
   color: var(--fg);
 }
 
+/* Tone changes (hover, focus, tint) fade. */
+.node-tab,
+.node-tile {
+  transition: background-color 0.15s;
+}
+
+/*
+ * A hairline round the tab and tile, so a plain tile shows on the plain canvas. Borders and gradients, not
+ * box-shadows (dark mode strips those). The tab overlaps the tile by the hairline to hide the seam, a 1px
+ * patch hides its right edge where the fillet takes over, and the fillet draws the hairline along its curve.
+ * Sections have their dashed edge instead.
+ */
+.node-card {
+  --ring: color-mix(in srgb, var(--fg) 13%, var(--tone));
+}
+.node-card .node-tab {
+  z-index: 1;
+  margin-bottom: -1px;
+  border: 1px solid var(--ring);
+  border-bottom: 0;
+}
+.node-card .node-tab::before {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  width: 1px;
+  height: 0.6875rem;
+  background: var(--tab);
+}
+.node-card .node-tab::after {
+  left: calc(100% + 1px);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent calc(0.6875rem - 0.5px),
+    var(--ring) 0.6875rem,
+    var(--ring) calc(0.6875rem + 0.5px),
+    var(--tab) calc(0.6875rem + 1px)
+  );
+}
+.node-card .node-tile {
+  border: 1px solid var(--ring);
+}
+/* Selected and live nodes draw their edge in the ring colour, so the hairline merges into it. */
+.react-flow__node.selected .node-card {
+  --ring: var(--fg);
+}
+.node-card[data-live] {
+  --ring: var(--live);
+}
+
 /*
  * Node states. Dark mode strips box-shadows, so selection and focus are outlines, and only the lift of a
  * dragged node uses a shadow (a bonus in light mode). Everything animates transform or opacity.
  */
 .node {
   transition: transform 0.18s var(--ease-spring);
-}
-.node-tab,
-.node-tile {
-  transition: background-color 0.15s;
 }
 /* A section is an empty tile; its dashed edge says it only holds other nodes. */
 .node-section {

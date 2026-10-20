@@ -62,6 +62,7 @@ export default function CodeNode({ id, data, selected }: NodeProps<NodeOf<'code'
       kind="code"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       resize={{ minWidth: 280, minHeight: 200 }}
       actions={
         <>

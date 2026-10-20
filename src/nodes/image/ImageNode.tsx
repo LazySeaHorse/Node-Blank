@@ -8,6 +8,7 @@ export function ImageNode({ data, selected }: NodeProps<NodeOf<'image'>>) {
       kind="image"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       resize={{ minWidth: 40, minHeight: 40, keepAspectRatio: true }}
     >
       <img src={data.src} alt="" draggable={false} className="h-full w-full object-contain" />

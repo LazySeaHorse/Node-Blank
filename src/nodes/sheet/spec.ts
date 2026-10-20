@@ -2,7 +2,7 @@ import { Sheet } from 'lucide-react';
 import { z } from 'zod';
 import { emptyGrid } from '@/lib/grid';
 import { SECTION_COLORS } from '@/model/types';
-import { type NodeSpec, titleField } from '../spec';
+import { colorField, type NodeSpec, titleField } from '../spec';
 
 export const sheetSpec: NodeSpec<'sheet'> = {
   kind: 'sheet',
@@ -13,6 +13,7 @@ export const sheetSpec: NodeSpec<'sheet'> = {
   schema: z.object({
     cells: z.array(z.array(z.string())),
     title: titleField,
+    color: colorField,
     fractions: z.boolean().optional(),
     fills: z.record(z.string(), z.enum(SECTION_COLORS)).optional(),
   }),

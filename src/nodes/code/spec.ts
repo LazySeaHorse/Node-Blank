@@ -1,6 +1,6 @@
 import { SquareTerminal } from 'lucide-react';
 import { z } from 'zod';
-import { type NodeSpec, titleField } from '../spec';
+import { colorField, type NodeSpec, titleField } from '../spec';
 
 export const codeSpec: NodeSpec<'code'> = {
   kind: 'code',
@@ -8,7 +8,7 @@ export const codeSpec: NodeSpec<'code'> = {
   description: 'Run JavaScript in a sandboxed worker',
   icon: SquareTerminal,
   placement: 'place',
-  schema: z.object({ source: z.string(), title: titleField }),
+  schema: z.object({ source: z.string(), title: titleField, color: colorField }),
   defaults: () => ({
     source: "console.log('Hello from the sandbox!');\n\n[1, 2, 3, 4].reduce((a, b) => a + b, 0);\n",
   }),

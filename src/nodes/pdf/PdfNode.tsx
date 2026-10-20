@@ -31,6 +31,7 @@ export default function PdfNode({ id, data, selected }: NodeProps<NodeOf<'pdf'>>
       kind="pdf"
       selected={selected}
       customTitle={data.title}
+      tint={data.color}
       resize={{ minWidth: 200, minHeight: 160 }}
       actions={
         <IconButton

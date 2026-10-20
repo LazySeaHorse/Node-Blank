@@ -4,8 +4,11 @@ import type { Node, Viewport } from '@xyflow/react';
 export const SECTION_COLORS = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'gray'] as const;
 export type SectionColor = (typeof SECTION_COLORS)[number];
 
-/** Optional name every node but a section can carry. Headed nodes show their kind until one is set. */
-export type Titled = { title?: string };
+/**
+ * Optional name and tint every node but a section can carry. Nodes show their kind until named, and are
+ * plain (white in light mode) until tinted.
+ */
+export type Titled = { title?: string; color?: SectionColor };
 
 /** Per-kind payload stored in `node.data`. This is the single source of truth for node shapes. */
 export type NodeDataMap = {
@@ -14,8 +17,8 @@ export type NodeDataMap = {
     /** Set once the "this is only a table / only math" offer has been waved away. */
     suggestionDismissed?: boolean;
   };
-  math: Titled & { latex: string; color?: SectionColor };
-  mathPlus: Titled & { latex: string; color?: SectionColor };
+  math: Titled & { latex: string };
+  mathPlus: Titled & { latex: string };
   graph: Titled & { functions: string[] };
   table: Titled & { cells: string[][] };
   sheet: Titled & {

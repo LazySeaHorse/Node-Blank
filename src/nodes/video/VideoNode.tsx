@@ -17,6 +17,7 @@ export function VideoNode({ data, selected, dragging }: NodeProps<NodeOf<'video'
       selected={selected}
       live={interactive}
       customTitle={data.title}
+      tint={data.color}
       resize={{ minWidth: 240, minHeight: 160, onResizing: setResizing }}
     >
       {src ? (
