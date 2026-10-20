@@ -430,7 +430,13 @@ math-field::part(virtual-keyboard-toggle) {
 .node-poster::before {
   content: attr(data-title);
 }
-/* Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. */
+/*
+ * Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. They come before the
+ * tile in the node, which is positioned, so they need lifting above it to take the pointer.
+ */
+.react-flow__node .react-flow__resize-control {
+  z-index: 2;
+}
 .react-flow__node .react-flow__resize-control.handle.bottom.right {
   transform: translate(-100%, -100%);
   background-image: radial-gradient(circle, var(--fg) 1.1px, transparent 1.5px);
