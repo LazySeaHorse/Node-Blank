@@ -1,5 +1,4 @@
 import type { NodeProps } from '@xyflow/react';
-import { SquarePlay } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/cn';
 import type { NodeOf } from '@/model/types';
@@ -14,10 +13,9 @@ export function VideoNode({ data, selected, dragging }: NodeProps<NodeOf<'video'
 
   return (
     <NodeShell
+      kind="video"
       selected={selected}
-      title="Video"
       customTitle={data.title}
-      icon={SquarePlay}
       resize={{ minWidth: 240, minHeight: 160, onResizing: setResizing }}
     >
       {src ? (

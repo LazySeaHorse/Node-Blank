@@ -9,7 +9,13 @@ export default function MathNode({ id, data, selected }: NodeProps<NodeOf<'math'
   const readOnly = useReadOnly();
   const update = useUpdateNodeData<'math'>(id);
   return (
-    <NodeShell selected={selected} customTitle={data.title} tint={data.color} className="min-w-20 px-3 py-2">
+    <NodeShell
+      kind="math"
+      selected={selected}
+      customTitle={data.title}
+      tint={data.color}
+      className="min-w-24 px-3 py-2"
+    >
       <MathField
         value={data.latex}
         onChange={(latex) => update({ latex })}

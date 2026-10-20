@@ -244,6 +244,54 @@ math-field::part(virtual-keyboard-toggle) {
   --cell-fill: var(--section-gray);
 }
 
+/*
+ * Node chrome: a tab (kind icon and title) fused to a flat tonal tile, one rectangle in React Flow's eyes.
+ * The tile re-points the neutral tokens at its own tone so contents sit on it without clashing.
+ */
+.node {
+  --tone: var(--tone-base);
+}
+.node-tab {
+  --tab: var(--tone);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 1.75rem;
+  min-width: 0;
+  max-width: calc(100% / var(--tz, 1));
+  padding: 0 0.875rem 0 0.625rem;
+  border-radius: 0.6875rem 0.6875rem 0 0;
+  background: var(--tab);
+  color: var(--fg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+}
+/* The concave fillet where the tab's right edge meets the tile. */
+.node-tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  background: radial-gradient(circle at 100% 0, transparent calc(0.6875rem - 0.5px), var(--tab) 0.6875rem);
+  pointer-events: none;
+}
+.node-tile {
+  --surface-2: color-mix(in srgb, var(--fg) 6%, var(--tone));
+  --border: color-mix(in srgb, var(--fg) 14%, var(--tone));
+  --muted: var(--node-muted);
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0.8125rem 0.8125rem 0.8125rem;
+  background: var(--tone);
+  color: var(--fg);
+}
+
 /* Nodes an AI agent just changed. */
 @keyframes ai-touched {
   from {

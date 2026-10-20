@@ -1,5 +1,4 @@
 import type { NodeProps } from '@xyflow/react';
-import { Table } from 'lucide-react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { addColumn, addRow, removeColumn, removeRow, setCell } from '@/lib/grid';
 import { MathField } from '@/lib/math/MathField';
@@ -15,10 +14,9 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
 
   return (
     <NodeShell
+      kind="table"
       selected={selected}
-      title="Table"
       customTitle={data.title}
-      icon={Table}
       actions={
         <>
           <Stepper label="Row" onDecrement={() => edit(removeRow)} onIncrement={() => edit(addRow)} />

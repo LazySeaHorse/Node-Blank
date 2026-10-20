@@ -13,7 +13,7 @@ export function TextNode({ id, data, selected }: NodeProps<NodeOf<'text'>>) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <NodeShell selected={selected} customTitle={data.title} className="w-max min-w-56 max-w-xl">
+    <NodeShell kind="text" selected={selected} customTitle={data.title} className="w-max min-w-56 max-w-xl">
       {editing ? (
         <textarea
           // biome-ignore lint/a11y/noAutofocus: entering edit mode is an explicit user action.

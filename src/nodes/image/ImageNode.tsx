@@ -5,6 +5,7 @@ import { NodeShell } from '../NodeShell';
 export function ImageNode({ data, selected }: NodeProps<NodeOf<'image'>>) {
   return (
     <NodeShell
+      kind="image"
       selected={selected}
       customTitle={data.title}
       resize={{ minWidth: 40, minHeight: 40, keepAspectRatio: true }}

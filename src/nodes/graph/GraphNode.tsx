@@ -1,5 +1,5 @@
 import type { NodeProps } from '@xyflow/react';
-import { ChartSpline, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { Coordinates, Mafs, Plot, Theme } from 'mafs';
 import 'mafs/core.css';
 import { useMemo, useRef } from 'react';
@@ -29,10 +29,9 @@ export default function GraphNode({ id, data, selected }: NodeProps<NodeOf<'grap
 
   return (
     <NodeShell
+      kind="graph"
       selected={selected}
-      title="Graph"
       customTitle={data.title}
-      icon={ChartSpline}
       resize={{ minWidth: 260, minHeight: 240 }}
       actions={
         <button

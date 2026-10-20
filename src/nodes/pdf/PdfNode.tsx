@@ -28,10 +28,9 @@ export default function PdfNode({ id, data, selected }: NodeProps<NodeOf<'pdf'>>
 
   return (
     <NodeShell
+      kind="pdf"
       selected={selected}
-      title="PDF"
       customTitle={data.title}
-      icon={FileText}
       resize={{ minWidth: 200, minHeight: 160 }}
       actions={
         <IconButton

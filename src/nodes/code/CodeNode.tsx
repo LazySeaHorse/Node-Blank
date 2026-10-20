@@ -2,7 +2,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { githubDarkInit, githubLightInit } from '@uiw/codemirror-theme-github';
 import CodeMirror from '@uiw/react-codemirror';
 import type { NodeProps } from '@xyflow/react';
-import { Play, SquareTerminal } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
@@ -59,10 +59,9 @@ export default function CodeNode({ id, data, selected }: NodeProps<NodeOf<'code'
 
   return (
     <NodeShell
+      kind="code"
       selected={selected}
-      title="Script"
       customTitle={data.title}
-      icon={SquareTerminal}
       resize={{ minWidth: 280, minHeight: 200 }}
       actions={
         <>

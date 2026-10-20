@@ -189,12 +189,11 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
 
   return (
     <NodeShell
+      kind="web"
       selected={selected}
       // The page's own title heads the node, until the user names it.
-      title={data.pageTitle || 'Web'}
-      titleClassName="max-w-40 normal-case"
+      title={data.pageTitle || undefined}
       customTitle={data.title}
-      icon={Globe}
       resize={{ minWidth: 320, minHeight: 240, onResizing: setResizing }}
       toolbar={
         <div className="ml-1 flex min-w-0 flex-1 items-center gap-0.5">

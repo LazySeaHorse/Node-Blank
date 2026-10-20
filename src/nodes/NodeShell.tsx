@@ -1,24 +1,23 @@
 import { NodeResizer, useNodeId } from '@xyflow/react';
-import type { LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
-import type { SectionColor } from '@/model/types';
+import type { NodeKind, SectionColor } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
+import { nodeSpecs } from './catalog';
 
 interface NodeShellProps {
+  /** Picks the tone, and the label and icon of the tab. */
+  kind: NodeKind;
   selected: boolean;
-  /** When set, renders a header bar that doubles as a drag handle, showing this until the node has a title. */
+  /** The tab's text until the node has a title of its own; defaults to the kind's label. */
   title?: string;
-  /** Classes for the title in the header, e.g. to cap its width. */
-  titleClassName?: string;
-  /** The node's own title (`data.title`). Without a header it appears as a slim strip above the content. */
+  /** The node's own title (`data.title`). */
   customTitle?: string;
-  icon?: LucideIcon;
-  /** Fills the header between the title and the actions, e.g. a formula bar. Stays in read-only mode. */
+  /** Fills the top of the tile under the tab, e.g. a formula bar. Stays in read-only mode. */
   toolbar?: ReactNode;
-  /** Header controls; hidden in read-only mode. */
+  /** Controls on the tab line, shown while the node is hovered or selected; hidden in read-only mode. */
   actions?: ReactNode;
   resize?: {
     minWidth: number;
@@ -28,17 +27,20 @@ interface NodeShellProps {
   };
   /** Background tint, from the section palette. */
   tint?: SectionColor;
+  /** Classes for the tile, e.g. its padding and minimum width. */
   className?: string;
   children: ReactNode;
 }
 
-/** Common card chrome for every node: border, selection ring, optional header and resize handles. */
+/**
+ * Common chrome for every node: a tab (kind icon and title, which doubles as the drag handle) fused to a
+ * flat tonal tile. Both sit inside the node's box, so selection, resizing and layout see one rectangle.
+ */
 export function NodeShell({
+  kind,
   selected,
   title,
-  titleClassName,
   customTitle,
-  icon: Icon,
   toolbar,
   actions,
   resize,
@@ -47,6 +49,10 @@ export function NodeShell({
   children,
 }: NodeShellProps) {
   const readOnly = useReadOnly();
+  const { icon: Icon, label } = nodeSpecs[kind];
+  const tone = tint
+    ? `color-mix(in srgb, var(--section-${tint}) 35%, var(--surface))`
+    : `var(--tone-${kind})`;
   return (
     <>
       {resize && (
@@ -57,34 +63,26 @@ export function NodeShell({
           keepAspectRatio={resize.keepAspectRatio}
           onResizeStart={() => resize.onResizing?.(true)}
           onResizeEnd={() => resize.onResizing?.(false)}
-          lineClassName="!border-accent/60"
-          handleClassName="!size-2.5 !rounded-sm !border-accent !bg-surface"
+          lineClassName="!border-transparent"
+          handleClassName="!size-3 !rounded-none !border-0 !bg-transparent"
         />
       )}
-      <div
-        className={cn(
-          'flex h-full w-full flex-col overflow-hidden rounded-lg border bg-surface text-fg shadow-sm transition-shadow',
-          selected ? 'border-accent shadow-md ring-2 ring-accent/30' : 'border-border',
-          className,
-        )}
-        style={tint && { backgroundColor: `color-mix(in srgb, var(--section-${tint}) 35%, var(--surface))` }}
-      >
-        {title && (
-          <header className="flex h-9 shrink-0 cursor-grab items-center gap-2 border-b border-border bg-surface-2 px-3 text-xs font-semibold tracking-wide text-muted uppercase">
-            {Icon && <Icon className="size-3.5" />}
-            <NodeTitle fallback={title} value={customTitle} className={titleClassName} />
-            {toolbar && (
-              <div className="nodrag nokey ml-1 flex min-w-0 flex-1 items-center font-normal tracking-normal normal-case">
-                {toolbar}
-              </div>
-            )}
-            {!readOnly && actions && (
-              <div className="nodrag ml-auto flex items-center gap-1 normal-case">{actions}</div>
-            )}
-          </header>
-        )}
-        {!title && <NodeTitle value={customTitle} strip />}
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <div className="node flex h-full w-full flex-col" style={{ '--tone-base': tone } as CSSProperties}>
+        <div className="flex h-7 shrink-0 items-end">
+          <div className="node-tab cursor-grab">
+            <Icon className="size-3.5 shrink-0 opacity-70" />
+            <NodeTitle fallback={title ?? label} value={customTitle} />
+          </div>
+          {!readOnly && actions && (
+            <div className="node-actions nodrag ml-auto flex items-center gap-1 self-center">{actions}</div>
+          )}
+        </div>
+        <div className={cn('node-tile flex min-h-0 flex-1 flex-col', className)}>
+          {toolbar && (
+            <header className="nodrag nokey flex h-9 shrink-0 items-center gap-1 px-2">{toolbar}</header>
+          )}
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        </div>
       </div>
     </>
   );
@@ -92,23 +90,13 @@ export function NodeShell({
 
 /**
  * A node's title: its own, else `fallback` (the node kind). Double-click renames; so does Rename in the node's menu.
- * An empty name restores the fallback. As a `strip` (nodes without a header) it shows only once a title is set.
+ * An empty name restores the fallback.
  */
-function NodeTitle({
-  fallback,
-  value,
-  strip,
-  className,
-}: {
-  fallback?: string;
-  value?: string;
-  strip?: boolean;
-  className?: string;
-}) {
+function NodeTitle({ fallback, value }: { fallback: string; value?: string }) {
   const id = useNodeId();
   const readOnly = useReadOnly();
   const editing = useUiStore((s) => s.renamingNode === id) && !readOnly;
-  if (!id || (strip && !value && !editing)) return null;
+  if (!id) return null;
 
   const stopEditing = () => useUiStore.getState().stopRenamingNode(id);
   const commit = (name: string) => {
@@ -116,7 +104,7 @@ function NodeTitle({
     stopEditing();
   };
 
-  const text = editing ? (
+  return editing ? (
     <input
       // biome-ignore lint/a11y/noAutofocus: entering edit mode is an explicit user action.
       autoFocus
@@ -129,23 +117,16 @@ function NodeTitle({
         if (e.key === 'Enter') e.currentTarget.blur();
         if (e.key === 'Escape') stopEditing();
       }}
-      className="nodrag nokey min-w-0 flex-1 rounded bg-surface px-1.5 py-0.5 text-xs font-semibold tracking-wide normal-case outline-none"
+      className="nodrag nokey min-w-16 max-w-56 rounded bg-surface px-1.5 py-0.5 text-xs font-medium text-fg [field-sizing:content] outline-none"
     />
   ) : (
     // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
     <span
-      className={cn('min-w-0 truncate', className)}
+      className={cn('min-w-0 truncate', !value && 'opacity-70')}
       onDoubleClick={() => !readOnly && useUiStore.getState().renameNode(id)}
     >
       {value || fallback}
     </span>
-  );
-  return strip ? (
-    <div className="flex shrink-0 items-center px-3 pt-2 text-xs font-semibold tracking-wide text-muted">
-      {text}
-    </div>
-  ) : (
-    text
   );
 }
 

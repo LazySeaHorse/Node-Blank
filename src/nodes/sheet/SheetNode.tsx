@@ -1,6 +1,5 @@
 import type { NodeProps } from '@xyflow/react';
 import isEqual from 'fast-deep-equal';
-import { Sheet } from 'lucide-react';
 import { createContext, type MouseEvent, useContext, useEffect, useMemo, useState } from 'react';
 import Spreadsheet, {
   type CellBase,
@@ -81,10 +80,9 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
 
   return (
     <NodeShell
+      kind="sheet"
       selected={selected}
-      title="Sheet"
       customTitle={data.title}
-      icon={Sheet}
       className="min-w-[32rem]"
       toolbar={
         <FormulaBar

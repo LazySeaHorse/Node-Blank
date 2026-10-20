@@ -16,7 +16,13 @@ export default function MathPlusNode({ id, data, selected }: NodeProps<NodeOf<'m
   const results = useMathPlusResults(id);
 
   return (
-    <NodeShell selected={selected} customTitle={data.title} tint={data.color} className="min-w-56">
+    <NodeShell
+      kind="mathPlus"
+      selected={selected}
+      customTitle={data.title}
+      tint={data.color}
+      className="min-w-56"
+    >
       <div className="px-3 py-2">
         <MathField
           value={data.latex}
