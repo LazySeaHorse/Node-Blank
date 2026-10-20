@@ -162,3 +162,13 @@ export function reset() {
   session = undefined;
   useSync.setState({ entries: null, checkedAt: null, busy: [] });
 }
+
+/** Checks the cloud and returns where every canvas stands, for deciding what an action would overwrite. */
+export async function inspect() {
+  await check();
+  return compareAll(
+    await repo.listCanvases(),
+    await repo.listSyncRecords(),
+    useSync.getState().entries ?? {},
+  );
+}
