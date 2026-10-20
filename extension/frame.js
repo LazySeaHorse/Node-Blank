@@ -19,8 +19,8 @@
   }
 
   let last = '';
-  /** Sends the page's state to the app, unless nothing changed since the last time. */
-  function report() {
+  /** Sends the page's state to the app, unless nothing changed since the last time (or `force`). */
+  function report(force = false) {
     const nav = window.navigation;
     const state = {
       source: SOURCE,
@@ -32,23 +32,28 @@
       canGoForward: nav ? nav.canGoForward : undefined,
     };
     const key = JSON.stringify(state);
-    if (key === last) return;
+    if (key === last && !force) return;
     last = key;
     window.parent.postMessage(state, appOrigin);
   }
 
   // Pages change their address without loading: pushState and replaceState are called in the page's own
   // JavaScript world, out of reach from here, so listen for the navigation events and poll as a backstop.
-  window.navigation?.addEventListener('currententrychange', report);
-  window.addEventListener('popstate', report);
-  window.addEventListener('hashchange', report);
-  window.addEventListener('load', report);
-  setInterval(report, 1000);
+  window.navigation?.addEventListener('currententrychange', () => report());
+  window.addEventListener('popstate', () => report());
+  window.addEventListener('hashchange', () => report());
+  // The app waits for a report after the frame loads to know the extension is at work, so this one is always sent.
+  window.addEventListener('load', () => report(true));
+  setInterval(() => report(), 1000);
   document.addEventListener('DOMContentLoaded', () => {
     report();
     const title = document.querySelector('title');
     if (title)
-      new MutationObserver(report).observe(title, { childList: true, characterData: true, subtree: true });
+      new MutationObserver(() => report()).observe(title, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
   });
   report();
 
@@ -59,5 +64,12 @@
     if (data.command === 'back') history.back();
     else if (data.command === 'forward') history.forward();
     else if (data.command === 'reload') location.reload();
+    else if (data.command === 'navigate' && typeof data.url === 'string') {
+      // Only web addresses; the app is not the one to hand a framed page a javascript: URL.
+      try {
+        const url = new URL(data.url);
+        if (url.protocol === 'https:' || url.protocol === 'http:') location.assign(url.href);
+      } catch {}
+    }
   });
 })();
