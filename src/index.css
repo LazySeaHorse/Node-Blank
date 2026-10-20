@@ -152,7 +152,7 @@ body,
 /* React Flow */
 .react-flow {
   --xy-background-color: var(--canvas);
-  --xy-background-pattern-color: var(--border);
+  --xy-background-pattern-color: var(--dot);
   --xy-selection-background-color: color-mix(in srgb, var(--accent) 10%, transparent);
   --xy-selection-border: 1px solid var(--accent);
   --xy-resize-background-color: var(--accent);

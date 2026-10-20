@@ -130,7 +130,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         className={readOnly ? 'read-only' : undefined}
         {...(readOnly ? readOnlyProps : editableProps)}
       >
-        <Background variant={BackgroundVariant.Lines} gap={40} />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} />
       </ReactFlow>
       <ContextMenu at={menu?.at ?? null} items={menu?.items ?? []} onClose={closeMenu} />
     </>
