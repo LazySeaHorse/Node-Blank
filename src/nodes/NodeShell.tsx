@@ -6,6 +6,7 @@ import type { NodeKind, SectionColor } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { nodeSpecs } from './catalog';
+import { NODE_TAB_HEIGHT } from './spec';
 
 interface NodeShellProps {
   /** Picks the tone, and the label and icon of the tab. */
@@ -68,7 +69,7 @@ export function NodeShell({
         />
       )}
       <div className="node flex h-full w-full flex-col" style={{ '--tone-base': tone } as CSSProperties}>
-        <div className="flex h-7 shrink-0 items-end">
+        <div className="flex shrink-0 items-end" style={{ height: NODE_TAB_HEIGHT }}>
           <div className="node-tab cursor-grab">
             <Icon className="size-3.5 shrink-0 opacity-70" />
             <NodeTitle fallback={title ?? label} value={customTitle} />

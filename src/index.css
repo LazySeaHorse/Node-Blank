@@ -207,9 +207,9 @@ math-field::part(virtual-keyboard-toggle) {
   --mafs-origin-color: var(--muted);
 }
 
-/* react-spreadsheet: follow the app theme instead of its own light/dark palettes. */
+/* react-spreadsheet: follow the app theme instead of its own light/dark palettes, on the node's tile. */
 .react-flow .Spreadsheet {
-  --background-color: var(--surface);
+  --background-color: transparent;
   --text-color: var(--fg);
   --readonly-text-color: var(--muted);
   --outline-color: var(--accent);
@@ -249,6 +249,8 @@ math-field::part(virtual-keyboard-toggle) {
  * The tile re-points the neutral tokens at its own tone so contents sit on it without clashing.
  */
 .node {
+  /* Matches NODE_TAB_HEIGHT. */
+  --node-tab-height: 28px;
   --tone: var(--tone-base);
 }
 .node-tab {
@@ -257,7 +259,7 @@ math-field::part(virtual-keyboard-toggle) {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  height: 1.75rem;
+  height: var(--node-tab-height);
   min-width: 0;
   max-width: calc(100% / var(--tz, 1));
   padding: 0 0.875rem 0 0.625rem;

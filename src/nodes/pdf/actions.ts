@@ -1,9 +1,9 @@
 import type { XYPosition } from '@xyflow/react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
-import { fitWithin, MAX_IMAGE_SIZE } from '@/lib/files';
 import { nodeRect } from '@/lib/nodeRect';
 import { useCanvasStore } from '@/store/canvasStore';
 import { createNode } from '../factory';
+import { imageBox } from '../image/spec';
 import { saveHandle } from './fileStore';
 
 /** Opens the system picker for one PDF. Resolves null if the user cancels. */
@@ -51,12 +51,7 @@ export async function popOutPage(nodeId: string, doc: PDFDocumentProxy, pageNumb
   const origin = store.nodes.find((n) => n.id === nodeId);
   const at = origin ? nodeRect(origin) : { x: 0, y: 0, width: 0, height: 0 };
   store.addNodes([
-    createNode(
-      'image',
-      { x: at.x + at.width + POP_OUT_GAP, y: at.y },
-      { src },
-      fitWithin({ width, height }, MAX_IMAGE_SIZE),
-    ),
+    createNode('image', { x: at.x + at.width + POP_OUT_GAP, y: at.y }, { src }, imageBox({ width, height })),
   ]);
 }
 

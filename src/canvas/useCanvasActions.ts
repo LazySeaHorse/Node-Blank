@@ -1,17 +1,10 @@
 import { useReactFlow, type XYPosition } from '@xyflow/react';
 import { toast } from 'sonner';
-import {
-  downloadJson,
-  fitWithin,
-  imageSize,
-  MAX_IMAGE_SIZE,
-  pickFile,
-  readAsDataUrl,
-  slugify,
-} from '@/lib/files';
+import { downloadJson, imageSize, pickFile, readAsDataUrl, slugify } from '@/lib/files';
 import type { NodeKind } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { createNode } from '@/nodes/factory';
+import { imageBox } from '@/nodes/image/spec';
 import { addPdfNode, pickPdfHandle } from '@/nodes/pdf/actions';
 import { pdfHandlesFromDrop } from '@/nodes/pdf/drop';
 import { toEmbedUrl } from '@/nodes/video/embedUrl';
@@ -39,7 +32,7 @@ export function useCanvasActions() {
     const file = await pickFile('image/*');
     if (!file) return;
     const src = await readAsDataUrl(file);
-    const size = fitWithin(await imageSize(src), MAX_IMAGE_SIZE);
+    const size = imageBox(await imageSize(src));
     useCanvasStore.getState().addNodes([createNode('image', centered(size), { src }, size)]);
   };
 

@@ -14,10 +14,10 @@ import { useUpdateNodeData } from '../useNodeData';
 import { type LogLevel, type LogLine, runScript } from './sandbox';
 
 const extensions = [javascript()];
-/** GitHub syntax colors on the node's own surface, so the editor matches the app theme. */
+/** GitHub syntax colors on the node's own tile, so the editor matches the app theme. */
 const surface = {
-  background: 'var(--surface)',
-  gutterBackground: 'var(--surface)',
+  background: 'transparent',
+  gutterBackground: 'transparent',
   gutterBorder: 'var(--border)',
 };
 const lightTheme = githubLightInit({ settings: surface });

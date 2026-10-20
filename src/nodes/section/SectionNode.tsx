@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
 import { useUiStore } from '@/store/uiStore';
+import { NODE_TAB_HEIGHT } from '../spec';
 import { useUpdateNodeData } from '../useNodeData';
 
 const swatch = (color: SectionColor) => `var(--section-${color})`;
@@ -36,7 +37,7 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
           { '--tone-base': `color-mix(in srgb, ${swatch(data.color)} 18%, var(--canvas))` } as CSSProperties
         }
       >
-        <div className="flex h-7 shrink-0 items-end">
+        <div className="flex shrink-0 items-end" style={{ height: NODE_TAB_HEIGHT }}>
           <div className="node-tab section-handle pointer-events-auto cursor-grab">
             {editing ? (
               <input

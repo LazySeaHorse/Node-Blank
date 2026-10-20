@@ -25,5 +25,8 @@ export interface NodeSpec<K extends NodeKind> {
   searchText: (data: NodeDataMap[K]) => string;
 }
 
+/** Height of the tab at the top of every node's box. The node's content sits below it. */
+export const NODE_TAB_HEIGHT = 28;
+
 /** The optional `title` every node but a section has in its data. */
 export const titleField = z.string().max(200).optional();
