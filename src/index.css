@@ -423,12 +423,11 @@ math-field::part(virtual-keyboard-toggle) {
     outline: 4px solid transparent;
   }
 }
-.react-flow__node.ai-touched {
-  border-radius: 0.5rem;
+.react-flow__node.ai-touched .node-tile {
   animation: ai-touched 1.6s ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .react-flow__node.ai-touched {
+  .react-flow__node.ai-touched .node-tile {
     animation: none;
   }
 }

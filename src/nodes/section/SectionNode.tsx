@@ -51,7 +51,7 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
                   if (e.key === 'Enter') e.currentTarget.blur();
                   if (e.key === 'Escape') stopEditing();
                 }}
-                className="nodrag nokey min-w-16 max-w-56 rounded bg-surface px-1.5 py-0.5 text-xs font-medium text-fg [field-sizing:content] outline-none"
+                className="nodrag nokey min-w-0 max-w-56 rounded bg-surface px-1.5 py-0.5 text-xs font-medium text-fg [field-sizing:content] outline-none"
               />
             ) : (
               // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename mirrors desktop canvas apps.
