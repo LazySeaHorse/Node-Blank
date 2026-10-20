@@ -60,13 +60,14 @@ describe('Cloud', () => {
     expect(got?.content.nodes[0].id).toBe(sent.content.nodes[0].id);
   });
 
-  it('gives each upload a new revision and deletes the bins it replaced', async () => {
+  it('gives each upload a new revision and writes over the bins it had', async () => {
     const cloud = await Cloud.create(store, 'pw', ITERATIONS);
     const first = await cloud.push('c1', canvas('A'));
     const second = await cloud.push('c1', canvas('A', 'changed'));
     expect(second.rev).not.toBe(first.rev);
-    for (const bin of first.bins) expect(store.bins.has(bin)).toBe(false);
-    // The manifest and the one canvas bin are all that is left.
+    expect(second.bins).toEqual(first.bins);
+    expect((await cloud.pull('c1')).canvas?.content.nodes[0].data).toMatchObject({ markdown: 'changed' });
+    // The manifest and the one canvas bin are all there is.
     expect(store.bins.size).toBe(2);
   });
 
@@ -74,20 +75,50 @@ describe('Cloud', () => {
     const a = await Cloud.create(store, 'pw', ITERATIONS);
     const b = await Cloud.connect(store, a.manifestId, 'pw');
     await a.push('one', canvas('One'));
+    await b.readIndex();
     await b.push('two', canvas('Two'));
     expect(Object.keys((await a.readIndex()).canvases).sort()).toEqual(['one', 'two']);
   });
 
-  it('leaves the old copy intact when a push fails before the switch', async () => {
+  it('clears away the bins of a new canvas when the index cannot be written', async () => {
     const cloud = await Cloud.create(store, 'pw', ITERATIONS);
-    const first = await cloud.push('c1', canvas('A', 'old'));
     store.failUpdate = true;
-    await expect(cloud.push('c1', canvas('A', 'new'))).rejects.toBeInstanceOf(SyncError);
+    await expect(cloud.push('c1', canvas('A'))).rejects.toBeInstanceOf(SyncError);
     store.failUpdate = false;
-    expect((await cloud.readIndex()).canvases.c1.rev).toBe(first.rev);
-    expect((await cloud.pull('c1')).canvas?.content.nodes[0].data).toMatchObject({ markdown: 'old' });
-    // The bins the failed push made were cleared away again.
-    expect(store.bins.size).toBe(2);
+    expect((await cloud.readIndex()).canvases).toEqual({});
+    expect(store.bins.size).toBe(1);
+  });
+
+  it('sends several canvases and deletions with one write to the index', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    await cloud.push('old', canvas('Old'));
+    const before = store.updates;
+    const { entries, failed } = await cloud.pushMany([
+      { id: 'a', canvas: canvas('A') },
+      { id: 'b', canvas: canvas('B') },
+      { id: 'old', canvas: null },
+    ]);
+    expect(failed).toEqual([]);
+    expect(store.updates - before).toBe(1);
+    expect(Object.keys(entries).sort()).toEqual(['a', 'b', 'old']);
+    const index = await cloud.readIndex();
+    expect(index.canvases.old.deleted).toBe(true);
+    expect((await cloud.pull('b')).canvas?.name).toBe('B');
+    // The manifest, plus one bin each for A and B; the deleted canvas's bin is gone.
+    expect(store.bins.size).toBe(3);
+  });
+
+  it('changes nothing when a batch stops halfway', async () => {
+    const cloud = await Cloud.create(store, 'pw', ITERATIONS);
+    store.failCreateAfter = 2;
+    await expect(
+      cloud.pushMany([
+        { id: 'a', canvas: canvas('A') },
+        { id: 'b', canvas: canvas('B') },
+      ]),
+    ).rejects.toBeInstanceOf(SyncError);
+    expect((await cloud.readIndex()).canvases).toEqual({});
+    expect(store.bins.size).toBe(1);
   });
 
   it('cleans up the bins it made when it gives up halfway', async () => {
@@ -97,15 +128,14 @@ describe('Cloud', () => {
     expect(store.bins.size).toBe(1);
   });
 
-  it('remembers old bins it could not delete and retries them on the next push', async () => {
+  it('remembers bins it could not delete and retries them on the next push', async () => {
     const cloud = await Cloud.create(store, 'pw', ITERATIONS);
     const first = await cloud.push('c1', canvas('A'));
     store.failRemove.add(first.bins[0]);
-    const second = await cloud.push('c1', canvas('A', 'two'));
-    expect(second.rev).not.toBe(first.rev);
+    await cloud.remove('c1');
     expect((await cloud.readIndex()).trash).toEqual(first.bins);
     store.failRemove.clear();
-    await cloud.push('c1', canvas('A', 'three'));
+    await cloud.push('c2', canvas('B'));
     expect((await cloud.readIndex()).trash).toEqual([]);
     expect(store.bins.has(first.bins[0])).toBe(false);
   });

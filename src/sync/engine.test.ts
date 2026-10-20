@@ -131,14 +131,12 @@ describe('sync engine', () => {
     expect(await markdownOf(other)).toBe('b');
   });
 
-  it('stops a bulk action at an error that would repeat', async () => {
+  it('pushes nothing when a bulk push hits an error that would repeat', async () => {
     await repo.createCanvas('A', text('a'));
     await repo.createCanvas('B', text('b'));
     store.failCreateAfter = 0;
-    const result = await syncAll('push');
-    expect(result.done).toBe(0);
-    expect(result.failed).toHaveLength(1);
-    expect(result.failed[0].message).toContain('offline');
+    await expect(syncAll('push')).rejects.toThrow('offline');
+    expect(await repo.listSyncRecords()).toEqual([]);
   });
 
   it('deletes in the cloud what was deleted here, and lets another device learn of it', async () => {

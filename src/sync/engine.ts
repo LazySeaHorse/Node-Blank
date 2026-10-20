@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import * as repo from '@/persistence/canvasRepo';
 import * as workspace from '@/store/workspace';
-import { Cloud, type CloudEntry } from './cloud';
+import { Cloud, type CloudEntry, type PushJob } from './cloud';
 import { SyncError, type SyncErrorKind } from './errors';
 import { jsonbin } from './jsonbin';
 import { keepLocalImages } from './pack';
@@ -92,25 +92,39 @@ async function lookAtCloud(): Promise<Record<string, CloudEntry>> {
   return entries;
 }
 
-/** Deleting here is only ever pushed for a canvas that was synced, which is what its sync record shows. */
-async function deleteInCloud(id: string): Promise<void> {
-  const entry = await (await cloudOf()).remove(id);
-  await repo.forgetSyncRecord(id);
-  remember({ [id]: entry });
+/**
+ * Sends these canvases to the cloud in one go: with a single write to the cloud's index. A canvas missing
+ * here is only pushed as a deletion if it was synced, which is what its sync record shows.
+ */
+async function sendCanvases(ids: string[]): Promise<{ failed: { id: string; error: SyncError }[] }> {
+  await workspace.flushSave();
+  const cloud = await cloudOf();
+  const jobs: PushJob[] = [];
+  const failed: { id: string; error: SyncError }[] = [];
+  const edited = new Map<string, number>();
+  for (const id of ids) {
+    const meta = await repo.getCanvas(id);
+    if (meta) {
+      edited.set(id, meta.updatedAt);
+      jobs.push({ id, canvas: { name: meta.name, content: await repo.loadContent(id) } });
+    } else if (await repo.getSyncRecord(id)) {
+      jobs.push({ id, canvas: null });
+    } else {
+      failed.push({ id, error: new SyncError('not-found', 'That canvas is not on this device.') });
+    }
+  }
+  const sent = await cloud.pushMany(jobs);
+  for (const [id, entry] of Object.entries(sent.entries)) {
+    if (entry.deleted) await repo.forgetSyncRecord(id);
+    else await repo.putSyncRecord({ id, rev: entry.rev, localUpdatedAt: edited.get(id) ?? 0 });
+  }
+  remember(sent.entries);
+  return { failed: [...failed, ...sent.failed] };
 }
 
 async function sendCanvas(id: string): Promise<void> {
-  await workspace.flushSave();
-  const meta = await repo.getCanvas(id);
-  if (!meta) {
-    if (!(await repo.getSyncRecord(id)))
-      throw new SyncError('not-found', 'That canvas is not on this device.');
-    return deleteInCloud(id);
-  }
-  const content = await repo.loadContent(id);
-  const entry = await (await cloudOf()).push(id, { name: meta.name, content });
-  await repo.putSyncRecord({ id, rev: entry.rev, localUpdatedAt: meta.updatedAt });
-  remember({ [id]: entry });
+  const { failed } = await sendCanvases([id]);
+  if (failed[0]) throw failed[0].error;
 }
 
 async function fetchCanvas(id: string): Promise<void> {
@@ -161,9 +175,15 @@ export const syncAll = (direction: 'push' | 'pull') =>
           ? [...Object.keys(statuses).filter((id) => pushable(statuses[id])), ...deletedHere.map((c) => c.id)]
           : [...Object.keys(statuses).filter((id) => pullable(statuses[id])), ...cloudOnly.map((c) => c.id)];
       const result: BulkResult = { done: 0, failed: [] };
+      if (direction === 'push') {
+        const { failed } = await sendCanvases(ids);
+        result.done = ids.length - failed.length;
+        result.failed = failed.map(({ id, error }) => ({ id, message: error.message }));
+        return result;
+      }
       for (const id of ids) {
         try {
-          await (direction === 'push' ? sendCanvas(id) : fetchCanvas(id));
+          await fetchCanvas(id);
           result.done++;
         } catch (error) {
           if (!(error instanceof SyncError)) throw error;
