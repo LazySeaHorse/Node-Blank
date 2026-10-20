@@ -13,7 +13,9 @@ import { askText, confirmAction } from '@/ui/dialogs';
 import { EmptyState } from '@/ui/EmptyState';
 import { Mascot } from '@/ui/Mascot';
 import { Modal } from '@/ui/Modal';
+import { CanvasSyncRow, CloudOnlyList, SyncBar, useSyncEnabled } from './CloudSync';
 import { promptNewCanvas } from './newCanvas';
+import { SyncSettings } from './SyncSettings';
 import { useCanvasList } from './useCurrentCanvas';
 
 interface CanvasManagerProps {
@@ -78,11 +80,14 @@ function CanvasRow({
   canvas,
   current,
   readOnly,
+  syncing,
   onOpen,
 }: {
   canvas: CanvasMeta;
   current: boolean;
   readOnly: boolean;
+  /** Whether cloud sync is set up, which adds a line of sync controls. */
+  syncing: boolean;
   onOpen: () => void;
 }) {
   const content = useLiveQuery(() => loadContent(canvas.id), [canvas.id, canvas.updatedAt]);
@@ -117,7 +122,7 @@ function CanvasRow({
   return (
     <li
       className={cn(
-        'group flex items-center gap-3 rounded-2xl border p-2.5 transition-colors',
+        'group flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border p-2.5 transition-colors',
         current
           ? 'border-accent/50 bg-accent/5'
           : 'border-border hover:border-accent/30 hover:bg-surface-2/60',
@@ -176,6 +181,7 @@ function CanvasRow({
           </Button>
         )}
       </div>
+      {syncing && <CanvasSyncRow id={canvas.id} name={canvas.name} />}
     </li>
   );
 }
@@ -184,6 +190,8 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
   const canvases = useCanvasList();
   const currentId = workspace.useWorkspace((s) => s.currentId);
   const [query, setQuery] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const syncing = useSyncEnabled() && !readOnly;
   const close = () => onOpenChange(false);
 
   const create = async () => {
@@ -207,14 +215,17 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
       description="Open, rename or delete your canvases. They are stored in this browser."
       className="max-w-xl"
       footer={
-        <>
-          <span className="text-xs text-muted">
-            {canvases?.length ?? 0} canvas{canvases?.length === 1 ? '' : 'es'}
-          </span>
-          <Button className="h-9 rounded-xl border border-border px-5" onClick={close}>
-            Close
-          </Button>
-        </>
+        <div className="flex w-full flex-col gap-3">
+          {!readOnly && <SyncBar onOpenSettings={() => setSettingsOpen(true)} />}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-muted">
+              {canvases?.length ?? 0} canvas{canvases?.length === 1 ? '' : 'es'}
+            </span>
+            <Button className="h-9 rounded-xl border border-border px-5" onClick={close}>
+              Close
+            </Button>
+          </div>
+        </div>
       }
     >
       <div className="mb-3 flex gap-2">
@@ -249,6 +260,7 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
               canvas={canvas}
               current={canvas.id === currentId}
               readOnly={readOnly}
+              syncing={syncing}
               onOpen={async () => {
                 await workspace.openCanvas(canvas.id);
                 close();
@@ -257,6 +269,8 @@ export function CanvasManager({ open, onOpenChange, readOnly = false }: CanvasMa
           ))}
         </ul>
       )}
+      {syncing && <CloudOnlyList />}
+      <SyncSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </Modal>
   );
 }
