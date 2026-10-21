@@ -15,7 +15,7 @@ import { addColumn, addRow, removeColumn, removeRow, setCell } from '@/lib/grid'
 import type { NodeOf } from '@/model/types';
 import { NodeShell, Stepper } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
-import { evaluateExact } from './exactEvaluate';
+import { evaluateSheet } from './evaluate';
 import { cellKey, pruneFills, rangeLabel } from './fills';
 import { ColumnIndicator, RowIndicator } from './indicators';
 import { FormulaBar } from './SheetToolbar';
@@ -23,7 +23,7 @@ import { publishSheetSelection } from './selection';
 
 type Cell = CellBase<string>;
 
-/** In fraction mode: what each formula cell shows, from `evaluateExact`. */
+/** In fraction mode: what each formula cell shows, from `evaluateSheet`. */
 const ExactResults = createContext<(string | undefined)[][] | null>(null);
 
 /** Draws the exact answer of a formula cell, and any other cell as the grid would. */
@@ -41,7 +41,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
   const [active, setActive] = useState<Point>();
   const [selection, setSelection] = useState<Selection>();
 
-  const exact = useMemo(() => (fractions ? evaluateExact(cells) : null), [fractions, cells]);
+  const exact = useMemo(() => (fractions ? evaluateSheet(cells, true) : null), [fractions, cells]);
   const matrix = useMemo<Matrix<Cell>>(
     () =>
       cells.map((row, r) =>
