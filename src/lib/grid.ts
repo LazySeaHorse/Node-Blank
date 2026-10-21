@@ -1,4 +1,9 @@
 /** Helpers for rectangular string grids (tables, spreadsheets). */
+
+/** Largest table the size prompt and pasting allow. */
+export const MAX_TABLE_ROWS = 50;
+export const MAX_TABLE_COLUMNS = 26;
+
 export const emptyGrid = (rows: number, cols: number): string[][] =>
   Array.from({ length: rows }, () => Array<string>(cols).fill(''));
 
