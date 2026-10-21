@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { insertColumn, insertRow } from './grid';
+import { insertColumn, insertRow, removeColumnAt, removeRowAt } from './grid';
 
 const grid = [
   ['a', 'b'],
@@ -39,5 +39,16 @@ describe('insertColumn', () => {
   });
   it('clamps the index', () => {
     expect(insertColumn(grid, -3)[0]).toEqual(['', 'a', 'b']);
+  });
+});
+
+describe('removeRowAt / removeColumnAt', () => {
+  it('removes the given row or column', () => {
+    expect(removeRowAt(grid, 0)).toEqual([['c', 'd']]);
+    expect(removeColumnAt(grid, 1)).toEqual([['a'], ['c']]);
+  });
+  it('never goes below 1x1', () => {
+    expect(removeRowAt([['a']], 0)).toEqual([['a']]);
+    expect(removeColumnAt([['a'], ['b']], 0)).toEqual([['a'], ['b']]);
   });
 });

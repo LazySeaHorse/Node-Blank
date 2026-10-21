@@ -29,3 +29,11 @@ export const removeColumn = (grid: string[][]): string[][] =>
 
 export const setCell = (grid: string[][], row: number, col: number, value: string): string[][] =>
   grid.map((r, i) => (i === row ? r.map((c, j) => (j === col ? value : c)) : r));
+
+/** Removes the row at `index`; a one-row grid is left alone. */
+export const removeRowAt = (grid: string[][], index: number): string[][] =>
+  grid.length > 1 ? grid.filter((_, i) => i !== index) : grid;
+
+/** Removes the column at `index`; a one-column grid is left alone. */
+export const removeColumnAt = (grid: string[][], index: number): string[][] =>
+  (grid[0]?.length ?? 0) > 1 ? grid.map((row) => row.filter((_, j) => j !== index)) : grid;

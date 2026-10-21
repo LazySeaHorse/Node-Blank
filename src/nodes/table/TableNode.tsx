@@ -1,82 +1,117 @@
 import type { NodeProps } from '@xyflow/react';
 import { Minus, Plus } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
-import { addColumn, addRow, insertColumn, insertRow, removeColumn, removeRow, setCell } from '@/lib/grid';
+import { insertColumn, insertRow, removeColumnAt, removeRowAt, setCell } from '@/lib/grid';
 import { MathField } from '@/lib/math/MathField';
 import type { NodeOf } from '@/model/types';
 import { WithTooltip } from '@/ui/Button';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
 
-const reveal =
-  'nodrag nopan pointer-events-none opacity-0 group-hover/table:pointer-events-auto group-hover/table:opacity-100';
-const control =
-  'flex cursor-pointer items-center justify-center border border-border bg-surface text-muted hover:bg-accent hover:text-white';
+interface Layout {
+  /** Table offset inside the wrapper. */
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  /** Positions of the horizontal and vertical gridlines, relative to the table. */
+  ys: number[];
+  xs: number[];
+}
 
-/** A small "+" on a gridline end, to insert in the middle. Does not take focus or start a drag. */
-function InsertHandle({
+/** Measures the gridlines in unscaled layout pixels, so the canvas zoom does not matter. */
+function measure(table: HTMLTableElement): Layout {
+  const rows = Array.from(table.rows);
+  const cols = rows[0] ? Array.from(rows[0].cells) : [];
+  return {
+    left: table.offsetLeft,
+    top: table.offsetTop,
+    width: table.offsetWidth,
+    height: table.offsetHeight,
+    ys: [0, ...rows.map((row) => row.offsetTop + row.offsetHeight)],
+    xs: [0, ...cols.map((cell) => cell.offsetLeft + cell.offsetWidth)],
+  };
+}
+
+function PillButton({
   label,
-  className,
-  onInsert,
+  disabled,
+  onClick,
+  children,
 }: {
   label: string;
-  className: string;
-  onInsert: () => void;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
     <WithTooltip label={label}>
       <button
         type="button"
         aria-label={label}
+        disabled={disabled}
+        // Keep the caret in the cell: a mousedown on a button would take focus away.
         onMouseDown={(event) => event.preventDefault()}
-        onClick={onInsert}
-        className={cn(reveal, control, 'absolute z-10 size-4 rounded-full', className)}
+        onClick={onClick}
+        className="flex size-5 cursor-pointer items-center justify-center rounded-full hover:bg-accent hover:text-white disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
       >
-        <Plus className="size-3" />
+        {children}
       </button>
     </WithTooltip>
   );
 }
 
-/** The slim "− label +" bar along the bottom (rows) or right (columns) edge: remove or add at the end. */
-function EdgeBar({
-  label,
+/**
+ * A gridline's hover zone: a thin strip that lights the whole line and shows a "− +" pill on it.
+ * "+" inserts at this boundary; "−" removes the row/column just before it (the first one on the outer edge).
+ */
+function Gridline({
   vertical,
+  position,
+  length,
+  canRemove,
+  onInsert,
   onRemove,
-  onAdd,
 }: {
-  label: 'Row' | 'Col';
-  vertical?: boolean;
+  vertical: boolean;
+  position: number;
+  length: number;
+  canRemove: boolean;
+  onInsert: () => void;
   onRemove: () => void;
-  onAdd: () => void;
 }) {
-  const button = 'flex flex-1 cursor-pointer items-center justify-center hover:bg-accent hover:text-white';
-  const part = (name: string, action: () => void, icon: ReactNode) => (
-    <WithTooltip label={name}>
-      <button
-        type="button"
-        aria-label={name}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={action}
-        className={button}
-      >
-        {icon}
-      </button>
-    </WithTooltip>
-  );
+  const noun = vertical ? 'column' : 'row';
   return (
     <div
       className={cn(
-        reveal,
-        'absolute z-10 flex items-stretch overflow-hidden rounded-full border border-border bg-surface text-muted',
-        vertical ? 'top-4 right-0 bottom-4 w-4 flex-col' : 'right-4 bottom-0 left-4 h-4',
+        'nodrag nopan group/line pointer-events-auto absolute z-10',
+        vertical ? 'h-(--len) w-2 -translate-x-1/2' : 'h-2 w-(--len) -translate-y-1/2',
       )}
+      style={{ [vertical ? 'left' : 'top']: position, '--len': `${length}px` } as React.CSSProperties}
     >
-      {part(`Remove ${label.toLowerCase()}`, onRemove, <Minus className="size-3" />)}
-      {!vertical && <span className="flex items-center text-[10px] leading-none font-medium">{label}</span>}
-      {part(`Add ${label.toLowerCase()}`, onAdd, <Plus className="size-3" />)}
+      <div
+        className={cn(
+          'pointer-events-none absolute bg-accent opacity-0 group-hover/line:opacity-100',
+          vertical ? 'inset-y-0 left-1/2 w-0.5 -translate-x-1/2' : 'inset-x-0 top-1/2 h-0.5 -translate-y-1/2',
+        )}
+      />
+      <div
+        className={cn(
+          'pointer-events-none absolute flex items-center rounded-full border border-border bg-surface text-muted opacity-0 shadow-sm group-hover/line:pointer-events-auto group-hover/line:opacity-100',
+          vertical
+            ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex-col'
+            : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+        )}
+      >
+        <PillButton label={`Remove ${noun}`} disabled={!canRemove} onClick={onRemove}>
+          <Minus className="size-3" />
+        </PillButton>
+        <PillButton label={`Insert ${noun}`} onClick={onInsert}>
+          <Plus className="size-3" />
+        </PillButton>
+      </div>
     </div>
   );
 }
@@ -86,46 +121,34 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
   const update = useUpdateNodeData<'table'>(id);
   const { cells } = data;
   const edit = (transform: (grid: string[][]) => string[][]) => update({ cells: transform(cells) });
+  const tableRef = useRef<HTMLTableElement>(null);
+  const [layout, setLayout] = useState<Layout | null>(null);
+  const rowCount = cells.length;
+  const colCount = cells[0]?.length ?? 0;
+
+  // Cells grow with their content, so measure again whenever the table's size changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the grid shape changes the lines.
+  useLayoutEffect(() => {
+    const table = tableRef.current;
+    if (!table || readOnly) return;
+    const run = () => setLayout(measure(table));
+    run();
+    const observer = new ResizeObserver(run);
+    observer.observe(table);
+    return () => observer.disconnect();
+  }, [readOnly, rowCount, colCount]);
 
   return (
     <NodeShell kind="table" selected={selected} customTitle={data.title} tint={data.color}>
-      <div className="group/table relative w-fit p-4">
-        <table className="border-collapse">
+      <div className="relative w-fit p-4">
+        <table ref={tableRef} className="border-collapse">
           <tbody>
             {cells.map((row, r) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
               <tr key={r}>
                 {row.map((value, c) => (
                   // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
-                  <td key={c} className="relative min-w-20 border border-border p-0">
-                    {!readOnly && c === 0 && (
-                      <InsertHandle
-                        label="Insert row"
-                        className="top-0 right-full -translate-y-1/2"
-                        onInsert={() => edit((grid) => insertRow(grid, r))}
-                      />
-                    )}
-                    {!readOnly && c === 0 && r === cells.length - 1 && (
-                      <InsertHandle
-                        label="Insert row"
-                        className="bottom-0 right-full translate-y-1/2"
-                        onInsert={() => edit((grid) => insertRow(grid, r + 1))}
-                      />
-                    )}
-                    {!readOnly && r === 0 && (
-                      <InsertHandle
-                        label="Insert column"
-                        className="bottom-full left-0 -translate-x-1/2"
-                        onInsert={() => edit((grid) => insertColumn(grid, c))}
-                      />
-                    )}
-                    {!readOnly && r === 0 && c === row.length - 1 && (
-                      <InsertHandle
-                        label="Insert column"
-                        className="bottom-full right-0 translate-x-1/2"
-                        onInsert={() => edit((grid) => insertColumn(grid, c + 1))}
-                      />
-                    )}
+                  <td key={c} className="min-w-20 border border-border p-0">
                     <MathField
                       value={value}
                       onChange={(latex) => edit((grid) => setCell(grid, r, c, latex))}
@@ -139,11 +162,33 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
             ))}
           </tbody>
         </table>
-        {!readOnly && (
-          <>
-            <EdgeBar label="Row" onRemove={() => edit(removeRow)} onAdd={() => edit(addRow)} />
-            <EdgeBar label="Col" vertical onRemove={() => edit(removeColumn)} onAdd={() => edit(addColumn)} />
-          </>
+        {!readOnly && layout && (
+          <div className="pointer-events-none absolute" style={{ left: layout.left, top: layout.top }}>
+            {layout.ys.map((y, b) => (
+              <Gridline
+                // biome-ignore lint/suspicious/noArrayIndexKey: boundaries are addressed by position.
+                key={`r${b}`}
+                vertical={false}
+                position={y}
+                length={layout.width}
+                canRemove={rowCount > 1}
+                onInsert={() => edit((grid) => insertRow(grid, b))}
+                onRemove={() => edit((grid) => removeRowAt(grid, Math.max(0, b - 1)))}
+              />
+            ))}
+            {layout.xs.map((x, b) => (
+              <Gridline
+                // biome-ignore lint/suspicious/noArrayIndexKey: boundaries are addressed by position.
+                key={`c${b}`}
+                vertical
+                position={x}
+                length={layout.height}
+                canRemove={colCount > 1}
+                onInsert={() => edit((grid) => insertColumn(grid, b))}
+                onRemove={() => edit((grid) => removeColumnAt(grid, Math.max(0, b - 1)))}
+              />
+            ))}
+          </div>
         )}
       </div>
     </NodeShell>
