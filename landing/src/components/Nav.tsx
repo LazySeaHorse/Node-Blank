@@ -13,7 +13,6 @@ const LINKS = [
   { href: '/#controls', label: 'Controls' },
   { href: '/#ai', label: 'AI' },
   { href: '/#local', label: 'Your data' },
-  { href: '/tools', label: 'STEM Tools' },
 ];
 
 export function Nav() {

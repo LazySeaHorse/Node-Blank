@@ -4,15 +4,13 @@ export type Route =
   | { name: 'home' }
   | { name: 'blog-index' }
   | { name: 'blog-post'; slug: string }
-  | { name: 'tools-index' }
-  | { name: 'tool-view'; toolSlug: string }
   | { name: 'privacy' }
   | { name: 'terms' };
 
 /**
  * Parse the current URL pathname and hash into a typed Route.
- * Supports both clean pathnames (`/blog`, `/blog/:slug`, `/tools`, `/tools/:toolSlug`, `/privacy`, `/terms`)
- * and hash fallbacks (`/#blog`, `/#blog/:slug`, `/#tools`, `/#tools/:toolSlug`, `/#privacy`, `/#terms`).
+ * Supports both clean pathnames (`/blog`, `/blog/:slug`, `/privacy`, `/terms`)
+ * and hash fallbacks (`/#blog`, `/#blog/:slug`, `/#privacy`, `/#terms`).
  */
 export function parseRoute(pathname: string, hash: string): Route {
   // 1. Check pathname first
@@ -34,15 +32,6 @@ export function parseRoute(pathname: string, hash: string): Route {
     return { name: 'blog-index' };
   }
 
-  if (cleanPath === '/tools') {
-    return { name: 'tools-index' };
-  }
-  if (cleanPath.startsWith('/tools/')) {
-    const toolSlug = decodeURIComponent(cleanPath.slice('/tools/'.length)).trim();
-    if (toolSlug) return { name: 'tool-view', toolSlug };
-    return { name: 'tools-index' };
-  }
-
   // 2. Hash fallback (for static hosting or anchor-based deep linking)
   const cleanHash = hash.replace(/^#\/?/, '').trim();
   if (cleanHash === 'privacy') {
@@ -59,15 +48,6 @@ export function parseRoute(pathname: string, hash: string): Route {
     const slug = decodeURIComponent(cleanHash.slice('blog/'.length)).trim();
     if (slug) return { name: 'blog-post', slug };
     return { name: 'blog-index' };
-  }
-
-  if (cleanHash === 'tools') {
-    return { name: 'tools-index' };
-  }
-  if (cleanHash.startsWith('tools/')) {
-    const toolSlug = decodeURIComponent(cleanHash.slice('tools/'.length)).trim();
-    if (toolSlug) return { name: 'tool-view', toolSlug };
-    return { name: 'tools-index' };
   }
 
   return { name: 'home' };
@@ -159,13 +139,6 @@ export function blogUrl(slug?: string): string {
   return slug ? `/blog/${slug}` : '/blog';
 }
 
-export function toolsUrl(toolSlug?: string): string {
-  if (typeof window !== 'undefined' && window.location.hash.startsWith('#tools')) {
-    return toolSlug ? `/#tools/${toolSlug}` : '/#tools';
-  }
-  return toolSlug ? `/tools/${toolSlug}` : '/tools';
-}
-
 export function privacyUrl(): string {
   if (typeof window !== 'undefined' && window.location.hash.startsWith('#privacy')) {
     return '/#privacy';
@@ -210,8 +183,6 @@ export function Link({
   let isActive = false;
   if (href === '/blog' || href === '/#blog') {
     isActive = route.name === 'blog-index';
-  } else if (href === '/tools' || href === '/#tools') {
-    isActive = route.name === 'tools-index';
   } else if (href === '/privacy' || href === '/#privacy') {
     isActive = route.name === 'privacy';
   } else if (href === '/terms' || href === '/#terms') {

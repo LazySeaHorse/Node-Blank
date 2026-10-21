@@ -94,7 +94,6 @@ export function FinalCta() {
 
 const FOOT_LINKS = [
   { label: 'Open the canvas', href: APP_URL },
-  { label: 'STEM Tools', href: '/tools' },
   { label: 'Blog & Guides', href: '/blog' },
   { label: 'GitHub', href: REPO_URL },
   { label: 'Releases', href: `${REPO_URL}/releases` },
