@@ -23,12 +23,12 @@ import { publishSheetSelection } from './selection';
 
 type Cell = CellBase<string>;
 
-/** In fraction mode: what each formula cell shows, from `evaluateSheet`. */
-const ExactResults = createContext<(string | undefined)[][] | null>(null);
+/** What each formula cell shows, from `evaluateSheet`; the grid's own answers are never drawn. */
+const Results = createContext<(string | undefined)[][] | null>(null);
 
-/** Draws the exact answer of a formula cell, and any other cell as the grid would. */
-function FractionViewer(props: DataViewerProps<Cell>) {
-  const shown = useContext(ExactResults)?.[props.row]?.[props.column];
+/** Draws the answer of a formula cell, and any other cell as the grid would. */
+function ResultViewer(props: DataViewerProps<Cell>) {
+  const shown = useContext(Results)?.[props.row]?.[props.column];
   if (shown === undefined) return <DataViewer<Cell, string> {...props} />;
   return <span className="Spreadsheet__data-viewer">{shown}</span>;
 }
@@ -41,7 +41,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
   const [active, setActive] = useState<Point>();
   const [selection, setSelection] = useState<Selection>();
 
-  const exact = useMemo(() => (fractions ? evaluateSheet(cells, true) : null), [fractions, cells]);
+  const results = useMemo(() => evaluateSheet(cells, fractions), [cells, fractions]);
   const matrix = useMemo<Matrix<Cell>>(
     () =>
       cells.map((row, r) =>
@@ -98,7 +98,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
           <button
             type="button"
             aria-pressed={fractions}
-            title="Exact fractions: 1/3 stays 1/3, and row operations write fractions"
+            title="Fractions: results show as fractions (1/2, not 0.5), and row operations write fractions"
             onClick={toggleFractions}
             className={cn(
               'cursor-pointer rounded border px-2 py-0.5 text-xs font-medium',
@@ -120,7 +120,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
     >
       {/* nokey: keep Delete/Backspace inside the grid instead of deleting the node. */}
       <div className="nodrag nowheel nokey p-2 text-sm" onMouseDownCapture={keepSelectionOnRightClick}>
-        <ExactResults value={exact}>
+        <Results value={results}>
           <Spreadsheet
             data={matrix}
             onChange={handleChange}
@@ -133,9 +133,9 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
             }}
             RowIndicator={RowIndicator}
             ColumnIndicator={ColumnIndicator}
-            DataViewer={fractions ? FractionViewer : undefined}
+            DataViewer={ResultViewer}
           />
-        </ExactResults>
+        </Results>
       </div>
     </NodeShell>
   );

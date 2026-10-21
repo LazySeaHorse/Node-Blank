@@ -21,7 +21,7 @@ Most digital study tools require a tablet and stylus. Computational notebooks hi
 - **Multiple canvases**, autosaved to your browser's IndexedDB. Optional client-side AES-GCM encrypted cloud sync via JSONBin.
 - **Undo/redo** for everything on the canvas. While you type in a cell or field, Ctrl+Z is that field's own history; otherwise it steps back through the canvas, so a spreadsheet cell reverts as a whole.
 - **Titles**: right-click any node, Add title (headed nodes show their type until you name them; double-click a title to edit it).
-- **Sheets**: formula bar in the header; right-click selected cells for a fill colour; select a row or column (click its number or letter) and right-click to type an operation on it: `-= 3*R2`, `*= 1/2`, `<-> R4`, `-= 2*C1` (rows `R1…`, columns `C1…`, counted from 1). Formula cells work too, and the result stays a live formula. The `a/b` toggle keeps fractions exact.
+- **Sheets**: formula bar in the header; right-click selected cells for a fill colour; select a row or column (click its number or letter) and right-click to type an operation on it: `-= 3*R2`, `*= 1/2`, `<-> R4`, `-= 2*C1` (rows `R1…`, columns `C1…`, counted from 1). Formula cells work too, and the result stays a live formula. Typed fractions such as `1/3` count as numbers in formulas; the `a/b` toggle shows results as fractions and makes row operations write fractions.
 - **Smart notes**: a text node that is only a table or only maths offers to become a Table/Sheet or a Math node.
 - **Import/export** selected nodes, a canvas, or everything as JSON.
 - **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.

@@ -159,6 +159,14 @@ test('fraction mode keeps typed fractions as numbers in formulas and shows resul
   await expect(cell(page, 2, 0)).toHaveText('1/2');
 });
 
+test('typed fractions are numbers in decimal mode too', async ({ page }) => {
+  await newSheet(page);
+  await typeInto(page, 0, 0, '1/4');
+  await typeInto(page, 1, 0, '1/4');
+  await typeInto(page, 2, 0, '=A1+A2');
+  await expect(cell(page, 2, 0)).toHaveText('0.5');
+});
+
 async function typeNote(page: Page, text: string) {
   await placeNode(page, 'Text', 500, 300);
   await nodes(page).dblclick();

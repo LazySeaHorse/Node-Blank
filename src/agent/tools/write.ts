@@ -69,7 +69,9 @@ const content = {
     fractions: z
       .boolean()
       .optional()
-      .describe('Exact fraction mode: cells like 1/3 are numbers and results show as fractions.'),
+      .describe(
+        'Fraction mode: results show as fractions and row operations write fractions. Cells like 1/3 are numbers either way.',
+      ),
     fills: z
       .record(z.string(), z.enum(SECTION_COLORS))
       .optional()
