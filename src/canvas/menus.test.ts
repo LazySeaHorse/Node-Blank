@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_VIEWPORT, SECTION_COLORS } from '@/model/types';
 import { createNode, searchTextOf } from '@/nodes/factory';
+import { setTableSelection } from '@/nodes/table/selection';
 import { undo, useCanvasStore } from '@/store/canvasStore';
 import { askNumbers } from '@/ui/dialogs';
 import type { MenuEntry, MenuItem, MenuSub } from '@/ui/Menu';
@@ -135,6 +136,31 @@ describe('node menus', () => {
     vi.mocked(askNumbers).mockResolvedValueOnce(null);
     await (entry as MenuItem).onSelect();
     expect((state().nodes[0].data as { cells: string[][] }).cells).toEqual(cells);
+  });
+
+  it('offers row deletion and clearing on a table selection, and nothing without one', () => {
+    const t = createNode('table', { x: 0, y: 0 });
+    state().load({ nodes: [t], viewport: DEFAULT_VIEWPORT });
+    const node = element('react-flow__node', t.id);
+    const cell = document.createElement('table');
+    node.append(cell);
+    const rows = (t.data as { cells: string[][] }).cells.length;
+    expect(labels(menuFor(cell, at, actions()))).not.toContain('Clear contents');
+
+    setTableSelection(t.id, { anchor: { row: 0, col: 0 }, focus: { row: 0, col: 99 } });
+    expect(labels(menuFor(cell, at, actions()))).toEqual(
+      expect.arrayContaining(['Delete row', 'Clear contents']),
+    );
+    run(menuFor(cell, at, actions()), 'Delete row');
+    expect((state().nodes[0].data as { cells: string[][] }).cells).toHaveLength(rows - 1);
+    undo();
+    expect((state().nodes[0].data as { cells: string[][] }).cells).toHaveLength(rows);
+
+    setTableSelection(t.id, { anchor: { row: 0, col: 0 }, focus: { row: 0, col: 0 } });
+    const partial = labels(menuFor(cell, at, actions()));
+    expect(partial).toContain('Clear contents');
+    expect(partial).not.toContain('Delete row');
+    setTableSelection(t.id, undefined);
   });
 
   it('adds Math+ result copying', () => {

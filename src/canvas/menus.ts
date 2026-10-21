@@ -13,6 +13,7 @@ import {
   Clipboard,
   Copy,
   CopyPlus,
+  Eraser,
   Maximize,
   Moon,
   MousePointer2,
@@ -28,13 +29,21 @@ import {
   Ungroup,
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
-import { resizeGrid } from '@/lib/grid';
+import { MAX_TABLE_COLUMNS, MAX_TABLE_ROWS, resizeGrid } from '@/lib/grid';
 import { applyGridOp, columnLabel, GridOpError } from '@/lib/gridOps';
 import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
 import { withFill } from '@/nodes/sheet/fills';
 import { sheetSelection } from '@/nodes/sheet/selection';
+import {
+  clearBlock,
+  deleteBlockColumns,
+  deleteBlockRows,
+  isWholeColumns,
+  isWholeRows,
+} from '@/nodes/table/blocks';
+import { selectedBlock, setTableSelection, tableSelection } from '@/nodes/table/selection';
 import { type AlignEdge, alignSelected, bringToFront, sendToBack } from '@/store/arrange';
 import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
@@ -130,10 +139,6 @@ const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
     },
   ],
 };
-
-/** Largest table the size prompt allows. */
-export const MAX_TABLE_ROWS = 50;
-export const MAX_TABLE_COLUMNS = 26;
 
 const tableSize = (node: NodeOf<'table'>): MenuEntry => {
   const rows = node.data.cells.length;
@@ -249,6 +254,38 @@ export function sheetMenu(node: NodeOf<'sheet'>): MenuEntry[] {
   return entries;
 }
 
+/** What right-clicking a table's selection offers: delete whole rows or columns, and clear contents. */
+export function tableMenu(node: NodeOf<'table'>): MenuEntry[] {
+  const rows = node.data.cells.length;
+  const cols = node.data.cells[0]?.length ?? 0;
+  const block = selectedBlock(tableSelection(node.id), rows, cols);
+  if (!block) return [];
+  const edit = (transform: (grid: string[][]) => string[][]) => () => {
+    const current = useCanvasStore.getState().nodes.find((n) => n.id === node.id);
+    if (current?.type !== 'table') return;
+    useCanvasStore.getState().updateNodeData<'table'>(node.id, { cells: transform(current.data.cells) });
+    setTableSelection(node.id, undefined);
+  };
+  const entries: MenuEntry[] = [];
+  const count = (n: number, noun: string) => `Delete ${noun}${n > 1 ? 's' : ''}`;
+  if (isWholeRows(block, cols) && block.r1 - block.r0 + 1 < rows)
+    entries.push({
+      label: count(block.r1 - block.r0 + 1, 'row'),
+      icon: Trash2,
+      danger: true,
+      onSelect: edit((grid) => deleteBlockRows(grid, block)),
+    });
+  if (isWholeColumns(block, rows) && block.c1 - block.c0 + 1 < cols)
+    entries.push({
+      label: count(block.c1 - block.c0 + 1, 'column'),
+      icon: Trash2,
+      danger: true,
+      onSelect: edit((grid) => deleteBlockColumns(grid, block)),
+    });
+  entries.push({ label: 'Clear contents', icon: Eraser, onSelect: edit((grid) => clearBlock(grid, block)) });
+  return entries;
+}
+
 export function nodeMenu(node: Exclude<AppNode, NodeOf<'section'>>): MenuEntry[] {
   const extra = (kindItems[node.type] as ((n: AppNode) => MenuEntry[]) | undefined)?.(node) ?? [];
   return [
@@ -343,6 +380,10 @@ export function menuFor(target: Element | null, at: XYPosition, actions: MenuAct
   if (!hit.selected) useCanvasStore.getState().setSelection((n) => n.id === hit.id);
   if (hit.type === 'sheet' && target?.closest('.Spreadsheet')) {
     const onSelection = sheetMenu(hit);
+    if (onSelection.length > 0) return [...onSelection, { separator: true }, ...nodeMenu(hit)];
+  }
+  if (hit.type === 'table' && target?.closest('table')) {
+    const onSelection = tableMenu(hit);
     if (onSelection.length > 0) return [...onSelection, { separator: true }, ...nodeMenu(hit)];
   }
   if (useCanvasStore.getState().nodes.filter((n) => n.selected).length > 1) return selectionMenu(actions);

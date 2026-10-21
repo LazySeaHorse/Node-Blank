@@ -4,11 +4,14 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import { insertColumn, insertRow, removeColumnAt, removeRowAt, setCell } from '@/lib/grid';
+import { columnLabel } from '@/lib/gridOps';
 import { MathField } from '@/lib/math/MathField';
 import type { NodeOf } from '@/model/types';
 import { WithTooltip } from '@/ui/Button';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
+import { inBlock } from './blocks';
+import { useTableSelection } from './useTableSelection';
 
 interface Layout {
   /** Table offset inside the wrapper. */
@@ -133,12 +136,50 @@ function Gridline({
   );
 }
 
+/** A row number, column letter or corner handle in the table's margin; selects what it names. */
+function HeaderHandle({
+  label,
+  style,
+  active,
+  visible,
+  onSelect,
+  children,
+}: {
+  label: string;
+  style: React.CSSProperties;
+  active: boolean;
+  visible: boolean;
+  onSelect: () => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      style={style}
+      // Keep focus where it is until the selection takes it over.
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onSelect}
+      className={cn(
+        'nodrag nopan absolute z-20 flex cursor-pointer items-center justify-center rounded-sm text-[10px] leading-none font-medium transition-opacity',
+        active ? 'bg-accent text-white' : 'bg-surface-2 text-muted hover:bg-accent/25 hover:text-fg',
+        visible
+          ? 'pointer-events-auto opacity-100'
+          : 'pointer-events-none opacity-0 group-hover/table:pointer-events-auto group-hover/table:opacity-100',
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'table'>>) {
   const readOnly = useReadOnly();
   const update = useUpdateNodeData<'table'>(id);
   const { cells } = data;
   const edit = (transform: (grid: string[][]) => string[][]) => update({ cells: transform(cells) });
   const tableRef = useRef<HTMLTableElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   // The row or column the pointer is about to remove, shown tinted.
   const [doomed, setDoomed] = useState<{ axis: 'row' | 'col'; index: number } | null>(null);
   const preview = (axis: 'row' | 'col', index: number) => (on: boolean) =>
@@ -146,6 +187,13 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
   const [layout, setLayout] = useState<Layout | null>(null);
   const rowCount = cells.length;
   const colCount = cells[0]?.length ?? 0;
+  const { block, selectRows, selectColumns, selectAll, cellHandlers } = useTableSelection({
+    id,
+    wrapper: wrapperRef,
+    cells,
+    readOnly,
+    edit,
+  });
 
   // Cells grow with their content, so measure again whenever the table's size changes.
   // biome-ignore lint/correctness/useExhaustiveDependencies: the grid shape changes the lines.
@@ -161,7 +209,7 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
 
   return (
     <NodeShell kind="table" selected={selected} customTitle={data.title} tint={data.color}>
-      <div className="relative w-fit p-4">
+      <div ref={wrapperRef} className="group/table relative w-fit p-4">
         <table ref={tableRef} className="border-collapse">
           <tbody>
             {cells.map((row, r) => (
@@ -171,8 +219,12 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
                   <td
                     // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
                     key={c}
+                    data-r={r}
+                    data-c={c}
+                    {...cellHandlers(r, c)}
                     className={cn(
                       'min-w-20 border border-border p-0 transition-colors duration-150',
+                      block && inBlock(block, r, c) && 'bg-accent/20',
                       (doomed?.axis === 'row' ? doomed.index === r : doomed?.index === c) && 'bg-danger/15',
                     )}
                   >
@@ -191,6 +243,53 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
         </table>
         {!readOnly && layout && (
           <div className="pointer-events-none absolute" style={{ left: layout.left, top: layout.top }}>
+            <HeaderHandle
+              label="Select whole table"
+              style={{ left: -16, top: -16, width: 12, height: 12 }}
+              active={
+                block?.r0 === 0 && block.c0 === 0 && block.r1 === rowCount - 1 && block.c1 === colCount - 1
+              }
+              visible={block !== null}
+              onSelect={selectAll}
+            />
+            {layout.ys.slice(0, -1).map((y, r) => (
+              <HeaderHandle
+                // biome-ignore lint/suspicious/noArrayIndexKey: headers are addressed by position.
+                key={`hr${r}`}
+                label={`Select row ${r + 1}`}
+                style={{ left: -16, top: y + 1, width: 12, height: (layout.ys[r + 1] ?? y) - y - 2 }}
+                active={
+                  block !== null &&
+                  block.c0 === 0 &&
+                  block.c1 === colCount - 1 &&
+                  r >= block.r0 &&
+                  r <= block.r1
+                }
+                visible={block !== null}
+                onSelect={() => selectRows(r)}
+              >
+                {r + 1}
+              </HeaderHandle>
+            ))}
+            {layout.xs.slice(0, -1).map((x, c) => (
+              <HeaderHandle
+                // biome-ignore lint/suspicious/noArrayIndexKey: headers are addressed by position.
+                key={`hc${c}`}
+                label={`Select column ${columnLabel(c)}`}
+                style={{ top: -16, left: x + 1, height: 12, width: (layout.xs[c + 1] ?? x) - x - 2 }}
+                active={
+                  block !== null &&
+                  block.r0 === 0 &&
+                  block.r1 === rowCount - 1 &&
+                  c >= block.c0 &&
+                  c <= block.c1
+                }
+                visible={block !== null}
+                onSelect={() => selectColumns(c)}
+              >
+                {columnLabel(c)}
+              </HeaderHandle>
+            ))}
             {layout.ys.map((y, b) => (
               <Gridline
                 // biome-ignore lint/suspicious/noArrayIndexKey: boundaries are addressed by position.
