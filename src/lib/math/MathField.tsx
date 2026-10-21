@@ -1,8 +1,10 @@
 import { MathfieldElement } from 'mathlive';
 import 'mathlive/fonts.css';
-import { useEffect, useEffectEvent, useRef } from 'react';
+import { Sigma, Type } from 'lucide-react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { useCanvasStore } from '@/store/canvasStore';
+import { WithTooltip } from '@/ui/Button';
 import { flattenDisplaylines } from './normalize';
 
 // Fonts come from the bundled CSS above; no keyboard click sounds.
@@ -24,6 +26,8 @@ interface MathFieldProps {
   /** Shift+Enter inserts a line break. */
   multiline?: boolean;
   placeholder?: string;
+  /** While focused and empty, shows a button that switches the field between math and text (the `"` key). */
+  modeToggle?: boolean;
   className?: string;
 }
 
@@ -34,9 +38,12 @@ export function MathField({
   readOnly = false,
   multiline = false,
   placeholder,
+  modeToggle = false,
   className,
 }: MathFieldProps) {
   const ref = useRef<MathfieldElement>(null);
+  const [focused, setFocused] = useState(false);
+  const [textMode, setTextMode] = useState(false);
   const emitChange = useEffectEvent((latex: string) => onChange?.(flattenDisplaylines(latex)));
 
   useEffect(() => {
@@ -67,7 +74,11 @@ export function MathField({
     const handleInput = () => emitChange(field.value);
     // Clicking into a field selects its node, so Escape can hand control back to node shortcuts (Ctrl+D, Ctrl+C...).
     const node = () => field.closest<HTMLElement>('.react-flow__node');
+    const syncMode = () => setTextMode(field.mode === 'text');
+    const handleBlur = () => setFocused(false);
     const handleFocus = () => {
+      setFocused(true);
+      syncMode();
       const id = node()?.dataset.id;
       if (id) useCanvasStore.getState().setSelection((n) => n.id === id);
     };
@@ -86,14 +97,47 @@ export function MathField({
     };
     field.addEventListener('input', handleInput);
     field.addEventListener('focus', handleFocus);
+    field.addEventListener('blur', handleBlur);
+    field.addEventListener('mode-change', syncMode);
     field.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => {
       field.removeEventListener('input', handleInput);
       field.removeEventListener('focus', handleFocus);
+      field.removeEventListener('blur', handleBlur);
+      field.removeEventListener('mode-change', syncMode);
       field.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [multiline]);
 
+  const field = <math-field ref={ref} className={cn('nodrag nopan nowheel nokey', className)} />;
+  if (!modeToggle) return field;
+
+  const toggleMode = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.mode = el.mode === 'text' ? 'math' : 'text';
+    setTextMode(el.mode === 'text');
+    el.focus();
+  };
+  const showToggle = focused && !readOnly && value === '';
   // nodrag/nopan/nowheel/nokey stop React Flow from treating interaction with the field as canvas input.
-  return <math-field ref={ref} className={cn('nodrag nopan nowheel nokey', className)} />;
+  return (
+    <div className="relative">
+      {field}
+      {showToggle && (
+        <WithTooltip label={`${textMode ? 'Text' : 'Math'} mode. Press " to switch`}>
+          <button
+            type="button"
+            aria-label={textMode ? 'Switch to math mode' : 'Switch to text mode'}
+            // Keep the caret in the field: a mousedown on a button would take focus away.
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={toggleMode}
+            className="nodrag nopan absolute top-1/2 right-1 flex size-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-accent/10"
+          >
+            {textMode ? <Type className="size-3.5" /> : <Sigma className="size-3.5" />}
+          </button>
+        </WithTooltip>
+      )}
+    </div>
+  );
 }

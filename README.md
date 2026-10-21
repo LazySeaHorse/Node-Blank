@@ -35,6 +35,9 @@ Most digital study tools require a tablet and stylus. Computational notebooks hi
 | Action | Input |
 | --- | --- |
 | Place a node | Pick a tool in the toolbar, then double-click the canvas |
+| Pick a placement tool | 1-9, then 0 (same order as the toolbar) |
+| Insert a table row or column | Hover the table, click a "+" on its top or left edge |
+| Text in a table cell | Press `"` in an empty cell, or use the button beside it |
 | Pan | Scroll / trackpad, or drag with middle or right mouse button |
 | Context menu | Right-click (without dragging) the canvas, a node, a section or a selection |
 | Zoom | Pinch, or Ctrl/Cmd + scroll |
