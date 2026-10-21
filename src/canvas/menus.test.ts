@@ -2,8 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_VIEWPORT, SECTION_COLORS } from '@/model/types';
 import { createNode, searchTextOf } from '@/nodes/factory';
 import { undo, useCanvasStore } from '@/store/canvasStore';
+import { askNumbers } from '@/ui/dialogs';
 import type { MenuEntry, MenuItem, MenuSub } from '@/ui/Menu';
 import { canvasMenu, menuFor } from './menus';
+
+vi.mock('@/ui/dialogs', () => ({ askNumbers: vi.fn() }));
 
 const isSub = (e: MenuEntry): e is MenuSub => 'items' in e;
 const isItem = (e: MenuEntry): e is MenuItem => 'onSelect' in e;
@@ -113,6 +116,25 @@ describe('node menus', () => {
     const titled = state().nodes[0];
     expect(labels(menuFor(element('react-flow__node', a.id), at, actions()))[0]).toBe('Rename');
     expect(searchTextOf(titled).startsWith('Intro')).toBe(true);
+  });
+
+  it('offers a table size entry that resizes in one undo step', async () => {
+    const t = createNode('table', { x: 0, y: 0 });
+    state().load({ nodes: [t], viewport: DEFAULT_VIEWPORT });
+    const { cells } = t.data as { cells: string[][] };
+    const entries = menuFor(element('react-flow__node', t.id), at, actions());
+    const entry = find(entries, `Size: ${cells.length} × ${cells[0].length} (rows × cols)…`);
+    expect(entry).toBeTruthy();
+    vi.mocked(askNumbers).mockResolvedValueOnce([cells.length + 2, 1]);
+    await (entry as MenuItem).onSelect();
+    const next = (state().nodes[0].data as { cells: string[][] }).cells;
+    expect(next).toHaveLength(cells.length + 2);
+    expect(next[0]).toHaveLength(1);
+    undo();
+    expect((state().nodes[0].data as { cells: string[][] }).cells).toEqual(cells);
+    vi.mocked(askNumbers).mockResolvedValueOnce(null);
+    await (entry as MenuItem).onSelect();
+    expect((state().nodes[0].data as { cells: string[][] }).cells).toEqual(cells);
   });
 
   it('adds Math+ result copying', () => {

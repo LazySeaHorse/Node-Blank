@@ -37,3 +37,10 @@ export const removeRowAt = (grid: string[][], index: number): string[][] =>
 /** Removes the column at `index`; a one-column grid is left alone. */
 export const removeColumnAt = (grid: string[][], index: number): string[][] =>
   (grid[0]?.length ?? 0) > 1 ? grid.map((row) => row.filter((_, j) => j !== index)) : grid;
+
+/** Grows with empty cells or drops trailing rows and columns; kept cells keep their content. At least 1 x 1. */
+export const resizeGrid = (grid: string[][], rows: number, cols: number): string[][] => {
+  const r = Math.max(1, Math.floor(rows));
+  const c = Math.max(1, Math.floor(cols));
+  return Array.from({ length: r }, (_, i) => Array.from({ length: c }, (_, j) => grid[i]?.[j] ?? ''));
+};

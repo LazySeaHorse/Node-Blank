@@ -38,6 +38,7 @@ Most digital study tools require a tablet and stylus. Computational notebooks hi
 | Pick a placement tool | 1-9, then 0 (same order as the toolbar) |
 | Add or remove table rows and columns | Hover any gridline of a table (edges included): "+" inserts a row or column there, "−" removes the one before it |
 | Text in a table cell | Press `"` in an empty cell, or use the button beside it |
+| Set a table's size | Right-click the table, then "Size: …" (1-50 rows, 1-26 columns) |
 | Pan | Scroll / trackpad, or drag with middle or right mouse button |
 | Context menu | Right-click (without dragging) the canvas, a node, a section or a selection |
 | Zoom | Pinch, or Ctrl/Cmd + scroll |

@@ -23,10 +23,12 @@ import {
   Shapes,
   Sigma,
   SquareDashed,
+  Table2,
   Trash2,
   Ungroup,
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
+import { resizeGrid } from '@/lib/grid';
 import { applyGridOp, columnLabel, GridOpError } from '@/lib/gridOps';
 import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
@@ -38,6 +40,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
 import { deleteSectionWithContents } from '@/store/sections';
 import { useUiStore } from '@/store/uiStore';
+import { askNumbers } from '@/ui/dialogs';
 import type { MenuEntry } from '@/ui/Menu';
 import { copySelection, pasteAt } from './clipboard';
 import { mathMenu } from './mathMenu';
@@ -114,6 +117,7 @@ const copyLatex = (latex: string): MenuEntry => ({
 /** Extra items for particular kinds of node, shown above the common ones. */
 const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
   math: (node) => [...mathMenu(node), { separator: true }, copyLatex(node.data.latex)],
+  table: (node) => [tableSize(node)],
   web: (node) => [loadAutomatically(node), unloadOffscreen(node)],
   mathPlus: (node) => [
     ...mathMenu(node),
@@ -125,6 +129,32 @@ const kindItems: { [K in NodeKind]?: (node: NodeOf<K>) => MenuEntry[] } = {
       onSelect: async () => copyText(await mathPlusResultsText(node.id), 'results'),
     },
   ],
+};
+
+/** Largest table the size prompt allows. */
+export const MAX_TABLE_ROWS = 50;
+export const MAX_TABLE_COLUMNS = 26;
+
+const tableSize = (node: NodeOf<'table'>): MenuEntry => {
+  const rows = node.data.cells.length;
+  const cols = node.data.cells[0]?.length ?? 1;
+  return {
+    label: `Size: ${rows} × ${cols} (rows × cols)…`,
+    icon: Table2,
+    onSelect: async () => {
+      const size = await askNumbers({
+        title: 'Table size',
+        fields: [
+          { label: 'Rows', initial: rows, min: 1, max: MAX_TABLE_ROWS },
+          { label: 'Columns', initial: cols, min: 1, max: MAX_TABLE_COLUMNS },
+        ],
+      });
+      if (!size) return;
+      useCanvasStore
+        .getState()
+        .updateNodeData<'table'>(node.id, { cells: resizeGrid(node.data.cells, size[0], size[1]) });
+    },
+  };
 };
 
 const loadAutomatically = (node: NodeOf<'web'>): MenuEntry => ({
