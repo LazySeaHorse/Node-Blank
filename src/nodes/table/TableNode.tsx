@@ -39,10 +39,13 @@ function PillButton({
   label,
   disabled,
   onClick,
+  onPreview,
   children,
 }: {
   label: string;
   disabled?: boolean;
+  /** Called with true while the button is hovered or focused, false when that ends. */
+  onPreview?: (on: boolean) => void;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -55,6 +58,10 @@ function PillButton({
         // Keep the caret in the cell: a mousedown on a button would take focus away.
         onMouseDown={(event) => event.preventDefault()}
         onClick={onClick}
+        onMouseEnter={() => !disabled && onPreview?.(true)}
+        onMouseLeave={() => onPreview?.(false)}
+        onFocus={() => !disabled && onPreview?.(true)}
+        onBlur={() => onPreview?.(false)}
         className="flex size-5 cursor-pointer items-center justify-center rounded-full hover:bg-accent hover:text-white disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
       >
         {children}
@@ -74,6 +81,7 @@ function Gridline({
   canRemove,
   onInsert,
   onRemove,
+  onPreview,
 }: {
   vertical: boolean;
   position: number;
@@ -81,6 +89,7 @@ function Gridline({
   canRemove: boolean;
   onInsert: () => void;
   onRemove: () => void;
+  onPreview: (on: boolean) => void;
 }) {
   const noun = vertical ? 'column' : 'row';
   return (
@@ -105,7 +114,15 @@ function Gridline({
             : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
         )}
       >
-        <PillButton label={`Remove ${noun}`} disabled={!canRemove} onClick={onRemove}>
+        <PillButton
+          label={`Remove ${noun}`}
+          disabled={!canRemove}
+          onClick={() => {
+            onPreview(false);
+            onRemove();
+          }}
+          onPreview={onPreview}
+        >
           <Minus className="size-3" />
         </PillButton>
         <PillButton label={`Insert ${noun}`} onClick={onInsert}>
@@ -122,6 +139,10 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
   const { cells } = data;
   const edit = (transform: (grid: string[][]) => string[][]) => update({ cells: transform(cells) });
   const tableRef = useRef<HTMLTableElement>(null);
+  // The row or column the pointer is about to remove, shown tinted.
+  const [doomed, setDoomed] = useState<{ axis: 'row' | 'col'; index: number } | null>(null);
+  const preview = (axis: 'row' | 'col', index: number) => (on: boolean) =>
+    setDoomed(on ? { axis, index } : null);
   const [layout, setLayout] = useState<Layout | null>(null);
   const rowCount = cells.length;
   const colCount = cells[0]?.length ?? 0;
@@ -147,8 +168,14 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
               // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
               <tr key={r}>
                 {row.map((value, c) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
-                  <td key={c} className="min-w-20 border border-border p-0">
+                  <td
+                    // biome-ignore lint/suspicious/noArrayIndexKey: grid cells are addressed by position.
+                    key={c}
+                    className={cn(
+                      'min-w-20 border border-border p-0 transition-colors duration-150',
+                      (doomed?.axis === 'row' ? doomed.index === r : doomed?.index === c) && 'bg-danger/15',
+                    )}
+                  >
                     <MathField
                       value={value}
                       onChange={(latex) => edit((grid) => setCell(grid, r, c, latex))}
@@ -174,6 +201,7 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
                 canRemove={rowCount > 1}
                 onInsert={() => edit((grid) => insertRow(grid, b))}
                 onRemove={() => edit((grid) => removeRowAt(grid, Math.max(0, b - 1)))}
+                onPreview={preview('row', Math.max(0, b - 1))}
               />
             ))}
             {layout.xs.map((x, b) => (
@@ -186,6 +214,7 @@ export default function TableNode({ id, data, selected }: NodeProps<NodeOf<'tabl
                 canRemove={colCount > 1}
                 onInsert={() => edit((grid) => insertColumn(grid, b))}
                 onRemove={() => edit((grid) => removeColumnAt(grid, Math.max(0, b - 1)))}
+                onPreview={preview('col', Math.max(0, b - 1))}
               />
             ))}
           </div>
