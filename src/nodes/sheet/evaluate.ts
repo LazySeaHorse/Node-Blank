@@ -1,7 +1,8 @@
 import FormulaParser, { type CellRef, type RangeRef } from 'fast-formula-parser';
 import { Rational } from '@/lib/rational';
+import { determinant, inverse, toRational } from './matrix';
 
-const { DepParser, FormulaError } = FormulaParser;
+const { DepParser, FormulaError, FormulaHelpers, Types } = FormulaParser;
 const SHEET = 'Sheet1';
 
 const isFormula = (text: string) => text.startsWith('=') && text.length > 1;
@@ -23,6 +24,24 @@ function display(value: unknown, fractions: boolean): string {
   if (typeof value === 'boolean') return value ? 'TRUE' : 'FALSE';
   return String(value);
 }
+
+/** A formula argument as a square matrix of exact fractions; #VALUE! when it is not square or not all numbers. */
+function squareMatrix(argument: unknown): Rational[][] {
+  const rows = FormulaHelpers.accept(argument, Types.ARRAY, undefined, false, true) as unknown[][];
+  const numbers = rows.every((row) => row.length === rows.length && row.every(Number.isFinite));
+  if (!numbers) throw FormulaError.VALUE;
+  return rows.map((row) => row.map((value) => toRational(value as number)));
+}
+
+/** Matrix functions done exactly, replacing the parser's (its MDETERM is wrong past 3×3, MINVERSE is missing). */
+const functions = {
+  MDETERM: (argument: unknown) => determinant(squareMatrix(argument)).toNumber(),
+  MINVERSE: (argument: unknown) => {
+    const result = inverse(squareMatrix(argument));
+    if (!result) throw FormulaError.NUM;
+    return result.map((row) => row.map((value) => value.toNumber()));
+  },
+};
 
 /** The cells a formula reads, clipped to the grid; none when it does not parse (evaluating it reports that). */
 function references(formula: string, at: CellRef, rows: number, columns: number): CellRef[] {
@@ -59,6 +78,7 @@ export function evaluateSheet(cells: string[][], fractions: boolean): (string | 
   );
   const read = (row: number, col: number) => values[row - 1]?.[col - 1];
   const parser = new FormulaParser({
+    functions,
     onCell: ({ row, col }) => read(row, col),
     onRange: ({ from, to }) =>
       Array.from({ length: Math.max(0, Math.min(to.row, rows) - from.row + 1) }, (_, r) =>

@@ -76,3 +76,53 @@ describe('evaluateSheet', () => {
     ).toBe('3');
   });
 });
+
+describe('evaluateSheet matrix functions', () => {
+  const four = [
+    ['1', '2', '3', '4'],
+    ['5', '6', '7', '8'],
+    ['2', '6', '4', '8'],
+    ['3', '1', '1', '2'],
+  ];
+
+  it('takes determinants exactly, past 3×3', () => {
+    const withFormula = four.map((row, r) => [...row, r === 0 ? '=MDETERM(A1:D4)' : '']);
+    expect(evaluateSheet(withFormula, false)[0][4]).toBe('72');
+    const fractions = [
+      ['1/2', '1/3', '=MDETERM(A1:B2)'],
+      ['1/4', '1/5', ''],
+    ];
+    expect(evaluateSheet(fractions, true)[0][2]).toBe('1/60');
+    expect(
+      evaluateSheet(
+        [
+          ['1', '2', '=MDETERM(A1:B2)'],
+          ['2', '4', ''],
+        ],
+        false,
+      )[0][2],
+    ).toBe('0');
+  });
+
+  it('inverts matrices exactly, showing the first value', () => {
+    const grid = [
+      ['1', '2', '=MINVERSE(A1:B2)', '=INDEX(MINVERSE(A1:B2),2,1)'],
+      ['3', '4', '', ''],
+    ];
+    expect(evaluateSheet(grid, false)[0].slice(2)).toEqual(['-2', '1.5']);
+    const thirds = [
+      ['3', '0', '=MINVERSE(A1:B2)'],
+      ['0', '7', ''],
+    ];
+    expect(evaluateSheet(thirds, true)[0][2]).toBe('1/3');
+  });
+
+  it('reports singular, non-square or non-numeric matrices as errors', () => {
+    const grid = [
+      ['1', '2', '=MINVERSE(A1:B2)', '=MDETERM(A1:B3)', '=MDETERM(A3:B3)'],
+      ['2', '4', '', '', ''],
+      ['x', '1', '', '', ''],
+    ];
+    expect(evaluateSheet(grid, false)[0].slice(2)).toEqual(['#NUM!', '#VALUE!', '#VALUE!']);
+  });
+});
