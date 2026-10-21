@@ -123,8 +123,10 @@ test('sheet node evaluates formulas', async ({ page }) => {
 test('table node rows and columns', async ({ page }) => {
   await placeNode(page, 'Table');
   await expect(nodes(page).locator('math-field')).toHaveCount(9);
-  await nodes(page).getByRole('button', { name: 'Add Row' }).click();
-  await nodes(page).getByRole('button', { name: 'Add Col' }).click();
+  // The last gridline of each kind is the table's bottom/right edge, where "+" appends. Its pill only takes
+  // pointer events while hovered, so click it by event.
+  await nodes(page).getByRole('button', { name: 'Insert row' }).last().dispatchEvent('click');
+  await nodes(page).getByRole('button', { name: 'Insert column' }).last().dispatchEvent('click');
   await expect(nodes(page).locator('math-field')).toHaveCount(16);
 });
 
