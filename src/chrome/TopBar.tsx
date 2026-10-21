@@ -5,7 +5,6 @@ import {
   FilePlus2,
   FolderOpen,
   LayoutGrid,
-  Library,
   Redo2,
   Undo2,
   Upload,
@@ -14,7 +13,7 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { useAgentStore } from '@/agent';
 import { useCanvasActions } from '@/canvas/useCanvasActions';
-import { nodeKinds, nodeSpecs } from '@/nodes/catalog';
+import { nodeSpecs, numberKeyFor, toolbarKinds } from '@/nodes/catalog';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { organiseCanvas } from '@/store/groups';
 import { useUiStore } from '@/store/uiStore';
@@ -33,7 +32,7 @@ import { useCurrentCanvas } from './useCurrentCanvas';
 
 const REPO_URL = 'https://github.com/LazySeaHorse/Node-Blank';
 
-function BrandMenu({ onOpenCanvases }: { onOpenCanvases: () => void }) {
+function BrandMenu() {
   const working = useAgentStore((s) => s.locked);
   const hasSelection = useCanvasStore((s) => s.nodes.some((n) => n.selected));
   const { importJson, exportJson } = useCanvasActions();
@@ -60,7 +59,6 @@ function BrandMenu({ onOpenCanvases }: { onOpenCanvases: () => void }) {
         { separator: true },
         { heading: 'Canvas' },
         { label: 'New canvas', icon: FilePlus2, onSelect: () => void create() },
-        { label: 'All canvases', icon: Library, onSelect: onOpenCanvases },
         { separator: true },
         { heading: 'Export' },
         {
@@ -111,7 +109,7 @@ export function TopBar() {
 
   return (
     <Panel className="h-14 w-full gap-1 px-2.5">
-      <BrandMenu onOpenCanvases={() => setManagerOpen(true)} />
+      <BrandMenu />
       <Divider />
       <WithTooltip label="Switch canvas">
         <button
@@ -130,15 +128,14 @@ export function TopBar() {
         <IconButton icon={Undo2} label="Undo" hint="Ctrl+Z" disabled={!canUndo} onClick={undo} />
         <IconButton icon={Redo2} label="Redo" hint="Ctrl+Shift+Z" disabled={!canRedo} onClick={redo} />
         <Divider />
-        {nodeKinds.map((kind) => {
+        {toolbarKinds().map((kind) => {
           const spec = nodeSpecs[kind];
-          if (spec.placement === 'wrap' || spec.available?.() === false) return null;
           return spec.placement === 'place' ? (
             <IconButton
               key={kind}
               icon={spec.icon}
               label={spec.label}
-              hint="double-click canvas to place"
+              hint={`${numberKeyFor(kind) ? `${numberKeyFor(kind)}, then ` : ''}double-click canvas to place`}
               active={tool === kind}
               onClick={() => setTool(kind)}
             />

@@ -40,8 +40,7 @@ async function serveJsonbin(page: Page) {
 }
 
 async function openCanvases(page: Page) {
-  await page.getByRole('button', { name: 'Node-Blank menu' }).click();
-  await page.getByRole('menuitem', { name: 'All canvases' }).first().click();
+  await page.getByRole('button', { name: 'Untitled canvas' }).click();
   return page.getByRole('dialog', { name: 'Canvases' });
 }
 

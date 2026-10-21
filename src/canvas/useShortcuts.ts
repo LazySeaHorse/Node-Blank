@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { kindForNumberKey } from '@/nodes/catalog';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { isTextField, isTyping } from './keyboard';
@@ -33,6 +34,15 @@ export function useShortcuts(readOnly: boolean) {
         return;
       }
       if (isTyping(event.target)) return;
+
+      if (!mod && !event.altKey && !event.shiftKey) {
+        const kind = kindForNumberKey(event.key);
+        if (kind) {
+          event.preventDefault();
+          ui.setTool(kind);
+          return;
+        }
+      }
 
       const canvas = useCanvasStore.getState();
       if (mod && key === 'd') {
