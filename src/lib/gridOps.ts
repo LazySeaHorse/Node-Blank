@@ -89,12 +89,7 @@ class Lines {
     this.check(axis, index);
     const cells = Array.from({ length: this.size(axis === 'R' ? 'C' : 'R') }, (_, position): Term => {
       const [row, col] = this.at(axis, index, position);
-      const text = this.grid[row][col];
-      if (text.trim() === '') return BLANK;
-      const value = Rational.parse(text);
-      if (value) return { kind: 'number', value };
-      if (text.startsWith('=') && text.length > 1) return { kind: 'formula', text: text.slice(1) };
-      return { kind: 'text', text };
+      return parseCell(this.grid[row][col]);
     });
     return { kind: 'line', axis, cells };
   }
@@ -104,12 +99,24 @@ class Lines {
     const out = this.grid.map((row) => [...row]);
     cells.forEach((value, position) => {
       const [row, col] = this.at(axis, index, position);
-      if (value.kind === 'text') out[row][col] = value.text;
-      else if (value.kind === 'formula') out[row][col] = `=${value.text}`;
-      else out[row][col] = format === 'fraction' ? value.value.toFraction() : value.value.toDecimal();
+      out[row][col] = cellText(value, format);
     });
     return out;
   }
+}
+
+function parseCell(text: string): Term {
+  if (text.trim() === '') return BLANK;
+  const value = Rational.parse(text);
+  if (value) return { kind: 'number', value };
+  if (text.startsWith('=') && text.length > 1) return { kind: 'formula', text: text.slice(1) };
+  return { kind: 'text', text };
+}
+
+function cellText(value: Term, format: NumberFormat): string {
+  if (value.kind === 'text') return value.text;
+  if (value.kind === 'formula') return `=${value.text}`;
+  return format === 'fraction' ? value.value.toFraction() : value.value.toDecimal();
 }
 
 const name = (axis: Axis) => (axis === 'R' ? 'row' : 'column');
@@ -190,9 +197,17 @@ function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
   }
   if (op === '+' || op === '-') {
     if (left.kind === 'line' && right.kind === 'scalar')
-      return { kind: 'line', axis: left.axis, cells: left.cells.map((a) => offsetTerm(op, a, right.scalar, false)) };
+      return {
+        kind: 'line',
+        axis: left.axis,
+        cells: left.cells.map((a) => offsetTerm(op, a, right.scalar, false)),
+      };
     if (left.kind === 'scalar' && right.kind === 'line')
-      return { kind: 'line', axis: right.axis, cells: right.cells.map((a) => offsetTerm(op, a, left.scalar, true)) };
+      return {
+        kind: 'line',
+        axis: right.axis,
+        cells: right.cells.map((a) => offsetTerm(op, a, left.scalar, true)),
+      };
     throw new GridOpError('That cannot be combined.');
   }
   if (left.kind === 'line' && right.kind === 'scalar') {
@@ -305,4 +320,27 @@ export function applyGridOp(grid: string[][], command: string, format: NumberFor
   if (value.axis !== axis)
     throw new GridOpError(`A ${name(value.axis)} cannot be written into a ${name(axis)}.`);
   return lines.write(axis, index, value.cells, format);
+}
+
+/**
+ * Adds, subtracts, multiplies or divides every number in the grid by `amount` (an integer, decimal or
+ * fraction). Formulas get the operation written into them; text and empty cells stay as they are.
+ */
+export function applyToAll(
+  grid: string[][],
+  op: '+' | '-' | '*' | '/',
+  amount: string,
+  format: NumberFormat,
+): string[][] {
+  const by = Rational.parse(amount);
+  if (!by) throw new GridOpError('Enter a number, such as 5, 0.25 or 1/3.');
+  if (op === '/' && by.isZero) throw new GridOpError('Cannot divide by zero.');
+  return grid.map((row) =>
+    row.map((text) => {
+      const cell = parseCell(text);
+      if (cell.kind === 'text' || (cell.kind === 'number' && cell.blank)) return text;
+      const next = op === '+' || op === '-' ? offsetTerm(op, cell, by, false) : scaleTerm(op, cell, by);
+      return cellText(next, format);
+    }),
+  );
 }

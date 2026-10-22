@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { copyText } from '@/lib/clipboard';
 import { MAX_TABLE_COLUMNS, MAX_TABLE_ROWS, resizeGrid } from '@/lib/grid';
-import { applyGridOp, columnLabel, GridOpError } from '@/lib/gridOps';
+import { applyGridOp, applyToAll, columnLabel, GridOpError } from '@/lib/gridOps';
 import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
@@ -251,6 +251,32 @@ export function sheetMenu(node: NodeOf<'sheet'>): MenuEntry[] {
         },
       },
     );
+  else if (start.row === 0 && start.column === 0 && end.row === rows - 1 && end.column === columns - 1) {
+    const everyNumber = (op: '+' | '-' | '*' | '/', prefix: string, label: string, placeholder: string) => ({
+      field: {
+        prefix,
+        label,
+        placeholder,
+        autoFocus: op === '+',
+        onSubmit: (text: string) => {
+          try {
+            update({ cells: applyToAll(cells, op, text, node.data.fractions ? 'fraction' : 'decimal') });
+          } catch (error) {
+            if (error instanceof GridOpError) return error.message;
+            throw error;
+          }
+        },
+      },
+    });
+    entries.push(
+      { separator: true },
+      { heading: 'Every number' },
+      everyNumber('+', '+', 'Add to every number', '5'),
+      everyNumber('-', '−', 'Subtract from every number', '5'),
+      everyNumber('*', '×', 'Multiply every number', '1/2'),
+      everyNumber('/', '÷', 'Divide every number', '2'),
+    );
+  }
   return entries;
 }
 

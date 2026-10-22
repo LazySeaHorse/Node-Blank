@@ -28,6 +28,10 @@ export interface MenuField {
     prefix: string;
     placeholder?: string;
     hint?: string;
+    /** What a screen reader calls the box; defaults to "Operation on" and the prefix. */
+    label?: string;
+    /** Takes the caret when the menu opens (default). Only one field in a menu should. */
+    autoFocus?: boolean;
     onSubmit: (text: string) => string | undefined;
   };
 }
@@ -102,6 +106,8 @@ function FieldRow({
   prefix,
   placeholder,
   hint,
+  label,
+  autoFocus = true,
   onSubmit,
   close,
 }: MenuField['field'] & { close?: () => void }) {
@@ -109,9 +115,10 @@ function FieldRow({
   const input = useRef<HTMLInputElement>(null);
   // Radix focuses the menu itself as it opens; take the caret after that.
   useEffect(() => {
+    if (!autoFocus) return;
     const timer = setTimeout(() => input.current?.focus(), 0);
     return () => clearTimeout(timer);
-  }, []);
+  }, [autoFocus]);
   return (
     <form
       className="px-2.5 py-1.5"
@@ -131,7 +138,7 @@ function FieldRow({
           autoComplete="off"
           spellCheck={false}
           placeholder={placeholder}
-          aria-label={`Operation on ${prefix}`}
+          aria-label={label ?? `Operation on ${prefix}`}
           onChange={() => setError(undefined)}
           onKeyDown={(event) => event.key !== 'Escape' && event.stopPropagation()}
           className="min-w-0 flex-1 bg-transparent font-mono text-xs outline-none placeholder:text-muted/70"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyGridOp } from './gridOps';
+import { applyGridOp, applyToAll } from './gridOps';
 
 // A simplex tableau: three constraint rows and the objective row.
 const tableau = () => [
@@ -190,5 +190,30 @@ describe('applyGridOp', () => {
     it('moves text along when swapping', () => {
       expect(applyGridOp(data, 'C1 <-> C2', 'fraction')[0]).toEqual(['Cost', 'Qty', '']);
     });
+  });
+});
+
+describe('applyToAll', () => {
+  const grid = () => [
+    ['1', 'x', '', '=B2'],
+    ['1/2', '3', '0.5', ''],
+  ];
+
+  it('changes every number and leaves text and empty cells alone', () => {
+    expect(applyToAll(grid(), '+', '5', 'fraction')).toEqual([
+      ['6', 'x', '', '=B2+5'],
+      ['11/2', '8', '11/2', ''],
+    ]);
+    expect(applyToAll(grid(), '-', '1', 'fraction')[1]).toEqual(['-1/2', '2', '-1/2', '']);
+  });
+
+  it('multiplies and divides exactly', () => {
+    expect(applyToAll(grid(), '*', '1/3', 'fraction')[1]).toEqual(['1/6', '1', '1/6', '']);
+    expect(applyToAll(grid(), '/', '2', 'decimal')[0]).toEqual(['0.5', 'x', '', '=B2/2']);
+  });
+
+  it('rejects a non-number and division by zero', () => {
+    expect(() => applyToAll(grid(), '+', 'abc', 'fraction')).toThrow(/Enter a number/);
+    expect(() => applyToAll(grid(), '/', '0', 'fraction')).toThrow(/divide by zero/);
   });
 });

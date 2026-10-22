@@ -114,6 +114,27 @@ test('a selected row takes operations from the right-click menu, and the formula
   await expect(cell(page, 1, 1)).toHaveText('1/3');
 });
 
+test('right-clicking the select-all corner adds, subtracts, multiplies and divides every number', async ({
+  page,
+}) => {
+  await newSheet(page);
+  await typeInto(page, 0, 0, '2');
+  await typeInto(page, 0, 1, 'x');
+  await typeInto(page, 1, 0, '4');
+  const corner = sheet(page).locator('tr').first().locator('th').first();
+  await corner.click({ button: 'right' });
+  await page.getByLabel('Add to every number').fill('1');
+  await page.getByLabel('Add to every number').press('Enter');
+  await expect(cell(page, 0, 0)).toHaveText('3');
+  await expect(cell(page, 0, 1)).toHaveText('x');
+  await expect(cell(page, 1, 0)).toHaveText('5');
+  await corner.click({ button: 'right' });
+  await page.getByLabel('Multiply every number').fill('2');
+  await page.getByLabel('Multiply every number').press('Enter');
+  await expect(cell(page, 0, 0)).toHaveText('6');
+  await expect(cell(page, 1, 0)).toHaveText('10');
+});
+
 test('row operations on formulas write formulas that stay live', async ({ page }) => {
   await newSheet(page);
   await typeInto(page, 0, 0, '2');

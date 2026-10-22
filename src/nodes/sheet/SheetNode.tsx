@@ -17,7 +17,7 @@ import { NodeShell, Stepper } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
 import { evaluateSheet } from './evaluate';
 import { cellKey, pruneFills, rangeLabel } from './fills';
-import { ColumnIndicator, RowIndicator } from './indicators';
+import { ColumnIndicator, CornerIndicator, RowIndicator } from './indicators';
 import { FormulaBar } from './SheetToolbar';
 import { publishSheetSelection } from './selection';
 
@@ -133,6 +133,7 @@ export default function SheetNode({ id, data, selected }: NodeProps<NodeOf<'shee
             }}
             RowIndicator={RowIndicator}
             ColumnIndicator={ColumnIndicator}
+            CornerIndicator={CornerIndicator}
             DataViewer={ResultViewer}
           />
         </Results>

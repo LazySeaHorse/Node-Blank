@@ -1,4 +1,4 @@
-import type { ColumnIndicatorProps, RowIndicatorProps } from 'react-spreadsheet';
+import type { ColumnIndicatorProps, CornerIndicatorProps, RowIndicatorProps } from 'react-spreadsheet';
 import { cn } from '@/lib/cn';
 import { columnLabel } from '@/lib/gridOps';
 
@@ -32,5 +32,18 @@ export function ColumnIndicator({ column, label, selected, onSelect }: ColumnInd
     >
       {label ?? columnLabel(column)}
     </th>
+  );
+}
+
+/** The select-all corner, except that a right-click selects the whole sheet first, so its menu is about all of it. */
+export function CornerIndicator({ selected, onSelect }: CornerIndicatorProps) {
+  return (
+    <th
+      className={header(selected)}
+      title="Select all"
+      onPointerDown={(event) => event.button === 2 && !selected && onSelect()}
+      onClick={onSelect}
+      tabIndex={0}
+    />
   );
 }
