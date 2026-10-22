@@ -146,6 +146,18 @@ function scaleTerm(op: '*' | '/', a: Term, by: Rational): Term {
   return formula(`${operand(a)}${op}${numberText(by)}`);
 }
 
+/** A number added to or subtracted from a cell, either way round. Text and empty cells are left as they are. */
+function offsetTerm(op: '+' | '-', a: Term, by: Rational, numberFirst: boolean): Term {
+  if (a.kind === 'text') return a;
+  if (a.kind === 'number' && a.blank) return SKIPPED;
+  if (a.kind === 'number') {
+    const [x, y] = numberFirst ? [by, a.value] : [a.value, by];
+    return { kind: 'number', value: op === '+' ? x.add(y) : x.sub(y) };
+  }
+  if (numberFirst) return formula(`${numberText(by)}${op}${operand(a)}`);
+  return by.isZero ? a : formula(`${operand(a)}${op}${numberText(by)}`);
+}
+
 /** Cell by cell product or quotient of two lines. Text, empty cells and a zero divisor leave the cell empty. */
 function pairTerms(op: '*' | '/', a: Term, b: Term): Term {
   const unusable = (t: Term) => t.kind === 'text' || (t.kind === 'number' && t.blank);
@@ -176,8 +188,13 @@ function combine(op: '+' | '-' | '*' | '/', left: Value, right: Value): Value {
       ),
     };
   }
-  if (op === '+' || op === '-')
-    throw new GridOpError('Cannot add a number to a whole row or column; scale it or add another one.');
+  if (op === '+' || op === '-') {
+    if (left.kind === 'line' && right.kind === 'scalar')
+      return { kind: 'line', axis: left.axis, cells: left.cells.map((a) => offsetTerm(op, a, right.scalar, false)) };
+    if (left.kind === 'scalar' && right.kind === 'line')
+      return { kind: 'line', axis: right.axis, cells: right.cells.map((a) => offsetTerm(op, a, left.scalar, true)) };
+    throw new GridOpError('That cannot be combined.');
+  }
   if (left.kind === 'line' && right.kind === 'scalar') {
     if (op === '/' && right.scalar.isZero) throw new GridOpError('Cannot divide by zero.');
     return { kind: 'line', axis: left.axis, cells: left.cells.map((a) => scaleTerm(op, a, right.scalar)) };

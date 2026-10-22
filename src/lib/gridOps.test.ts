@@ -86,6 +86,13 @@ describe('applyGridOp', () => {
     ).toEqual(['0', '0']);
   });
 
+  it('adds or subtracts a number on every numeric cell and leaves text and empty cells alone', () => {
+    const grid = [['1', 'x', '', '=B2']];
+    expect(applyGridOp(grid, 'R1 += 5', 'fraction')[0]).toEqual(['6', 'x', '', '=B2+5']);
+    expect(applyGridOp(grid, 'R1 -= 5', 'fraction')[0]).toEqual(['-4', 'x', '', '=B2-5']);
+    expect(applyGridOp(grid, 'R1 = 5 - R1', 'fraction')[0]).toEqual(['4', 'x', '', '=5-B2']);
+  });
+
   it('does not mutate its input', () => {
     const grid = tableau();
     applyGridOp(grid, 'R1 -= R2', 'fraction');
@@ -97,7 +104,6 @@ describe('applyGridOp', () => {
     ['R9 -= R1', /Row R9 does not exist \(1–4\)/],
     ['C9 = C1', /Column C9 does not exist/],
     ['R1 /= 0', /divide by zero/],
-    ['R1 += 5', /Cannot add a number/],
     ['R1 += C1', /Cannot mix|cannot be written|different length/i],
     ['R1 <-> C1', /Cannot swap/],
     ['R1 -= (R2', /closing parenthesis/],
