@@ -41,6 +41,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   multiSelectionKeyCode: 'Shift',
   snapToGrid: true,
   snapGrid: [GRID, GRID],
+  // Arrow keys would otherwise nudge the selected nodes.
+  disableKeyboardA11y: true,
 };
 
 /** Mobile: look, don't touch. */
