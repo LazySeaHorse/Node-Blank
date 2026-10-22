@@ -16,3 +16,9 @@ function subscribe(onChange: () => void) {
 
 /** Version of the Node-Blank Web extension in this browser, or null when it is not installed (or the page predates it). */
 export const useWebExtension = () => useSyncExternalStore(subscribe, read, () => null);
+
+/** Whether this version of the extension can send back a video's current frame (1.1 and later). */
+export const canGrabFrames = (version: string | null) => {
+  const [major = 0, minor = 0] = (version ?? '').split('.').map(Number);
+  return version !== null && (major > 1 || (major === 1 && minor >= 1));
+};

@@ -102,3 +102,47 @@ test('without the extension the same site is refused', async () => {
     site.close();
   }
 });
+
+test('the extension answers a grab request with the playing video as a JPEG', async () => {
+  const server = createServer((_, res) => {
+    res.writeHead(200, { 'content-type': 'text/html' });
+    res.end(`<!doctype html><title>Player</title><video id="v" muted autoplay playsinline></video><script>
+      const c = Object.assign(document.createElement('canvas'), { width: 320, height: 180 });
+      const x = c.getContext('2d');
+      setInterval(() => { x.fillStyle = '#d33'; x.fillRect(0, 0, 320, 180); }, 50);
+      v.srcObject = c.captureStream(20);
+    </script>`);
+  });
+  await new Promise<void>((done) => server.listen(0, '127.0.0.1', done));
+  const { port } = server.address() as { port: number };
+  const { context, cleanup } = await launch(true);
+  try {
+    const page = await openSite(context, `http://unframable.test:${port}`);
+    await expect(page.locator('html')).toHaveAttribute('data-node-blank-web', /\d/);
+    const reply = await page.evaluate(
+      () =>
+        new Promise<{ type: string; width: number; black: boolean; error?: string; size: number }>(
+          (resolve) => {
+            const frame =
+              document.querySelector<HTMLIFrameElement>('.react-flow__node iframe')?.contentWindow;
+            const ask = () =>
+              frame?.postMessage({ source: 'node-blank-web', type: 'command', command: 'grab', id: 7 }, '*');
+            window.addEventListener('message', (e) => {
+              if (e.data?.type !== 'frame' || e.data.id !== 7) return;
+              // The video may not have a picture yet: ask again.
+              if (e.data.error === 'no-video') return void setTimeout(ask, 200);
+              resolve({ ...e.data, size: e.data.blob?.size ?? 0 });
+            });
+            ask();
+          },
+        ),
+    );
+    expect(reply.error).toBeUndefined();
+    expect(reply.width).toBe(320);
+    expect(reply.black).toBe(false);
+    expect(reply.size).toBeGreaterThan(0);
+  } finally {
+    await cleanup();
+    server.close();
+  }
+});

@@ -1,6 +1,6 @@
 // Runs in every frame, but only does anything in a page that is a direct child of Node-Blank, i.e. the
 // page shown by a Web node. It reports where the page is (the address bar, title and favicon of the
-// node) and obeys back, forward and reload.
+// node) and obeys back, forward, reload and grab (a picture of the video's current frame).
 (() => {
   const { SOURCE, isAppOrigin } = globalThis.NodeBlankWeb;
 
@@ -57,6 +57,58 @@
   });
   report();
 
+  /** Longest side of a grabbed frame; the app shows images far smaller than a full-HD frame anyway. */
+  const MAX_EDGE = 1280;
+
+  /** The video worth grabbing: the largest one on the page that has a picture. */
+  function findVideo() {
+    const ready = [...document.querySelectorAll('video')].filter(
+      (v) => v.readyState >= 2 && v.videoWidth > 0,
+    );
+    return ready.sort((a, b) => b.videoWidth * b.videoHeight - a.videoWidth * a.videoHeight)[0];
+  }
+
+  /** Whether a canvas is all black, which is what protected video draws as. Looks at a 16 x 9 thumbnail. */
+  function isBlack(canvas) {
+    const small = document.createElement('canvas');
+    small.width = 16;
+    small.height = 9;
+    const context = small.getContext('2d');
+    context.drawImage(canvas, 0, 0, 16, 9);
+    const { data } = context.getImageData(0, 0, 16, 9);
+    for (let i = 0; i < data.length; i += 4)
+      if (data[i] > 8 || data[i + 1] > 8 || data[i + 2] > 8) return false;
+    return true;
+  }
+
+  /** Draws the video's current frame to a JPEG and sends it to the app, or says why it cannot. */
+  function grab(id) {
+    const reply = (fields) =>
+      window.parent.postMessage({ source: SOURCE, type: 'frame', id, ...fields }, appOrigin);
+    const video = findVideo();
+    if (!video) return reply({ error: 'no-video' });
+    const scale = Math.min(1, MAX_EDGE / Math.max(video.videoWidth, video.videoHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    try {
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      const black = isBlack(canvas);
+      const time = video.currentTime;
+      canvas.toBlob(
+        (blob) =>
+          reply(
+            blob ? { blob, time, width: canvas.width, height: canvas.height, black } : { error: 'encode' },
+          ),
+        'image/jpeg',
+        0.9,
+      );
+    } catch {
+      // A video from another origin without CORS taints the canvas.
+      reply({ error: 'blocked' });
+    }
+  }
+
   window.addEventListener('message', (event) => {
     if (event.source !== window.parent || event.origin !== appOrigin) return;
     const data = event.data;
@@ -64,6 +116,7 @@
     if (data.command === 'back') history.back();
     else if (data.command === 'forward') history.forward();
     else if (data.command === 'reload') location.reload();
+    else if (data.command === 'grab' && typeof data.id === 'number') grab(data.id);
     else if (data.command === 'navigate' && typeof data.url === 'string') {
       // Only web addresses; the app is not the one to hand a framed page a javascript: URL.
       try {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parsePlaying, playerKind } from './player';
+import { clock, parsePlaying, playerKind } from './player';
 
 const YT = 'https://www.youtube.com';
 
@@ -35,5 +35,13 @@ describe('parsePlaying', () => {
       parsePlaying('youtube', 'https://evil.example', JSON.stringify({ event: 'onStateChange', info: 1 })),
     ).toBeNull();
     expect(parsePlaying('youtube', YT, 'not json')).toBeNull();
+  });
+});
+
+describe('clock', () => {
+  it('formats seconds as m:ss and h:mm:ss', () => {
+    expect(clock(0)).toBe('0:00');
+    expect(clock(65.9)).toBe('1:05');
+    expect(clock(3725)).toBe('1:02:05');
   });
 });
