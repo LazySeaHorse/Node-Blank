@@ -1,5 +1,6 @@
 /**
  * Turns a pasted YouTube/Vimeo link, embed snippet, or other https URL into an iframe `src`.
+ * YouTube embeds carry `enablejsapi=1` so the node can play and pause them.
  * Returns null for anything that is not an http(s) URL.
  */
 export function toEmbedUrl(input: string): string | null {
@@ -17,11 +18,11 @@ export function toEmbedUrl(input: string): string | null {
   const host = url.hostname.replace(/^(www|m)\./, '');
   if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
     const id = url.searchParams.get('v') ?? url.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]+)/)?.[1];
-    if (id) return `https://www.youtube.com/embed/${id}`;
+    if (id) return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
   }
   if (host === 'youtu.be') {
     const id = url.pathname.slice(1).split('/')[0];
-    if (id) return `https://www.youtube.com/embed/${id}`;
+    if (id) return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
   }
   if (host === 'vimeo.com') {
     const id = url.pathname.match(/^\/(\d+)/)?.[1];

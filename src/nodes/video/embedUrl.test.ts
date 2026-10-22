@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { toEmbedUrl } from './embedUrl';
 
-const YT = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+const YT = 'https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1';
 
 describe('toEmbedUrl', () => {
   it.each([
