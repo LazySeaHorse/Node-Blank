@@ -75,26 +75,52 @@ export interface CanvasState {
 }
 
 /**
- * Edits arriving within HISTORY_COALESCE_MS of the previous one extend the current undo step instead of
- * starting a new one, so typing a word or dragging a node is a single undo.
+ * An edit extends the current undo step when it carries on the previous one: the same key (the same field of
+ * the same node, the same nodes being dragged) within HISTORY_COALESCE_MS of it. So typing a word or dragging
+ * a node is one undo, while an edit anywhere else, or an edit without a key, starts a step of its own.
  */
-let lastEditAt = Number.NEGATIVE_INFINITY;
+let lastEdit: { key: string; at: number } | undefined;
+/** The key of the edit being written, set by `continuing` or `asUndoStep`. */
+let editKey: string | undefined;
+/** Inside `asUndoStep`, whose key covers every write in it whatever they are. */
+let inStep = false;
+let steps = 0;
+
 const startNewUndoStep = () => {
-  lastEditAt = Number.NEGATIVE_INFINITY;
+  lastEdit = undefined;
 };
+
+/** Runs `fn`'s store writes as an edit with `key`, extending a burst of edits with the same key. */
+function continuing<T>(key: string, fn: () => T): T {
+  if (inStep) return fn();
+  editKey = key;
+  try {
+    return fn();
+  } finally {
+    editKey = undefined;
+  }
+}
 
 /**
  * Runs `fn`'s store writes as one undo step, separate from the edits before and after.
  * Synchronous by design: do async work first, then call this.
  */
 export function asUndoStep<T>(fn: () => T): T {
+  if (inStep) return fn();
   startNewUndoStep();
+  inStep = true;
+  editKey = `step:${++steps}`;
   try {
     return fn();
   } finally {
+    inStep = false;
+    editKey = undefined;
     startNewUndoStep();
   }
 }
+
+const changeKey = (c: NodeChange<AppNode>) => `${c.type}:${c.type === 'add' ? c.item.id : c.id}`;
+const fieldsKey = (patch: object) => Object.keys(patch).sort().join();
 
 const deselect = (nodes: AppNode[]) => nodes.map((n) => (n.selected ? { ...n, selected: false } : n));
 const deselectEdges = (edges: AppEdge[]) => edges.map((e) => (e.selected ? { ...e, selected: false } : e));
@@ -114,7 +140,10 @@ export const useCanvasStore = create<CanvasState>()(
         const { edges } = get();
         const kept =
           gone.length > 0 ? edges.filter((e) => !gone.includes(e.source) && !gone.includes(e.target)) : edges;
-        set(kept.length === edges.length ? { nodes } : { nodes, edges: kept });
+        // A drag or resize is a stream of changes to the same nodes: one undo step.
+        continuing(`nodes:${changes.map(changeKey).join()}`, () =>
+          set(kept.length === edges.length ? { nodes } : { nodes, edges: kept }),
+        );
       },
 
       onEdgesChange: (changes) => {
@@ -166,11 +195,13 @@ export const useCanvasStore = create<CanvasState>()(
       },
 
       updateNodeData: (id, patch) =>
-        set({
-          nodes: get().nodes.map((n) =>
-            n.id === id ? ({ ...n, data: { ...n.data, ...patch } } as AppNode) : n,
-          ),
-        }),
+        continuing(`data:${id}:${fieldsKey(patch)}`, () =>
+          set({
+            nodes: get().nodes.map((n) =>
+              n.id === id ? ({ ...n, data: { ...n.data, ...patch } } as AppNode) : n,
+            ),
+          }),
+        ),
 
       duplicateSelected: () => {
         const { nodes, edges } = get();
@@ -213,14 +244,16 @@ export const useCanvasStore = create<CanvasState>()(
       },
 
       updateEdgeData: (id, patch) =>
-        set({
-          edges: get().edges.map((e) => {
-            if (e.id !== id) return e;
-            const data = normaliseLinkData({ ...e.data, ...patch });
-            const { data: _old, ...rest } = e;
-            return data ? { ...rest, data } : rest;
+        continuing(`edge:${id}:${fieldsKey(patch)}`, () =>
+          set({
+            edges: get().edges.map((e) => {
+              if (e.id !== id) return e;
+              const data = normaliseLinkData({ ...e.data, ...patch });
+              const { data: _old, ...rest } = e;
+              return data ? { ...rest, data } : rest;
+            }),
           }),
-        }),
+        ),
 
       reverseEdge: (id) => {
         const link = get().edges.find((e) => e.id === id);
@@ -301,8 +334,12 @@ export const useCanvasStore = create<CanvasState>()(
       equality: isEqual,
       handleSet: (handleSet) => (pastState, replace) => {
         const now = Date.now();
-        if (now - lastEditAt > HISTORY_COALESCE_MS) handleSet(pastState, replace as false);
-        lastEditAt = now;
+        const carriesOn =
+          editKey !== undefined &&
+          editKey === lastEdit?.key &&
+          (inStep || now - lastEdit.at <= HISTORY_COALESCE_MS);
+        if (!carriesOn) handleSet(pastState, replace as false);
+        lastEdit = editKey === undefined ? undefined : { key: editKey, at: now };
       },
       limit: 200,
     },

@@ -70,6 +70,38 @@ describe('canvasStore', () => {
     expect(state().nodes[0].data).toEqual({ latex: '' });
   });
 
+  it('keeps rapid edits to different nodes, or a new node after typing, as separate steps', () => {
+    const [a, b] = [0, 1].map((x) => createNode('math', { x, y: 0 }));
+    state().load({ nodes: [a, b], viewport: DEFAULT_VIEWPORT });
+    state().updateNodeData<'math'>(a.id, { latex: 'a' });
+    state().updateNodeData<'math'>(b.id, { latex: 'b' });
+    state().addNodes([createNode('text', { x: 0, y: 0 })]);
+    undo();
+    expect(state().nodes).toHaveLength(2);
+    undo();
+    expect(state().nodes.map((n) => n.data)).toEqual([{ latex: 'a' }, { latex: '' }]);
+    undo();
+    expect(state().nodes.map((n) => n.data)).toEqual([{ latex: '' }, { latex: '' }]);
+  });
+
+  it('records a drag as one step, and a pause in typing as the end of one', () => {
+    const node = createNode('math', { x: 0, y: 0 });
+    state().load({ nodes: [node], viewport: DEFAULT_VIEWPORT });
+    for (const x of [10, 20, 30]) {
+      state().onNodesChange([{ type: 'position', id: node.id, position: { x, y: 0 }, dragging: true }]);
+      vi.advanceTimersByTime(100);
+    }
+    state().updateNodeData<'math'>(node.id, { latex: 'a' });
+    settle();
+    state().updateNodeData<'math'>(node.id, { latex: 'ab' });
+    undo();
+    expect(state().nodes[0].data).toEqual({ latex: 'a' });
+    undo();
+    expect(state().nodes[0].position).toEqual({ x: 30, y: 0 });
+    undo();
+    expect(state().nodes[0].position).toEqual({ x: 0, y: 0 });
+  });
+
   it('does not record selection-only changes', () => {
     const node = createNode('math', { x: 0, y: 0 });
     state().addNodes([node]);
