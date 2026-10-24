@@ -1,4 +1,4 @@
-# Node-Blank
+# Unlined
 
 A desktop-first spatial workbench for STEM study and technical problem solving. Keep textbook pages, math derivations, calculations, and graphs in one view.
 
@@ -10,10 +10,10 @@ A desktop-first spatial workbench for STEM study and technical problem solving. 
 </table>
 
 ### What is this?
-Node-Blank is an offline spatial workspace optimized for mouse and keyboard users. It serves as a unified desktop workbench where you can place reference PDFs, Markdown explanations, evaluated LaTeX formulas, function graphs, and linear algebra spreadsheets side by side.
+Unlined is an offline spatial workspace optimized for mouse and keyboard users. It serves as a unified desktop workbench where you can place reference PDFs, Markdown explanations, evaluated LaTeX formulas, function graphs, and linear algebra spreadsheets side by side.
 
 ### Why did I make this?
-Most digital study tools require a tablet and stylus. Computational notebooks hide reference text behind linear code cells. Node-Blank gives keyboard-driven desktop learners an open 2D space to work through derivations, check calculations, and consult textbook material at the same time.
+Most digital study tools require a tablet and stylus. Computational notebooks hide reference text behind linear code cells. Unlined gives keyboard-driven desktop learners an open 2D space to work through derivations, check calculations, and consult textbook material at the same time.
 
 ### Features
 - **Node types**: Text (Markdown + LaTeX), Math (LaTeX display), Math+ (evaluates expressions with exact fractions and decimal results; `a := 2` variables pass top-to-bottom, left-to-right), Graph (plot several functions of x), Table (math notation cells), Sheet (spreadsheet with formulas, exact fractions, and row/column operations), Script (sandboxed JavaScript with 5-second limit), Image, Video, Web, and PDF (link local files, pin pages, pop pages out as images).
@@ -85,13 +85,13 @@ In linking mode nodes do not move: drag from one node onto another to link them 
 ### Web node
 Insert a Web node from the toolbar and type an address (`example.com` is fine). The page runs live in the node: click the node to use it, drag its header to move it. Pages far off screen, or on a canvas zoomed far out, are unloaded and come back at the address you left them on.
 
-Most big sites (Gemini, Google, GitHub, ...) send headers that forbid being shown in a frame. The [`extension/`](extension/README.md) folder holds a small Chrome extension that removes those headers, only in Node-Blank tabs, and lets the node follow the page's address and title. Load it unpacked (`chrome://extensions`, Developer mode, Load unpacked, pick `extension/`); the README there also covers using several Google accounts. Without it the node still shows sites that allow framing, and suggests the extension.
+Most big sites (Gemini, Google, GitHub, ...) send headers that forbid being shown in a frame. The [`extension/`](extension/README.md) folder holds a small Chrome extension that removes those headers, only in Unlined tabs, and lets the node follow the page's address and title. Load it unpacked (`chrome://extensions`, Developer mode, Load unpacked, pick `extension/`); the README there also covers using several Google accounts. Without it the node still shows sites that allow framing, and suggests the extension.
 
 ### AI control
 Off on every page load. Open the AI panel (robot button in the toolbar) and turn it on; the canvas is organised first so agents can find their way around (undo reverts that).
 
-1. Download and run the bridge for your OS from the latest `bridge-v*` [release](https://github.com/LazySeaHorse/Node-Blank/releases). See [`bridge/README.md`](bridge/README.md).
-2. Add it to your agent once: `claude mcp add --transport http node-blank http://127.0.0.1:47801/mcp` (or `codex mcp add node-blank --url …`, `gemini mcp add --transport http node-blank …`).
+1. Download and run the bridge for your OS from the latest `bridge-v*` [release](https://github.com/LazySeaHorse/Unlined/releases). See [`bridge/README.md`](bridge/README.md).
+2. Add it to your agent once: `claude mcp add --transport http unlined http://127.0.0.1:47801/mcp` (or `codex mcp add unlined --url …`, `gemini mcp add --transport http unlined …`).
 
 Agents get a small fixed-size overview (counts, groups of nearby nodes, links, the selection), then list, search and read only what they need, using short handles (`n3`, `g2`, `l1`) instead of ids. Edits are find/replace, cell updates or whole fields; each call is one undo step. While an agent is editing, the canvas is read-only for you (Take over turns AI control off), changed nodes flash, and the panel keeps the session's activity.
 

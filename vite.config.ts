@@ -43,8 +43,8 @@ export default defineConfig({
         navigateFallbackAllowlist: [/^\/app\//],
       },
       manifest: {
-        name: 'Node-Blank',
-        short_name: 'Node-Blank',
+        name: 'Unlined',
+        short_name: 'Unlined',
         description: 'Infinite canvas for math, text, code & graphs',
         start_url: '/app/',
         scope: '/app/',

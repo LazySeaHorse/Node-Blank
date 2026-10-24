@@ -1,5 +1,5 @@
 {
-  "name": "node-blank",
+  "name": "unlined",
   "version": "2.0.0",
   "private": true,
   "description": "A lightweight, in-browser personal canvas where you can throw down whatever you're working on. Math, markdown, videos, code, graphs... you name it!",
@@ -7,7 +7,7 @@
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LazySeaHorse/Node-Blank.git"
+    "url": "git+https://github.com/LazySeaHorse/Unlined.git"
   },
   "scripts": {
     "dev": "vite",

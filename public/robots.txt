@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 Allow: /app/
 
-Sitemap: https://blank.lazycatto.tech/sitemap.xml
+Sitemap: https://unlined.1azy.ink/sitemap.xml
