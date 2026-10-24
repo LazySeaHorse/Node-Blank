@@ -1,7 +1,7 @@
 import type { AgentToolDescriptor } from './defineTool';
 
 /**
- * Client for the local node-blank-bridge (bridge/main.go), which exposes these
+ * Client for the local unlined-bridge (bridge/main.go), which exposes these
  * tools over MCP to coding agents on the same machine. Protocol (JSON text):
  *   tab -> bridge  {type:'tools', tools:[...]}            once per connection
  *   bridge -> tab  {type:'call', id, name, input}

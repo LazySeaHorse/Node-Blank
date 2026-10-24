@@ -3,10 +3,10 @@ import { nodeKinds, nodeSpecs } from '@/nodes/catalog';
 /** Primer returned by get_guide. One plain-text document. */
 export function buildGuide(): string {
   const kinds = nodeKinds.map((k) => `- ${k}: ${nodeSpecs[k].description}.`).join('\n');
-  return `Node-Blank guide for AI agents
+  return `Unlined guide for AI agents
 
 WHAT IT IS
-Node-Blank is an infinite canvas of free-floating nodes, which the user can link with arrows: notes, math, graphs,
+Unlined is an infinite canvas of free-floating nodes, which the user can link with arrows: notes, math, graphs,
 tables, spreadsheets, scripts, images, videos, web pages and PDFs. You work on the one canvas open in the user's tab.
 
 NODE KINDS

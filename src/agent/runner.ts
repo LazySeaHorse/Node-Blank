@@ -42,7 +42,7 @@ export async function runAgentTool(name: string, rawInput: unknown): Promise<Age
   if (!useAgentStore.getState().enabled)
     return errorResult({
       error: 'agent_disabled',
-      message: 'AI control is turned off in Node-Blank. Ask the user to turn it on in the AI panel.',
+      message: 'AI control is turned off in Unlined. Ask the user to turn it on in the AI panel.',
     });
 
   emit('started');

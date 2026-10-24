@@ -38,17 +38,17 @@ jobs:
             os=${target%/*}; arch=${target#*/}
             ext=""; [ "$os" = windows ] && ext=".exe"
             GOOS=$os GOARCH=$arch go build -trimpath -ldflags "-s -w -X main.version=$VERSION" \
-              -o ../dist-bridge/node-blank-bridge-$os-$arch$ext .
+              -o ../dist-bridge/unlined-bridge-$os-$arch$ext .
           done
           cd ../dist-bridge && sha256sum * > SHA256SUMS
 
       - uses: actions/upload-artifact@v4
         with:
-          name: node-blank-bridge
+          name: unlined-bridge
           path: dist-bridge/*
 
       - name: Publish release
         if: inputs.version != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ inputs.version }}" ../dist-bridge/* --title "Bridge ${{ inputs.version }}" --notes "Local bridge that lets coding agents use the open Node-Blank tab. See bridge/README.md."
+        run: gh release create "${{ inputs.version }}" ../dist-bridge/* --title "Bridge ${{ inputs.version }}" --notes "Local bridge that lets coding agents use the open Unlined tab. See bridge/README.md."

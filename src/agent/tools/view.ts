@@ -10,7 +10,7 @@ export const getGuide = defineTool({
   name: 'get_guide',
   title: 'Guide',
   description:
-    'How Node-Blank works: node kinds and their fields, coordinates, groups, and a suggested workflow. Read once per session.',
+    'How Unlined works: node kinds and their fields, coordinates, groups, and a suggested workflow. Read once per session.',
   input: z.object({}),
   readOnly: true,
   handler: () => ({ text: buildGuide(), summary: 'Read the guide' }),

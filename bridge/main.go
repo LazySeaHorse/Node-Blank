@@ -1,5 +1,5 @@
-// node-blank-bridge lets local coding agents (Claude Code, Codex, Gemini CLI,
-// ...) use the Node-Blank tab that is open in your browser.
+// unlined-bridge lets local coding agents (Claude Code, Codex, Gemini CLI,
+// ...) use the Unlined tab that is open in your browser.
 //
 //	agent --MCP over HTTP--> bridge <--WebSocket-- app tab
 //
@@ -32,11 +32,11 @@ const (
 	statusReplaced  = websocket.StatusCode(4000) // keep in sync with src/agent/bridge.ts
 	maxPageMessage  = 32 << 20                   // tool results are text, but leave room for future images
 	maxRequestBytes = 4 << 20
-	notConnected    = "Node-Blank is not connected. Open it in your browser and turn on AI control in the AI panel (robot button in the toolbar)."
+	notConnected    = "Unlined is not connected. Open it in your browser and turn on AI control in the AI panel (robot button in the toolbar)."
 )
 
 // Pages allowed to connect, on top of any localhost dev server.
-var defaultOrigins = []string{"blank.lazycatto.tech", "localhost:*", "127.0.0.1:*"}
+var defaultOrigins = []string{"unlined.1azy.ink", "localhost:*", "127.0.0.1:*"}
 
 type bridge struct {
 	mu      sync.Mutex
@@ -224,7 +224,7 @@ func (b *bridge) handleMCP(w http.ResponseWriter, r *http.Request) {
 		resp.Result, _ = json.Marshal(map[string]any{
 			"protocolVersion": v,
 			"capabilities":    map[string]any{"tools": map[string]any{"listChanged": false}},
-			"serverInfo":      map[string]string{"name": "node-blank", "version": version},
+			"serverInfo":      map[string]string{"name": "unlined", "version": version},
 		})
 	case "ping":
 		resp.Result = json.RawMessage(`{}`)
@@ -280,15 +280,15 @@ func main() {
 		fatal("Could not listen on 127.0.0.1:%s: %v\nIs the bridge already running? Use -port to pick another port.", *port, err)
 	}
 	url := "http://127.0.0.1:" + *port + "/mcp"
-	fmt.Printf(`Node-Blank bridge %s
+	fmt.Printf(`Unlined bridge %s
 
-Open Node-Blank and turn on AI control in the AI panel (robot button in the
+Open Unlined and turn on AI control in the AI panel (robot button in the
 toolbar). The app connects to this bridge by itself.
 
 Connect your agent (once):
-  Claude Code:  claude mcp add --transport http node-blank %s
-  Codex:        codex mcp add node-blank --url %s
-  Gemini CLI:   gemini mcp add --transport http node-blank %s
+  Claude Code:  claude mcp add --transport http unlined %s
+  Codex:        codex mcp add unlined --url %s
+  Gemini CLI:   gemini mcp add --transport http unlined %s
 
 Waiting for the app... (Ctrl+C to quit)
 

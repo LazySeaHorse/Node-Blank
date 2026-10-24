@@ -120,7 +120,7 @@ func TestAcceptsTheAppOrigin(t *testing.T) {
 	defer srv.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	for _, origin := range []string{"https://blank.lazycatto.tech", "http://localhost:5173"} {
+	for _, origin := range []string{"https://unlined.1azy.ink", "http://localhost:5173"} {
 		c, _, err := websocket.Dial(ctx, "ws"+strings.TrimPrefix(srv.URL, "http")+"/page",
 			&websocket.DialOptions{HTTPHeader: http.Header{"Origin": {origin}}})
 		if err != nil {

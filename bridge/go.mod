@@ -1,4 +1,4 @@
-module node-blank-bridge
+module unlined-bridge
 
 go 1.23
 
