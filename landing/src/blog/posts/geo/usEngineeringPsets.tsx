@@ -275,8 +275,8 @@ export const usEngineeringPsets: BlogPost = {
           or Canvas often penalize rounding errors that occur prior to the final line.
         </p>
         <p>
-          In Unlined&apos;s Math+ engine (powered by Cortex Compute Engine), exact fractions are
-          first-class citizens. When you declare:
+          In Unlined&apos;s Math+ engine (powered by Cortex Compute Engine), exact fractions are first-class
+          citizens. When you declare:
         </p>
 
         <CodeBlock
@@ -336,8 +336,8 @@ console.log({ M_x, M_y, M_z }); // Direct verification against your symbolic ste
         />
 
         <p>
-          Because Unlined supports native JavaScript code execution alongside Math+ and LaTeX blocks, you
-          can check complex arithmetic without running an external Python terminal or opening MATLAB.
+          Because Unlined supports native JavaScript code execution alongside Math+ and LaTeX blocks, you can
+          check complex arithmetic without running an external Python terminal or opening MATLAB.
         </p>
       </section>
 
@@ -359,8 +359,8 @@ console.log({ M_x, M_y, M_z }); // Direct verification against your symbolic ste
               Ingest the Assignment PDF
             </h4>
             <p className="mt-2 text-sm text-muted">
-              Download your weekly assignment from Canvas or Blackboard. Drag the PDF onto your Unlined
-              board. Use the page selector to navigate to the current problem without opening Adobe Acrobat.
+              Download your weekly assignment from Canvas or Blackboard. Drag the PDF onto your Unlined board.
+              Use the page selector to navigate to the current problem without opening Adobe Acrobat.
             </p>
           </div>
 

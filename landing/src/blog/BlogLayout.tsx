@@ -283,8 +283,8 @@ export function BlogLayout({ post }: BlogLayoutProps) {
                     Doing STEM problem sets?
                   </h3>
                   <p className="text-sm text-muted leading-relaxed">
-                    Open Unlined in a browser tab. Keep textbook PDFs, LaTeX equations, live graphs, and
-                    code together without flipping pages.
+                    Open Unlined in a browser tab. Keep textbook PDFs, LaTeX equations, live graphs, and code
+                    together without flipping pages.
                   </p>
                 </div>
                 <a

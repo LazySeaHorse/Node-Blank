@@ -64,9 +64,7 @@ export function TermsOfUse() {
               Agreement to Terms
             </h2>
           </div>
-          <p className="text-muted">
-            These terms govern your access to the Unlined application and website.
-          </p>
+          <p className="text-muted">These terms govern your access to the Unlined application and website.</p>
           <p className="text-muted">When you use Unlined, you accept these terms.</p>
           <p className="text-muted">If you do not accept these terms, do not use the software.</p>
         </section>

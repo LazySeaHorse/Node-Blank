@@ -156,9 +156,9 @@ export const indiaGateEngineeringMath: BlogPost = {
         </div>
 
         <Callout type="info" title="The Unlined Advantage">
-          Unlined is a lightweight, 100% free and open-source Progressive Web App (PWA). It launches
-          instantly in any modern browser, requires zero login, caches everything locally in IndexedDB, and
-          works completely offline without consuming background system resources.
+          Unlined is a lightweight, 100% free and open-source Progressive Web App (PWA). It launches instantly
+          in any modern browser, requires zero login, caches everything locally in IndexedDB, and works
+          completely offline without consuming background system resources.
         </Callout>
       </section>
 
@@ -360,8 +360,8 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
 
         <Callout type="tip" title="Master the 15 Marks with Zero Friction">
           Your laptop is already a high-performance calculation machine. By combining keyboard-first LaTeX
-          speed with exact rational row operations, Unlined gives you the fastest mathematical scratchpad
-          for cracking GATE.
+          speed with exact rational row operations, Unlined gives you the fastest mathematical scratchpad for
+          cracking GATE.
         </Callout>
       </section>
     </article>

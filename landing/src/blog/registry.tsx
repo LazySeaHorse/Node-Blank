@@ -160,8 +160,7 @@ export const BLOG_POSTS: BlogPost[] = [
           The Unlined Multi-Node Workflow
         </h2>
         <p>
-          Here is how modern STEM students lay out this exact problem set in Unlined without mental
-          friction:
+          Here is how modern STEM students lay out this exact problem set in Unlined without mental friction:
         </p>
 
         <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -227,9 +226,9 @@ assert np.isclose(det, r_val)`}
         />
 
         <Callout type="pset" title="Pset Tip: Grouping with Canvas Sections">
-          In Unlined, wrap related nodes into a named Section box (e.g. "Problem 3: Flux Through
-          Paraboloid"). Dragging the section moves your textbook snippet, derivation, and graph together
-          without disturbing the rest of your canvas.
+          In Unlined, wrap related nodes into a named Section box (e.g. "Problem 3: Flux Through Paraboloid").
+          Dragging the section moves your textbook snippet, derivation, and graph together without disturbing
+          the rest of your canvas.
         </Callout>
       </article>
     ),
@@ -435,8 +434,8 @@ print(f"Singular values: {S.round(4)}")
         </p>
 
         <Callout type="tip" title="Zero Context Switching">
-          Unlined lets you run the entire pipeline inside a single browser tab: the assignment PDF sits on
-          the left, your derivations sit in the middle, and an in-browser script runner or graph sits on the
+          Unlined lets you run the entire pipeline inside a single browser tab: the assignment PDF sits on the
+          left, your derivations sit in the middle, and an in-browser script runner or graph sits on the
           right.
         </Callout>
 
@@ -503,8 +502,8 @@ print(f"Singular values: {S.round(4)}")
         />
 
         <p>
-          With Unlined, everything is saved locally in IndexedDB. Even when campus Wi-Fi drops in the
-          basement of Stata or Gates, your calculations and scratchpad remain 100% accessible.
+          With Unlined, everything is saved locally in IndexedDB. Even when campus Wi-Fi drops in the basement
+          of Stata or Gates, your calculations and scratchpad remain 100% accessible.
         </p>
       </article>
     ),

@@ -305,14 +305,14 @@ console.log("Result (must be [0, 0, 0]):", result);
         <p>
           You do not need a second $1,000 device to succeed in Canada&apos;s premier engineering programs.
           With a solid 14-inch or 16-inch laptop, a mechanical keyboard, and a local-first spatial workbench
-          like Unlined, you have a faster, more durable, and vastly more powerful technical environment
-          than any stylus tablet can offer.
+          like Unlined, you have a faster, more durable, and vastly more powerful technical environment than
+          any stylus tablet can offer.
         </p>
 
         <Callout type="tip" title="Designed for the Heavy Course Load">
-          Unlined stores your full semester of notes in offline IndexedDB. You can organize separate
-          canvases for ECE 205, ECE 240, and MAT188, keeping textbook excerpts and live verification scripts
-          completely organized in one local desktop hub.
+          Unlined stores your full semester of notes in offline IndexedDB. You can organize separate canvases
+          for ECE 205, ECE 240, and MAT188, keeping textbook excerpts and live verification scripts completely
+          organized in one local desktop hub.
         </Callout>
       </section>
     </article>

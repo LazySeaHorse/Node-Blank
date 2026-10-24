@@ -275,8 +275,8 @@ R1 *= 1/2        # Row 1 becomes: [1, 0, 0 | 2]   => x1 = 2`}
         </h2>
         <p>
           The most effective way to utilize an hour with your college supervisor is to flag exactly where you
-          encountered conceptual friction. In Unlined, create a dedicated{' '}
-          <strong>Supervision Section</strong> with three colour-coded zones:
+          encountered conceptual friction. In Unlined, create a dedicated <strong>Supervision Section</strong>{' '}
+          with three colour-coded zones:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
