@@ -28,6 +28,9 @@ jobs:
       - name: Test
         run: go test ./...
 
+      - name: Embed the logo in the Windows binaries
+        run: go run github.com/tc-hib/go-winres@v0.3.3 make --in winres/winres.json --out rsrc --arch amd64,arm64
+
       - name: Build all platforms
         env:
           CGO_ENABLED: '0'

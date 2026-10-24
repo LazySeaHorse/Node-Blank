@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.png" alt="Unlined" width="96" /></p>
+
 # unlined-bridge
 
 Lets local coding agents (Claude Code, Codex, Gemini CLI, Antigravity, ...) use the Unlined tab open in your browser.

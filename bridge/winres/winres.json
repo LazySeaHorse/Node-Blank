@@ -1,0 +1,12 @@
+{
+  "RT_GROUP_ICON": { "APP": { "0000": ["icon.png"] } },
+  "RT_MANIFEST": {
+    "#1": {
+      "0409": {
+        "identity": { "name": "unlined-bridge", "version": "1.0.0.0" },
+        "description": "Lets local coding agents use the open Unlined tab",
+        "execution-level": "as invoker"
+      }
+    }
+  }
+}
