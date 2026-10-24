@@ -124,6 +124,27 @@ test('a command committed from LaTeX mode takes the next key as its argument', a
     .toBe('x+\\hat{U}');
 });
 
+test('a drag that ends inside a square root selects the whole root', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await field.evaluate((el: HTMLElement & { setValue: (v: string) => void }) =>
+    el.setValue('ab+\\sqrt{xyzw}'),
+  );
+  const box = await field.boundingBox();
+  if (!box) throw new Error('missing field box');
+  await page.mouse.move(box.x + 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.up();
+  const selected = await field.evaluate(
+    (el: HTMLElement & { selection: unknown; getValue: (s: unknown, f: string) => string }) =>
+      el.getValue(el.selection, 'latex'),
+  );
+  expect(selected).toBe('ab+\\sqrt{xyzw}');
+});
+
 test('Ctrl+Z in a text node stops at its own typing instead of undoing a math node', async ({ page }) => {
   await placeNode(page, 'Math', 400, 300);
   const field = nodes(page).locator('math-field');

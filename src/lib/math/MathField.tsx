@@ -7,6 +7,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { WithTooltip } from '@/ui/Button';
 import { inkBackground, inkColor } from './ink';
 import { flattenDisplaylines } from './normalize';
+import { balanceDragSelection } from './selection';
 
 // Fonts come from the bundled CSS above; no keyboard click sounds.
 MathfieldElement.fontsDirectory = null;
@@ -92,6 +93,7 @@ export function MathField({
     const backgroundColorMap = field.backgroundColorMap;
     field.colorMap = (name) => inkColor(name) ?? colorMap(name);
     field.backgroundColorMap = (name) => inkBackground(name) ?? backgroundColorMap(name);
+    balanceDragSelection(field);
   }, []);
 
   useEffect(() => {
