@@ -302,10 +302,3 @@ export function lanesOf(edges: Pick<AppEdge, 'id' | 'source' | 'target'>[]): Map
   laneCache.set(edges, lanes);
   return lanes;
 }
-
-/** Smallest and largest scale of an end shape, so it neither vanishes nor swamps a node at the zoom limits. */
-const END_SCALE = { min: 0.25, max: 6 };
-
-/** How much to scale an end shape (drawn in canvas units) so it stays one size on screen at this zoom. */
-export const endScale = (zoom: number): number =>
-  Math.round(Math.min(END_SCALE.max, Math.max(END_SCALE.min, 1 / zoom)) * 100) / 100;

@@ -170,7 +170,7 @@ body,
 
 /*
  * Links. A link draws in --link-color (its colour, or the accent while selected). Strokes keep their screen
- * width at any zoom. End shapes are counter-scaled in the component.
+ * width at any zoom.
  */
 .react-flow__edge-path,
 .react-flow__edge-interaction {

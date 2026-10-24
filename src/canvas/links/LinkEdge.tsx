@@ -1,25 +1,21 @@
-import { BaseEdge, type EdgeProps, type EdgeTypes, useStore } from '@xyflow/react';
+import { BaseEdge, type EdgeProps, type EdgeTypes } from '@xyflow/react';
 import { memo, useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import type { AppEdge, LinkEnd } from '@/model/types';
 import { useUiStore } from '@/store/uiStore';
 import { linkColor } from './actions';
-import { endPlacement, endScale, geom, type Pt, roundedPath } from './geometry';
+import { endPlacement, geom, type Pt, roundedPath } from './geometry';
 import { LinkLabel, LinkLabelEditor } from './LinkLabel';
 import { useLinkRoute } from './useLinkRoute';
 
 /** Width of the invisible strip around a link that takes clicks, in screen pixels. */
 const HIT_WIDTH = 14;
 
-/** How much to scale an end shape so it stays one size on screen whatever the zoom. */
-export const useEndScale = () => useStore((s) => endScale(s.transform[2]));
-
 /** The shape at one end of a link, in the link's colour. Plain SVG (no markers) so it exports with the rest. */
 function EndShape({ kind, to, from }: { kind: LinkEnd; to: Pt; from: Pt }) {
-  const scale = useEndScale();
   if (kind === 'none') return null;
   const { x, y, angle } = endPlacement(to, from);
-  const transform = `translate(${x}px, ${y}px) rotate(${angle}deg) scale(${scale})`;
+  const transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
   return (
     <g className="link-end" style={{ transform }}>
       {kind === 'arrow' && <polygon points="0,0 -11,-5.5 -11,5.5" fill="currentColor" />}

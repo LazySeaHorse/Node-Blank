@@ -3,7 +3,6 @@ import { GRID } from '../snap';
 import {
   type Box,
   endPlacement,
-  endScale,
   geom,
   laneOffset,
   lanesOf,
@@ -216,16 +215,5 @@ describe('lanes', () => {
     expect(lanesOf(edges)).toBe(lanes);
     expect(laneOffset(3)).toBe(2 * GRID);
     expect(laneOffset(4)).toBe(-2 * GRID);
-  });
-});
-
-describe('endScale', () => {
-  it('keeps a constant screen size, within limits', () => {
-    expect(endScale(1)).toBe(1);
-    expect(endScale(2)).toBe(0.5);
-    expect(endScale(4)).toBe(0.25);
-    expect(endScale(0.5)).toBe(2);
-    expect(endScale(0.1)).toBe(6);
-    expect(endScale(10)).toBe(0.25);
   });
 });

@@ -1,7 +1,6 @@
 import type { ConnectionLineComponentProps } from '@xyflow/react';
 import { GRID } from '../snap';
 import { endPlacement, type Pt, roundedPath, route, tileRect } from './geometry';
-import { useEndScale } from './LinkEdge';
 
 const snap = (v: number) => Math.round(v / GRID) * GRID;
 
@@ -10,7 +9,6 @@ const snap = (v: number) => Math.round(v / GRID) * GRID;
  * grid), or to the border of the node under it. Dashed, in the accent colour.
  */
 export function LinkPreview({ fromNode, toNode, pointer }: ConnectionLineComponentProps) {
-  const scale = useEndScale();
   const size = (n: typeof fromNode) => n.measured;
   if (!size(fromNode).width || !size(fromNode).height) return null;
   const tile = (n: typeof fromNode) =>
@@ -37,7 +35,7 @@ export function LinkPreview({ fromNode, toNode, pointer }: ConnectionLineCompone
         <polygon
           points="0,0 -11,-5.5 -11,5.5"
           style={{
-            transform: `translate(${tip.x}px, ${tip.y}px) rotate(${tip.angle}deg) scale(${scale})`,
+            transform: `translate(${tip.x}px, ${tip.y}px) rotate(${tip.angle}deg)`,
           }}
         />
       ) : (
