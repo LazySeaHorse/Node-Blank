@@ -70,7 +70,7 @@ describe('placeLabel', () => {
 
   it('keeps a long label on the path by moving its middle away from the longest stretch', () => {
     const label = 'x'.repeat(30);
-    const { text, center } = placeLabel(label, g.total, g.pos, 1, ten);
+    const { text, center } = placeLabel(label, g.total, g.pos, ten);
     expect(text).toBe(label);
     expect(g.pos - 150).toBeLessThan(14); // centred on the longest stretch it would run off the start
     expect(center - 150).toBeGreaterThanOrEqual(14);
@@ -78,14 +78,14 @@ describe('placeLabel', () => {
   });
 
   it('leaves a short label where the longest stretch puts it', () => {
-    expect(placeLabel('abc', g.total, g.pos, 1, ten).center).toBe(g.pos);
+    expect(placeLabel('abc', g.total, g.pos, ten).center).toBe(g.pos);
   });
 
-  it('cuts text that cannot fit and counts the counter-scale in its width', () => {
-    const { text, center } = placeLabel('y'.repeat(80), g.total, g.pos, 2, ten);
-    expect(ten(text) * 2).toBeLessThanOrEqual(g.total - 28);
+  it('cuts text that cannot fit to the room the path has', () => {
+    const { text, center } = placeLabel('y'.repeat(80), g.total, g.pos, ten);
+    expect(ten(text)).toBeLessThanOrEqual(g.total - 28);
     expect(text.endsWith('…')).toBe(true);
-    expect(center - (ten(text) * 2) / 2).toBeGreaterThanOrEqual(14);
-    expect(center + (ten(text) * 2) / 2).toBeLessThanOrEqual(g.total - 14);
+    expect(center - ten(text) / 2).toBeGreaterThanOrEqual(14);
+    expect(center + ten(text) / 2).toBeLessThanOrEqual(g.total - 14);
   });
 });

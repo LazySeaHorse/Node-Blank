@@ -5,7 +5,6 @@ import { Tex } from '@/lib/math/Tex';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { useReadOnly } from '../readOnly';
-import { counterScale } from '../zoomTier';
 import { editLink } from './actions';
 import { type Geom, MIN_LABEL_PATH, type Pt, readableReverse, reversedPath, roundedPath } from './geometry';
 import { hasMath, type LabelPart, measureLabel, placeLabel, splitLabel } from './labels';
@@ -37,14 +36,12 @@ export function LinkLabel({
 }) {
   const zoom = useStore((s) => s.transform[2]);
   const readOnly = useReadOnly();
-  const scale = counterScale(zoom);
   const math = hasMath(label);
   const reverse = readableReverse(geometry.dir);
   const pathId = `link-label-${id}`;
   const { text, center } = useMemo(
-    () =>
-      math ? { text: '', center: 0 } : placeLabel(label, geometry.total, geometry.pos, scale, measureLabel),
-    [label, math, geometry.total, geometry.pos, scale],
+    () => (math ? { text: '', center: 0 } : placeLabel(label, geometry.total, geometry.pos, measureLabel)),
+    [label, math, geometry.total, geometry.pos],
   );
   if (zoom < HIDE_BELOW_ZOOM || geometry.total < MIN_LABEL_PATH) return null;
 
@@ -73,10 +70,10 @@ export function LinkLabel({
         <text
           key={String(halo)}
           className={halo ? 'link-label link-label-halo' : 'link-label'}
-          dy={-GAP * scale}
+          dy={-GAP}
           textAnchor="middle"
-          fontSize={12.5 * scale}
-          style={halo ? { strokeWidth: 4.5 * scale } : undefined}
+          fontSize={12.5}
+          style={halo ? { strokeWidth: 4.5 } : undefined}
         >
           <textPath href={`#${pathId}`} startOffset={offset}>
             {text}
@@ -112,7 +109,7 @@ function MathLabel({
         data-link-id={id}
         className="link-label link-label-math nodrag nopan"
         style={{
-          transform: `translate(${x}px, ${y}px) scale(var(--tz, 1)) ${vertical ? 'rotate(-90deg) ' : ''}translate(-50%, calc(-100% - ${GAP - 1}px))`,
+          transform: `translate(${x}px, ${y}px) ${vertical ? 'rotate(-90deg) ' : ''}translate(-50%, calc(-100% - ${GAP - 1}px))`,
           maxWidth: room,
           pointerEvents: editable ? 'all' : 'none',
           color,
@@ -185,7 +182,7 @@ export function LinkLabelEditor({ id, value, geometry }: { id: string; value: st
           if (e.key === 'Escape') finish(null);
         }}
         className="link-label-input nodrag nopan nokey"
-        style={{ transform: `translate(${x}px, ${y}px) scale(var(--tz, 1)) translate(-50%, -50%)` }}
+        style={{ transform: `translate(${x}px, ${y}px) translate(-50%, -50%)` }}
       />
     </EdgeLabelRenderer>
   );

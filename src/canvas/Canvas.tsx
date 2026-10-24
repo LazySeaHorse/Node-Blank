@@ -10,7 +10,7 @@ import {
   useKeyPress,
   useReactFlow,
 } from '@xyflow/react';
-import { type CSSProperties, type DragEvent, type MouseEvent, useCallback, useEffect, useMemo } from 'react';
+import { type DragEvent, type MouseEvent, useCallback, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { setAgentView, useAgentStore } from '@/agent';
 import { cn } from '@/lib/cn';
@@ -114,7 +114,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
       applyChanges(withSnappedResize(changes, useCanvasStore.getState().nodes)),
     [applyChanges],
   );
-  const { tier, scale } = useZoomTier();
+  const tier = useZoomTier();
   const displayNodes = useMemo(
     () =>
       searched.map((n) => {
@@ -200,7 +200,6 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         onEdgeDoubleClick={readOnly ? undefined : (_, edge) => useUiStore.getState().renameLink(edge.id)}
         className={cn(readOnly && 'read-only', multipleSelected && 'multi-select', linking && 'linking')}
         data-zoom={tier}
-        style={{ '--tz': scale } as CSSProperties}
         {...(readOnly ? readOnlyProps : linking ? { ...editableProps, ...linkingProps } : editableProps)}
       >
         {/* Offset so the dots sit on the grid lines that nodes snap to. */}
