@@ -16,9 +16,9 @@ describe('clipboard', () => {
     const a = createNode('math', at(10, 20), { latex: 'x^2' });
     const b = createNode('text', at(500, 20));
     const payload = serializeSelection([{ ...a, selected: true }, b]);
-    const nodes = payload ? parseClipboard(payload) : null;
-    expect(nodes).toHaveLength(1);
-    expect(nodes?.[0]).toMatchObject({ id: a.id, type: 'math', data: { latex: 'x^2' } });
+    const pasted = payload ? parseClipboard(payload) : null;
+    expect(pasted?.nodes).toHaveLength(1);
+    expect(pasted?.nodes[0]).toMatchObject({ id: a.id, type: 'math', data: { latex: 'x^2' } });
   });
 
   it('has nothing to copy without a selection', () => {
@@ -32,9 +32,29 @@ describe('clipboard', () => {
     const payload = serializeSelection([{ ...section, selected: true }, inside, outside]);
     expect(
       parseClipboard(payload ?? '')
-        ?.map((n) => n.id)
+        ?.nodes.map((n) => n.id)
         .sort(),
     ).toEqual([section.id, inside.id].sort());
+  });
+
+  it('carries the links among the copied nodes and leaves out the rest', () => {
+    const [a, b, c] = [0, 1, 2].map((x) => createNode('math', at(x * 100, 0)));
+    const edges = [
+      { id: 'ab', source: a.id, target: b.id, data: { label: 'k' } },
+      { id: 'bc', source: b.id, target: c.id },
+    ];
+    const payload = serializeSelection([{ ...a, selected: true }, { ...b, selected: true }, c], edges);
+    expect(parseClipboard(payload ?? '')?.edges).toEqual(edges.slice(0, 1));
+  });
+
+  it('still reads clipboards from before links existed', () => {
+    const old = JSON.stringify({
+      app: 'node-blank',
+      version: 1,
+      kind: 'nodes',
+      nodes: [createNode('math', at(0, 0))],
+    });
+    expect(parseClipboard(old)?.edges).toEqual([]);
   });
 
   it('ignores anything that is not copied nodes', () => {
@@ -57,5 +77,23 @@ describe('pasteNodes', () => {
     expect(nodes.filter((n) => n.selected)).toHaveLength(2);
     undo();
     expect(state().nodes).toHaveLength(1);
+  });
+
+  it('remaps pasted links to the copies, with fresh ids each time', () => {
+    const a = createNode('math', at(0, 0));
+    const b = createNode('math', at(200, 0));
+    const edges = [{ id: 'ab', source: a.id, target: b.id, data: { head: 'dot' as const } }];
+    pasteNodes([a, b], at(0, 500), edges);
+    pasteNodes([a, b], at(0, 900), edges);
+    const links = state().edges;
+    expect(links).toHaveLength(2);
+    expect(new Set(links.map((e) => e.id)).size).toBe(2);
+    for (const e of links) {
+      expect([a.id, b.id]).not.toContain(e.source);
+      expect(state().nodes.some((n) => n.id === e.source)).toBe(true);
+      expect(e.data).toEqual({ head: 'dot' });
+    }
+    undo();
+    expect(state().edges).toHaveLength(1);
   });
 });

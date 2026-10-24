@@ -105,4 +105,143 @@ describe('canvasStore', () => {
     state().addNodes([createNode('math', { x: 0, y: 0 })]);
     expect(getCanvasContent().nodes[0]).not.toHaveProperty('selected');
   });
+
+  describe('links', () => {
+    const three = () => {
+      const [a, b, c] = [0, 1, 2].map((x) => createNode('math', { x: x * 100, y: 0 }));
+      state().load({ nodes: [a, b, c], viewport: DEFAULT_VIEWPORT });
+      return [a.id, b.id, c.id];
+    };
+    const past = () => useCanvasStore.temporal.getState().pastStates.length;
+
+    it('links nodes as one undo step and selects only the new link', () => {
+      const [a, b] = three();
+      state().setSelection((n) => n.id === a);
+      const id = state().linkNodes(a, b, { label: 'k', head: 'arrow' });
+      expect(id).toBeTruthy();
+      expect(state().edges).toEqual([{ id, source: a, target: b, selected: true, data: { label: 'k' } }]);
+      expect(state().nodes.some((n) => n.selected)).toBe(false);
+      expect(getCanvasContent().edges).toEqual([{ id, source: a, target: b, data: { label: 'k' } }]);
+      settle();
+      undo();
+      expect(state().edges).toHaveLength(0);
+      redo();
+      expect(state().edges).toHaveLength(1);
+    });
+
+    it('refuses self links, missing nodes and same-direction duplicates, selecting the existing one', () => {
+      const [a, b] = three();
+      expect(state().linkNodes(a, a)).toBeNull();
+      expect(state().linkNodes(a, 'nope')).toBeNull();
+      const id = state().linkNodes(a, b);
+      state().setSelection(() => false);
+      expect(state().linkNodes(a, b)).toBeNull();
+      expect(state().edges).toHaveLength(1);
+      expect(state().edges[0]).toMatchObject({ id, selected: true });
+      expect(state().linkNodes(b, a)).toBeTruthy();
+    });
+
+    it('deleting a node removes its links and one undo restores both', () => {
+      const [a, b, c] = three();
+      state().linkNodes(a, b);
+      state().linkNodes(b, c);
+      settle();
+      state().deleteNodes([b]);
+      expect(state().edges).toHaveLength(0);
+      settle();
+      undo();
+      expect(state().nodes).toHaveLength(3);
+      expect(state().edges).toHaveLength(2);
+    });
+
+    it('deletes selected nodes and links together as one step', () => {
+      const [a, b, c] = three();
+      state().linkNodes(a, b);
+      const keep = state().linkNodes(b, c);
+      settle();
+      state().setSelection(
+        (n) => n.id === a,
+        (e) => e.id === keep,
+      );
+      const before = past();
+      state().deleteSelected();
+      expect(past()).toBe(before + 1);
+      expect(state().nodes.map((n) => n.id)).toEqual([b, c]);
+      expect(state().edges).toHaveLength(0);
+      undo();
+      expect(state().nodes).toHaveLength(3);
+      expect(state().edges).toHaveLength(2);
+    });
+
+    it('cascades when React Flow removes nodes directly', () => {
+      const [a, b] = three();
+      state().linkNodes(a, b);
+      state().onNodesChange([{ type: 'remove', id: a }]);
+      expect(state().edges).toHaveLength(0);
+    });
+
+    it('routes edge removals through the undoable delete', () => {
+      const [a, b] = three();
+      const id = state().linkNodes(a, b) as string;
+      settle();
+      state().onEdgesChange([{ type: 'remove', id }]);
+      expect(state().edges).toHaveLength(0);
+      settle();
+      undo();
+      expect(state().edges).toHaveLength(1);
+    });
+
+    it('does not record a selection-only change to a link', () => {
+      const [a, b] = three();
+      const id = state().linkNodes(a, b) as string;
+      settle();
+      const before = past();
+      state().onEdgesChange([{ type: 'select', id, selected: false }]);
+      settle();
+      expect(past()).toBe(before);
+    });
+
+    it('edits and reverses a link, keeping only non-default fields', () => {
+      const [a, b] = three();
+      const id = state().linkNodes(a, b, { head: 'dot' }) as string;
+      state().updateEdgeData(id, { color: 'blue', dashed: true });
+      expect(state().edges[0].data).toEqual({ head: 'dot', color: 'blue', dashed: true });
+      state().updateEdgeData(id, { head: 'arrow', dashed: false, color: undefined });
+      expect(state().edges[0].data).toBeUndefined();
+      state().updateEdgeData(id, { tail: 'bar' });
+      state().reverseEdge(id);
+      expect(state().edges[0]).toMatchObject({ source: b, target: a, data: { tail: 'bar' } });
+    });
+
+    it('load drops dangling links, and an empty canvas has none to save', () => {
+      const [a, b] = three();
+      state().load({
+        nodes: state().nodes,
+        viewport: DEFAULT_VIEWPORT,
+        edges: [
+          { id: '1', source: a, target: b },
+          { id: '2', source: a, target: 'gone' },
+          { id: '3', source: a, target: a },
+        ],
+      });
+      expect(state().edges.map((e) => e.id)).toEqual(['1']);
+      state().clear();
+      expect(getCanvasContent()).not.toHaveProperty('edges');
+    });
+
+    it('duplicates the selection with its internal links under new ids', () => {
+      const [a, b, c] = three();
+      state().linkNodes(a, b);
+      state().linkNodes(b, c);
+      state().setSelection((n) => n.id !== c);
+      state().duplicateSelected();
+      expect(state().nodes).toHaveLength(5);
+      expect(state().edges).toHaveLength(3);
+      const copies = state()
+        .nodes.slice(3)
+        .map((n) => n.id);
+      const dup = state().edges.find((e) => copies.includes(e.source));
+      expect(dup && copies.includes(dup.target)).toBe(true);
+    });
+  });
 });

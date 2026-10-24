@@ -8,6 +8,7 @@ import { useCanvasStore } from './canvasStore';
 import {
   exportAllCanvases,
   exportCurrentCanvas,
+  exportSelectedNodes,
   flushSave,
   importFile,
   initWorkspace,
@@ -95,5 +96,59 @@ describe('workspace', () => {
     await newCanvas('B');
     const all = await exportAllCanvases();
     expect(all.kind === 'canvases' && all.canvases.map((c) => c.name).sort()).toEqual(['A', 'B']);
+  });
+
+  it('saves a change that only touches links', async () => {
+    await newCanvas('A');
+    const [a, b] = [createNode('math', { x: 0, y: 0 }), createNode('math', { x: 200, y: 0 })];
+    canvas().addNodes([a, b]);
+    await flushSave();
+    canvas().linkNodes(a.id, b.id, { label: 'k' });
+    await flushSave();
+    expect((await repo.loadContent(current())).edges).toEqual([
+      { id: expect.any(String), source: a.id, target: b.id, data: { label: 'k' } },
+    ]);
+  });
+
+  it('imports links with loose nodes under new ids', async () => {
+    await newCanvas('A');
+    const [a, b] = [createNode('math', { x: 0, y: 0 }), createNode('math', { x: 200, y: 0 })];
+    await importFile(exportNodes([a, b], [{ id: 'l', source: a.id, target: b.id }]), { x: 0, y: 0 });
+    expect(canvas().edges).toHaveLength(1);
+    const ids = canvas().nodes.map((n) => n.id);
+    expect(ids).not.toContain(a.id);
+    expect(ids).toContain(canvas().edges[0].source);
+  });
+
+  it('drops dangling links when importing canvases', async () => {
+    await newCanvas('Existing');
+    const [a, b] = [createNode('math', { x: 0, y: 0 }), createNode('math', { x: 200, y: 0 })];
+    const file = exportCanvases([
+      {
+        name: 'X',
+        nodes: [a, b],
+        viewport: DEFAULT_VIEWPORT,
+        edges: [
+          { id: 'ok', source: a.id, target: b.id },
+          { id: 'bad', source: a.id, target: 'gone' },
+        ],
+      },
+    ]);
+    await importFile(file, { x: 0, y: 0 });
+    expect(canvas().edges.map((e) => e.id)).toEqual(['ok']);
+  });
+
+  it('exports only the links among the selected nodes', () => {
+    const [a, b, c] = [0, 1, 2].map((x) => createNode('math', { x: x * 200, y: 0 }));
+    canvas().load({
+      nodes: [{ ...a, selected: true }, { ...b, selected: true }, c],
+      viewport: DEFAULT_VIEWPORT,
+      edges: [
+        { id: 'ab', source: a.id, target: b.id },
+        { id: 'bc', source: b.id, target: c.id },
+      ],
+    });
+    const file = exportSelectedNodes();
+    expect(file.kind === 'nodes' && file.edges?.map((e) => e.id)).toEqual(['ab']);
   });
 });

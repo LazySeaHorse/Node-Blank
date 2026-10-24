@@ -56,7 +56,7 @@ describe('io', () => {
     expect(() => parseExportFile(JSON.stringify({ version: 4, fields: [] }))).toThrow(
       /Not a Node-Blank export/,
     );
-    expect(() => parseExportFile(JSON.stringify({ ...exportNodes([]), version: 2 }))).toThrow(ImportError);
+    expect(() => parseExportFile(JSON.stringify({ ...exportNodes([]), version: 3 }))).toThrow(ImportError);
   });
 
   it('rejects nodes whose data does not match their kind', () => {
@@ -69,5 +69,50 @@ describe('io', () => {
     const file = exportNodes([createNode('math', { x: 0, y: 0 })]);
     const broken = { ...file, nodes: [{ ...file.nodes[0], type: 'hologram' }] };
     expect(() => parseExportFile(JSON.stringify(broken))).toThrow(ImportError);
+  });
+
+  describe('links', () => {
+    const nodes = () => [createNode('text', { x: 0, y: 0 }), createNode('graph', { x: 300, y: 0 })];
+
+    it('round-trips links on canvases and nodes, as version 2', () => {
+      const [a, b] = nodes();
+      const edges = [
+        {
+          id: 'l',
+          source: a.id,
+          target: b.id,
+          data: { label: '$k$', head: 'dot' as const, color: 'blue' as const },
+        },
+      ];
+      const canvases = exportCanvases([
+        { name: 'A', nodes: [a, b], edges, viewport: { x: 0, y: 0, zoom: 1 } },
+      ]);
+      expect(canvases.version).toBe(2);
+      expect(parseExportFile(JSON.stringify(canvases))).toEqual(canvases);
+      const loose = exportNodes([a, b], edges);
+      expect(loose.version).toBe(2);
+      expect(parseExportFile(JSON.stringify(loose))).toEqual(loose);
+    });
+
+    it('writes version 1 and no edges key without links', () => {
+      const file = exportCanvases([
+        { name: 'A', nodes: nodes(), edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
+      ]);
+      expect(file.version).toBe(1);
+      expect(file.canvases[0]).not.toHaveProperty('edges');
+      expect(exportNodes(nodes())).not.toHaveProperty('edges');
+    });
+
+    it('reads files from before links', () => {
+      const old = { ...exportNodes(nodes()), version: 1 };
+      expect(parseExportFile(JSON.stringify(old))).toMatchObject({ kind: 'nodes', version: 1 });
+    });
+
+    it('rejects a link with a bad end', () => {
+      const [a, b] = nodes();
+      const file = { ...exportNodes([a, b], [{ id: 'l', source: a.id, target: b.id }]) };
+      const bad = { ...file, edges: [{ id: 'l', source: a.id, target: b.id, data: { head: 'star' } }] };
+      expect(() => parseExportFile(JSON.stringify(bad))).toThrow(ImportError);
+    });
   });
 });

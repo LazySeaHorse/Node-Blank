@@ -2,9 +2,10 @@ import { useReactFlow, type XYPosition } from '@xyflow/react';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { copyText } from '@/lib/clipboard';
+import { internalEdges } from '@/lib/links';
 import { nodeRect } from '@/lib/nodeRect';
 import { expandWithContents } from '@/lib/sections';
-import type { AppNode } from '@/model/types';
+import type { AppEdge, AppNode, CanvasEdge } from '@/model/types';
 import { exportNodes, ImportError, parseExportFile } from '@/persistence/io';
 import { useCanvasStore } from '@/store/canvasStore';
 import { pasteNodes } from '@/store/workspace';
@@ -24,17 +25,29 @@ function copiedNodes(nodes: AppNode[]): AppNode[] {
   return nodes.filter((n) => ids.has(n.id));
 }
 
-/** The selected nodes as clipboard text, or null if none. */
-export function serializeSelection(nodes: AppNode[]): string | null {
+/** The selected nodes and the links among them as one export file, or null if no node is selected. */
+function copyFile(nodes: AppNode[], edges: AppEdge[]) {
   const picked = copiedNodes(nodes);
-  return picked.length > 0 ? JSON.stringify(exportNodes(picked)) : null;
+  if (picked.length === 0) return null;
+  return {
+    file: exportNodes(picked, internalEdges(edges, new Set(picked.map((n) => n.id)))),
+    count: picked.length,
+  };
 }
 
-/** Nodes in clipboard text, or null when it is anything else (plain text, a canvases export, garbage). */
-export function parseClipboard(text: string): AppNode[] | null {
+/** The selected nodes (with the links among them) as clipboard text, or null if none. */
+export function serializeSelection(nodes: AppNode[], edges: AppEdge[] = []): string | null {
+  const copy = copyFile(nodes, edges);
+  return copy ? JSON.stringify(copy.file) : null;
+}
+
+/** Nodes and links in clipboard text, or null when it is anything else (plain text, a canvases export, garbage). */
+export function parseClipboard(text: string): { nodes: AppNode[]; edges: CanvasEdge[] } | null {
   try {
     const file = parseExportFile(text);
-    return file.kind === 'nodes' && file.nodes.length > 0 ? file.nodes : null;
+    return file.kind === 'nodes' && file.nodes.length > 0
+      ? { nodes: file.nodes, edges: file.edges ?? [] }
+      : null;
   } catch (error) {
     if (error instanceof ImportError) return null;
     throw error;
@@ -43,9 +56,9 @@ export function parseClipboard(text: string): AppNode[] | null {
 
 /** Copies the selected nodes like Ctrl+C does, for menus. */
 export async function copySelection(): Promise<void> {
-  const picked = copiedNodes(useCanvasStore.getState().nodes);
-  if (picked.length > 0)
-    await copyText(JSON.stringify(exportNodes(picked)), picked.length === 1 ? 'node' : 'nodes');
+  const { nodes, edges } = useCanvasStore.getState();
+  const copy = copyFile(nodes, edges);
+  if (copy) await copyText(JSON.stringify(copy.file), copy.count === 1 ? 'node' : 'nodes');
 }
 
 /** Pastes nodes from the system clipboard with their top-left corner at `at`, for menus. */
@@ -57,8 +70,8 @@ export async function pasteAt(at: XYPosition): Promise<void> {
     toast.error('Could not read the clipboard');
     return;
   }
-  const nodes = parseClipboard(text);
-  if (nodes) pasteNodes(nodes, at);
+  const pasted = parseClipboard(text);
+  if (pasted) pasteNodes(pasted.nodes, at, pasted.edges);
   else toast.error('No nodes on the clipboard');
 }
 
@@ -81,7 +94,7 @@ export function useClipboard(readOnly: boolean) {
 
     const onCopy = (event: ClipboardEvent) => {
       if (!ownsEvent() || !event.clipboardData) return;
-      const payload = serializeSelection(useCanvasStore.getState().nodes);
+      const payload = serializeSelection(useCanvasStore.getState().nodes, useCanvasStore.getState().edges);
       if (!payload) return;
       event.clipboardData.setData(MIME, payload);
       event.clipboardData.setData('text/plain', payload);
@@ -91,8 +104,8 @@ export function useClipboard(readOnly: boolean) {
     const onPaste = (event: ClipboardEvent) => {
       if (!ownsEvent() || !event.clipboardData) return;
       const text = event.clipboardData.getData(MIME) || event.clipboardData.getData('text/plain');
-      const nodes = text ? parseClipboard(text) : null;
-      if (!nodes) return; // not ours: let images and text through untouched
+      const pasted = text ? parseClipboard(text) : null;
+      if (!pasted) return; // not ours: let images and text through untouched
       event.preventDefault();
 
       const screen = pointer.current ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 };
@@ -101,7 +114,11 @@ export function useClipboard(readOnly: boolean) {
       const count =
         again && Math.abs(again.x - base.x) < 1 && Math.abs(again.y - base.y) < 1 ? again.count + 1 : 0;
       lastPaste.current = { ...base, count };
-      pasteNodes(nodes, { x: base.x + count * PASTE_STEP, y: base.y + count * PASTE_STEP });
+      pasteNodes(
+        pasted.nodes,
+        { x: base.x + count * PASTE_STEP, y: base.y + count * PASTE_STEP },
+        pasted.edges,
+      );
     };
 
     window.addEventListener('pointermove', onPointerMove);

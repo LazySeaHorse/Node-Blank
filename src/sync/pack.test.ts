@@ -41,6 +41,17 @@ describe('packCanvas', () => {
     });
   });
 
+  it('carries links through packing', async () => {
+    const k = await key();
+    const [a, b] = [createNode('text', { x: 0, y: 0 }), createNode('text', { x: 300, y: 0 })];
+    const edges = [{ id: 'l', source: a.id, target: b.id, data: { label: 'k', dashed: true } }];
+    const pieces = await packCanvas(k, 'c1', 'r1', {
+      name: 'N',
+      content: { nodes: [a, b], viewport, edges },
+    });
+    expect((await unpackCanvas(k, 'c1', 'r1', pieces)).content.edges).toEqual(edges);
+  });
+
   it('cuts a big canvas into pieces that each fit, and puts it back together', async () => {
     const k = await key();
     const big = createNode('text', { x: 0, y: 0 });

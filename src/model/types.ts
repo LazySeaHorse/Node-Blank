@@ -1,4 +1,4 @@
-import type { Node, Viewport } from '@xyflow/react';
+import type { Edge, Node, Viewport } from '@xyflow/react';
 
 /** Pastel fills for sections and node backgrounds; each theme maps the names to colours (see index.css). */
 export const SECTION_COLORS = ['yellow', 'green', 'blue', 'purple', 'pink', 'orange', 'gray'] as const;
@@ -57,6 +57,35 @@ export type NodeKind = keyof NodeDataMap;
 export type NodeOf<K extends NodeKind> = K extends NodeKind ? Node<NodeDataMap[K], K> : never;
 export type AppNode = NodeOf<NodeKind>;
 
+/** What a link can have at either end. */
+export const LINK_ENDS = ['arrow', 'dot', 'bar', 'none'] as const;
+export type LinkEnd = (typeof LINK_ENDS)[number];
+
+/**
+ * A link's look. Only non-default fields are stored: no `head` means an arrow, no `tail` none, no `color`
+ * the automatic one. (A type alias, not an interface, so it satisfies React Flow's record constraint.)
+ */
+export type LinkData = {
+  label?: string;
+  color?: SectionColor;
+  dashed?: boolean;
+  /** The end at the target node. */
+  head?: LinkEnd;
+  /** The end at the source node. */
+  tail?: LinkEnd;
+};
+
+/** A link between two nodes in its persisted form. */
+export interface CanvasEdge {
+  id: string;
+  source: string;
+  target: string;
+  data?: LinkData;
+}
+
+/** A link as the canvas holds it, with React Flow's runtime fields (selection). */
+export type AppEdge = Edge<LinkData>;
+
 export interface CanvasMeta {
   id: string;
   name: string;
@@ -77,6 +106,8 @@ export interface CanvasContent {
   viewport: Viewport;
   /** Omitted until the canvas has been organised or read by an AI agent. */
   groups?: CanvasGroup[];
+  /** Omitted while the canvas has no links. */
+  edges?: CanvasEdge[];
 }
 
 export const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 };

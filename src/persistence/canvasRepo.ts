@@ -22,7 +22,12 @@ export async function createCanvas(name: string, content: CanvasContent = EMPTY_
 export async function loadContent(id: string): Promise<CanvasContent> {
   const row = await db.contents.get(id);
   if (!row) return EMPTY_CONTENT;
-  return { nodes: row.nodes, viewport: row.viewport, ...(row.groups ? { groups: row.groups } : {}) };
+  return {
+    nodes: row.nodes,
+    viewport: row.viewport,
+    ...(row.groups ? { groups: row.groups } : {}),
+    ...(row.edges ? { edges: row.edges } : {}),
+  };
 }
 
 export async function saveContent(id: string, content: CanvasContent): Promise<void> {

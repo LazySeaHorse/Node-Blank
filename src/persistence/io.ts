@@ -1,11 +1,16 @@
 import { z } from 'zod';
-import type { AppNode, CanvasContent } from '@/model/types';
+import { edgeSchema, stripEdge } from '@/lib/links';
+import type { AppNode, CanvasContent, CanvasEdge } from '@/model/types';
 import { nodeKinds, nodeSpecs } from '@/nodes/catalog';
 import { stripTransient } from '@/nodes/factory';
 
-/** JSON import/export format. Bump `version` (and add a migration) if the shape ever changes. */
+/**
+ * JSON import/export format. Bump `version` (and add a migration) if the shape ever changes.
+ * Version 2 added links; files without any are still written as version 1 so older builds can open them.
+ */
 const APP_TAG = 'node-blank';
 const VERSION = 1;
+const LINKS_VERSION = 2;
 
 const point = z.object({ x: z.number(), y: z.number() });
 const viewportSchema = z.object({ x: z.number(), y: z.number(), zoom: z.number().positive() });
@@ -25,7 +30,7 @@ const nodeSchema = z.discriminatedUnion(
   ) as unknown as [z.ZodObject, ...z.ZodObject[]],
 ) as unknown as z.ZodType<AppNode>;
 
-const header = { app: z.literal(APP_TAG), version: z.literal(VERSION) };
+const header = { app: z.literal(APP_TAG), version: z.union([z.literal(VERSION), z.literal(LINKS_VERSION)]) };
 
 const exportFileSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -37,10 +42,16 @@ const exportFileSchema = z.discriminatedUnion('kind', [
         nodes: z.array(nodeSchema),
         viewport: viewportSchema,
         groups: z.array(groupSchema).optional(),
+        edges: z.array(edgeSchema).optional(),
       }),
     ),
   }),
-  z.object({ ...header, kind: z.literal('nodes'), nodes: z.array(nodeSchema) }),
+  z.object({
+    ...header,
+    kind: z.literal('nodes'),
+    nodes: z.array(nodeSchema),
+    edges: z.array(edgeSchema).optional(),
+  }),
 ]);
 
 export type ExportFile = z.infer<typeof exportFileSchema>;
@@ -50,21 +61,23 @@ export type NamedCanvas = { name: string } & CanvasContent;
 
 export const exportCanvases = (canvases: NamedCanvas[]): CanvasesFile => ({
   app: APP_TAG,
-  version: VERSION,
+  version: canvases.some((c) => c.edges?.length) ? LINKS_VERSION : VERSION,
   kind: 'canvases',
   canvases: canvases.map((c) => ({
     name: c.name,
     nodes: c.nodes.map(stripTransient),
     viewport: c.viewport,
     ...(c.groups ? { groups: c.groups } : {}),
+    ...(c.edges?.length ? { edges: c.edges.map(stripEdge) } : {}),
   })),
 });
 
-export const exportNodes = (nodes: AppNode[]): NodesFile => ({
+export const exportNodes = (nodes: AppNode[], edges: CanvasEdge[] = []): NodesFile => ({
   app: APP_TAG,
-  version: VERSION,
+  version: edges.length > 0 ? LINKS_VERSION : VERSION,
   kind: 'nodes',
   nodes: nodes.map(stripTransient),
+  ...(edges.length > 0 ? { edges: edges.map(stripEdge) } : {}),
 });
 
 export class ImportError extends Error {}

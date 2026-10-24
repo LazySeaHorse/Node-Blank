@@ -1,18 +1,28 @@
-import { applyNodeChanges, type NodeChange, type Viewport, type XYPosition } from '@xyflow/react';
+import {
+  applyEdgeChanges,
+  applyNodeChanges,
+  type EdgeChange,
+  type NodeChange,
+  type Viewport,
+  type XYPosition,
+} from '@xyflow/react';
 import isEqual from 'fast-deep-equal';
 import { temporal } from 'zundo';
 import { create } from 'zustand';
+import { cloneGraph, findLink, normaliseLinkData, sanitizeEdges, stripEdge } from '@/lib/links';
 import { nodeRect } from '@/lib/nodeRect';
 import { expandWithContents } from '@/lib/sections';
 import {
+  type AppEdge,
   type AppNode,
   type CanvasContent,
   type CanvasGroup,
   DEFAULT_VIEWPORT,
+  type LinkData,
   type NodeDataMap,
   type NodeKind,
 } from '@/model/types';
-import { cloneNodes, stripTransient } from '@/nodes/factory';
+import { newId, stripTransient } from '@/nodes/factory';
 
 /** Burst of edits closer together than this collapses into a single undo step. */
 const HISTORY_COALESCE_MS = 400;
@@ -20,16 +30,36 @@ const DUPLICATE_OFFSET = { x: 30, y: 30 };
 
 export interface CanvasState {
   nodes: AppNode[];
+  /** Links between nodes. Undoable together with the nodes. */
+  edges: AppEdge[];
   viewport: Viewport;
   /** Not undoable: groups are derived from positions and refreshed whenever they are needed. */
   groups: CanvasGroup[];
   onNodesChange: (changes: NodeChange<AppNode>[]) => void;
-  /** Selects exactly the nodes `pick` returns true for. */
-  setSelection: (pick: (node: AppNode) => boolean) => void;
+  onEdgesChange: (changes: EdgeChange<AppEdge>[]) => void;
+  /**
+   * Selects exactly the nodes `pickNode` returns true for, and the links `pickEdge` does (given the ids of the
+   * selected nodes); no link stays selected when `pickEdge` is omitted.
+   */
+  setSelection: (
+    pickNode: (node: AppNode) => boolean,
+    pickEdge?: (edge: AppEdge, selectedNodeIds: ReadonlySet<string>) => boolean,
+  ) => void;
   setViewport: (viewport: Viewport) => void;
-  addNodes: (nodes: AppNode[]) => void;
+  /** Adds nodes (and the links among them) selected; every other node and link is deselected. */
+  addNodes: (nodes: AppNode[], edges?: AppEdge[]) => void;
   updateNodeData: <K extends NodeKind>(id: string, patch: Partial<NodeDataMap[K]>) => void;
   duplicateSelected: () => void;
+  /**
+   * Links `source` to `target` as one undo step and selects only the new link. Returns its id, or null when
+   * a node is missing, both ends are the same, or the link already exists (which is then selected instead).
+   */
+  linkNodes: (source: string, target: string, data?: LinkData) => string | null;
+  updateEdgeData: (id: string, patch: Partial<LinkData>) => void;
+  /** Swaps a link's ends; its head stays at the target, so the arrow now points the other way. */
+  reverseEdge: (id: string) => void;
+  /** Removes nodes and links as one undo step. Links to a removed node go with it. A section's contents stay. */
+  deleteElements: (nodeIds: string[], edgeIds: string[]) => void;
   /** Removes nodes as one undo step; a section's contents stay. */
   deleteNodes: (ids: string[]) => void;
   deleteSelected: () => void;
@@ -63,26 +93,62 @@ export function asUndoStep<T>(fn: () => T): T {
 }
 
 const deselect = (nodes: AppNode[]) => nodes.map((n) => (n.selected ? { ...n, selected: false } : n));
+const deselectEdges = (edges: AppEdge[]) => edges.map((e) => (e.selected ? { ...e, selected: false } : e));
 
 export const useCanvasStore = create<CanvasState>()(
   temporal(
     (set, get) => ({
       nodes: [],
+      edges: [],
       viewport: DEFAULT_VIEWPORT,
       groups: [],
 
-      onNodesChange: (changes) => set({ nodes: applyNodeChanges(changes, get().nodes) }),
+      onNodesChange: (changes) => {
+        const nodes = applyNodeChanges(changes, get().nodes);
+        // Removals normally come through deleteElements; this keeps links from dangling if one slips by.
+        const gone = changes.flatMap((c) => (c.type === 'remove' ? [c.id] : []));
+        const { edges } = get();
+        const kept =
+          gone.length > 0 ? edges.filter((e) => !gone.includes(e.source) && !gone.includes(e.target)) : edges;
+        set(kept.length === edges.length ? { nodes } : { nodes, edges: kept });
+      },
 
-      setSelection: (pick) => {
-        const { nodes } = get();
-        if (nodes.every((n) => !!n.selected === pick(n))) return;
-        set({ nodes: nodes.map((n) => (!!n.selected === pick(n) ? n : { ...n, selected: !n.selected })) });
+      onEdgesChange: (changes) => {
+        const removed = changes.flatMap((c) => (c.type === 'remove' ? [c.id] : []));
+        const rest = changes.filter((c) => c.type !== 'remove');
+        if (rest.length > 0) set({ edges: applyEdgeChanges(rest, get().edges) });
+        if (removed.length > 0) get().deleteElements([], removed);
+      },
+
+      setSelection: (pickNode, pickEdge) => {
+        const { nodes, edges } = get();
+        const nodesSame = nodes.every((n) => !!n.selected === pickNode(n));
+        const picked = new Set(nodes.flatMap((n) => (pickNode(n) ? [n.id] : [])));
+        const wantEdge = (e: AppEdge) => pickEdge?.(e, picked) ?? false;
+        const edgesSame = edges.every((e) => !!e.selected === wantEdge(e));
+        if (nodesSame && edgesSame) return;
+        set({
+          ...(nodesSame
+            ? {}
+            : {
+                nodes: nodes.map(
+                  (n) => (!!n.selected === pickNode(n) ? n : { ...n, selected: !n.selected }) as AppNode,
+                ),
+              }),
+          ...(edgesSame
+            ? {}
+            : {
+                edges: edges.map(
+                  (e) => (!!e.selected === wantEdge(e) ? e : { ...e, selected: !e.selected }) as AppEdge,
+                ),
+              }),
+        });
       },
 
       setViewport: (viewport) => set({ viewport }),
 
       // Sections go first so they render behind everything else.
-      addNodes: (nodes) => {
+      addNodes: (nodes, edges = []) => {
         const added = nodes.map((n) => ({ ...n, selected: true }));
         const isSection = (n: AppNode) => n.type === 'section';
         set({
@@ -91,6 +157,7 @@ export const useCanvasStore = create<CanvasState>()(
             ...deselect(get().nodes),
             ...added.filter((n) => !isSection(n)),
           ],
+          edges: [...deselectEdges(get().edges), ...edges.map((e) => ({ ...e, selected: true }))],
         });
       },
 
@@ -102,7 +169,7 @@ export const useCanvasStore = create<CanvasState>()(
         }),
 
       duplicateSelected: () => {
-        const { nodes } = get();
+        const { nodes, edges } = get();
         // Duplicating a section takes the nodes inside it along.
         const ids = expandWithContents(
           new Set(nodes.filter((n) => n.selected).map((n) => n.id)),
@@ -110,17 +177,76 @@ export const useCanvasStore = create<CanvasState>()(
           nodes.map(nodeRect),
         );
         const selected = nodes.filter((n) => ids.has(n.id));
-        if (selected.length > 0) get().addNodes(cloneNodes(selected, DUPLICATE_OFFSET));
+        if (selected.length === 0) return;
+        const copy = cloneGraph(selected, edges, DUPLICATE_OFFSET);
+        get().addNodes(copy.nodes, copy.edges);
       },
 
-      deleteNodes: (ids) => {
-        const doomed = new Set(ids);
-        asUndoStep(() => set({ nodes: get().nodes.filter((n) => !doomed.has(n.id)) }));
+      linkNodes: (source, target, data) => {
+        const { nodes, edges } = get();
+        if (source === target) return null;
+        if (!nodes.some((n) => n.id === source) || !nodes.some((n) => n.id === target)) return null;
+        const existing = findLink(edges, source, target);
+        if (existing) {
+          get().setSelection(
+            () => false,
+            (e) => e.id === existing.id,
+          );
+          return null;
+        }
+        const id = newId();
+        const look = normaliseLinkData(data);
+        asUndoStep(() =>
+          set({
+            nodes: deselect(nodes),
+            edges: [
+              ...deselectEdges(edges),
+              { id, source, target, selected: true, ...(look ? { data: look } : {}) },
+            ],
+          }),
+        );
+        return id;
       },
 
-      deleteSelected: () => get().deleteNodes(get().nodes.flatMap((n) => (n.selected ? [n.id] : []))),
+      updateEdgeData: (id, patch) =>
+        set({
+          edges: get().edges.map((e) => {
+            if (e.id !== id) return e;
+            const data = normaliseLinkData({ ...e.data, ...patch });
+            const { data: _old, ...rest } = e;
+            return data ? { ...rest, data } : rest;
+          }),
+        }),
 
-      clear: () => set({ nodes: [] }),
+      reverseEdge: (id) =>
+        set({
+          edges: get().edges.map((e) => (e.id === id ? { ...e, source: e.target, target: e.source } : e)),
+        }),
+
+      deleteElements: (nodeIds, edgeIds) => {
+        const doomed = new Set(nodeIds);
+        const doomedEdges = new Set(edgeIds);
+        asUndoStep(() =>
+          set({
+            nodes: get().nodes.filter((n) => !doomed.has(n.id)),
+            edges: get().edges.filter(
+              (e) => !doomedEdges.has(e.id) && !doomed.has(e.source) && !doomed.has(e.target),
+            ),
+          }),
+        );
+      },
+
+      deleteNodes: (ids) => get().deleteElements(ids, []),
+
+      deleteSelected: () => {
+        const { nodes, edges } = get();
+        get().deleteElements(
+          nodes.flatMap((n) => (n.selected ? [n.id] : [])),
+          edges.flatMap((e) => (e.selected ? [e.id] : [])),
+        );
+      },
+
+      clear: () => set({ nodes: [], edges: [] }),
 
       setGroups: (groups) => set({ groups }),
 
@@ -132,15 +258,23 @@ export const useCanvasStore = create<CanvasState>()(
           }),
         }),
 
-      load: ({ nodes, viewport, groups = [] }) => {
-        set({ nodes, viewport, groups });
+      load: ({ nodes, edges = [], viewport, groups = [] }) => {
+        set({
+          nodes,
+          edges: sanitizeEdges(
+            edges,
+            nodes.map((n) => n.id),
+          ),
+          viewport,
+          groups,
+        });
         useCanvasStore.temporal.getState().clear();
         startNewUndoStep();
       },
     }),
     {
-      // Only node content is undoable: selection, measurement and the viewport are not.
-      partialize: (state) => ({ nodes: state.nodes.map(stripTransient) }),
+      // Only node and link content is undoable: selection, measurement and the viewport are not.
+      partialize: (state) => ({ nodes: state.nodes.map(stripTransient), edges: state.edges.map(stripEdge) }),
       equality: isEqual,
       handleSet: (handleSet) => (pastState, replace) => {
         const now = Date.now();
@@ -163,6 +297,11 @@ export const redo = () => {
 
 /** Snapshot of the open canvas in its persisted form. */
 export function getCanvasContent(): CanvasContent {
-  const { nodes, viewport, groups } = useCanvasStore.getState();
-  return { nodes: nodes.map(stripTransient), viewport, ...(groups.length > 0 ? { groups } : {}) };
+  const { nodes, edges, viewport, groups } = useCanvasStore.getState();
+  return {
+    nodes: nodes.map(stripTransient),
+    viewport,
+    ...(groups.length > 0 ? { groups } : {}),
+    ...(edges.length > 0 ? { edges: edges.map(stripEdge) } : {}),
+  };
 }

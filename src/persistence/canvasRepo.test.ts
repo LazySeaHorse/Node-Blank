@@ -82,4 +82,11 @@ describe('canvasRepo', () => {
     await forgetSyncRecord(id);
     expect(await listSyncRecords()).toEqual([]);
   });
+
+  it('keeps links with the content', async () => {
+    const id = await createCanvas('A');
+    const edges = [{ id: 'l', source: 'a', target: 'b', data: { label: 'k' } }];
+    await saveContent(id, { nodes: [], viewport: { x: 0, y: 0, zoom: 1 }, edges });
+    expect((await loadContent(id)).edges).toEqual(edges);
+  });
 });

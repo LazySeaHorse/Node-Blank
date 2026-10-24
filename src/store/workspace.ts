@@ -1,7 +1,7 @@
 import type { XYPosition } from '@xyflow/react';
 import { create } from 'zustand';
-import type { AppNode, CanvasContent } from '@/model/types';
-import { cloneNodes } from '@/nodes/factory';
+import { cloneGraph, internalEdges, sanitizeEdges, stripEdge } from '@/lib/links';
+import type { AppNode, CanvasContent, CanvasEdge } from '@/model/types';
 import { createAutosave } from '@/persistence/autosave';
 import * as repo from '@/persistence/canvasRepo';
 import { type ExportFile, exportCanvases, exportNodes, type NamedCanvas } from '@/persistence/io';
@@ -28,7 +28,12 @@ const autosave = createAutosave(async () => {
 });
 
 useCanvasStore.subscribe((state, prev) => {
-  if (state.nodes !== prev.nodes || state.viewport !== prev.viewport || state.groups !== prev.groups)
+  if (
+    state.nodes !== prev.nodes ||
+    state.edges !== prev.edges ||
+    state.viewport !== prev.viewport ||
+    state.groups !== prev.groups
+  )
     autosave.schedule();
 });
 
@@ -116,15 +121,22 @@ export async function exportAllCanvases(): Promise<ExportFile> {
   return exportCanvases(await Promise.all(metas.map((m) => namedCanvas(m.id))));
 }
 
-export const exportSelectedNodes = (): ExportFile =>
-  exportNodes(useCanvasStore.getState().nodes.filter((n) => n.selected));
+export function exportSelectedNodes(): ExportFile {
+  const { nodes, edges } = useCanvasStore.getState();
+  const picked = nodes.filter((n) => n.selected);
+  return exportNodes(picked, internalEdges(edges, new Set(picked.map((n) => n.id))).map(stripEdge));
+}
 
-/** Adds copies of `nodes` to the open canvas with their top-left corner at `at`, as one undo step. */
-export function pasteNodes(nodes: AppNode[], at: XYPosition): void {
+/**
+ * Adds copies of `nodes` (and the `edges` among them) to the open canvas with their top-left corner at `at`,
+ * as one undo step.
+ */
+export function pasteNodes(nodes: AppNode[], at: XYPosition, edges: CanvasEdge[] = []): void {
   if (nodes.length === 0) return;
   const minX = Math.min(...nodes.map((n) => n.position.x));
   const minY = Math.min(...nodes.map((n) => n.position.y));
-  asUndoStep(() => useCanvasStore.getState().addNodes(cloneNodes(nodes, { x: at.x - minX, y: at.y - minY })));
+  const copy = cloneGraph(nodes, edges, { x: at.x - minX, y: at.y - minY });
+  asUndoStep(() => useCanvasStore.getState().addNodes(copy.nodes, copy.edges));
 }
 
 /**
@@ -135,12 +147,18 @@ export function pasteNodes(nodes: AppNode[], at: XYPosition): void {
 export async function importFile(file: ExportFile, at: XYPosition): Promise<string> {
   if (file.kind === 'nodes') {
     if (file.nodes.length === 0) return 'No nodes in file';
-    pasteNodes(file.nodes, at);
+    pasteNodes(file.nodes, at, file.edges);
     return `Imported ${file.nodes.length} node${file.nodes.length === 1 ? '' : 's'}`;
   }
   if (file.canvases.length === 0) return 'No canvases in file';
   const ids: string[] = [];
-  for (const { name, ...content } of file.canvases) ids.push(await repo.createCanvas(name, content));
+  for (const { name, edges: raw = [], ...content } of file.canvases) {
+    const edges = sanitizeEdges(
+      raw,
+      content.nodes.map((n) => n.id),
+    );
+    ids.push(await repo.createCanvas(name, { ...content, ...(edges.length > 0 ? { edges } : {}) }));
+  }
   await openCanvas(ids[0]);
   return `Imported ${ids.length} canvas${ids.length === 1 ? '' : 'es'}`;
 }

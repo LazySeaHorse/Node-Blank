@@ -288,6 +288,17 @@ describe('writing', () => {
     expect((await callError('delete_nodes', { ids: ['n2'] })).error).toBe('node_not_found');
   });
 
+  it('deleting a node also removes its links, as one undo step', async () => {
+    load([createNode('math', at(0, 0)), createNode('math', at(300, 0))]);
+    const [a, b] = canvas().nodes.map((n) => n.id);
+    canvas().linkNodes(a, b);
+    await call('delete_nodes', { ids: ['n1'] });
+    expect(canvas().edges).toHaveLength(0);
+    undo();
+    expect(canvas().nodes).toHaveLength(2);
+    expect(canvas().edges).toHaveLength(1);
+  });
+
   it('runs scripts and returns their output', async () => {
     load([createNode('code', at(0, 0), { source: '1+9' })]);
     expect(await call('run_code', { id: 'n1' })).toBe('ran 3 chars\n=> 10');

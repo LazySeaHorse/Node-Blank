@@ -433,9 +433,7 @@ export const deleteNodes = defineTool({
   destructive: true,
   handler: ({ ids }) => {
     const doomed = new Set(ids.map((id) => requireNode(id).id));
-    commitAiWrite(() =>
-      useCanvasStore.setState((s) => ({ nodes: s.nodes.filter((n) => !doomed.has(n.id)) })),
-    );
+    commitAiWrite(() => useCanvasStore.getState().deleteNodes([...doomed]));
     return {
       text: `Deleted ${plural(doomed.size, 'node')}.`,
       summary: `Deleted ${plural(doomed.size, 'node')}`,
