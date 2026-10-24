@@ -73,7 +73,9 @@ export const linkNodesTool = defineTool({
           `${from} is already linked to ${to}. Use update_links to change it, or link the other way round.`,
         );
       if (closesMathPlusLoop(nodes, existing, source, target))
-        notes.push(`${from} -> ${to} closes a Math+ loop; one link in the loop is ignored when calculating.`);
+        notes.push(
+          `${from} -> ${to} closes a Math+ loop; it is broken at the node earliest in reading order, whose link from the loop is ignored when calculating.`,
+        );
       const data = normaliseLinkData(toPatch(look));
       const link: AppEdge = { id: newId(), source, target, ...(data ? { data } : {}) };
       created.push(link);

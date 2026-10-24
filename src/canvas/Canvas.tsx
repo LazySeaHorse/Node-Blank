@@ -86,7 +86,9 @@ function connect({ source, target }: Connection) {
   const id = linkNodes(source, target);
   if (existing) toast('Those two are already linked that way. Selected the existing link.');
   else if (id && loop)
-    toast.warning('This closes a Math+ loop. One link in the loop is ignored when calculating.');
+    toast.warning(
+      'This closes a Math+ loop. It is broken at the node earliest in reading order, whose link from the loop is ignored when calculating.',
+    );
 }
 
 /** The open canvas. Remount (via `key`) when switching canvases so the stored viewport is applied. */

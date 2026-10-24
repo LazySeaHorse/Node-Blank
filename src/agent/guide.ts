@@ -24,8 +24,8 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
   nodes are evaluated source first, so a source below its target is evaluated earlier. A source with an error, no
   lines or a function definition (f(x) := ...) as its last line passes nothing and the target's lines that use
   the name fail. Two links with the same name into one node fail only if that node uses the name. If the target
-  assigns the name itself (k := 3) its own value wins from that line on. Links can form loops (allowed): the one
-  closing the loop is ignored and marked "loop: link ignored". Links touching other kinds of node carry nothing.
+  assigns the name itself (k := 3) its own value wins from that line on. Links can form loops (allowed): the loop
+  is broken at its node earliest in reading order, whose link from the loop is ignored ("loop: link ignored"). Links touching other kinds of node carry nothing.
 - graph: functions, a list of functions of x such as "x^2" or "\\sin(x)".
 - table: cells, rows of LaTeX math cells.
 - sheet: cells, rows of spreadsheet cells; formulas start with "=" and use A1 references (=SUM(A1:A3)).

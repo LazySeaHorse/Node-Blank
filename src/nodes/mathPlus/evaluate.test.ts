@@ -189,6 +189,17 @@ describe('evaluateLinked', () => {
     expect(r.inputs.b[0].error).toBe('the source has an error');
   });
 
+  it('ignores one link of a loop and still feeds a node waiting on it', () => {
+    const r = evaluateLinked(
+      ce,
+      [doc('x', 'ans*2'), doc('a', '5'), doc('b', 'k+1')],
+      [link('ab', 'a', 'b', 'k'), link('ba', 'b', 'a'), link('bx', 'b', 'x')],
+    );
+    expect(r.inputs.a[0]).toMatchObject({ linkId: 'ba', error: 'loop: link ignored' });
+    expect(value(r, 'b')).toBe('6');
+    expect(value(r, 'x')).toBe('12');
+  });
+
   it('does not recompute or leak between evaluations', () => {
     evaluateLinked(ce, [doc('s', '2'), doc('t', 'z:=ans')], [link('l', 's', 't')]);
     expect(evaluateLinked(ce, [doc('u', 'z+1')], []).lines.u[0].value).toBe('z+1');

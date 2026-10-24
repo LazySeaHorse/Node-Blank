@@ -49,6 +49,23 @@ describe('orderDocuments', () => {
   });
 });
 
+describe('orderDocuments with a loop and a node waiting on it', () => {
+  const links = [link('ab', 'a', 'b'), link('ba', 'b', 'a'), link('bx', 'b', 'x')];
+
+  it('breaks the loop at its earliest member, not at a node that merely waits on it', () => {
+    const { order, broken } = orderDocuments(['x', 'a', 'b'], links);
+    expect(order).toEqual(['a', 'b', 'x']);
+    // One link ignored, and x still receives b's value.
+    expect([...broken]).toEqual(['ba']);
+  });
+
+  it('keeps links from nodes outside the loop', () => {
+    const { order, broken } = orderDocuments(['x', 'a', 'b', 'y'], [...links, link('ya', 'y', 'a')]);
+    expect(order).toEqual(['y', 'a', 'b', 'x']);
+    expect([...broken]).toEqual(['ba']);
+  });
+});
+
 describe('linkVarName', () => {
   it('uses a single latin letter, with or without dollar signs', () => {
     expect(linkVarName('k')).toBe('k');
