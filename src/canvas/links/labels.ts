@@ -12,19 +12,30 @@ export interface LabelPart {
  */
 export function splitLabel(label: string): LabelPart[] {
   const parts: LabelPart[] = [];
-  for (const segment of label.split(/(\$[^$]*\$)/)) {
-    if (!segment) continue;
-    const inner = segment.slice(1, -1);
-    // Like the markdown rule: money in a sentence ("$5 and $6") is not a formula.
-    const math =
-      segment.length > 2 &&
-      segment.startsWith('$') &&
-      segment.endsWith('$') &&
-      inner === inner.trim() &&
-      !/^[\d.,]+$/.test(inner);
+  const text = (t: string) => {
     const last = parts[parts.length - 1];
-    if (!math && last && !last.math) last.text += segment;
-    else parts.push({ text: math ? inner : segment, math });
+    if (last && !last.math) last.text += t;
+    else parts.push({ text: t, math: false });
+  };
+  let at = 0;
+  while (at < label.length) {
+    const open = label.indexOf('$', at);
+    const close = open < 0 ? -1 : label.indexOf('$', open + 1);
+    if (close < 0) {
+      text(label.slice(at));
+      break;
+    }
+    const inner = label.slice(open + 1, close);
+    // Like the markdown rule: money in a sentence ("$5 and $6") is not a formula.
+    if (inner && inner === inner.trim() && !/^[\d.,]+$/.test(inner)) {
+      if (open > at) text(label.slice(at, open));
+      parts.push({ text: inner, math: true });
+      at = close + 1;
+    } else {
+      // Not a formula: the first sign is plain text, and the second may open one.
+      text(label.slice(at, open + 1));
+      at = open + 1;
+    }
   }
   return parts;
 }
