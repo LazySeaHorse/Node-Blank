@@ -1,10 +1,11 @@
-import { type NodeProps, NodeResizer } from '@xyflow/react';
+import type { NodeProps } from '@xyflow/react';
 import { Popover } from 'radix-ui';
 import type { CSSProperties } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
 import type { NodeOf, SectionColor } from '@/model/types';
 import { useUiStore } from '@/store/uiStore';
 import { ColorSwatches, swatch } from '../ColorSwatches';
+import { CornerResizer } from '../CornerResizer';
 import { NODE_TAB_HEIGHT } from '../spec';
 import { useUpdateNodeData } from '../useNodeData';
 
@@ -22,13 +23,7 @@ export function SectionNode({ id, data, selected }: NodeProps<NodeOf<'section'>>
 
   return (
     <>
-      <NodeResizer
-        isVisible={selected && !readOnly}
-        minWidth={160}
-        minHeight={100}
-        lineClassName="!border-transparent"
-        handleClassName="!size-3.5 !rounded-none !border-0 !bg-transparent"
-      />
+      <CornerResizer selected={selected} minWidth={160} minHeight={100} />
       <div
         className="node flex h-full w-full flex-col"
         style={

@@ -272,7 +272,7 @@ body,
 }
 
 /* The section's pointer-events:none would otherwise be inherited by its resize handles. */
-.react-flow__node-section .react-flow__resize-control {
+.react-flow__node-section .corner-resizer {
   pointer-events: all;
 }
 
@@ -521,18 +521,33 @@ math-field::part(virtual-keyboard-toggle) {
  * Zoomed out, a node gives up detail (data-zoom is set on the canvas). `mid`: the controls go.
  */
 /*
- * Resizing: the bottom-right corner shows a grip, the other handles stay invisible but live. They come before the
- * tile in the node, which is positioned, so they need lifting above it to take the pointer.
+ * Resizing: a grip in the bottom-right corner is the only handle. Its hit area is far larger than the grip drawn
+ * in it, reaching a little past the corner so it is easy to find. It comes before the tile in the node, which is
+ * positioned, so it needs lifting above it to take the pointer.
  */
-.react-flow__node .react-flow__resize-control {
+.react-flow__node .corner-resizer {
   z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  translate: -72% -72%;
 }
-.react-flow__node .react-flow__resize-control.handle.bottom.right {
-  transform: translate(-100%, -100%);
+.corner-resizer::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 14px;
+  height: 14px;
   background-image: radial-gradient(circle, var(--fg) 1.1px, transparent 1.5px);
   background-size: 4px 4px;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
   opacity: 0.55;
+}
+.corner-resizer:hover::after {
+  opacity: 1;
 }
 
 /* Nodes an AI agent just changed. */

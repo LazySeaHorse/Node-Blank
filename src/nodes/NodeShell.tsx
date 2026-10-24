@@ -1,4 +1,4 @@
-import { NodeResizer, useNodeId } from '@xyflow/react';
+import { useNodeId } from '@xyflow/react';
 import { Popover } from 'radix-ui';
 import type { CSSProperties, ReactNode } from 'react';
 import { useReadOnly } from '@/canvas/readOnly';
@@ -7,6 +7,7 @@ import type { NodeKind, SectionColor } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { ColorSwatches, swatch } from './ColorSwatches';
+import { CornerResizer } from './CornerResizer';
 import { nodeSpecs } from './catalog';
 import { NODE_TAB_HEIGHT } from './spec';
 
@@ -59,18 +60,7 @@ export function NodeShell({
   const tone = tint ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))` : 'var(--surface)';
   return (
     <>
-      {resize && (
-        <NodeResizer
-          isVisible={selected && !readOnly}
-          minWidth={resize.minWidth}
-          minHeight={resize.minHeight}
-          keepAspectRatio={resize.keepAspectRatio}
-          onResizeStart={() => resize.onResizing?.(true)}
-          onResizeEnd={() => resize.onResizing?.(false)}
-          lineClassName="!border-transparent"
-          handleClassName="!size-3.5 !rounded-none !border-0 !bg-transparent"
-        />
-      )}
+      {resize && <CornerResizer selected={selected} {...resize} />}
       <div
         className="node node-card flex h-full w-full flex-col"
         data-live={live || undefined}
