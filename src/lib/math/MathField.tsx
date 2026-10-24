@@ -52,10 +52,12 @@ export function MathField({
 
   useEffect(() => {
     const field = ref.current;
-    // Stored values are flattened (see emitChange), so compare like with like or the caret would jump.
-    if (!field || flattenDisplaylines(field.value) === value) return;
+    // MathLive's parser throws on nested \displaylines (see normalize.ts), so the field takes LaTeX flattened,
+    // as it gives it (emitChange), whatever wrote it: an import, the AI, a sync. Like with like, or the caret jumps.
+    const latex = flattenDisplaylines(value);
+    if (!field || flattenDisplaylines(field.value) === latex) return;
     try {
-      field.setValue(value, { silenceNotifications: true });
+      field.setValue(latex, { silenceNotifications: true });
     } catch (error) {
       // A value MathLive cannot parse must not take the whole canvas down with this one node.
       console.error('Could not load math into the field', error);

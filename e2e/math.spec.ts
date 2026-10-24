@@ -197,3 +197,32 @@ test('math written in black turns light in dark mode', async ({ page }) => {
   await page.getByRole('button', { name: 'Dark mode', exact: true }).click();
   await expect.poll(color).toBe('rgb(255, 255, 255)');
 });
+
+test('math pasted in with nested multi-line LaTeX loads, flattened', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  const file = {
+    app: 'node-blank',
+    version: 1,
+    kind: 'nodes',
+    nodes: [
+      {
+        id: 'm',
+        type: 'math',
+        position: { x: 0, y: 0 },
+        data: { latex: '\\displaylines{a\\\\ \\displaylines{b\\\\ c}}' },
+      },
+    ],
+  };
+  await page.evaluate((text) => navigator.clipboard.writeText(text), JSON.stringify(file));
+  await page.mouse.move(500, 400);
+  await page.keyboard.press('ControlOrMeta+v');
+  const field = nodes(page).locator('math-field');
+  await expect(field).toHaveCount(1);
+  await expect
+    .poll(() => field.evaluate((el: HTMLElement & { value: string }) => el.value))
+    .toBe('\\displaylines{a\\\\ b\\\\ c}');
+  expect(errors).toEqual([]);
+});
