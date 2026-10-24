@@ -157,15 +157,22 @@ test('links survive a reload', async ({ page }) => {
   await expect(nodes(page)).toHaveCount(2);
 });
 
-/** A point on the pipe of the nth link, in page coordinates. */
+/**
+ * A point on the pipe of the nth link, in page coordinates, that nothing else (the link's own toolbar, a node)
+ * covers right now.
+ */
 async function pointOnLink(page: Page, index = 0) {
   return page
     .locator('.react-flow__edge-interaction')
     .nth(index)
     .evaluate((path: SVGPathElement) => {
-      const at = path.getPointAtLength(path.getTotalLength() * 0.3);
-      const p = new DOMPoint(at.x, at.y).matrixTransform(path.getScreenCTM() as DOMMatrix);
-      return { x: p.x, y: p.y };
+      const length = path.getTotalLength();
+      for (const fraction of [0.3, 0.12, 0.88, 0.5, 0.2, 0.7, 0.05, 0.95]) {
+        const at = path.getPointAtLength(length * fraction);
+        const p = new DOMPoint(at.x, at.y).matrixTransform(path.getScreenCTM() as DOMMatrix);
+        if (document.elementFromPoint(p.x, p.y) === path) return { x: p.x, y: p.y };
+      }
+      throw new Error('the whole link is covered');
     });
 }
 
@@ -239,4 +246,67 @@ test('right-clicking a link opens its menu', async ({ page }) => {
   await expect(edges(page)).toHaveCount(0);
   await page.keyboard.press('ControlOrMeta+z');
   await expect(edges(page)).toHaveCount(1);
+});
+
+const labelInput = (page: Page) => page.getByRole('textbox', { name: 'Link label' });
+
+test('double-clicking a link names it; one undo takes the name away', async ({ page }) => {
+  await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.dblclick(p.x, p.y);
+  await expect(labelInput(page)).toBeFocused();
+  await expect(toolbar(page)).toHaveCount(0);
+  await labelInput(page).fill('force');
+  await labelInput(page).press('Enter');
+  await expect(labelInput(page)).toHaveCount(0);
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveText('force');
+  await expect(toolbar(page)).toBeVisible();
+
+  await page.mouse.click(1300, 800);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveCount(0);
+  await expect(edges(page)).toHaveCount(1);
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveText('force');
+});
+
+test('Escape cancels a rename and Delete inside the field leaves the link alone', async ({ page }) => {
+  await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.dblclick(p.x, p.y);
+  await labelInput(page).fill('draft');
+  await labelInput(page).press('Delete');
+  await labelInput(page).press('Backspace');
+  await expect(edges(page)).toHaveCount(1);
+  await labelInput(page).press('Escape');
+  await expect(labelInput(page)).toHaveCount(0);
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveCount(0);
+  await expect(edges(page)).toHaveCount(1);
+});
+
+test('a label with a formula renders with KaTeX, and an emptied name clears the label', async ({ page }) => {
+  await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.dblclick(p.x, p.y);
+  await labelInput(page).fill('rate $\\alpha^2$');
+  await labelInput(page).press('Enter');
+  await expect(page.locator('.link-label-math .katex')).toBeVisible();
+  await expect(page.locator('.link-label-math')).toContainText('rate');
+
+  await page.locator('.link-label-math').dblclick();
+  await expect(labelInput(page)).toHaveValue('rate $\\alpha^2$');
+  await labelInput(page).fill('');
+  await labelInput(page).press('Enter');
+  await expect(page.locator('.link-label-math')).toHaveCount(0);
+});
+
+test('the menu names a link too', async ({ page }) => {
+  await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.click(p.x, p.y, { button: 'right' });
+  await page.getByRole('menuitem', { name: 'Add label' }).click();
+  await expect(labelInput(page)).toBeFocused();
+  await labelInput(page).fill('k');
+  await labelInput(page).press('Enter');
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveText('k');
 });

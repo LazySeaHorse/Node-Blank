@@ -1,8 +1,11 @@
 import { BaseEdge, type EdgeProps, type EdgeTypes } from '@xyflow/react';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import type { AppEdge, LinkEnd } from '@/model/types';
-import { endPlacement, type Pt, roundedPath } from './geometry';
+import { useUiStore } from '@/store/uiStore';
+import { linkColor } from './actions';
+import { endPlacement, geom, type Pt, roundedPath } from './geometry';
+import { LinkLabel, LinkLabelEditor } from './LinkLabel';
 import { useLinkRoute } from './useLinkRoute';
 
 /** Width of the invisible strip around a link that takes clicks, in screen pixels. */
@@ -31,7 +34,9 @@ function EndShape({ kind, to, from }: { kind: LinkEnd; to: Pt; from: Pt }) {
  */
 export const LinkEdge = memo(function LinkEdge({ id, source, target, data, selected }: EdgeProps<AppEdge>) {
   const pts = useLinkRoute(id, source, target);
-  if (!pts) return null;
+  const geometry = useMemo(() => (pts ? geom(pts) : null), [pts]);
+  const editing = useUiStore((s) => s.renamingLink === id);
+  if (!pts || !geometry) return null;
 
   const head = data?.head ?? 'arrow';
   const tail = data?.tail ?? 'none';
@@ -46,6 +51,19 @@ export const LinkEdge = memo(function LinkEdge({ id, source, target, data, selec
       <BaseEdge id={id} path={d} className="link-line" interactionWidth={HIT_WIDTH} />
       <EndShape kind={head} to={pts[pts.length - 1]} from={pts[pts.length - 2]} />
       <EndShape kind={tail} to={pts[0]} from={pts[1]} />
+      {editing ? (
+        <LinkLabelEditor id={id} value={data?.label ?? ''} geometry={geometry} />
+      ) : (
+        data?.label && (
+          <LinkLabel
+            id={id}
+            label={data.label}
+            pts={pts}
+            geometry={geometry}
+            color={selected ? 'var(--accent)' : linkColor(data.color)}
+          />
+        )
+      )}
     </g>
   );
 });

@@ -388,6 +388,13 @@ export function linkMenu(edge: AppEdge): MenuEntry[] {
       onSelect: () => editLink(edge.id, { [field]: end }),
     }));
   return [
+    {
+      label: data?.label ? 'Rename' : 'Add label',
+      icon: PencilLine,
+      // After the menu has closed and settled focus, or the field would lose it at once.
+      onSelect: () => void setTimeout(() => useUiStore.getState().renameLink(edge.id), 0),
+    },
+    { separator: true },
     { label: 'Head', icon: ArrowRight, items: ends('head', data?.head ?? 'arrow') },
     { label: 'Tail', icon: ArrowLeft, items: ends('tail', data?.tail ?? 'none') },
     {

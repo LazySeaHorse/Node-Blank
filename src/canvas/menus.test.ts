@@ -267,7 +267,15 @@ describe('link menu', () => {
     const entries = open();
     expect(state().edges.map((e) => [e.id, !!e.selected])).toEqual([[id, true]]);
     expect(state().nodes.some((n) => n.selected)).toBe(false);
-    expect(labels(entries)).toEqual(['Head', 'Tail', 'Colour', 'Dashed', 'Swap direction', 'Delete link']);
+    expect(labels(entries)).toEqual([
+      'Add label',
+      'Head',
+      'Tail',
+      'Colour',
+      'Dashed',
+      'Swap direction',
+      'Delete link',
+    ]);
     expect(labels(sub(entries, 'Head'))).toEqual(['Arrow', 'Dot', 'Bar', 'None']);
     expect((find(sub(entries, 'Head'), 'Arrow') as MenuItem).checked).toBe(true);
     expect(labels(sub(entries, 'Colour'))).toEqual([

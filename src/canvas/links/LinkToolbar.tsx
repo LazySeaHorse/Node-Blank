@@ -12,6 +12,10 @@ import { useLinkRoute } from './useLinkRoute';
 
 /** Room the toolbar needs either side of its anchor before it is pushed back inside the canvas. */
 const HALF_WIDTH = 400;
+/** How far above the link the toolbar sits: clear of a label, which hangs just over the line. */
+const ABOVE = 36;
+/** The same, when it opens under the link. */
+const BELOW = 18;
 /** Below this many screen pixels from the canvas top (the toolbar bar floats there) it opens under the link. */
 const FLIP_BELOW = 96;
 
@@ -89,7 +93,7 @@ function EndChoice({
 const divider = <span className="h-5 w-px bg-border" />;
 
 /**
- * Options for the selected link, floating over the middle of its longest stretch. One instance serves the whole
+ * Options for the selected link, floating just clear of it. One instance serves the whole
  * canvas: it shows while exactly one link is selected and nothing else is.
  */
 export function LinkToolbar() {
@@ -105,8 +109,12 @@ export function LinkToolbar() {
 
   const { mid } = geom(pts);
   const x = Math.max(HALF_WIDTH, Math.min(width - HALF_WIDTH, mid[0] * zoom + tx));
-  const y = mid[1] * zoom + ty;
-  const below = y < FLIP_BELOW;
+  // Over the topmost point of the link (under the lowest when there is no room), so it never covers the link
+  // it edits: the second click of a double-click lands on the link, not on the toolbar that just appeared.
+  const top = Math.min(...pts.map((p) => p[1])) * zoom + ty;
+  const bottom = Math.max(...pts.map((p) => p[1])) * zoom + ty;
+  const below = top < FLIP_BELOW;
+  const y = below ? bottom : top;
   const data = link.data;
 
   return (
@@ -116,7 +124,7 @@ export function LinkToolbar() {
       className="link-toolbar nodrag nopan nokey absolute z-20 flex items-center gap-2.5 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-fg shadow-xl"
       style={{
         left: x,
-        top: below ? y + 18 : y - 14,
+        top: below ? y + BELOW : y - ABOVE,
         transform: below ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
       }}
     >

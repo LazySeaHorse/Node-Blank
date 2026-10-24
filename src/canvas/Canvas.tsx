@@ -190,6 +190,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         colorMode={theme}
         proOptions={proOptions}
         onConnect={connect}
+        onEdgeDoubleClick={readOnly ? undefined : (_, edge) => useUiStore.getState().renameLink(edge.id)}
         className={cn(readOnly && 'read-only', multipleSelected && 'multi-select', linking && 'linking')}
         data-zoom={tier}
         style={{ '--tz': scale } as CSSProperties}
