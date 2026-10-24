@@ -537,10 +537,11 @@ math-field::part(virtual-keyboard-toggle) {
 .corner-resizer::after {
   content: "";
   position: absolute;
-  right: 6px;
-  bottom: 6px;
-  width: 14px;
-  height: 14px;
+  /* The hit area reaches 8px past the node's corner; the grip sits 5px inside it, clear of the 13px curve. */
+  right: 13px;
+  bottom: 13px;
+  width: 10px;
+  height: 10px;
   background-image: radial-gradient(circle, var(--fg) 1.1px, transparent 1.5px);
   background-size: 4px 4px;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
