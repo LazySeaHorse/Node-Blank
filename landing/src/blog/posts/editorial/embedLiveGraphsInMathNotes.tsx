@@ -30,7 +30,7 @@ export const embedLiveGraphsInMathNotes: BlogPost = {
     { id: 'live-canvas-paradigm', title: 'The Living Math Canvas Paradigm', level: 2 },
     { id: 'worked-example-taylor', title: 'Worked Example 1: Taylor Polynomial Convergence', level: 2 },
     { id: 'worked-example-oscillator', title: 'Worked Example 2: Damped Harmonic Oscillator', level: 2 },
-    { id: 'node-blank-graph-guide', title: 'How to Plot Functions in Node-Blank', level: 2 },
+    { id: 'unlined-graph-guide', title: 'How to Plot Functions in Unlined', level: 2 },
   ],
   relatedSlugs: [
     'best-note-taking-apps-for-engineering-students-without-ipad',
@@ -121,7 +121,7 @@ export const embedLiveGraphsInMathNotes: BlogPost = {
           <strong>reactive node</strong> that exists in the same coordinate space as your derivation.
         </p>
         <p>
-          Node-Blank embeds an interactive 2D function plotter built directly on <strong>Mafs</strong>, a
+          Unlined embeds an interactive 2D function plotter built directly on <strong>Mafs</strong>, a
           GPU-accelerated React mathematical visualization library. Curves render as vector paths with
           interactive coordinate controls, real-time slider scrubbing, and zero external network calls.
         </p>
@@ -147,7 +147,7 @@ export const embedLiveGraphsInMathNotes: BlogPost = {
         </p>
 
         <div className="rounded-xl border border-line bg-surface p-5 space-y-3">
-          <h4 className="text-sm font-semibold text-fg">Multi-Curve Representation in Node-Blank:</h4>
+          <h4 className="text-sm font-semibold text-fg">Multi-Curve Representation in Unlined:</h4>
           <CodeBlock
             language="math"
             filename="Graph Node: Functions List"
@@ -190,7 +190,7 @@ P_5(x) = x - x^3 / 6 + x^5 / 120   (Degree-5 Taylor: Emerald)`}
 
         <p>
           On a static page, students frequently confuse the oscillatory frequency with the envelope decay. In
-          Node-Blank, you plot both the oscillatory solution and the envelope boundaries:
+          Unlined, you plot both the oscillatory solution and the envelope boundaries:
         </p>
 
         <CodeBlock
@@ -208,9 +208,9 @@ e_{-}(t) = -e^{-0.4 t}`}
         </Callout>
       </section>
 
-      <section id="node-blank-graph-guide" className="space-y-4">
+      <section id="unlined-graph-guide" className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
-          How to Plot Functions in Node-Blank
+          How to Plot Functions in Unlined
         </h2>
 
         <div className="space-y-3">

@@ -21,7 +21,7 @@ export default function App() {
   // Reset meta on Home route
   useEffect(() => {
     if (route.name === 'home') {
-      document.title = 'Node-Blank — Infinite Canvas for Math, Markdown, Web & Code';
+      document.title = 'Unlined — Infinite Canvas for Math, Markdown, Web & Code';
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute(

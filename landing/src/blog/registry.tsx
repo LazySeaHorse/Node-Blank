@@ -60,7 +60,7 @@ export const BLOG_POSTS: BlogPost[] = [
         title: 'The Jacobian in Coordinate Transforms',
         level: 2,
       },
-      { id: 'infinite-canvas-layout-workflow', title: 'The Node-Blank Multi-Node Workflow', level: 2 },
+      { id: 'infinite-canvas-layout-workflow', title: 'The Unlined Multi-Node Workflow', level: 2 },
     ],
     relatedSlugs: ['linear-algebra-eigenvalues-svd', 'mit-stanford-eecs-pset-workflow'],
     content: (
@@ -157,10 +157,10 @@ export const BLOG_POSTS: BlogPost[] = [
         />
 
         <h2 id="infinite-canvas-layout-workflow" className="text-2xl font-bold tracking-tight text-fg pt-4">
-          The Node-Blank Multi-Node Workflow
+          The Unlined Multi-Node Workflow
         </h2>
         <p>
-          Here is how modern STEM students lay out this exact problem set in Node-Blank without mental
+          Here is how modern STEM students lay out this exact problem set in Unlined without mental
           friction:
         </p>
 
@@ -227,7 +227,7 @@ assert np.isclose(det, r_val)`}
         />
 
         <Callout type="pset" title="Pset Tip: Grouping with Canvas Sections">
-          In Node-Blank, wrap related nodes into a named Section box (e.g. "Problem 3: Flux Through
+          In Unlined, wrap related nodes into a named Section box (e.g. "Problem 3: Flux Through
           Paraboloid"). Dragging the section moves your textbook snippet, derivation, and graph together
           without disturbing the rest of your canvas.
         </Callout>
@@ -261,7 +261,7 @@ assert np.isclose(det, r_val)`}
       { id: 'matrices-as-linear-operators', title: 'Matrices as Geometric Deformations', level: 2 },
       { id: 'the-eigenvalue-equation', title: 'The Characteristic Equation & Eigenspaces', level: 2 },
       { id: 'svd-the-swiss-army-knife', title: 'Singular Value Decomposition (SVD)', level: 2 },
-      { id: 'organizing-linear-algebra-psets', title: 'Organizing Matrix Proofs on Node-Blank', level: 2 },
+      { id: 'organizing-linear-algebra-psets', title: 'Organizing Matrix Proofs on Unlined', level: 2 },
     ],
     relatedSlugs: ['multivariable-calculus-infinite-canvas', 'mit-stanford-eecs-pset-workflow'],
     content: (
@@ -342,7 +342,7 @@ assert np.isclose(det, r_val)`}
         </p>
 
         <h2 id="organizing-linear-algebra-psets" className="text-2xl font-bold tracking-tight text-fg pt-4">
-          Organizing Matrix Proofs on Node-Blank
+          Organizing Matrix Proofs on Unlined
         </h2>
         <p>
           When completing problem sets in linear algebra, proofs require transitioning between algebraic
@@ -435,7 +435,7 @@ print(f"Singular values: {S.round(4)}")
         </p>
 
         <Callout type="tip" title="Zero Context Switching">
-          Node-Blank lets you run the entire pipeline inside a single browser tab: the assignment PDF sits on
+          Unlined lets you run the entire pipeline inside a single browser tab: the assignment PDF sits on
           the left, your derivations sit in the middle, and an in-browser script runner or graph sits on the
           right.
         </Callout>
@@ -447,7 +447,7 @@ print(f"Singular values: {S.round(4)}")
           The 3-Column Canvas Architecture
         </h2>
         <p>
-          Students at MIT EECS frequently structure their Node-Blank workspace into three distinct functional
+          Students at MIT EECS frequently structure their Unlined workspace into three distinct functional
           lanes:
         </p>
 
@@ -503,7 +503,7 @@ print(f"Singular values: {S.round(4)}")
         />
 
         <p>
-          With Node-Blank, everything is saved locally in IndexedDB. Even when campus Wi-Fi drops in the
+          With Unlined, everything is saved locally in IndexedDB. Even when campus Wi-Fi drops in the
           basement of Stata or Gates, your calculations and scratchpad remain 100% accessible.
         </p>
       </article>
@@ -571,7 +571,7 @@ print(f"Singular values: {S.round(4)}")
         </p>
 
         <p>
-          Node-Blank removes these artificial boundaries. The canvas is infinite, meaning your derivations can
+          Unlined removes these artificial boundaries. The canvas is infinite, meaning your derivations can
           expand horizontally as naturally as they expand vertically.
         </p>
 
@@ -721,7 +721,7 @@ print(f"Singular values: {S.round(4)}")
         />
 
         <Callout type="pset" title="Quick Formula Sheet Node">
-          Create a pinned 'Cheat Sheet' node on the corner of your Node-Blank canvas with common Laplace
+          Create a pinned 'Cheat Sheet' node on the corner of your Unlined canvas with common Laplace
           transform pairs (<TexInline math="\sin\omega t \leftrightarrow \frac{\omega}{s^2+\omega^2}" />) so
           you never need to look away from your active derivation.
         </Callout>
@@ -804,7 +804,7 @@ print(f"Singular values: {S.round(4)}")
 
         <p>
           Because these matrix components span dozens of terms, working on a constrained 13-inch document
-          makes checking Coriolis terms <TexInline math="\mathbf{C}" /> exhausting. In Node-Blank, you can lay
+          makes checking Coriolis terms <TexInline math="\mathbf{C}" /> exhausting. In Unlined, you can lay
           out the Kinetic energy expansion, Potential energy, and partial derivatives in parallel columns.
         </p>
       </article>
@@ -840,7 +840,7 @@ print(f"Singular values: {S.round(4)}")
       },
       { id: 'nodal-admittance-matrix-derivation', title: 'Nodal Admittance Matrix Equations', level: 2 },
       { id: 'euler-bernoulli-beam-deflection', title: 'Euler-Bernoulli Beam Bending Equations', level: 2 },
-      { id: 'using-sheet-and-script-nodes', title: 'Spreadsheet & Script Nodes in Node-Blank', level: 2 },
+      { id: 'using-sheet-and-script-nodes', title: 'Spreadsheet & Script Nodes in Unlined', level: 2 },
     ],
     relatedSlugs: ['multivariable-calculus-infinite-canvas', 'tum-eth-zurich-mechanical-systems'],
     content: (
@@ -909,10 +909,10 @@ print(f"Singular values: {S.round(4)}")
         />
 
         <h2 id="using-sheet-and-script-nodes" className="text-2xl font-bold tracking-tight text-fg pt-4">
-          Spreadsheet &amp; Script Nodes in Node-Blank
+          Spreadsheet &amp; Script Nodes in Unlined
         </h2>
         <p>
-          In Node-Blank, you can drop a <strong>Sheet Node</strong> right beside your beam formula. Enter your
+          In Unlined, you can drop a <strong>Sheet Node</strong> right beside your beam formula. Enter your
           segment boundaries, load values, and integration constants in the spreadsheet, and watch your moment
           diagram update dynamically.
         </p>

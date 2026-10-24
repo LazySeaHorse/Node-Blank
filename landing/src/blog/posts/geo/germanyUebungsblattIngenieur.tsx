@@ -162,7 +162,7 @@ export const germanyUebungsblattIngenieur: BlogPost = {
           3. Schritt-für-Schritt Gauss-Algorithmus mit exakten Brüchen
         </h2>
         <p>
-          In Node-Blank nutzen Sie für Zeilenumformungen den integrierten <strong>Sheet Node</strong>. Im
+          In Unlined nutzen Sie für Zeilenumformungen den integrierten <strong>Sheet Node</strong>. Im
           Gegensatz zu Excel unterstützt dieser native elementare Zeilenoperationen mit exakten Brüchen
           (rationale Arithmetik ohne Gleitkomma-Drift):
         </p>
@@ -235,7 +235,7 @@ R1 -= 2 * R2     # R1: [ 1,  0,  0   |  1 ]  ==> x = 1`}
         />
 
         <p>
-          In Node-Blank platzieren Sie die theoretische Herleitung in einem <strong>Math+ Node</strong> und
+          In Unlined platzieren Sie die theoretische Herleitung in einem <strong>Math+ Node</strong> und
           zeichnen die abklingende Schwingung{' '}
           <TexInline math="y(t) = e^{-\delta t} (c_1 \cos(\omega_d t) + c_2 \sin(\omega_d t))" /> direkt
           daneben im <strong>Graph Node</strong>. Sie sehen sofort, ob die Phasenverschiebung zu den
@@ -254,7 +254,7 @@ R1 -= 2 * R2     # R1: [ 1,  0,  0   |  1 ]  ==> x = 1`}
         </p>
         <p>
           Wer erst zwei Wochen vor der Klausur anfängt, Formeln mühsam zusammenzusuchen, verliert wertvolle
-          Zeit. In Node-Blank bauen Sie Ihre Formelsammlung während des Semesters modular auf:
+          Zeit. In Unlined bauen Sie Ihre Formelsammlung während des Semesters modular auf:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-fg">
           <li>
@@ -278,7 +278,7 @@ R1 -= 2 * R2     # R1: [ 1,  0,  0   |  1 ]  ==> x = 1`}
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
           6. Der ideale Desktop-Workflow für Maschinenbau und Elektrotechnik
         </h2>
-        <p>So organisieren Sie Ihr Semester mit Node-Blank für maximale Effizienz:</p>
+        <p>So organisieren Sie Ihr Semester mit Unlined für maximale Effizienz:</p>
 
         <ol className="list-decimal pl-6 space-y-3 text-fg">
           <li>

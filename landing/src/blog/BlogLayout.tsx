@@ -33,7 +33,7 @@ export function BlogLayout({ post }: BlogLayoutProps) {
   // Set document title and meta description
   useEffect(() => {
     const originalTitle = document.title;
-    document.title = `${post.title} — Node-Blank`;
+    document.title = `${post.title} — Unlined`;
 
     const metaDescription = document.querySelector('meta[name="description"]');
     const originalDesc = metaDescription?.getAttribute('content') || '';
@@ -112,10 +112,10 @@ export function BlogLayout({ post }: BlogLayoutProps) {
       <header className="sticky top-0 z-50 border-b border-line bg-canvas/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-[1240px] items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-3 min-w-0">
-            <Link href="/" className="group flex items-center gap-2 shrink-0" ariaLabel="Node-Blank Home">
+            <Link href="/" className="group flex items-center gap-2 shrink-0" ariaLabel="Unlined Home">
               <Mascot className="size-7 transition-transform duration-300 group-hover:-rotate-6" />
               <span className="font-display text-[15px] font-medium tracking-tight text-fg hidden sm:inline">
-                Node-Blank
+                Unlined
               </span>
             </Link>
 
@@ -283,7 +283,7 @@ export function BlogLayout({ post }: BlogLayoutProps) {
                     Doing STEM problem sets?
                   </h3>
                   <p className="text-sm text-muted leading-relaxed">
-                    Open Node-Blank in a browser tab. Keep textbook PDFs, LaTeX equations, live graphs, and
+                    Open Unlined in a browser tab. Keep textbook PDFs, LaTeX equations, live graphs, and
                     code together without flipping pages.
                   </p>
                 </div>
@@ -291,7 +291,7 @@ export function BlogLayout({ post }: BlogLayoutProps) {
                   href={APP_URL}
                   className="group inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-medium text-accent-fg transition hover:brightness-110 motion-safe:active:scale-[0.98] shrink-0 cursor-pointer shadow-sm"
                 >
-                  Open Node-Blank
+                  Open Unlined
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </a>
               </div>
@@ -360,7 +360,7 @@ export function BlogLayout({ post }: BlogLayoutProps) {
                   href={APP_URL}
                   className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2 px-3 text-xs font-medium text-accent-fg transition hover:brightness-110 cursor-pointer"
                 >
-                  Launch Node-Blank
+                  Launch Unlined
                   <ArrowRight className="size-3.5" />
                 </a>
               </div>

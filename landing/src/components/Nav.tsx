@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 export const APP_URL = '/app/';
-export const REPO_URL = 'https://github.com/LazySeaHorse/Node-Blank';
+export const REPO_URL = 'https://github.com/LazySeaHorse/Unlined';
 
 const LINKS = [
   { href: '/#nodes', label: 'Nodes' },
@@ -43,9 +43,9 @@ export function Nav() {
         )}
       >
         <nav className="mx-auto flex h-14 max-w-[1240px] items-center gap-3 px-4 sm:px-6">
-          <Link href="/" className="group flex items-center gap-2.5" ariaLabel="Node-Blank home">
+          <Link href="/" className="group flex items-center gap-2.5" ariaLabel="Unlined home">
             <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
-            <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
+            <span className="font-display text-[15px] font-medium tracking-tight text-fg">Unlined</span>
           </Link>
 
           <div className="ml-auto hidden items-center gap-1 lg:flex">

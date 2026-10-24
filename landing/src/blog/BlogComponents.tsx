@@ -100,7 +100,7 @@ export function Callout({
     tip: {
       border: 'border-l-tip bg-tip/5',
       icon: <Lightbulb className="size-4 text-tip shrink-0 mt-0.5" />,
-      defaultTitle: 'Pro-Tip for Node-Blank',
+      defaultTitle: 'Pro-Tip for Unlined',
     },
     info: {
       border: 'border-l-accent bg-accent/5',

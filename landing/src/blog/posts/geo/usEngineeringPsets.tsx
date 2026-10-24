@@ -169,7 +169,7 @@ export const usEngineeringPsets: BlogPost = {
               <tr className="bg-surface-2 text-fg border-b border-line">
                 <th className="p-3 font-semibold">Workspace Element</th>
                 <th className="p-3 font-semibold">Standard Split-Screen Frustration</th>
-                <th className="p-3 font-semibold">Node-Blank Spatial Solution</th>
+                <th className="p-3 font-semibold">Unlined Spatial Solution</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line text-muted">
@@ -219,7 +219,7 @@ export const usEngineeringPsets: BlogPost = {
           4. Pinning Problem Statements &amp; Free-Body Diagrams Side-by-Side
         </h2>
         <p>
-          Node-Blank approaches engineering problem sets as an unbounded two-dimensional canvas rather than an
+          Unlined approaches engineering problem sets as an unbounded two-dimensional canvas rather than an
           endless vertical scroll. Instead of keeping a 50-megabyte PDF reader open in another virtual
           desktop, you drop your course textbook or assignment PDF directly onto the canvas via the{' '}
           <strong>PDF Node</strong>.
@@ -275,7 +275,7 @@ export const usEngineeringPsets: BlogPost = {
           or Canvas often penalize rounding errors that occur prior to the final line.
         </p>
         <p>
-          In Node-Blank&apos;s Math+ engine (powered by Cortex Compute Engine), exact fractions are
+          In Unlined&apos;s Math+ engine (powered by Cortex Compute Engine), exact fractions are
           first-class citizens. When you declare:
         </p>
 
@@ -316,12 +316,12 @@ W := 350 * 981/100                  % Evaluates to 34335/10 N exact`}
 
         <p>
           A single forgotten negative sign on the <TexInline math="\mathbf{j}" /> component inverts your
-          moment direction. In Node-Blank, you verify your vector math by chaining your derivation into a
+          moment direction. In Unlined, you verify your vector math by chaining your derivation into a
           lightweight evaluation node:
         </p>
 
         <CodeBlock
-          filename="Vector Verification in Node-Blank"
+          filename="Vector Verification in Unlined"
           language="javascript"
           code={`// Verify equilibrium moments around pivot point A
 const r_B = [-1.5, 2.0, 4.0];
@@ -336,7 +336,7 @@ console.log({ M_x, M_y, M_z }); // Direct verification against your symbolic ste
         />
 
         <p>
-          Because Node-Blank supports native JavaScript code execution alongside Math+ and LaTeX blocks, you
+          Because Unlined supports native JavaScript code execution alongside Math+ and LaTeX blocks, you
           can check complex arithmetic without running an external Python terminal or opening MATLAB.
         </p>
       </section>
@@ -359,7 +359,7 @@ console.log({ M_x, M_y, M_z }); // Direct verification against your symbolic ste
               Ingest the Assignment PDF
             </h4>
             <p className="mt-2 text-sm text-muted">
-              Download your weekly assignment from Canvas or Blackboard. Drag the PDF onto your Node-Blank
+              Download your weekly assignment from Canvas or Blackboard. Drag the PDF onto your Unlined
               board. Use the page selector to navigate to the current problem without opening Adobe Acrobat.
             </p>
           </div>
@@ -413,7 +413,7 @@ console.log({ M_x, M_y, M_z }); // Direct verification against your symbolic ste
         </div>
 
         <Callout type="tip" title="No Cloud Lock-in When Midterms Hit">
-          Node-Blank stores your full canvas locally in IndexedDB inside your browser. When campus Wi-Fi
+          Unlined stores your full canvas locally in IndexedDB inside your browser. When campus Wi-Fi
           throttles in the library basement at 11:30 PM on submission night, your pset board remains 100%
           accessible and responsive.
         </Callout>

@@ -202,7 +202,7 @@ export const ukUniversityProblemSheets: BlogPost = {
         />
 
         <p>
-          In Node-Blank&apos;s <strong>Sheet Node</strong>, you perform elementary row operations with direct
+          In Unlined&apos;s <strong>Sheet Node</strong>, you perform elementary row operations with direct
           algebraic commands using exact rational arithmetic, avoiding floating-point decimals completely:
         </p>
 
@@ -252,7 +252,7 @@ R1 *= 1/2        # Row 1 becomes: [1, 0, 0 | 2]   => x1 = 2`}
         />
 
         <p>
-          In Node-Blank, you can drop a <strong>Graph Node</strong> beside your phasor derivation. Define{' '}
+          In Unlined, you can drop a <strong>Graph Node</strong> beside your phasor derivation. Define{' '}
           <TexInline math="R = 50\,\Omega" />,
           <TexInline math="L = 10\,\text{mH}" />, and <TexInline math="C = 2\,\mu\text{F}" />, and visualize
           the resonant curve <TexInline math="I(\omega) = \frac{V_0}{|\mathbf{Z}(\omega)|}" /> in real time:
@@ -275,7 +275,7 @@ R1 *= 1/2        # Row 1 becomes: [1, 0, 0 | 2]   => x1 = 2`}
         </h2>
         <p>
           The most effective way to utilize an hour with your college supervisor is to flag exactly where you
-          encountered conceptual friction. In Node-Blank, create a dedicated{' '}
+          encountered conceptual friction. In Unlined, create a dedicated{' '}
           <strong>Supervision Section</strong> with three colour-coded zones:
         </p>
 

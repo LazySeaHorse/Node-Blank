@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export function TermsOfUse() {
   useEffect(() => {
-    document.title = 'Terms of Use — Node-Blank';
+    document.title = 'Terms of Use — Unlined';
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
@@ -30,7 +30,7 @@ export function TermsOfUse() {
           <span className="font-mono text-[11px] text-muted">Updated: October 20, 2026</span>
         </div>
         <h1 className="font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">
-          Node-Blank Terms of Use
+          Unlined Terms of Use
         </h1>
         <p className="mt-3 text-base text-muted sm:text-lg">
           We write these terms in Simplified Technical English (ASD-STE100). The sentences are direct, active,
@@ -46,7 +46,7 @@ export function TermsOfUse() {
             <div className="space-y-1 text-sm">
               <p className="font-semibold text-fg">Summary in Plain Words</p>
               <p className="text-muted leading-relaxed">
-                Node-Blank is open-source software under the AGPLv3 license. We provide the software without
+                Unlined is open-source software under the AGPLv3 license. We provide the software without
                 warranties. You control your data and you must maintain your own backups.
               </p>
             </div>
@@ -65,9 +65,9 @@ export function TermsOfUse() {
             </h2>
           </div>
           <p className="text-muted">
-            These terms govern your access to the Node-Blank application and website.
+            These terms govern your access to the Unlined application and website.
           </p>
-          <p className="text-muted">When you use Node-Blank, you accept these terms.</p>
+          <p className="text-muted">When you use Unlined, you accept these terms.</p>
           <p className="text-muted">If you do not accept these terms, do not use the software.</p>
         </section>
 
@@ -79,7 +79,7 @@ export function TermsOfUse() {
               Software License
             </h2>
           </div>
-          <p className="text-muted">Node-Blank is free and open-source software.</p>
+          <p className="text-muted">Unlined is free and open-source software.</p>
           <p className="text-muted">
             The authors publish the source code under the GNU Affero General Public License (AGPLv3).
           </p>
@@ -178,7 +178,7 @@ export function TermsOfUse() {
               Acceptable Use
             </h2>
           </div>
-          <p className="text-muted">You agree to use Node-Blank in a lawful manner.</p>
+          <p className="text-muted">You agree to use Unlined in a lawful manner.</p>
           <p className="text-muted">You agree not to perform these prohibited actions:</p>
           <ul className="list-inside list-disc space-y-1.5 pl-2 text-muted">
             <li>Use the software to violate local, national, or international laws.</li>
@@ -201,7 +201,7 @@ export function TermsOfUse() {
           </p>
           <p className="text-muted">We post new versions on this page with an updated revision date.</p>
           <p className="text-muted">
-            Your continued use of Node-Blank after updates indicates your agreement to the updated terms.
+            Your continued use of Unlined after updates indicates your agreement to the updated terms.
           </p>
         </section>
 

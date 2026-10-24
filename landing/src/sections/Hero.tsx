@@ -84,7 +84,7 @@ export function Hero() {
               href={APP_URL}
               className="group inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-[14.5px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 motion-safe:active:scale-[0.98]"
             >
-              Open Node-Blank
+              Open Unlined
               <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </a>
             <a

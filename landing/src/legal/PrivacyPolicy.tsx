@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export function PrivacyPolicy() {
   useEffect(() => {
-    document.title = 'Privacy Policy — Node-Blank';
+    document.title = 'Privacy Policy — Unlined';
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
@@ -30,7 +30,7 @@ export function PrivacyPolicy() {
           <span className="font-mono text-[11px] text-muted">Updated: October 20, 2026</span>
         </div>
         <h1 className="font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">
-          Node-Blank Privacy Policy
+          Unlined Privacy Policy
         </h1>
         <p className="mt-3 text-base text-muted sm:text-lg">
           We write this policy in Simplified Technical English (ASD-STE100). The sentences are short, active,
@@ -46,7 +46,7 @@ export function PrivacyPolicy() {
             <div className="space-y-1 text-sm">
               <p className="font-semibold text-fg">Summary in Plain Words</p>
               <p className="text-muted leading-relaxed">
-                Node-Blank stores your content on your personal device. We cannot read, access, or sell your
+                Unlined stores your content on your personal device. We cannot read, access, or sell your
                 canvases. We do not use third-party tracking cookies or session recorders.
               </p>
             </div>
@@ -65,9 +65,9 @@ export function PrivacyPolicy() {
             </h2>
           </div>
           <p className="text-muted">
-            Node-Blank is a local-first canvas app for notes, formulas, code, and sketches.
+            Unlined is a local-first canvas app for notes, formulas, code, and sketches.
           </p>
-          <p className="text-muted">This privacy policy applies to the Node-Blank web app and website.</p>
+          <p className="text-muted">This privacy policy applies to the Unlined web app and website.</p>
           <p className="text-muted">
             The policy explains what data the app stores, what data we collect, and how you control your data.
           </p>
@@ -129,7 +129,7 @@ export function PrivacyPolicy() {
               Local Artificial Intelligence Bridge
             </h2>
           </div>
-          <p className="text-muted">Node-Blank provides an optional local AI bridge.</p>
+          <p className="text-muted">Unlined provides an optional local AI bridge.</p>
           <p className="text-muted">The bridge connects the app to AI agents on your local computer.</p>
           <p className="text-muted">The bridge uses a local loopback network address (localhost).</p>
           <p className="text-muted">The bridge runs only when you start the bridge program manually.</p>

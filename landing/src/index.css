@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ─────────────────────────────────────────────────────────────
-   Node-Blank semantic colour tokens — lifted verbatim from the
+   Unlined semantic colour tokens — lifted verbatim from the
    app's own src/index.css so the landing page speaks the same
    language as the product. Light mode.
    ───────────────────────────────────────────────────────────── */

@@ -16,7 +16,7 @@ export function Story() {
           <p className="font-display text-[clamp(1.4rem,2.9vw,2.15rem)] leading-[1.16] font-medium tracking-[-0.025em] text-fg text-balance">
             Linear notebooks separate your steps.{' '}
             <span className="text-tip">
-              Node-Blank keeps your textbook, derivation, calculation, and graph together.
+              Unlined keeps your textbook, derivation, calculation, and graph together.
             </span>
           </p>
         </Reveal>
@@ -65,7 +65,7 @@ export function FinalCta() {
                 href={APP_URL}
                 className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-medium text-accent-fg cursor-pointer transition-[filter,transform] hover:brightness-110 motion-safe:active:scale-[0.98]"
               >
-                Launch Node-Blank
+                Launch Unlined
                 <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
               </a>
               <a
@@ -109,7 +109,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-4 py-6 sm:px-6">
         <Link href="/" className="group inline-flex items-center gap-2.5">
           <Mascot className="size-8 transition-transform duration-300 group-hover:-rotate-6" />
-          <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
+          <span className="font-display text-[15px] font-medium tracking-tight text-fg">Unlined</span>
         </Link>
         <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {FOOT_LINKS.map((l) => (

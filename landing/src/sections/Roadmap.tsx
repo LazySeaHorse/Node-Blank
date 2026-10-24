@@ -39,7 +39,7 @@ export function Roadmap() {
                 We build in the open. Here is what you can use today, and what we plan to build.
               </p>
               <a
-                href="https://github.com/LazySeaHorse/Node-Blank#roadmap"
+                href="https://github.com/LazySeaHorse/Unlined#roadmap"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-6 inline-flex items-center gap-2 font-mono text-[12px] text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"

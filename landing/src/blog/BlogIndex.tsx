@@ -27,7 +27,7 @@ export function BlogIndex() {
   const regions = ['All', 'US', 'UK', 'DACH', 'India', 'Global'];
 
   useEffect(() => {
-    document.title = 'Blog & STEM Problem Set Guides — Node-Blank';
+    document.title = 'Blog & STEM Problem Set Guides — Unlined';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute(
@@ -66,9 +66,9 @@ export function BlogIndex() {
       <header className="sticky top-0 z-50 border-b border-line bg-canvas/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-[1240px] items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <Link href="/" className="group flex items-center gap-2" ariaLabel="Node-Blank Home">
+            <Link href="/" className="group flex items-center gap-2" ariaLabel="Unlined Home">
               <Mascot className="size-7 transition-transform duration-300 group-hover:-rotate-6" />
-              <span className="font-display text-[15px] font-medium tracking-tight text-fg">Node-Blank</span>
+              <span className="font-display text-[15px] font-medium tracking-tight text-fg">Unlined</span>
             </Link>
 
             <span className="text-muted/60 select-none">/</span>
@@ -319,7 +319,7 @@ export function BlogIndex() {
               href={APP_URL}
               className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-medium text-accent-fg transition hover:brightness-110 motion-safe:active:scale-[0.98] cursor-pointer shrink-0 shadow-sm"
             >
-              <span>Open Node-Blank Canvas</span>
+              <span>Open Unlined Canvas</span>
               <ArrowRight className="size-4" />
             </a>
           </div>

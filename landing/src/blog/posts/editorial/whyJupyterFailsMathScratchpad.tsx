@@ -30,7 +30,7 @@ export const whyJupyterFailsMathScratchpad: BlogPost = {
     { id: 'sympy-boilerplate', title: 'SymPy Boilerplate vs. Pure Math Thinking', level: 2 },
     { id: 'spatial-vs-linear', title: 'Spatial Derivations vs. Vertical Linear Scrolling', level: 2 },
     { id: 'reactive-math-plus', title: 'Instant Reactive Evaluation with Math+', level: 2 },
-    { id: 'workflow-comparison', title: 'Jupyter vs. Node-Blank Math+ Comparison', level: 2 },
+    { id: 'workflow-comparison', title: 'Jupyter vs. Unlined Math+ Comparison', level: 2 },
   ],
   relatedSlugs: [
     'best-note-taking-apps-for-engineering-students-without-ipad',
@@ -187,7 +187,7 @@ print(f"Critical Points: {critical_pts}")
           Instant Reactive Evaluation with Math+
         </h2>
         <p>
-          Node-Blank introduces the <strong>Math+ Node</strong>, an in-browser computational engine powered by
+          Unlined introduces the <strong>Math+ Node</strong>, an in-browser computational engine powered by
           Cortex Compute Engine that bridges the gap between pure LaTeX typography and live symbolic
           evaluation.
         </p>
@@ -201,7 +201,7 @@ print(f"Critical Points: {critical_pts}")
             </p>
             <CodeBlock
               language="math"
-              filename="Node-Blank Math+ Canvas"
+              filename="Unlined Math+ Canvas"
               code={`a := \\frac{3}{7}
 b := \\frac{5}{14}
 c := a + b  --> 11/14 (Exact Fraction)
@@ -231,7 +231,7 @@ approx(c)   --> 0.785714`}
 
       <section id="workflow-comparison" className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
-          Jupyter vs. Node-Blank Math+ Comparison
+          Jupyter vs. Unlined Math+ Comparison
         </h2>
 
         <div className="overflow-x-auto rounded-xl border border-line bg-surface-2/40">
@@ -240,7 +240,7 @@ approx(c)   --> 0.785714`}
               <tr className="border-b border-line bg-surface text-fg font-semibold">
                 <th className="p-3">Feature</th>
                 <th className="p-3">Jupyter / IPython</th>
-                <th className="p-3">Node-Blank Math+</th>
+                <th className="p-3">Unlined Math+</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line text-muted">

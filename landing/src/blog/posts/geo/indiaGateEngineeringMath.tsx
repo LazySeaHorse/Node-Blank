@@ -55,7 +55,7 @@ export const indiaGateEngineeringMath: BlogPost = {
     },
     {
       id: 'step-by-step-gate-preparation-routine',
-      title: 'The Daily Problem-Solving Routine with Node-Blank',
+      title: 'The Daily Problem-Solving Routine with Unlined',
       level: 2,
     },
   ],
@@ -155,8 +155,8 @@ export const indiaGateEngineeringMath: BlogPost = {
           </div>
         </div>
 
-        <Callout type="info" title="The Node-Blank Advantage">
-          Node-Blank is a lightweight, 100% free and open-source Progressive Web App (PWA). It launches
+        <Callout type="info" title="The Unlined Advantage">
+          Unlined is a lightweight, 100% free and open-source Progressive Web App (PWA). It launches
           instantly in any modern browser, requires zero login, caches everything locally in IndexedDB, and
           works completely offline without consuming background system resources.
         </Callout>
@@ -204,7 +204,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
         />
 
         <p>
-          Using Node-Blank&apos;s <strong>Sheet Node</strong>, you can test these row operations in seconds
+          Using Unlined&apos;s <strong>Sheet Node</strong>, you can test these row operations in seconds
           without algebraic miscalculations. You can also verify the Cayley-Hamilton theorem, which states
           that every square matrix satisfies its own characteristic polynomial:
         </p>
@@ -243,7 +243,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
         />
 
         <p>
-          In Node-Blank&apos;s <strong>Math+ Node</strong>, you can calculate determinants of submatrices
+          In Unlined&apos;s <strong>Math+ Node</strong>, you can calculate determinants of submatrices
           symbolically and verify minor positivity instantly.
         </p>
       </section>
@@ -263,7 +263,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
           When solving numerical integrals using Simpson&apos;s <TexInline math="\frac{1}{3}" />
           rd rule or Runge-Kutta 4th order methods, keep step-size fractions exact (e.g.,{' '}
           <TexInline math="h = \frac{1}{6}" /> instead of <code className="text-xs font-mono">0.16667</code>).
-          Node-Blank preserves fractional precision throughout your multi-step calculations.
+          Unlined preserves fractional precision throughout your multi-step calculations.
         </Callout>
 
         <p>
@@ -288,7 +288,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
         </h2>
         <p>
           Cloud platforms fail when you need them most: late at night during exam season when campus routers
-          become congested. Node-Blank is architected from the ground up on modern local-first standards:
+          become congested. Unlined is architected from the ground up on modern local-first standards:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-fg">
           <li>
@@ -312,7 +312,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
 
       <section id="step-by-step-gate-preparation-routine" className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
-          7. The Daily Problem-Solving Routine with Node-Blank
+          7. The Daily Problem-Solving Routine with Unlined
         </h2>
         <p>Here is how to structure your daily 2-hour Engineering Mathematics revision block:</p>
 
@@ -360,7 +360,7 @@ R3 -= 3 * R2    # R3 becomes: [ 0, 0, (k-1) - 6 | (mu-6) - 12 ]
 
         <Callout type="tip" title="Master the 15 Marks with Zero Friction">
           Your laptop is already a high-performance calculation machine. By combining keyboard-first LaTeX
-          speed with exact rational row operations, Node-Blank gives you the fastest mathematical scratchpad
+          speed with exact rational row operations, Unlined gives you the fastest mathematical scratchpad
           for cracking GATE.
         </Callout>
       </section>

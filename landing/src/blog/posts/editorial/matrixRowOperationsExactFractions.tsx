@@ -29,7 +29,7 @@ export const matrixRowOperationsExactFractions: BlogPost = {
     { id: 'dirty-zeroes', title: 'Dirty Zeroes: When 1.42e-16 Destroys Matrix Rank', level: 2 },
     { id: 'elementary-row-ops', title: 'The Three Elementary Row Operations', level: 2 },
     { id: 'worked-rref-example', title: 'Worked Step-by-Step 3x4 Augmented Matrix Reduction', level: 2 },
-    { id: 'node-blank-sheet-node', title: 'Exact Rational Arithmetic in Node-Blank Sheet', level: 2 },
+    { id: 'unlined-sheet-node', title: 'Exact Rational Arithmetic in Unlined Sheet', level: 2 },
     { id: 'export-latex-homework', title: 'Exporting Clean LaTeX to Problem Sets', level: 2 },
   ],
   relatedSlugs: [
@@ -229,12 +229,12 @@ export const matrixRowOperationsExactFractions: BlogPost = {
         </Callout>
       </section>
 
-      <section id="node-blank-sheet-node" className="space-y-4">
+      <section id="unlined-sheet-node" className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
-          Exact Rational Arithmetic in Node-Blank Sheet
+          Exact Rational Arithmetic in Unlined Sheet
         </h2>
         <p>
-          Node-Blank provides a purpose-built <strong>Sheet Node</strong> designed specifically for linear
+          Unlined provides a purpose-built <strong>Sheet Node</strong> designed specifically for linear
           algebra problem sets. Unlike standard spreadsheet applications:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-muted">
@@ -281,7 +281,7 @@ export const matrixRowOperationsExactFractions: BlogPost = {
           is notoriously error-prone.
         </p>
         <p>
-          In Node-Blank's Sheet node, simply click the <strong>Copy LaTeX</strong> button. It outputs
+          In Unlined's Sheet node, simply click the <strong>Copy LaTeX</strong> button. It outputs
           publication-ready matrix syntax ready to paste straight into Overleaf or your LaTeX document:
         </p>
 

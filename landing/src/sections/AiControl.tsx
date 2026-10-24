@@ -8,10 +8,10 @@ import { Reveal } from '@landing/components/Reveal';
 import { Check, Copy, Terminal } from 'lucide-react';
 import { useState } from 'react';
 
-const BRIDGE_CMD = 'claude mcp add --transport http node-blank http://127.0.0.1:47801/mcp';
+const BRIDGE_CMD = 'claude mcp add --transport http unlined http://127.0.0.1:47801/mcp';
 const ALTS = [
-  'codex mcp add node-blank --url http://127.0.0.1:47801/mcp',
-  'gemini mcp add --transport http node-blank http://127.0.0.1:47801/mcp',
+  'codex mcp add unlined --url http://127.0.0.1:47801/mcp',
+  'gemini mcp add --transport http unlined http://127.0.0.1:47801/mcp',
 ];
 
 const AI_NODES = [

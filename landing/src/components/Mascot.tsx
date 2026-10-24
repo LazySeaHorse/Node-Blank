@@ -1,7 +1,7 @@
 import { Mascot as SharedMascot } from '@/ui/Mascot';
 
 /**
- * The Node-Blank octopus on the landing page: the app's own mascot, with pupils that follow the
+ * The Unlined octopus on the landing page: the app's own mascot, with pupils that follow the
  * pointer (an octopus on a canvas should watch your cursor). Decorative: the page names itself elsewhere.
  */
 export function Mascot({

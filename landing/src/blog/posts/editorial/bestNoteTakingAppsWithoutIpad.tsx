@@ -33,7 +33,7 @@ export const bestNoteTakingAppsWithoutIpad: BlogPost = {
     { id: 'notion-block-limits', title: '3. Notion: Clunky Block Equations & Zero Math Engine', level: 3 },
     { id: 'comparison-matrix', title: 'Desktop Engineering Tool Matrix', level: 2 },
     { id: 'spatial-workbench', title: 'What Non-Tablet Engineers Actually Need', level: 2 },
-    { id: 'node-blank-workflow', title: 'The Node-Blank Laptop Workflow: Step-by-Step', level: 2 },
+    { id: 'unlined-workflow', title: 'The Unlined Laptop Workflow: Step-by-Step', level: 2 },
   ],
   relatedSlugs: [
     'lightweight-jupyter-notebook-alternatives-math-scratchpad',
@@ -252,7 +252,7 @@ export const bestNoteTakingAppsWithoutIpad: BlogPost = {
                 <td className="p-3 text-amber-500">Local server setup</td>
               </tr>
               <tr className="bg-accent/5 font-medium">
-                <td className="p-3 text-accent font-bold">Node-Blank</td>
+                <td className="p-3 text-accent font-bold">Unlined</td>
                 <td className="p-3 text-emerald-500">Dot-grid 2D Canvas</td>
                 <td className="p-3 text-emerald-500">Direct LaTeX + MathLive</td>
                 <td className="p-3 text-emerald-500">Math+ reactive engine</td>
@@ -294,12 +294,12 @@ export const bestNoteTakingAppsWithoutIpad: BlogPost = {
         </ul>
       </section>
 
-      <section id="node-blank-workflow" className="space-y-4">
+      <section id="unlined-workflow" className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight text-fg border-b border-line pb-2">
-          The Node-Blank Laptop Workflow: Step-by-Step
+          The Unlined Laptop Workflow: Step-by-Step
         </h2>
         <p>
-          Here is how an engineering student uses Node-Blank to solve a complex Statics or Circuit Analysis
+          Here is how an engineering student uses Unlined to solve a complex Statics or Circuit Analysis
           assignment on a standard 14-inch laptop without touching a stylus:
         </p>
 
@@ -369,7 +369,7 @@ F_{1y} := F_1 \\cdot \\sin(\\theta)  --> 225 N`}
             <p className="text-sm text-muted">
               Select all nodes for Problem 1 and press{' '}
               <code className="text-xs bg-surface-2 px-1 py-0.5 rounded border border-line">Ctrl + G</code>.
-              Node-Blank creates an enclosed <strong>Section Node</strong> with a custom header, label, and
+              Unlined creates an enclosed <strong>Section Node</strong> with a custom header, label, and
               background tint. When homework is complete, export the whole board or copy clean LaTeX straight
               into your final report.
             </p>

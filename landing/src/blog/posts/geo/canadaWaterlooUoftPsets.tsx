@@ -181,7 +181,7 @@ export const canadaWaterlooUoftPsets: BlogPost = {
         />
 
         <p>
-          In Node-Blank, this proof sits in a <strong>Math+ Node</strong>, while the numerical eigenvalue
+          In Unlined, this proof sits in a <strong>Math+ Node</strong>, while the numerical eigenvalue
           verification runs immediately below in an interactive <strong>Code Node</strong>.
         </p>
       </section>
@@ -204,7 +204,7 @@ export const canadaWaterlooUoftPsets: BlogPost = {
         </Callout>
 
         <p>
-          Using Node-Blank&apos;s <strong>Sheet Node</strong>, you can manipulate matrices with step-by-step
+          Using Unlined&apos;s <strong>Sheet Node</strong>, you can manipulate matrices with step-by-step
           elementary row operations while enforcing strict rational arithmetic:
         </p>
 
@@ -280,7 +280,7 @@ console.log("Result (must be [0, 0, 0]):", result);
           Crowdmark grading interfaces allow TAs to grade rapid-fire with keyboard shortcuts. Submissions with
           messy lighting, slanted phone scans, or uneven tablet handwriting frustrate graders.
         </p>
-        <p>To produce an A+ submission with Node-Blank:</p>
+        <p>To produce an A+ submission with Unlined:</p>
         <ul className="list-disc pl-6 space-y-2 text-fg">
           <li>
             <strong className="text-fg">Create One Bento Box per Question:</strong> Group each subpart (e.g.,
@@ -305,12 +305,12 @@ console.log("Result (must be [0, 0, 0]):", result);
         <p>
           You do not need a second $1,000 device to succeed in Canada&apos;s premier engineering programs.
           With a solid 14-inch or 16-inch laptop, a mechanical keyboard, and a local-first spatial workbench
-          like Node-Blank, you have a faster, more durable, and vastly more powerful technical environment
+          like Unlined, you have a faster, more durable, and vastly more powerful technical environment
           than any stylus tablet can offer.
         </p>
 
         <Callout type="tip" title="Designed for the Heavy Course Load">
-          Node-Blank stores your full semester of notes in offline IndexedDB. You can organize separate
+          Unlined stores your full semester of notes in offline IndexedDB. You can organize separate
           canvases for ECE 205, ECE 240, and MAT188, keeping textbook excerpts and live verification scripts
           completely organized in one local desktop hub.
         </Callout>
