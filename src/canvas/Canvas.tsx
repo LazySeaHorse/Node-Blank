@@ -49,6 +49,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   deleteKeyCode: null,
   // Nodes only connect in linking mode (see below); the invisible handle on each would otherwise take every click.
   nodesConnectable: false,
+  // Set explicitly: React Flow ignores an undefined prop, so linking mode's `false` would otherwise stick.
+  nodesDraggable: true,
   multiSelectionKeyCode: 'Shift',
   snapToGrid: true,
   snapGrid: [GRID, GRID],
