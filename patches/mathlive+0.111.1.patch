@@ -1,0 +1,59 @@
+diff --git a/node_modules/mathlive/mathlive.mjs b/node_modules/mathlive/mathlive.mjs
+index 47351c7..93e3969 100644
+--- a/node_modules/mathlive/mathlive.mjs
++++ b/node_modules/mathlive/mathlive.mjs
+@@ -34901,10 +34901,7 @@ var MathModeEditor = class extends ModeEditor {
+         const body = lastNewAtom.body;
+         const hadEmptyBody = lastNewAtom.hasEmptyBranch("body");
+         if (body && hadEmptyBody) {
+-          model.setSelection(
+-            model.offsetOf(body[0]),
+-            model.offsetOf(body[body.length - 1]) + 1
+-          );
++          model.position = model.offsetOf(body[0]);
+         } else {
+           model.position = model.offsetOf(lastNewAtom);
+         }
+@@ -38901,6 +38898,7 @@ var _Model = class {
+           parent = parent.parent;
+         }
+       }
++      [start, end] = balanceRange(this, start, end);
+       this._position = this.normalizeOffset(position);
+       this._selection = {
+         ranges: [[start, end]],
+@@ -39070,6 +39068,34 @@ function atomIsInRange(model, atom, first, last, includeFirstAtoms) {
+   }
+   return false;
+ }
++function ancestry(atom) {
++  const chain = [];
++  for (let a = atom; a == null ? void 0 : a.parent; a = a.parent) chain.push(a);
++  return chain;
++}
++function sameBranch(a, b) {
++  if (a.parent !== b.parent) return false;
++  const x = a.parentBranch;
++  const y = b.parentBranch;
++  return Array.isArray(x) && Array.isArray(y) ? x[0] === y[0] && x[1] === y[1] : x === y;
++}
++function balanceRange(model, start, end) {
++  const from = ancestry(model.at(start));
++  const to = ancestry(model.at(end));
++  const lift = (i, j) => {
++    var _a3;
++    const left = (_a3 = from[i]) == null ? void 0 : _a3.leftSibling;
++    return [
++      i <= 0 || !left ? start : model.offsetOf(left),
++      j <= 0 ? end : model.offsetOf(to[j])
++    ];
++  };
++  for (let i = 0; i < from.length; i++) {
++    const j = to.findIndex((b) => sameBranch(from[i], b));
++    if (j >= 0) return lift(i, j);
++  }
++  return lift(from.length - 1, to.length - 1);
++}
+ function childrenInRange(model, atom, range2) {
+   if (!(atom == null ? void 0 : atom.hasChildren)) return false;
+   const [start, end] = range2;

@@ -8,10 +8,15 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   base: '/',
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@landing': fileURLToPath(new URL('./landing/src', import.meta.url)),
-    },
+    alias: [
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+      { find: '@landing', replacement: fileURLToPath(new URL('./landing/src', import.meta.url)) },
+      // One readable MathLive build in every mode, the one patches/ fixes; production minifies it like the rest.
+      {
+        find: /^mathlive$/,
+        replacement: fileURLToPath(new URL('./node_modules/mathlive/mathlive.mjs', import.meta.url)),
+      },
+    ],
   },
   build: {
     // The landing page is the site root; the app lives under /app/.

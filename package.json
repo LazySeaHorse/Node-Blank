@@ -18,7 +18,8 @@
     "format": "biome check --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
@@ -70,6 +71,7 @@
     "jsdom": "^29.1.1",
     "mdast-util-from-markdown": "^2.1.0",
     "micromark-util-types": "^2.0.3",
+    "patch-package": "^8.0.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.3",
