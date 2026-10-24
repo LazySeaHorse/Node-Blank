@@ -204,7 +204,7 @@ test('math pasted in with nested multi-line LaTeX loads, flattened', async ({ pa
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   const file = {
-    app: 'node-blank',
+    app: 'unlined',
     version: 1,
     kind: 'nodes',
     nodes: [

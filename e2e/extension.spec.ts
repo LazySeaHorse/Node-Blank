@@ -19,12 +19,12 @@ async function listenUnframable() {
   });
   await new Promise<void>((done) => server.listen(0, '127.0.0.1', done));
   const { port } = server.address() as { port: number };
-  // Not 127.0.0.1 or localhost: the extension counts those as Node-Blank itself (see `launch`).
+  // Not 127.0.0.1 or localhost: the extension counts those as Unlined itself (see `launch`).
   return { url: `http://unframable.test:${port}`, close: () => server.close() };
 }
 
 async function launch(withExtension: boolean) {
-  const dir = await mkdtemp(join(tmpdir(), 'node-blank-ext-'));
+  const dir = await mkdtemp(join(tmpdir(), 'unlined-ext-'));
   const context = await chromium.launchPersistentContext(dir, {
     channel: 'chromium',
     headless: true,
@@ -61,9 +61,9 @@ test('the extension lets a site that forbids framing load, and reports back', as
     const page = await openSite(context, site.url);
     const frame = page.frameLocator('.react-flow__node iframe');
     await expect(frame.getByRole('heading', { name: 'framed ok' })).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute('data-node-blank-web', /\d/);
+    await expect(page.locator('html')).toHaveAttribute('data-unlined-web', /\d/);
     await expect(page.locator('.react-flow__node').getByText(`Unframable /`)).toBeVisible();
-    await expect(page.getByText('Node-Blank Web extension lets them')).toHaveCount(0);
+    await expect(page.getByText('Unlined Web extension lets them')).toHaveCount(0);
 
     // Following a link inside the frame keeps working, and the app learns the new address.
     await frame.getByRole('link', { name: 'next' }).click();
@@ -92,7 +92,7 @@ test('without the extension the same site is refused', async () => {
   const { context, cleanup } = await launch(false);
   try {
     const page = await openSite(context, site.url);
-    await expect(page.getByText('Node-Blank Web extension lets them')).toBeVisible();
+    await expect(page.getByText('Unlined Web extension lets them')).toBeVisible();
     await page.waitForTimeout(1000);
     await expect(
       page.frameLocator('.react-flow__node iframe').getByRole('heading', { name: 'framed ok' }),
@@ -118,7 +118,7 @@ test('the extension answers a grab request with the playing video as a JPEG', as
   const { context, cleanup } = await launch(true);
   try {
     const page = await openSite(context, `http://unframable.test:${port}`);
-    await expect(page.locator('html')).toHaveAttribute('data-node-blank-web', /\d/);
+    await expect(page.locator('html')).toHaveAttribute('data-unlined-web', /\d/);
     const reply = await page.evaluate(
       () =>
         new Promise<{ type: string; width: number; black: boolean; error?: string; size: number }>(
@@ -126,7 +126,7 @@ test('the extension answers a grab request with the playing video as a JPEG', as
             const frame =
               document.querySelector<HTMLIFrameElement>('.react-flow__node iframe')?.contentWindow;
             const ask = () =>
-              frame?.postMessage({ source: 'node-blank-web', type: 'command', command: 'grab', id: 7 }, '*');
+              frame?.postMessage({ source: 'unlined-web', type: 'command', command: 'grab', id: 7 }, '*');
             window.addEventListener('message', (e) => {
               if (e.data?.type !== 'frame' || e.data.id !== 7) return;
               // The video may not have a picture yet: ask again.

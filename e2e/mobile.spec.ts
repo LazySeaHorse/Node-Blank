@@ -4,7 +4,7 @@ import { nodes, openApp } from './helpers';
 /** Writes `content` into the open canvas's row in IndexedDB and reloads. */
 async function seed(page: Page, content: object) {
   await page.evaluate(async (content) => {
-    const request = indexedDB.open('node-blank');
+    const request = indexedDB.open('unlined');
     const db: IDBDatabase = await new Promise((resolve) => {
       request.onsuccess = () => resolve(request.result);
     });
@@ -75,7 +75,7 @@ test('mobile can reach the cloud sync settings', async ({ page }) => {
   await page.route('https://api.jsonbin.io/**', (route) => route.abort());
   await page.addInitScript(() =>
     localStorage.setItem(
-      'node-blank-sync',
+      'unlined-sync',
       JSON.stringify({ state: { key: 'k', keyKind: 'master', manifestId: 'm' }, version: 0 }),
     ),
   );

@@ -77,7 +77,7 @@ test('a canvas deleted here is deleted in the cloud with a tombstone', async ({ 
   const bins = await serveJsonbin(page);
   await page.addInitScript(() =>
     localStorage.setItem(
-      'node-blank-sync',
+      'unlined-sync',
       JSON.stringify({ state: { key: 'good-key', keyKind: 'master', manifestId: '' }, version: 0 }),
     ),
   );

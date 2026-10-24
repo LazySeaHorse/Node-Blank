@@ -157,14 +157,14 @@ test('manages multiple canvases', async ({ page }) => {
 
 test('exports and re-imports a canvas', async ({ page }) => {
   await placeNode(page, 'Text');
-  await page.getByRole('button', { name: 'Node-Blank menu' }).click();
+  await page.getByRole('button', { name: 'Unlined menu' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('menuitem', { name: 'This canvas' }).click();
   const download = await downloadPromise;
   const path = await download.path();
 
   const chooserPromise = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Node-Blank menu' }).click();
+  await page.getByRole('button', { name: 'Unlined menu' }).click();
   await page.getByRole('menuitem', { name: /Import/ }).click();
   await (await chooserPromise).setFiles(path);
   await expect(page.getByText('Imported 1 canvas')).toBeVisible();

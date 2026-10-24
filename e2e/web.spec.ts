@@ -13,7 +13,7 @@ async function serve(page: Page, reporting: boolean) {
       ${
         reporting
           ? `<script>
-        parent.postMessage({ source: 'node-blank-web', type: 'state', url: location.href, title: document.title, canGoBack: true }, '*');
+        parent.postMessage({ source: 'unlined-web', type: 'state', url: location.href, title: document.title, canGoBack: true }, '*');
         addEventListener('message', (e) => { if (e.data?.command === 'navigate') location.href = e.data.url; });
       </script>`
           : ''
@@ -116,7 +116,7 @@ test('loads by itself when set to', async ({ page }) => {
 test('suggests the extension when it is not installed', async ({ page }) => {
   await serve(page, false);
   await insertWeb(page, `${HOST}/one`);
-  await expect(page.getByText('Node-Blank Web extension lets them')).toBeVisible();
+  await expect(page.getByText('Unlined Web extension lets them')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Open in tab', exact: true })).toHaveCount(2);
 });
 
@@ -124,7 +124,7 @@ test('stays quiet when the extension is installed', async ({ page }) => {
   // What the extension's content script does before the app starts.
   await page.addInitScript(() => {
     const mark = () => {
-      document.documentElement.dataset.nodeBlankWeb = '1.0.0';
+      document.documentElement.dataset.unlinedWeb = '1.0.0';
     };
     if (document.documentElement) mark();
     else document.addEventListener('readystatechange', mark, { once: true });
@@ -133,6 +133,6 @@ test('stays quiet when the extension is installed', async ({ page }) => {
   await serve(page, true);
   await insertWeb(page, `${HOST}/one`);
   await expect(frame(page)).toBeVisible();
-  await expect(page.getByText('Node-Blank Web extension lets them')).toHaveCount(0);
+  await expect(page.getByText('Unlined Web extension lets them')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Open in tab', exact: true })).toHaveCount(1);
 });
