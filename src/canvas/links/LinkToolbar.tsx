@@ -1,6 +1,6 @@
 import { useStore } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { LINK_ENDS, type LinkEnd } from '@/model/types';
 import { ColorSwatches } from '@/nodes/ColorSwatches';
@@ -10,8 +10,10 @@ import { deleteLink, editLink, swapLink } from './actions';
 import { geom } from './geometry';
 import { useLinkRoute } from './useLinkRoute';
 
-/** Room the toolbar needs either side of its anchor before it is pushed back inside the canvas. */
-const HALF_WIDTH = 400;
+/** Space kept between the toolbar and the canvas edge. */
+const MARGIN = 8;
+/** The AI panel (22rem) and its gap, which sit over the right of the canvas while it is open. */
+const AI_PANEL_WIDTH = 368;
 /** How far above the link the toolbar sits: clear of a label, which hangs just over the line. */
 const ABOVE = 36;
 /** The same, when it opens under the link. */
@@ -105,10 +107,24 @@ export function LinkToolbar() {
   const pts = useLinkRoute(link?.id ?? '', link?.source ?? '', link?.target ?? '');
   const [tx, ty, zoom] = useStore((s) => s.transform);
   const width = useStore((s) => s.width);
+  const aiPanelOpen = useUiStore((s) => s.aiPanelOpen);
+  const ref = useRef<HTMLDivElement>(null);
+  const [measured, setMeasured] = useState(0);
+  // Its own width, so it can be kept on screen whatever it holds; re-read after every render.
+  useLayoutEffect(() => {
+    const w = ref.current?.offsetWidth ?? 0;
+    if (w !== measured) setMeasured(w);
+  });
   if (!link || !pts || editing === link.id) return null;
 
   const { mid } = geom(pts);
-  const x = Math.max(HALF_WIDTH, Math.min(width - HALF_WIDTH, mid[0] * zoom + tx));
+  // Clear of the AI panel when it is open, and wrapping onto a second row if the canvas is too narrow.
+  const right = width - MARGIN - (aiPanelOpen ? AI_PANEL_WIDTH : 0);
+  const available = Math.max(160, right - MARGIN);
+  const left = Math.max(
+    MARGIN,
+    Math.min(right - Math.min(measured, available), mid[0] * zoom + tx - measured / 2),
+  );
   // Over the topmost point of the link (under the lowest when there is no room), so it never covers the link
   // it edits: the second click of a double-click lands on the link, not on the toolbar that just appeared.
   const top = Math.min(...pts.map((p) => p[1])) * zoom + ty;
@@ -121,11 +137,13 @@ export function LinkToolbar() {
     <div
       role="toolbar"
       aria-label="Link options"
-      className="link-toolbar nodrag nopan nokey absolute z-20 flex items-center gap-2.5 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-fg shadow-xl"
+      ref={ref}
+      className="link-toolbar nodrag nopan nowheel nokey absolute z-20 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-fg shadow-xl"
       style={{
-        left: x,
+        left,
         top: below ? y + BELOW : y - ABOVE,
-        transform: below ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+        maxWidth: available,
+        transform: below ? undefined : 'translateY(-100%)',
       }}
     >
       <EndChoice

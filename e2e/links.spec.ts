@@ -385,3 +385,35 @@ test('Escape in the label field cancels the edit and leaves linking mode on', as
   await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveCount(0);
   await expect(page.locator('.react-flow.linking')).toHaveCount(1);
 });
+
+test('the link toolbar stays on a narrow canvas, wraps, and does not pass the wheel to the canvas', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 700 });
+  await placeNode(page, 'Text', 120, 250);
+  await placeNode(page, 'Math', 420, 380);
+  await page.mouse.click(700, 650);
+  await page.keyboard.press('l');
+  await dragBetween(page, nodes(page).nth(0), nodes(page).nth(1));
+  await expect(toolbar(page)).toBeVisible();
+  const box = await toolbar(page).boundingBox();
+  expect(box?.x).toBeGreaterThanOrEqual(0);
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(768);
+
+  const viewport = page.locator('.react-flow__viewport');
+  const before = await viewport.getAttribute('style');
+  const at = await toolbar(page).boundingBox();
+  if (!at) throw new Error('no toolbar');
+  await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+  await page.mouse.wheel(0, -400);
+  await page.waitForTimeout(200);
+  expect(await viewport.getAttribute('style')).toBe(before);
+
+  // With the AI panel open the toolbar keeps out from under it.
+  await page.getByRole('button', { name: 'AI control' }).click();
+  const panel = page.getByRole('switch', { name: /Allow AI agents/ });
+  await expect(panel).toBeVisible();
+  const panelBox = await panel.boundingBox();
+  const moved = await toolbar(page).boundingBox();
+  expect(moved && panelBox && moved.x + moved.width <= panelBox.x + 4).toBe(true);
+});
