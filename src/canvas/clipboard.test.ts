@@ -96,4 +96,23 @@ describe('pasteNodes', () => {
     undo();
     expect(state().edges).toHaveLength(1);
   });
+
+  it('drops self links from a crafted clipboard', () => {
+    const a = createNode('math', at(0, 0));
+    const b = createNode('math', at(200, 0));
+    const text = JSON.stringify({
+      app: 'node-blank',
+      version: 2,
+      kind: 'nodes',
+      nodes: [a, b],
+      edges: [
+        { id: 'self', source: a.id, target: a.id },
+        { id: 'ok', source: a.id, target: b.id },
+      ],
+    });
+    const pasted = parseClipboard(text);
+    pasteNodes(pasted?.nodes ?? [], at(0, 400), pasted?.edges);
+    expect(state().edges).toHaveLength(1);
+    expect(state().edges[0].source).not.toBe(state().edges[0].target);
+  });
 });

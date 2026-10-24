@@ -53,9 +53,9 @@ export function sanitizeEdges<E extends CanvasEdge>(edges: E[], nodeIds: Iterabl
   return edges.filter((e) => e.source !== e.target && ids.has(e.source) && ids.has(e.target));
 }
 
-/** The links with both ends in `ids`. */
+/** The links with both ends in `ids`, never one that starts and ends on the same node. */
 export function internalEdges<E extends CanvasEdge>(edges: E[], ids: ReadonlySet<string>): E[] {
-  return edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+  return edges.filter((e) => e.source !== e.target && ids.has(e.source) && ids.has(e.target));
 }
 
 /** The existing link from `source` to `target`, if any (the other direction does not count). */

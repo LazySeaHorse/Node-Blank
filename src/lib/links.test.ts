@@ -59,6 +59,13 @@ describe('links', () => {
     expect(internalEdges(edges, new Set(['a', 'b'])).map((x) => x.id)).toEqual(['1']);
   });
 
+  it('never keeps a self link, even inside a set, and cloning drops it', () => {
+    const [a, b] = [createNode('math', { x: 0, y: 0 }), createNode('math', { x: 100, y: 0 })];
+    const edges = [e('1', a.id, a.id), e('2', a.id, b.id)];
+    expect(internalEdges(edges, new Set([a.id, b.id])).map((x) => x.id)).toEqual(['2']);
+    expect(cloneGraph([a, b], edges, { x: 0, y: 0 }).edges).toHaveLength(1);
+  });
+
   it('finds a link only in the same direction', () => {
     const edges = [e('1', 'a', 'b')];
     expect(findLink(edges, 'a', 'b')?.id).toBe('1');
