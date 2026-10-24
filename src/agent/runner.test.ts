@@ -443,6 +443,31 @@ describe('links', () => {
     );
   });
 
+  it('refuses to reverse a link into a duplicate, applying nothing', async () => {
+    three();
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n1' },
+        { from: 'n2', to: 'n3' },
+      ],
+    });
+    const err = await callError('update_links', {
+      updates: [
+        { id: 'l3', reverse: true },
+        { id: 'l2', reverse: true },
+      ],
+    });
+    expect(err.error).toBe('link_exists');
+    expect(canvas().edges.map((e) => [e.source, e.target])).toEqual([
+      [canvas().nodes[0].id, canvas().nodes[1].id],
+      [canvas().nodes[1].id, canvas().nodes[0].id],
+      [canvas().nodes[1].id, canvas().nodes[2].id],
+    ]);
+    await call('update_links', { updates: [{ id: 'l3', reverse: true }] });
+    expect(canvas().edges[2].source).toBe(canvas().nodes[2].id);
+  });
+
   it('deletes links as one undo step, leaving the nodes', async () => {
     three();
     await call('link_nodes', {

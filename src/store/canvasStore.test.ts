@@ -213,6 +213,20 @@ describe('canvasStore', () => {
       expect(state().edges[0]).toMatchObject({ source: b, target: a, data: { tail: 'bar' } });
     });
 
+    it('refuses to reverse a link when the other way is linked already, selecting that one', () => {
+      const [a, b] = three();
+      const first = state().linkNodes(a, b) as string;
+      const second = state().linkNodes(b, a) as string;
+      state().setSelection(() => false);
+      expect(state().reverseEdge(second)).toBe(false);
+      expect(state().edges.map((e) => [e.id, e.source, e.target])).toEqual([
+        [first, a, b],
+        [second, b, a],
+      ]);
+      expect(state().edges.find((e) => e.id === first)?.selected).toBe(true);
+      expect(state().reverseEdge(first)).toBe(false);
+    });
+
     it('load drops dangling links, and an empty canvas has none to save', () => {
       const [a, b] = three();
       state().load({

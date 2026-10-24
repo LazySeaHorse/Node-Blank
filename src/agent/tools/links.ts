@@ -138,6 +138,18 @@ export const updateLinks = defineTool({
     const ids = new Set(checked.map((c) => c.link.id));
     if (ids.size !== checked.length)
       throw new ToolError('duplicate_update', 'Each link may appear once per call; merge its changes.');
+    // Turning a link round must not leave two links the same way between the same nodes.
+    const pairs = canvasLinks().map((e) => ({ id: e.id, source: e.source, target: e.target }));
+    for (const { link, reverse } of checked) {
+      if (!reverse) continue;
+      if (sameDirection(pairs, link.target, link.source))
+        throw new ToolError(
+          'link_exists',
+          `${alias(link.id, 'l')} cannot be reversed: ${alias(link.target)} is already linked to ${alias(link.source)}.`,
+        );
+      const mine = pairs.find((p) => p.id === link.id);
+      if (mine) [mine.source, mine.target] = [mine.target, mine.source];
+    }
     commitAiWrite(() => {
       const store = useCanvasStore.getState();
       for (const { link, set, reverse } of checked) {

@@ -56,8 +56,11 @@ export interface CanvasState {
    */
   linkNodes: (source: string, target: string, data?: LinkData) => string | null;
   updateEdgeData: (id: string, patch: Partial<LinkData>) => void;
-  /** Swaps a link's ends; its head stays at the target, so the arrow now points the other way. */
-  reverseEdge: (id: string) => void;
+  /**
+   * Swaps a link's ends; its head stays at the target, so the arrow now points the other way. Refused (false)
+   * when the other way round is already linked: that link is selected instead.
+   */
+  reverseEdge: (id: string) => boolean;
   /** Removes nodes and links as one undo step. Links to a removed node go with it. A section's contents stay. */
   deleteElements: (nodeIds: string[], edgeIds: string[]) => void;
   /** Removes nodes as one undo step; a section's contents stay. */
@@ -218,10 +221,22 @@ export const useCanvasStore = create<CanvasState>()(
           }),
         }),
 
-      reverseEdge: (id) =>
+      reverseEdge: (id) => {
+        const link = get().edges.find((e) => e.id === id);
+        if (!link) return false;
+        const existing = findLink(get().edges, link.target, link.source);
+        if (existing) {
+          get().setSelection(
+            () => false,
+            (e) => e.id === existing.id,
+          );
+          return false;
+        }
         set({
           edges: get().edges.map((e) => (e.id === id ? { ...e, source: e.target, target: e.source } : e)),
-        }),
+        });
+        return true;
+      },
 
       deleteElements: (nodeIds, edgeIds) => {
         if (nodeIds.length === 0 && edgeIds.length === 0) return;

@@ -24,6 +24,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
+import { ALREADY_LINKED } from './links/actions';
 import { edgeTypes } from './links/LinkEdge';
 import { LinkPreview } from './links/LinkPreview';
 import { LinkToolbar } from './links/LinkToolbar';
@@ -84,7 +85,7 @@ function connect({ source, target }: Connection) {
   const existing = findLink(edges, source, target);
   const loop = closesMathPlusLoop(nodes, edges, source, target);
   const id = linkNodes(source, target);
-  if (existing) toast('Those two are already linked that way. Selected the existing link.');
+  if (existing) toast(ALREADY_LINKED);
   else if (id && loop)
     toast.warning(
       'This closes a Math+ loop. It is broken at the node earliest in reading order, whose link from the loop is ignored when calculating.',
