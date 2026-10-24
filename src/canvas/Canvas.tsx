@@ -1,6 +1,7 @@
 import {
   Background,
   BackgroundVariant,
+  ConnectionMode,
   type NodeChange,
   ReactFlow,
   type ReactFlowProps,
@@ -20,10 +21,11 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
 import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
+import { edgeTypes } from './links/LinkEdge';
 import { GRID, withSnappedResize } from './snap';
 import { useCanvasActions } from './useCanvasActions';
 import { useContextMenu } from './useContextMenu';
-import { useSearchHighlight } from './useSearch';
+import { useSearchEdges, useSearchHighlight } from './useSearch';
 import { useSections } from './useSections';
 import { useShortcuts } from './useShortcuts';
 import { useZoomTier } from './zoomTier';
@@ -38,6 +40,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   selectionMode: SelectionMode.Partial,
   panOnDrag: [1, 2],
   deleteKeyCode: ['Delete', 'Backspace'],
+  // Nodes only connect in linking mode (see below); the invisible handle on each would otherwise take every click.
+  nodesConnectable: false,
   multiSelectionKeyCode: 'Shift',
   snapToGrid: true,
   snapGrid: [GRID, GRID],
@@ -61,10 +65,13 @@ const readOnlyProps: Partial<ReactFlowProps<AppNode>> = {
 /** The open canvas. Remount (via `key`) when switching canvases so the stored viewport is applied. */
 export function Canvas({ readOnly }: { readOnly: boolean }) {
   const nodes = useCanvasStore((s) => s.nodes);
+  const edges = useCanvasStore((s) => s.edges);
   const setViewport = useCanvasStore((s) => s.setViewport);
+  const onEdgesChange = useCanvasStore((s) => s.onEdgesChange);
   const theme = useUiStore((s) => s.theme);
   const touched = useAgentStore((s) => s.touched);
   const searched = useSearchHighlight(nodes);
+  const displayEdges = useSearchEdges(edges, nodes);
   const multipleSelected = useMemo(() => nodes.filter((n) => n.selected).length > 1, [nodes]);
   const sectionHandlers = useSections();
   const { onNodesChange: applyChanges } = sectionHandlers;
@@ -132,6 +139,11 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
       <ReactFlow<AppNode>
         nodes={displayNodes}
         nodeTypes={nodeTypes}
+        edges={displayEdges}
+        edgeTypes={edgeTypes}
+        onEdgesChange={onEdgesChange}
+        connectionMode={ConnectionMode.Loose}
+        edgesReconnectable={false}
         {...sectionHandlers}
         onNodesChange={onNodesChange}
         defaultViewport={useCanvasStore.getState().viewport}

@@ -1,11 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { nodes, openApp } from './helpers';
 
-test('mobile is a read-only viewer', async ({ page }) => {
-  await openApp(page);
-  // Seed a node through the store-backed IndexedDB by importing via the desktop flow is not possible here,
-  // so create content directly in the database and reload.
-  await page.evaluate(async () => {
+/** Writes `content` into the open canvas's row in IndexedDB and reloads. */
+async function seed(page: Page, content: object) {
+  await page.evaluate(async (content) => {
     const request = indexedDB.open('node-blank');
     const db: IDBDatabase = await new Promise((resolve) => {
       request.onsuccess = () => resolve(request.result);
@@ -16,15 +14,21 @@ test('mobile is a read-only viewer', async ({ page }) => {
     });
     await new Promise((resolve) => {
       const tx = db.transaction('contents', 'readwrite');
-      tx.objectStore('contents').put({
-        id: canvas.id,
-        viewport: { x: 0, y: 0, zoom: 1 },
-        nodes: [{ id: 'n1', type: 'text', position: { x: 40, y: 200 }, data: { markdown: '# Read me' } }],
-      });
+      tx.objectStore('contents').put({ id: canvas.id, ...content });
       tx.oncomplete = resolve;
     });
-  });
+  }, content);
   await page.reload();
+}
+
+test('mobile is a read-only viewer', async ({ page }) => {
+  await openApp(page);
+  // Seed a node through the store-backed IndexedDB by importing via the desktop flow is not possible here,
+  // so create content directly in the database and reload.
+  await seed(page, {
+    viewport: { x: 0, y: 0, zoom: 1 },
+    nodes: [{ id: 'n1', type: 'text', position: { x: 40, y: 200 }, data: { markdown: '# Read me' } }],
+  });
 
   await expect(page.getByText('View only')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0);
@@ -37,6 +41,28 @@ test('mobile is a read-only viewer', async ({ page }) => {
 
   await page.locator('.react-flow__pane').dblclick({ position: { x: 200, y: 600 } });
   await expect(nodes(page)).toHaveCount(1);
+});
+
+test('mobile shows links but cannot select or rename them', async ({ page }) => {
+  await openApp(page);
+  await seed(page, {
+    viewport: { x: 0, y: 0, zoom: 1 },
+    nodes: [
+      { id: 'n1', type: 'text', position: { x: 24, y: 192 }, data: { markdown: 'A' } },
+      { id: 'n2', type: 'text', position: { x: 24, y: 480 }, data: { markdown: 'B' } },
+    ],
+    edges: [{ id: 'e1', source: 'n1', target: 'n2', data: { label: 'k' } }],
+  });
+  const edge = page.locator('.react-flow__edge');
+  await expect(edge).toHaveCount(1);
+  // A vertical line has no width, which Playwright would call hidden.
+  const box = await edge.locator('.react-flow__edge-path').boundingBox();
+  expect(box?.height).toBeGreaterThan(100);
+  await expect(edge).not.toHaveClass(/selectable/);
+  await edge.locator('.react-flow__edge-path').dispatchEvent('click');
+  await expect(page.locator('.react-flow__edge.selected')).toHaveCount(0);
+  await edge.locator('.react-flow__edge-path').dispatchEvent('dblclick');
+  await expect(page.locator('.react-flow input')).toHaveCount(0);
 });
 
 test('mobile shows no context menu', async ({ page }) => {

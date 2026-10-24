@@ -1,5 +1,6 @@
 import type { NodeProps, NodeTypes } from '@xyflow/react';
 import { type ComponentType, lazy, Suspense } from 'react';
+import { LinkHandle } from '@/canvas/links/LinkHandle';
 import type { AppNode } from '@/model/types';
 import { ErrorBoundary, isStaleChunkError } from '@/ui/ErrorScreen';
 import { Mascot } from '@/ui/Mascot';
@@ -40,7 +41,7 @@ function lazyNode<P extends NodeProps<AppNode>>(load: () => Promise<{ default: C
   };
 }
 
-export const nodeTypes = {
+const kinds = {
   text: TextNode,
   image: ImageNode,
   video: VideoNode,
@@ -53,4 +54,26 @@ export const nodeTypes = {
   sheet: lazyNode(() => import('./sheet/SheetNode')),
   code: lazyNode(() => import('./code/CodeNode')),
   pdf: lazyNode(() => import('./pdf/PdfNode')),
-} satisfies Record<AppNode['type'], unknown> as NodeTypes;
+} satisfies Record<AppNode['type'], unknown>;
+
+/**
+ * Gives a node the connection point links need. It sits outside the lazy loader, so a node that is still
+ * loading (or failed to) can already take part in a link.
+ */
+function withLinkHandle(Node: ComponentType<NodeProps>) {
+  return function Linkable(props: NodeProps) {
+    return (
+      <>
+        <Node {...props} />
+        <LinkHandle connectable={props.isConnectable} />
+      </>
+    );
+  };
+}
+
+export const nodeTypes = Object.fromEntries(
+  (Object.entries(kinds) as [string, ComponentType<NodeProps>][]).map(([kind, Node]) => [
+    kind,
+    withLinkHandle(Node),
+  ]),
+) as NodeTypes;

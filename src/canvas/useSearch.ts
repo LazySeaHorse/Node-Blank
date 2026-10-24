@@ -1,6 +1,7 @@
 import { useReactFlow } from '@xyflow/react';
 import { useEffect, useMemo } from 'react';
-import type { AppNode } from '@/model/types';
+import { SECTION_Z } from '@/lib/sections';
+import type { AppEdge, AppNode } from '@/model/types';
 import { searchTextOf } from '@/nodes/factory';
 import { useUiStore } from '@/store/uiStore';
 
@@ -43,4 +44,31 @@ export function useSearchHighlight(nodes: AppNode[]): AppNode[] {
     () => (matches ? nodes.map((n) => (matches.has(n.id) ? n : { ...n, className: 'search-miss' })) : nodes),
     [nodes, matches],
   );
+}
+
+/**
+ * Links as drawn: dimmed by a search unless one of their ends matches or their label does. A link between two
+ * sections would sit under them (both are at the sections' depth), so it is lifted just above.
+ */
+export function useSearchEdges(edges: AppEdge[], nodes: AppNode[]): AppEdge[] {
+  const matches = useSearchMatches(nodes);
+  const query = useUiStore((s) => s.searchQuery.trim().toLowerCase());
+  return useMemo(() => {
+    if (edges.length === 0) return edges;
+    const sections = new Set(nodes.filter((n) => n.type === 'section').map((n) => n.id));
+    return edges.map((e) => {
+      const lifted = sections.has(e.source) && sections.has(e.target);
+      const miss =
+        matches &&
+        !matches.has(e.source) &&
+        !matches.has(e.target) &&
+        !e.data?.label?.toLowerCase().includes(query);
+      if (!lifted && !miss) return e;
+      return {
+        ...e,
+        ...(lifted ? { zIndex: SECTION_Z + 1 } : {}),
+        ...(miss ? { className: 'search-miss' } : {}),
+      };
+    });
+  }, [edges, nodes, matches, query]);
 }

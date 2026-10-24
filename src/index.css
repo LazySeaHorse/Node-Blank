@@ -33,6 +33,15 @@
   --section-pink: #fbcfe8;
   --section-orange: #fed7aa;
   --section-gray: #cbd5e1;
+  /* Links: stronger than the pastel section fills so a thin line stays visible. */
+  --link-auto: #64748b;
+  --link-yellow: #ca8a04;
+  --link-green: #059669;
+  --link-blue: #2563eb;
+  --link-purple: #7c3aed;
+  --link-pink: #db2777;
+  --link-orange: #ea580c;
+  --link-gray: #475569;
   /* Canvas dots. */
   --dot: #cdd0d4;
   /* Secondary text on a node tile: AA on the plain tile and on every tint. */
@@ -61,6 +70,14 @@
   --section-pink: #d466a3;
   --section-orange: #d9772e;
   --section-gray: #8a8a8a;
+  --link-auto: #9ca3af;
+  --link-yellow: #eab308;
+  --link-green: #34d399;
+  --link-blue: #60a5fa;
+  --link-purple: #a78bfa;
+  --link-pink: #f472b6;
+  --link-orange: #fb923c;
+  --link-gray: #cbd5e1;
   --dot: #2b2d32;
   --node-muted: #a8a9ae;
   --live: #3ddc97;
@@ -146,6 +163,62 @@ body,
 .react-flow__node.search-miss {
   opacity: 0.3;
   filter: grayscale(1);
+}
+.react-flow__edge.search-miss {
+  opacity: 0.25;
+}
+
+/*
+ * Links. A link draws in --link-color (its colour, or the accent while selected). Strokes keep their screen
+ * width at any zoom; the end shapes are counter-scaled in the component (--tz).
+ */
+.react-flow__edge-path,
+.react-flow__edge-interaction {
+  vector-effect: non-scaling-stroke;
+}
+.link {
+  color: var(--link-color, var(--link-auto));
+}
+.react-flow__edge.selected .link {
+  color: var(--accent);
+}
+.react-flow__edge .link-line {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.react-flow__edge.selected .link-line {
+  stroke: currentColor;
+}
+.link.dashed .link-line {
+  stroke-dasharray: 7 5;
+}
+.link-halo {
+  stroke: var(--accent);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  opacity: 0.22;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.link-end {
+  pointer-events: none;
+}
+
+/* The connection point every node has: node-sized and invisible, and only live in linking mode. */
+.react-flow__handle.link-handle {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  opacity: 0;
+  z-index: 3;
 }
 
 /* The section's pointer-events:none would otherwise be inherited by its resize handles. */
