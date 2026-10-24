@@ -69,6 +69,9 @@ export function preview(node: AppNode): string {
 
 const round = (n: number) => Math.round(n);
 
+/** A label in quotes on one line, with any quote mark inside it escaped. */
+const quoted = (label: string, max: number) => `"${oneLine(label, max).replace(/"/g, '\\"')}"`;
+
 /** One line per link: `l2 n1 -> n4 "k" head=dot tail=bar color=blue dashed`. Only non-default looks are listed. */
 export function linkLine(link: AppEdge): string {
   const { label, head, tail, color, dashed } = link.data ?? {};
@@ -83,7 +86,7 @@ export function linkLine(link: AppEdge): string {
     alias(link.source),
     '->',
     alias(link.target),
-    ...(label ? [`"${oneLine(label, 60)}"`] : []),
+    ...(label ? [quoted(label, 60)] : []),
     ...look,
   ].join(' ');
 }
@@ -92,7 +95,7 @@ export function linkLine(link: AppEdge): string {
 export function linksOf(node: AppNode, links: AppEdge[]): string {
   return links
     .flatMap((e) => {
-      const label = e.data?.label ? ` "${oneLine(e.data.label, 40)}"` : '';
+      const label = e.data?.label ? ` ${quoted(e.data.label, 40)}` : '';
       if (e.source === node.id) return [`-> ${alias(e.target)}${label}`];
       if (e.target === node.id) return [`<- ${alias(e.source)}${label}`];
       return [];

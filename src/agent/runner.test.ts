@@ -393,6 +393,13 @@ describe('links', () => {
     expect(await call('link_nodes', { links: [{ from: 'n2', to: 'n1' }] })).toContain('closes a Math+ loop');
   });
 
+  it('escapes quote marks in labels it prints', async () => {
+    three();
+    await call('link_nodes', { links: [{ from: 'n1', to: 'n2', label: 'say "hi"' }] });
+    expect(await call('list_links')).toBe('l1 n1 -> n2 "say \\"hi\\""');
+    expect(await call('read_nodes', { ids: ['n2'] })).toContain('Links: <- n1 "say \\"hi\\""');
+  });
+
   it('lists links, for one node and with paging', async () => {
     three();
     await call('link_nodes', {

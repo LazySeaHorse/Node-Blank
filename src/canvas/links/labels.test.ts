@@ -10,6 +10,14 @@ describe('splitLabel', () => {
     ]);
   });
 
+  it('does not turn two prices into a formula', () => {
+    expect(hasMath('$5 and $6')).toBe(false);
+    expect(hasMath('$5$')).toBe(false);
+    expect(hasMath('$ x $')).toBe(false);
+    expect(splitLabel('$5 and $6')).toEqual([{ text: '$5 and $6', math: false }]);
+    expect(hasMath('cost $5, rate $r$')).toBe(true);
+  });
+
   it('keeps unmatched and empty dollar signs as text', () => {
     expect(splitLabel('costs $5')).toEqual([{ text: 'costs $5', math: false }]);
     expect(splitLabel('$$')).toEqual([{ text: '$$', math: false }]);

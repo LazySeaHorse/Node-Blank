@@ -6,13 +6,25 @@ export interface LabelPart {
   math: boolean;
 }
 
-/** `plain $x^2$ plain` as parts. An empty `$$` pair is plain text, not an empty formula. */
+/**
+ * `plain $x^2$ plain` as parts. A pair of dollar signs is a formula only when what is inside neither starts nor
+ * ends with a space and is not just a number, so `$5 and $6` stays text; `$$` is plain text too.
+ */
 export function splitLabel(label: string): LabelPart[] {
   const parts: LabelPart[] = [];
   for (const segment of label.split(/(\$[^$]*\$)/)) {
     if (!segment) continue;
-    const math = segment.length > 2 && segment.startsWith('$') && segment.endsWith('$');
-    parts.push({ text: math ? segment.slice(1, -1) : segment, math });
+    const inner = segment.slice(1, -1);
+    // Like the markdown rule: money in a sentence ("$5 and $6") is not a formula.
+    const math =
+      segment.length > 2 &&
+      segment.startsWith('$') &&
+      segment.endsWith('$') &&
+      inner === inner.trim() &&
+      !/^[\d.,]+$/.test(inner);
+    const last = parts[parts.length - 1];
+    if (!math && last && !last.math) last.text += segment;
+    else parts.push({ text: math ? inner : segment, math });
   }
   return parts;
 }
