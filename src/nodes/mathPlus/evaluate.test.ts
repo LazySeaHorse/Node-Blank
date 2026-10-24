@@ -52,9 +52,27 @@ describe('evaluateLinked', () => {
   const value = (r: ReturnType<typeof evaluateLinked>, id: string, line = 0) => r.lines[id][line].value;
   const error = (r: ReturnType<typeof evaluateLinked>, id: string, line = 0) => r.lines[id][line].error;
 
-  it('is the same as evaluateDocuments without links', () => {
-    const docs = [doc('a', 'x:=5'), doc('b', 'x+1')];
-    expect(evaluateLinked(ce, docs, []).lines).toEqual(evaluateDocuments(ce, docs));
+  it('evaluates documents without links exactly as before links existed', () => {
+    // Expected values were taken from the code as it was before links.
+    const one = (latex: string) =>
+      evaluateLinked(ce, [doc('x', latex)], []).lines.x.map((l) => l.value ?? l.error);
+    expect(one('\\displaylines{a:=2\\\\n:=3\\\\s:=4\\\\ans}')).toEqual(['2', '3', '4', '24']);
+    expect(one('\\text{ans}')).toEqual(['\\text{ans}']);
+    expect(one('\\text{ans}+1')).toEqual(['Syntax error']);
+    expect(one('ans+1')).toEqual(['4an+1']);
+    expect(one('\\mathrm{ans}')).toEqual(['\\mathrm{ans}']);
+    expect(evaluateLinked(ce, [doc('a', 'x:=5'), doc('b', 'x+1')], []).lines.b[0].value).toBe('6');
+  });
+
+  it('spells ans as one symbol only where an ans link arrives, and not inside text groups', () => {
+    const r = evaluateLinked(
+      ce,
+      [doc('s', '7'), doc('t', '\\displaylines{ans+1\\\\\\text{ans}}'), doc('u', 'ans+1')],
+      [link('l', 's', 't')],
+    );
+    expect(r.lines.t.map((l) => l.value)).toEqual(['8', '\\text{ans}']);
+    // u has no ans link: typed ans stays a times n times s.
+    expect(r.lines.u[0].value).toBe('4an+1');
   });
 
   it('passes the last line of the source on as a named variable', () => {
@@ -98,8 +116,8 @@ describe('evaluateLinked', () => {
       [link('l', 's', 't')],
     );
     expect(value(r, 't')).toBe('5');
-    // a is visible in u; ans is not (it only exists inside t), so it stays a symbol.
-    expect(value(r, 'u')).toBe('\\mathrm{ans}+10');
+    // a is visible in u; ans is not (it only exists inside t), so u reads typed ans as a times n times s.
+    expect(value(r, 'u')).toBe('20n+10');
   });
 
   it('lets the target assign a linked name itself: the link stops there', () => {

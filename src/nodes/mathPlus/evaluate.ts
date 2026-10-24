@@ -40,9 +40,13 @@ export interface Evaluation {
   inputs: Record<string, LinkInput[]>;
 }
 
-/** The name written the way the parser reads it as one symbol: typed `ans` would read as a times n times s. */
+/**
+ * The name `ans` written the way the parser reads it as one symbol: typed, it would read as a times n times s.
+ * Text-mode groups (`\text{ans}`, `\mathrm{ans}`...) are left alone. Only done in a document that a link named
+ * `ans` feeds, so documents without one evaluate exactly as they always did.
+ */
 const spellNames = (latex: string) =>
-  latex.replace(/\\(?:mathrm|operatorname)\{ans\}|(?<![\\a-zA-Z])ans(?![a-zA-Z])/g, (m) =>
+  latex.replace(/\\(?:text|mathrm|operatorname|mathbf)\{[^{}]*\}|(?<![\\a-zA-Z])ans(?![a-zA-Z])/g, (m) =>
     m.startsWith('\\') ? m : '\\mathrm{ans}',
   );
 
@@ -58,9 +62,9 @@ interface ParsedLine {
   target: BoxedExpression | null;
 }
 
-function parseLine(ce: ComputeEngine, latex: string): ParsedLine | LineResult {
+function parseLine(ce: ComputeEngine, latex: string, spellAns: boolean): ParsedLine | LineResult {
   try {
-    const expr = ce.parse(spellNames(latex));
+    const expr = ce.parse(spellAns ? spellNames(latex) : latex);
     if (!expr.isValid) return { value: null, approx: null, error: 'Syntax error', assigned: false };
     if (expr.operator !== 'Assign') return { expr, reads: expr, assigns: null, target: null };
     const { op1, op2 } = expr as unknown as Operands;
@@ -163,10 +167,11 @@ export function evaluateLinked(
   ce.pushScope();
   try {
     for (const id of order) {
-      const parsed = splitLines(latexOf.get(id) ?? '').map((line) => parseLine(ce, line));
+      const incoming = usable.filter((l) => l.target === id);
+      const spellAns = incoming.some((l) => l.name === 'ans');
+      const parsed = splitLines(latexOf.get(id) ?? '').map((line) => parseLine(ce, line, spellAns));
 
       // What each incoming link brings, before anything is known about whether the node uses it.
-      const incoming = usable.filter((l) => l.target === id);
       const copies = new Map<string, number>();
       for (const l of incoming) copies.set(l.name, (copies.get(l.name) ?? 0) + 1);
       const brought = incoming.map((l) => {
