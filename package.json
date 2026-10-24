@@ -37,7 +37,7 @@
     "katex": "^0.19.0",
     "lucide-react": "^1.52.0",
     "mafs": "^0.21.0",
-    "mathlive": "^0.111.0",
+    "mathlive": "^0.111.1",
     "motion": "^14.0.0",
     "pdfjs-dist": "^6.4.299",
     "radix-ui": "^1.7.0",
