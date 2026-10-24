@@ -1,10 +1,15 @@
 import katex from 'katex';
-import { memo } from 'react';
-import { inkHtml } from './ink';
+import { memo, useLayoutEffect, useRef } from 'react';
+import { inkElements } from './ink';
 
 /** Static KaTeX rendering of a LaTeX string. */
 export const Tex = memo(function Tex({ latex, className }: { latex: string; className?: string }) {
-  const html = inkHtml(katex.renderToString(latex, { throwOnError: false, output: 'html' }));
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output with trust disabled is safe markup.
-  return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    katex.render(latex, element, { throwOnError: false, output: 'html' });
+    inkElements(element);
+  }, [latex]);
+  return <span ref={ref} className={className} />;
 });

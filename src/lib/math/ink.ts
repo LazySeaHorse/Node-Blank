@@ -27,19 +27,19 @@ export function inkBackground(name: string): string | undefined {
   return ink && `var(--ink-bg-${ink})`;
 }
 
-const NAMED_COLOR = /(^|;)(\s*)(background-color|color)(\s*:\s*)([a-zA-Z-]+)(\s*)(?=;|$)/g;
-
-/** An inline style as KaTeX writes it, with neutral named colours swapped for the theme's. */
-export function inkStyle(style: string): string {
-  return style.replace(NAMED_COLOR, (match, start, space, property, colon, name, end) => {
-    const ink = property === 'color' ? inkColor(name) : inkBackground(name);
-    return ink ? `${start}${space}${property}${colon}${ink}${end}` : match;
-  });
+/** Swaps neutral named colours in an inline style, as KaTeX writes them, for the theme's. True if any changed. */
+export function inkDeclaration(style: CSSStyleDeclaration): boolean {
+  const color = inkColor(style.color);
+  const background = inkBackground(style.backgroundColor);
+  if (color) style.color = color;
+  if (background) style.backgroundColor = background;
+  return !!(color || background);
 }
 
-/** KaTeX's HTML with neutral named colours swapped for the theme's. */
-export const inkHtml = (html: string) =>
-  html.replace(/ style="([^"]*)"/g, (_, style: string) => ` style="${inkStyle(style)}"`);
+/** Applies `inkDeclaration` to every element under `root` with an inline style: rendered KaTeX. */
+export function inkElements(root: ParentNode) {
+  for (const element of root.querySelectorAll<HTMLElement>('[style]')) inkDeclaration(element.style);
+}
 
 interface HastNode {
   type: string;
@@ -49,8 +49,14 @@ interface HastNode {
 
 /** Rehype plugin, after rehype-katex: neutral named colours in math follow the theme. */
 export function rehypeInk() {
+  // The browser parses each style string, so it is read exactly as it would be rendered.
+  const scratch = document.createElement('span').style;
   const walk = (node: HastNode) => {
-    if (typeof node.properties?.style === 'string') node.properties.style = inkStyle(node.properties.style);
+    const style = node.properties?.style;
+    if (node.properties && typeof style === 'string') {
+      scratch.cssText = style;
+      if (inkDeclaration(scratch)) node.properties.style = scratch.cssText;
+    }
     node.children?.forEach(walk);
   };
   return walk;
