@@ -182,12 +182,20 @@ test('buttons never glow, and dark mode has no shadows at all', async ({ page })
   await placeNode(page, 'Text');
   await page.getByRole('button', { name: 'Math', exact: true }).click();
 
+  // A shadow shows when a layer has colour and an offset or blur. Dark mode's are empty (`0 0 #0000`), and a ring
+  // (spread only) is a border, not a shadow.
   const shadowed = () =>
-    page.evaluate(() =>
-      [...document.querySelectorAll('*')]
-        .filter((el) => getComputedStyle(el).boxShadow !== 'none')
-        .map((el) => (el as HTMLElement).className?.toString().slice(0, 60) || el.tagName),
-    );
+    page.evaluate(() => {
+      const layer = /rgba?\(([^)]*)\)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+(-?[\d.]+)px/g;
+      const shows = (shadow: string) =>
+        [...shadow.matchAll(layer)].some(([, color, x, y, blur]) => {
+          const alpha = Number(color.split(',')[3] ?? 1);
+          return alpha > 0 && (Number(x) !== 0 || Number(y) !== 0 || Number(blur) !== 0);
+        });
+      return [...document.querySelectorAll('*')]
+        .filter((el) => shows(getComputedStyle(el).boxShadow))
+        .map((el) => (el as HTMLElement).className?.toString().slice(0, 60) || el.tagName);
+    });
   const activeButtonShadow = () =>
     page
       .locator('button[aria-pressed="true"]')
@@ -195,6 +203,7 @@ test('buttons never glow, and dark mode has no shadows at all', async ({ page })
       .evaluate((el) => getComputedStyle(el).boxShadow);
 
   expect(await activeButtonShadow()).toBe('none');
+  expect(await shadowed()).not.toEqual([]); // light mode has some, so the check can see them
 
   await page.getByRole('button', { name: /Dark mode/ }).click();
   expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(true);

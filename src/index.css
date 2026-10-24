@@ -59,6 +59,19 @@
   --ink-bg-grey: #d0d0d0;
   --ink-bg-light-grey: #f0f0f0;
   --ink-bg-white: #ffffff;
+  /* Elevation, behind the shadow-* utilities and every shadow of our own. Dark mode is flat, so all of it is
+     an empty shadow there; selection and focus are outlines for that reason. */
+  --elevation-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --elevation-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --elevation-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --elevation-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --elevation-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  /* A dragged node, picked up. */
+  --elevation-lift: 0 18px 24px -12px rgb(0 0 0 / 0.3);
+  /* A field floating over the canvas: a link label being typed, a spreadsheet cell being edited. */
+  --elevation-float: 0 4px 18px rgb(0 0 0 / 0.18);
+  /* Keeps a link's label readable over the line under it. */
+  --label-halo: 0 0 3px var(--canvas), 0 0 3px var(--canvas), 0 0 3px var(--canvas);
 }
 
 /* Neutral greys: no blue tint in dark mode. */
@@ -102,6 +115,15 @@
   --ink-bg-grey: #2f2f2f;
   --ink-bg-light-grey: #0f0f0f;
   --ink-bg-white: #000000;
+  /* Flat: an empty shadow rather than none, as utilities combine these with rings in one list. */
+  --elevation-sm: 0 0 #0000;
+  --elevation-md: 0 0 #0000;
+  --elevation-lg: 0 0 #0000;
+  --elevation-xl: 0 0 #0000;
+  --elevation-2xl: 0 0 #0000;
+  --elevation-lift: 0 0 #0000;
+  --elevation-float: 0 0 #0000;
+  --label-halo: none;
   color-scheme: dark;
 }
 
@@ -117,6 +139,12 @@
   --color-danger: var(--danger);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --shadow: var(--elevation-sm);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-xl: var(--elevation-xl);
+  --shadow-2xl: var(--elevation-2xl);
 }
 
 @theme {
@@ -159,7 +187,7 @@ body,
     textarea,
     summary
   ):focus-visible {
-    /* An outline, not a box-shadow: dark mode strips shadows. */
+    /* An outline, not a box-shadow: dark mode has no shadows. */
     outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
     outline-offset: 0;
   }
@@ -252,10 +280,7 @@ body,
   overflow: hidden;
   white-space: nowrap;
   font: 500 13px / 1.3 var(--font-sans);
-  text-shadow:
-    0 0 3px var(--canvas),
-    0 0 3px var(--canvas),
-    0 0 3px var(--canvas);
+  text-shadow: var(--label-halo);
   user-select: none;
   cursor: pointer;
 }
@@ -273,7 +298,7 @@ body,
   font: 13px var(--font-sans);
   text-align: center;
   outline: none;
-  box-shadow: 0 4px 18px rgb(0 0 0 / 0.18);
+  box-shadow: var(--elevation-float);
   pointer-events: all;
 }
 
@@ -337,6 +362,7 @@ math-field::part(virtual-keyboard-toggle) {
   --outline-background-color: color-mix(in srgb, var(--accent) 12%, transparent);
   --border-color: var(--border);
   --header-background-color: var(--surface-2);
+  --elevation: var(--elevation-float);
 }
 
 /* Sheet cell fills: the section palette, softened so text stays readable in both themes. */
@@ -421,7 +447,7 @@ math-field::part(virtual-keyboard-toggle) {
 
 /*
  * A hairline round the tab and tile, so a plain tile shows on the plain canvas. Borders and gradients, not
- * box-shadows (dark mode strips those). The tab overlaps the tile by the hairline to hide the seam, a 1px
+ * box-shadows (dark mode has none). The tab overlaps the tile by the hairline to hide the seam, a 1px
  * patch hides its right edge where the fillet takes over, and the fillet draws the hairline along its curve.
  * Sections have their dashed edge instead.
  */
@@ -465,7 +491,7 @@ math-field::part(virtual-keyboard-toggle) {
 }
 
 /*
- * Node states. Dark mode strips box-shadows, so selection and focus are outlines, and only the lift of a
+ * Node states. Dark mode has no box-shadows, so selection and focus are outlines, and only the lift of a
  * dragged node uses a shadow (a bonus in light mode). Everything animates transform or opacity.
  */
 .node {
@@ -527,7 +553,7 @@ math-field::part(virtual-keyboard-toggle) {
   transform-origin: 1.5rem 0;
 }
 .react-flow__node.dragging .node-tile {
-  box-shadow: 0 18px 24px -12px rgb(0 0 0 / 0.3);
+  box-shadow: var(--elevation-lift);
 }
 @media (prefers-reduced-motion: reduce) {
   .node {
@@ -589,15 +615,13 @@ math-field::part(virtual-keyboard-toggle) {
   }
 }
 
-/* Dark mode is flat: no shadows from our components or from third-party CSS (toasts, editors, spreadsheet). */
-html.dark,
-html.dark *,
-html.dark *::before,
-html.dark *::after {
-  /* biome-ignore lint/complexity/noImportantStyles: has to beat utility, inline and library shadows alike. */
-  box-shadow: none !important;
-  /* biome-ignore lint/complexity/noImportantStyles: same as above. */
-  text-shadow: none !important;
+/* MathLive's popovers live outside the fields; flat in dark mode like the rest. */
+.dark {
+  --environment-shadow: transparent;
+  --tooltip-box-shadow: none;
+}
+.dark #mathlive-suggestion-popover {
+  box-shadow: none;
 }
 
 /* Selectable text laid over a rendered PDF page; the same rules pdf.js ships for its viewer. */
