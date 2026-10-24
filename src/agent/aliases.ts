@@ -1,13 +1,13 @@
 /**
- * Short handles for the agent (n1, n2, g1, ...) in place of 36-character UUIDs, which cost tokens on
+ * Short handles for the agent (n1, n2, g1, l1, ...) in place of 36-character UUIDs, which cost tokens on
  * every mention. Assigned on first sight and stable for the page session. Tools accept either form.
  */
 
-type Kind = 'n' | 'g';
+type Kind = 'n' | 'g' | 'l';
 
 const toAlias = new Map<string, string>();
 const toId = new Map<string, string>();
-const counters: Record<Kind, number> = { n: 0, g: 0 };
+const counters: Record<Kind, number> = { n: 0, g: 0, l: 0 };
 
 export function alias(id: string, kind: Kind = 'n'): string {
   let a = toAlias.get(id);
@@ -28,4 +28,5 @@ export function resetAliases(): void {
   toId.clear();
   counters.n = 0;
   counters.g = 0;
+  counters.l = 0;
 }

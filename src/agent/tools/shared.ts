@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AppNode, CanvasGroup } from '@/model/types';
+import type { AppEdge, AppNode, CanvasGroup } from '@/model/types';
 import { asUndoStep, useCanvasStore } from '@/store/canvasStore';
 import { refreshGroups } from '@/store/groups';
 import { alias, resolveAlias } from '../aliases';
@@ -12,7 +12,21 @@ export const handleSchema = z
   .describe('Node handle such as "n3" (or a full node id).');
 export const groupHandleSchema = z.string().min(1).max(64).describe('Group handle such as "g2".');
 
+export const linkHandleSchema = z.string().min(1).max(64).describe('Link handle such as "l2".');
+
 export const canvasNodes = (): AppNode[] => useCanvasStore.getState().nodes;
+export const canvasLinks = (): AppEdge[] => useCanvasStore.getState().edges;
+
+export function requireLink(handle: string): AppEdge {
+  const id = resolveAlias(handle);
+  const link = canvasLinks().find((e) => e.id === id);
+  if (!link)
+    throw new ToolError(
+      'link_not_found',
+      `No link "${handle}" on this canvas. Use list_links to find handles.`,
+    );
+  return link;
+}
 
 export function requireNode(handle: string): AppNode {
   const id = resolveAlias(handle);

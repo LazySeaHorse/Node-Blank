@@ -1,5 +1,6 @@
 import type { AnyAgentTool } from '../defineTool';
 import { runCode } from './code';
+import { deleteLinks, linkNodesTool, listLinks, updateLinks } from './links';
 import { getOverview, listNodes, readNodes, searchNodes } from './read';
 import { focusNodes, getGuide } from './view';
 import { createNodes, deleteNodes, moveNodes, redoTool, undoTool, updateNodes } from './write';
@@ -14,6 +15,10 @@ export const ALL_TOOLS = [
   updateNodes,
   moveNodes,
   deleteNodes,
+  linkNodesTool,
+  listLinks,
+  updateLinks,
+  deleteLinks,
   runCode,
   focusNodes,
   undoTool,

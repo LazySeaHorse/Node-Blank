@@ -6,8 +6,8 @@ export function buildGuide(): string {
   return `Node-Blank guide for AI agents
 
 WHAT IT IS
-Node-Blank is an infinite canvas of free-floating nodes (no edges): notes, math, graphs, tables, spreadsheets,
-scripts, images, videos, web pages and PDFs. You work on the one canvas open in the user's tab.
+Node-Blank is an infinite canvas of free-floating nodes, which the user can link with arrows: notes, math, graphs,
+tables, spreadsheets, scripts, images, videos, web pages and PDFs. You work on the one canvas open in the user's tab.
 
 NODE KINDS
 ${kinds}
@@ -38,6 +38,17 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
 Every kind but section also takes an optional title, a name the user sees on the node, and an optional color
 (the section palette), a background tint; untinted nodes are plain white.
 
+LINKS
+- A link joins one node to another: an orthogonal line with an arrow at the "to" end by default. It may have a label
+  (text; $...$ is typeset as math), a colour (the section palette, or "auto"), a dashed line and a head and tail
+  (arrow, dot, bar, none). Sections can be linked like any node.
+- Links are mostly visual: they show how nodes relate ("derived from", "see also"). The one exception is between two
+  Math+ nodes, described under mathPlus.
+- link_nodes draws them (a link of the same direction between the same two nodes already exists = error; the other
+  direction is fine), list_links lists them, update_links changes the look or reverses the direction, delete_links
+  removes them. read_nodes shows each node's links as "Links: -> n5 "k"; <- n2". Deleting a node removes its links.
+- Link handles are l1, l2, ...
+
 LAYOUT
 - Coordinates are canvas pixels; x grows right, y grows down. Positions are top-left corners.
 - Groups are nearby nodes, recomputed from positions whenever you read. Handles like g2 stay stable while a group
@@ -45,7 +56,7 @@ LAYOUT
 - Let the app place new nodes (near, group) unless you need an exact layout. Keep related nodes together.
 
 HANDLES
-Nodes are n1, n2, ... and groups g1, g2, ... for this session. Full ids also work.
+Nodes are n1, n2, ..., groups g1, g2, ... and links l1, l2, ... for this session. Full ids also work.
 
 WORKFLOW
 1. get_overview (small, fixed size) for counts, groups and the selection. "This" or "these" usually means the selection.

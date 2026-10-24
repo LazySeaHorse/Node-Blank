@@ -1,4 +1,4 @@
-import type { AppNode, NodeDataMap } from '@/model/types';
+import type { AppEdge, AppNode, NodeDataMap } from '@/model/types';
 import { searchTextOf } from '@/nodes/factory';
 import type { LineResult } from '@/nodes/mathPlus/evaluate';
 import { splitLines } from '@/nodes/mathPlus/evaluate';
@@ -68,6 +68,37 @@ export function preview(node: AppNode): string {
 }
 
 const round = (n: number) => Math.round(n);
+
+/** One line per link: `l2 n1 -> n4 "k" head=dot tail=bar color=blue dashed`. Only non-default looks are listed. */
+export function linkLine(link: AppEdge): string {
+  const { label, head, tail, color, dashed } = link.data ?? {};
+  const look = [
+    head && `head=${head}`,
+    tail && `tail=${tail}`,
+    color && `color=${color}`,
+    dashed && 'dashed',
+  ].filter(Boolean);
+  return [
+    alias(link.id, 'l'),
+    alias(link.source),
+    '->',
+    alias(link.target),
+    ...(label ? [`"${oneLine(label, 60)}"`] : []),
+    ...look,
+  ].join(' ');
+}
+
+/** What a node is linked to: `-> n5 "k"; <- n2`. Empty when it has no links. */
+export function linksOf(node: AppNode, links: AppEdge[]): string {
+  return links
+    .flatMap((e) => {
+      const label = e.data?.label ? ` "${oneLine(e.data.label, 40)}"` : '';
+      if (e.source === node.id) return [`-> ${alias(e.target)}${label}`];
+      if (e.target === node.id) return [`<- ${alias(e.source)}${label}`];
+      return [];
+    })
+    .join('; ');
+}
 
 /** Where a node is: "x,y w×h". */
 export function placement(node: AppNode): string {

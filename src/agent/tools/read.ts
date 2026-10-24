@@ -12,9 +12,10 @@ import { nodeRect } from '@/store/groups';
 import { useWorkspace } from '@/store/workspace';
 import { alias, resolveAlias } from '../aliases';
 import { defineTool } from '../defineTool';
-import { nodeBody, nodeLine, oneLine, placement } from '../format';
+import { linksOf, nodeBody, nodeLine, oneLine, placement } from '../format';
 import { shownPagesText } from '../pdfText';
 import {
+  canvasLinks,
   canvasNodes,
   currentGroups,
   groupHandleSchema,
@@ -66,8 +67,9 @@ export const getOverview = defineTool({
     const byId = new Map(nodes.map((n) => [n.id, n]));
     const selected = nodes.filter((n) => n.selected).map((n) => alias(n.id));
     const view = viewportRect();
+    const linkCount = canvasLinks().length;
     const lines = [
-      `Canvas "${name}": ${plural(nodes.length, 'node')} (${kindCounts(nodes)}), ${plural(groups.length, 'group')}.`,
+      `Canvas "${name}": ${plural(nodes.length, 'node')} (${kindCounts(nodes)}), ${plural(groups.length, 'group')}${linkCount > 0 ? `, ${plural(linkCount, 'link')}` : ''}.`,
       `Bounds ${rectLabel(boundsOf(nodes.map(nodeRect)))}. Visible ${rectLabel(view)} (zoom ${useCanvasStore.getState().viewport.zoom.toFixed(2)}).`,
       `Selected: ${selected.length ? selected.join(', ') : 'none'}.`,
       'Groups (reading order): handle, nodes, bounds, kinds, first node:',
@@ -188,6 +190,7 @@ export const readNodes = defineTool({
     const nodes = ids.map(requireNode);
     const { groupOf } = currentGroups();
     const results = nodes.some((n) => n.type === 'mathPlus') ? await mathPlusResults() : {};
+    const links = canvasLinks();
     const blocks = await Promise.all(
       nodes.map(async (node) => {
         const body =
@@ -196,7 +199,8 @@ export const readNodes = defineTool({
             : nodeBody(node, results[node.id]);
         const slice = body.slice(offset, offset + maxChars);
         const group = groupOf.get(node.id);
-        const head = `## ${alias(node.id)} ${node.type} ${placement(node)}${group ? ` ${alias(group, 'g')}` : ''}`;
+        const linked = linksOf(node, links);
+        const head = `## ${alias(node.id)} ${node.type} ${placement(node)}${group ? ` ${alias(group, 'g')}` : ''}${linked ? `\nLinks: ${linked}` : ''}`;
         const more =
           offset + maxChars < body.length
             ? `\n[chars ${offset}-${offset + slice.length} of ${body.length}; pass offset=${offset + slice.length} for more]`

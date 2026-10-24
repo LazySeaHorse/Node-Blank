@@ -334,3 +334,152 @@ describe('sections', () => {
     );
   });
 });
+
+describe('links', () => {
+  const three = () =>
+    load([createNode('math', at(0, 0)), createNode('text', at(300, 0)), createNode('math', at(600, 0))]);
+  const past = () => useCanvasStore.temporal.getState().pastStates.length;
+
+  it('links nodes in one undo step, keeping the user selection, and says what it made', async () => {
+    three();
+    canvas().setSelection((n) => n.id === canvas().nodes[2].id);
+    const before = past();
+    const text = await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2', label: '$k$', color: 'blue', dashed: true, head: 'dot' },
+        { from: 'n2', to: 'n3' },
+      ],
+    });
+    expect(text).toBe('Linked l1 n1 -> n2 "$k$" head=dot color=blue dashed; l2 n2 -> n3.');
+    expect(canvas().edges.map((e) => e.data)).toEqual([
+      { label: '$k$', color: 'blue', dashed: true, head: 'dot' },
+      undefined,
+    ]);
+    expect(canvas().nodes.map((n) => !!n.selected)).toEqual([false, false, true]);
+    expect(past()).toBe(before + 1);
+    undo();
+    expect(canvas().edges).toHaveLength(0);
+  });
+
+  it('refuses unknown nodes, self links and repeats, applying nothing', async () => {
+    three();
+    expect((await callError('link_nodes', { links: [{ from: 'n1', to: 'n9' }] })).error).toBe(
+      'node_not_found',
+    );
+    expect((await callError('link_nodes', { links: [{ from: 'n1', to: 'n1' }] })).error).toBe('self_link');
+    await call('link_nodes', { links: [{ from: 'n1', to: 'n2' }] });
+    expect((await callError('link_nodes', { links: [{ from: 'n1', to: 'n2' }] })).error).toBe('link_exists');
+    expect(
+      (
+        await callError('link_nodes', {
+          links: [
+            { from: 'n2', to: 'n3' },
+            { from: 'n2', to: 'n3' },
+          ],
+        })
+      ).error,
+    ).toBe('link_exists');
+    expect((await callError('link_nodes', { links: [{ from: 'n1', to: 'n2', head: 'star' }] })).error).toBe(
+      'invalid_input',
+    );
+    expect(canvas().edges).toHaveLength(1);
+    await call('link_nodes', { links: [{ from: 'n2', to: 'n1' }] });
+    expect(canvas().edges).toHaveLength(2);
+  });
+
+  it('warns when a link closes a Math+ loop', async () => {
+    load([createNode('mathPlus', at(0, 0)), createNode('mathPlus', at(300, 0))]);
+    await call('link_nodes', { links: [{ from: 'n1', to: 'n2' }] });
+    expect(await call('link_nodes', { links: [{ from: 'n2', to: 'n1' }] })).toContain('closes a Math+ loop');
+  });
+
+  it('lists links, for one node and with paging', async () => {
+    three();
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2', label: 'a' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n3', to: 'n1' },
+      ],
+    });
+    expect((await call('list_links')).split('\n')).toEqual(['l1 n1 -> n2 "a"', 'l2 n2 -> n3', 'l3 n3 -> n1']);
+    expect(await call('list_links', { node: 'n1' })).toBe('l1 n1 -> n2 "a"\nl3 n3 -> n1');
+    expect(await call('list_links', { limit: 1 })).toBe(
+      'l1 n1 -> n2 "a"\n(1-1 of 3; pass offset=1 for more)',
+    );
+    load([]);
+    expect(await call('list_links')).toBe('No links.');
+  });
+
+  it('updates looks and direction in one step, checking everything first', async () => {
+    three();
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2', label: 'x', color: 'blue' },
+        { from: 'n2', to: 'n3' },
+      ],
+    });
+    const before = past();
+    await call('update_links', {
+      updates: [
+        { id: 'l1', set: { label: '', color: 'auto', tail: 'bar' } },
+        { id: 'l2', set: { dashed: true }, reverse: true },
+      ],
+    });
+    expect(past()).toBe(before + 1);
+    expect(canvas().edges[0].data).toEqual({ tail: 'bar' });
+    expect(canvas().edges[1]).toMatchObject({
+      source: canvas().nodes[2].id,
+      target: canvas().nodes[1].id,
+      data: { dashed: true },
+    });
+
+    expect(
+      (await callError('update_links', { updates: [{ id: 'l1', set: { label: 'z' } }, { id: 'l9' }] })).error,
+    ).toBe('link_not_found');
+    expect(canvas().edges[0].data).toEqual({ tail: 'bar' });
+    expect((await callError('update_links', { updates: [{ id: 'l1' }, { id: 'l1' }] })).error).toBe(
+      'duplicate_update',
+    );
+  });
+
+  it('deletes links as one undo step, leaving the nodes', async () => {
+    three();
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2' },
+        { from: 'n2', to: 'n3' },
+      ],
+    });
+    await call('delete_links', { ids: ['l1', 'l2'] });
+    expect(canvas().edges).toHaveLength(0);
+    expect(canvas().nodes).toHaveLength(3);
+    undo();
+    expect(canvas().edges).toHaveLength(2);
+    expect((await callError('delete_links', { ids: ['l7'] })).error).toBe('link_not_found');
+  });
+
+  it('shows links in the overview and when reading a node', async () => {
+    three();
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2', label: 'k' },
+        { from: 'n3', to: 'n2' },
+      ],
+    });
+    expect(await call('get_overview')).toContain('3 nodes (math 2, text 1), 1 group, 2 links.');
+    const read = await call('read_nodes', { ids: ['n2'] });
+    expect(read).toContain('Links: <- n1 "k"; <- n3');
+    expect(await call('read_nodes', { ids: ['n1'] })).toContain('Links: -> n2 "k"');
+  });
+
+  it('removes the links of a deleted node and tells the agent the tools exist', async () => {
+    three();
+    await call('link_nodes', { links: [{ from: 'n1', to: 'n2' }] });
+    await call('delete_nodes', { ids: ['n2'] });
+    expect(canvas().edges).toHaveLength(0);
+    expect(getAgentTools().map((t) => t.name)).toEqual(
+      expect.arrayContaining(['link_nodes', 'list_links', 'update_links', 'delete_links']),
+    );
+  });
+});

@@ -57,6 +57,10 @@ test('an agent connected through the bridge reads and edits the canvas', async (
   await expect(nodes(page)).toHaveCount(3);
   await expect(page.getByRole('heading', { name: 'From the agent' })).toBeVisible();
 
+  const linked = await bridge.call('link_nodes', { links: [{ from: textHandle, to: 'n3' }] });
+  expect(linked.text).toMatch(/^Linked l1 /);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
   // The user cannot edit while the agent works, and can take over.
   await expect(page.getByText('AI is editing. The canvas is read-only.')).toBeVisible();
   await page.getByRole('button', { name: 'Take over' }).click();
