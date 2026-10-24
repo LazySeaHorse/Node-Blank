@@ -9,8 +9,6 @@ import { stripTransient } from '@/nodes/factory';
  * Version 2 added links; files without any are still written as version 1 so older builds can open them.
  */
 const APP_TAG = 'unlined';
-/** Files written before the rename carry this tag; they still import. */
-const LEGACY_APP_TAG = 'node-blank';
 const VERSION = 1;
 const LINKS_VERSION = 2;
 
@@ -33,7 +31,7 @@ const nodeSchema = z.discriminatedUnion(
 ) as unknown as z.ZodType<AppNode>;
 
 const header = {
-  app: z.enum([APP_TAG, LEGACY_APP_TAG]),
+  app: z.literal(APP_TAG),
   version: z.union([z.literal(VERSION), z.literal(LINKS_VERSION)]),
 };
 

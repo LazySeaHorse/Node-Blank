@@ -16,13 +16,11 @@ import { type CloudCanvas, packCanvas, unpackCanvas } from './pack';
  */
 
 const APP_TAG = 'unlined-sync';
-/** Clouds created before the rename carry this tag; they still open. */
-const LEGACY_APP_TAG = 'node-blank-sync';
 const VERSION = 1;
 const INDEX_CONTEXT = 'index';
 
 const manifestSchema = z.object({
-  app: z.enum([APP_TAG, LEGACY_APP_TAG]),
+  app: z.literal(APP_TAG),
   version: z.literal(VERSION),
   kdf: z.object({ iterations: z.number().int().positive(), salt: z.string() }),
   index: z.string(),
