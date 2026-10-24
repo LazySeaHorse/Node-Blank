@@ -81,4 +81,17 @@ export function useShortcuts(readOnly: boolean) {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [readOnly, wrapInSection]);
+
+  useEffect(() => {
+    // The browser keeps one undo history for the whole page. Once a field has undone all its own typing,
+    // Ctrl+Z goes on into whatever was typed before, elsewhere: a math field's hidden input, which then takes
+    // focus and steps back through that node instead. A field's undo only ever touches that field.
+    const onBeforeInput = (event: InputEvent) => {
+      if (event.inputType !== 'historyUndo' && event.inputType !== 'historyRedo') return;
+      const active = document.activeElement;
+      if (!(event.target instanceof Node) || !active?.contains(event.target)) event.preventDefault();
+    };
+    window.addEventListener('beforeinput', onBeforeInput, { capture: true });
+    return () => window.removeEventListener('beforeinput', onBeforeInput, { capture: true });
+  }, []);
 }

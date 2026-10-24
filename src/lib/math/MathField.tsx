@@ -52,6 +52,9 @@ export function MathField({
     // Stored values are flattened (see emitChange), so compare like with like or the caret would jump.
     if (!field || flattenDisplaylines(field.value) === value) return;
     try {
+      // The value came from outside (canvas undo, the AI...): the field's own undo must not step back past it.
+      // Emptied first, setValue starts the field's history afresh at the new value.
+      field.resetUndo();
       field.setValue(value, { silenceNotifications: true });
     } catch (error) {
       // A value MathLive cannot parse must not take the whole canvas down with this one node.

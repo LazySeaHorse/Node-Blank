@@ -110,6 +110,27 @@ test('duplicating a multi-line Math+ node works', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('Ctrl+Z in a text node stops at its own typing instead of undoing a math node', async ({ page }) => {
+  await placeNode(page, 'Math', 400, 300);
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('x+1');
+  await page.keyboard.press('Escape');
+
+  await placeNode(page, 'Text', 800, 500);
+  await page.locator('.react-flow__node-text .p-4').dblclick();
+  const textarea = page.locator('.react-flow__node-text textarea');
+  await expect(textarea).toBeFocused();
+  await page.keyboard.type('ab');
+  for (let i = 0; i < 8; i++) await page.keyboard.press('ControlOrMeta+z');
+  await expect(textarea).toBeFocused();
+  expect(await field.evaluate((el: HTMLElement & { value: string }) => el.value)).toBe('x+1');
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(textarea).toHaveValue(/^ab/);
+});
+
 test('math written in black turns light in dark mode', async ({ page }) => {
   await placeNode(page, 'Math');
   const field = nodes(page).locator('math-field');
