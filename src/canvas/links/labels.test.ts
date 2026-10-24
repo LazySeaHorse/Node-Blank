@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { fitText, hasMath, measureLabel, splitLabel } from './labels';
+import { geom } from './geometry';
+import { fitText, hasMath, measureLabel, placeLabel, splitLabel } from './labels';
 
 describe('splitLabel', () => {
   it('splits plain text and formulas', () => {
@@ -54,5 +55,37 @@ describe('measureLabel', () => {
     expect(a).toBeGreaterThan(0);
     expect(measureLabel('hello')).toBe(a);
     expect(measureLabel('hello world')).toBeGreaterThan(a);
+  });
+});
+
+describe('placeLabel', () => {
+  const ten = (t: string) => t.length * 10;
+  // A horizontal Z whose segments are 208, 48 and 192 long.
+  const g = geom([
+    [0, 0],
+    [208, 0],
+    [208, 48],
+    [400, 48],
+  ]);
+
+  it('keeps a long label on the path by moving its middle away from the longest stretch', () => {
+    const label = 'x'.repeat(30);
+    const { text, center } = placeLabel(label, g.total, g.pos, 1, ten);
+    expect(text).toBe(label);
+    expect(g.pos - 150).toBeLessThan(14); // centred on the longest stretch it would run off the start
+    expect(center - 150).toBeGreaterThanOrEqual(14);
+    expect(center + 150).toBeLessThanOrEqual(g.total - 14);
+  });
+
+  it('leaves a short label where the longest stretch puts it', () => {
+    expect(placeLabel('abc', g.total, g.pos, 1, ten).center).toBe(g.pos);
+  });
+
+  it('cuts text that cannot fit and counts the counter-scale in its width', () => {
+    const { text, center } = placeLabel('y'.repeat(80), g.total, g.pos, 2, ten);
+    expect(ten(text) * 2).toBeLessThanOrEqual(g.total - 28);
+    expect(text.endsWith('…')).toBe(true);
+    expect(center - (ten(text) * 2) / 2).toBeGreaterThanOrEqual(14);
+    expect(center + (ten(text) * 2) / 2).toBeLessThanOrEqual(g.total - 14);
   });
 });

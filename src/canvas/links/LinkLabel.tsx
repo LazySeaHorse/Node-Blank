@@ -8,12 +8,10 @@ import { useReadOnly } from '../readOnly';
 import { counterScale } from '../zoomTier';
 import { editLink } from './actions';
 import { type Geom, MIN_LABEL_PATH, type Pt, readableReverse, reversedPath, roundedPath } from './geometry';
-import { fitText, hasMath, type LabelPart, measureLabel, splitLabel } from './labels';
+import { hasMath, type LabelPart, measureLabel, placeLabel, splitLabel } from './labels';
 
 /** Below this zoom labels are too small to read and only clutter. */
 const HIDE_BELOW_ZOOM = 0.3;
-/** Room kept free at the ends of a link's path, so a label never touches the nodes. */
-const END_MARGIN = 28;
 /** Gap between the line and the label, before counter-scaling. */
 const GAP = 7;
 
@@ -43,11 +41,10 @@ export function LinkLabel({
   const math = hasMath(label);
   const reverse = readableReverse(geometry.dir);
   const pathId = `link-label-${id}`;
-  const room = geometry.total - END_MARGIN;
-
-  const text = useMemo(
-    () => (math ? '' : fitText(label, room / scale, measureLabel)),
-    [label, math, room, scale],
+  const { text, center } = useMemo(
+    () =>
+      math ? { text: '', center: 0 } : placeLabel(label, geometry.total, geometry.pos, scale, measureLabel),
+    [label, math, geometry.total, geometry.pos, scale],
   );
   if (zoom < HIDE_BELOW_ZOOM || geometry.total < MIN_LABEL_PATH) return null;
 
@@ -64,7 +61,7 @@ export function LinkLabel({
     );
   if (!text) return null;
 
-  const offset = reverse ? geometry.total - geometry.pos : geometry.pos;
+  const offset = reverse ? geometry.total - center : center;
   return (
     <>
       <defs>

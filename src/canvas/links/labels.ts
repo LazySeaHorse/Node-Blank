@@ -45,6 +45,28 @@ export const hasMath = (label: string): boolean => splitLabel(label).some((p) =>
 
 export type Measure = (text: string) => number;
 
+/** Room kept free at each end of a link's path, so a label never touches the nodes or runs off the path. */
+export const LABEL_END_MARGIN = 14;
+
+/**
+ * The text of a plain label cut to the room the path has, and where along the path its middle goes: as near
+ * `pos` (the middle of the longest stretch) as the whole text still fits between the margins. `scale` is how
+ * much the text is drawn larger than `measure` reports, to keep its size on screen.
+ */
+export function placeLabel(
+  label: string,
+  total: number,
+  pos: number,
+  scale: number,
+  measure: Measure,
+): { text: string; center: number } {
+  const text = fitText(label, (total - 2 * LABEL_END_MARGIN) / scale, measure);
+  const half = (measure(text) * scale) / 2;
+  const min = half + LABEL_END_MARGIN;
+  const max = total - half - LABEL_END_MARGIN;
+  return { text, center: min > max ? total / 2 : Math.min(max, Math.max(min, pos)) };
+}
+
 /**
  * `text`, cut and ended with an ellipsis until `measure` says it fits in `max`. The empty string when not even
  * the ellipsis fits.
