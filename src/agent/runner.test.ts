@@ -473,6 +473,24 @@ describe('links', () => {
     expect(await call('read_nodes', { ids: ['n1'] })).toContain('Links: -> n2 "k"');
   });
 
+  it('shows what a Math+ link brings in when reading the target', async () => {
+    load([
+      createNode('mathPlus', at(0, 0), { latex: '\\frac{1}{3}' }),
+      createNode('mathPlus', at(0, 300), { latex: 'k*6' }),
+      createNode('mathPlus', at(0, 600), { latex: 'ans+1' }),
+    ]);
+    await call('link_nodes', {
+      links: [
+        { from: 'n1', to: 'n2', label: 'k' },
+        { from: 'n2', to: 'n3' },
+        { from: 'n1', to: 'n3', label: 'x' },
+      ],
+    });
+    const read = await call('read_nodes', { ids: ['n2', 'n3'] });
+    expect(read).toContain('inputs: k = \\frac{1}{3} (from n1)\nk*6  ⟶ 2');
+    expect(read).toContain('inputs: ans = 2 (from n2); x = \\frac{1}{3} (from n1, unused)\nans+1  ⟶ 3');
+  });
+
   it('removes the links of a deleted node and tells the agent the tools exist', async () => {
     three();
     await call('link_nodes', { links: [{ from: 'n1', to: 'n2' }] });

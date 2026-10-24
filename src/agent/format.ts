@@ -1,6 +1,6 @@
 import type { AppEdge, AppNode, NodeDataMap } from '@/model/types';
 import { searchTextOf } from '@/nodes/factory';
-import type { LineResult } from '@/nodes/mathPlus/evaluate';
+import type { LineResult, LinkInput } from '@/nodes/mathPlus/evaluate';
 import { splitLines } from '@/nodes/mathPlus/evaluate';
 import { nodeRect } from '@/store/groups';
 import { alias } from './aliases';
@@ -121,29 +121,36 @@ function gridBody(cells: string[][]): string {
   return [header, ...cells.map((row, r) => `${r + 1} | ${row.join(' | ')}`)].join('\n');
 }
 
-function mathPlusBody(latex: string, results: LineResult[] | undefined): string {
-  const lines = splitLines(latex);
-  if (lines.length === 0) return '(empty)';
-  return lines
-    .map((line, i) => {
-      const r = results?.[i];
-      if (!r) return line;
-      if (r.error) return `${line}  ⟶ error: ${r.error}`;
-      if (r.assigned) return line;
-      return `${line}  ⟶ ${r.value}${r.approx ? ` ≈ ${r.approx}` : ''}`;
-    })
-    .join('\n');
+/** `inputs: k = 5 (from n2); ans: the source has an error (from n4)`. */
+function inputsLine(inputs: LinkInput[]): string {
+  const parts = inputs.map((i) => {
+    const from = `from ${alias(i.sourceId)}${i.error || i.used ? '' : ', unused'}`;
+    return `${i.error ? `${i.name}: ${i.error}` : `${i.name} = ${i.value}`} (${from})`;
+  });
+  return `inputs: ${parts.join('; ')}`;
+}
+
+function mathPlusBody(latex: string, results: LineResult[] | undefined, inputs: LinkInput[] = []): string {
+  const lines = splitLines(latex).map((line, i) => {
+    const r = results?.[i];
+    if (!r) return line;
+    if (r.error) return `${line}  ⟶ error: ${r.error}`;
+    if (r.assigned) return line;
+    return `${line}  ⟶ ${r.value}${r.approx ? ` ≈ ${r.approx}` : ''}`;
+  });
+  const body = [...(inputs.length > 0 ? [inputsLine(inputs)] : []), ...lines];
+  return body.length > 0 ? body.join('\n') : '(empty)';
 }
 
 /** The full content of a node as plain text. Math+ lines carry their computed results when given. */
-export function nodeBody(node: AppNode, mathPlusResults?: LineResult[]): string {
+export function nodeBody(node: AppNode, mathPlusResults?: LineResult[], inputs?: LinkInput[]): string {
   switch (node.type) {
     case 'text':
       return node.data.markdown;
     case 'math':
       return node.data.latex;
     case 'mathPlus':
-      return mathPlusBody(node.data.latex, mathPlusResults);
+      return mathPlusBody(node.data.latex, mathPlusResults, inputs);
     case 'graph':
       return node.data.functions.map((f) => `y = ${f}`).join('\n');
     case 'table':

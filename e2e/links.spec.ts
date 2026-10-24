@@ -310,3 +310,37 @@ test('the menu names a link too', async ({ page }) => {
   await labelInput(page).press('Enter');
   await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveText('k');
 });
+
+test('a link between Math+ nodes passes the result on as a variable named by its label', async ({ page }) => {
+  await placeNode(page, 'Math+', 300, 300);
+  await nodes(page).first().locator('math-field').click();
+  await expect(nodes(page).first().locator('math-field')).toBeFocused();
+  await page.keyboard.type('2+3');
+  await page.mouse.click(1300, 800);
+  await placeNode(page, 'Math+', 900, 450);
+  await nodes(page).nth(1).locator('math-field').click();
+  await expect(nodes(page).nth(1).locator('math-field')).toBeFocused();
+  await page.keyboard.type('k*2+1');
+  await page.mouse.click(1300, 800);
+  await expect(nodes(page).nth(1)).toContainText('2k+1');
+
+  await page.keyboard.press('l');
+  await dragBetween(page, nodes(page).nth(0), nodes(page).nth(1));
+  await expect(edges(page)).toHaveCount(1);
+  await page.keyboard.press('Escape');
+  await page.mouse.click(1300, 800);
+
+  // Unnamed, the value is called ans, which the formula does not read: a muted chip and nothing changes.
+  const chip = nodes(page).nth(1).locator('li[title^="From"]');
+  await expect(chip).toContainText('ans');
+  await expect(chip).toContainText('5');
+  await expect(nodes(page).nth(1)).toContainText('2k+1');
+
+  const p = await pointOnLink(page);
+  await page.mouse.dblclick(p.x, p.y);
+  await labelInput(page).fill('k');
+  await labelInput(page).press('Enter');
+  await expect(chip).toContainText('k');
+  await expect(nodes(page).nth(1).locator('ol')).toContainText('11');
+  await expect(nodes(page).nth(1).locator('ol')).not.toContainText('2k+1');
+});

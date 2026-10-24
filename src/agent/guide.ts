@@ -18,6 +18,14 @@ FIELDS (create_nodes takes them flat next to "kind"; update_nodes "set" replaces
 - mathPlus: latex. Each line (separated by \\\\) is evaluated; "a := 2" defines a variable that later Math+
   nodes can use. Math+ nodes are evaluated in reading order (top to bottom, then left to right), so position matters.
   read_nodes shows each line's result after ⟶.
+  A link from one Math+ node to another hands the exact result of the source's last line to the target as a
+  variable: named by the link's label when that is a single latin letter other than e and i ("k" or "$k$"), otherwise
+  "ans". The target reads it like any variable (k*2+1) and read_nodes shows it as "inputs: k = 5 (from n2)". Linked
+  nodes are evaluated source first, so a source below its target is evaluated earlier. A source with an error, no
+  lines or a function definition (f(x) := ...) as its last line passes nothing and the target's lines that use
+  the name fail. Two links with the same name into one node fail only if that node uses the name. If the target
+  assigns the name itself (k := 3) its own value wins from that line on. Links can form loops (allowed): the one
+  closing the loop is ignored and marked "loop: link ignored". Links touching other kinds of node carry nothing.
 - graph: functions, a list of functions of x such as "x^2" or "\\sin(x)".
 - table: cells, rows of LaTeX math cells.
 - sheet: cells, rows of spreadsheet cells; formulas start with "=" and use A1 references (=SUM(A1:A3)).
@@ -43,7 +51,7 @@ LINKS
   (text; $...$ is typeset as math), a colour (the section palette, or "auto"), a dashed line and a head and tail
   (arrow, dot, bar, none). Sections can be linked like any node.
 - Links are mostly visual: they show how nodes relate ("derived from", "see also"). The one exception is between two
-  Math+ nodes, described under mathPlus.
+  Math+ nodes, which pass a value (see mathPlus above).
 - link_nodes draws them (a link of the same direction between the same two nodes already exists = error; the other
   direction is fine), list_links lists them, update_links changes the look or reverses the direction, delete_links
   removes them. read_nodes shows each node's links as "Links: -> n5 "k"; <- n2". Deleting a node removes its links.

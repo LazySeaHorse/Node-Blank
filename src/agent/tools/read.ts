@@ -5,7 +5,8 @@ import { sectionContents } from '@/lib/sections';
 import type { AppNode, NodeKind } from '@/model/types';
 import { nodeKinds } from '@/nodes/catalog';
 import { searchTextOf } from '@/nodes/factory';
-import { evaluateDocuments, type LineResult } from '@/nodes/mathPlus/evaluate';
+import type { Evaluation } from '@/nodes/mathPlus/evaluate';
+import { mathPlusEvaluation as mathPlusEvaluationOf } from '@/nodes/mathPlus/useMathPlusResults';
 import * as repo from '@/persistence/canvasRepo';
 import { useCanvasStore } from '@/store/canvasStore';
 import { nodeRect } from '@/store/groups';
@@ -162,15 +163,10 @@ export const listNodes = defineTool({
   },
 });
 
-/** Math+ results for every Math+ node; they share variables, so all are evaluated together in reading order. */
-async function mathPlusResults(): Promise<Record<string, LineResult[]>> {
-  const docs = canvasNodes()
-    .filter((n) => n.type === 'mathPlus')
-    .sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x)
-    .map((n) => ({ id: n.id, latex: n.data.latex as string }));
-  if (docs.length === 0) return {};
+/** Math+ results and link inputs for every Math+ node; they share variables and links, so all are evaluated together. */
+async function mathPlusEvaluation(): Promise<Evaluation> {
   const { ce } = await loadEngine();
-  return evaluateDocuments(ce, docs);
+  return mathPlusEvaluationOf(ce, useCanvasStore.getState());
 }
 
 export const readNodes = defineTool({
@@ -189,14 +185,14 @@ export const readNodes = defineTool({
   handler: async ({ ids, offset, maxChars }) => {
     const nodes = ids.map(requireNode);
     const { groupOf } = currentGroups();
-    const results = nodes.some((n) => n.type === 'mathPlus') ? await mathPlusResults() : {};
+    const math = nodes.some((n) => n.type === 'mathPlus') ? await mathPlusEvaluation() : undefined;
     const links = canvasLinks();
     const blocks = await Promise.all(
       nodes.map(async (node) => {
         const body =
           node.type === 'pdf'
             ? `${nodeBody(node)}\n${await shownPagesText(node.data)}`
-            : nodeBody(node, results[node.id]);
+            : nodeBody(node, math?.lines[node.id], math?.inputs[node.id]);
         const slice = body.slice(offset, offset + maxChars);
         const group = groupOf.get(node.id);
         const linked = linksOf(node, links);

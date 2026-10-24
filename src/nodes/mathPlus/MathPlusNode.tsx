@@ -2,13 +2,15 @@ import type { NodeProps } from '@xyflow/react';
 import { Copy, TriangleAlert } from 'lucide-react';
 import { useReadOnly } from '@/canvas/readOnly';
 import { copyText } from '@/lib/clipboard';
+import { cn } from '@/lib/cn';
 import { MathField } from '@/lib/math/MathField';
 import { Tex } from '@/lib/math/Tex';
 import type { NodeOf } from '@/model/types';
+import { useCanvasStore } from '@/store/canvasStore';
 import { NodeShell } from '../NodeShell';
 import { useUpdateNodeData } from '../useNodeData';
-import type { LineResult } from './evaluate';
-import { useMathPlusResults } from './useMathPlusResults';
+import type { LineResult, LinkInput } from './evaluate';
+import { useMathPlusInputs, useMathPlusResults } from './useMathPlusResults';
 
 export default function MathPlusNode({ id, data, selected }: NodeProps<NodeOf<'mathPlus'>>) {
   const readOnly = useReadOnly();
@@ -23,6 +25,7 @@ export default function MathPlusNode({ id, data, selected }: NodeProps<NodeOf<'m
       tint={data.color}
       className="min-w-56"
     >
+      <InputChips id={id} />
       <div className="px-3 py-2">
         <MathField
           value={data.latex}
@@ -45,6 +48,45 @@ export default function MathPlusNode({ id, data, selected }: NodeProps<NodeOf<'m
         )
       )}
     </NodeShell>
+  );
+}
+
+/** The values links bring in, as `k = 5`: muted when the formulas do not read them, red when a link brings nothing. */
+function InputChips({ id }: { id: string }) {
+  const inputs = useMathPlusInputs(id);
+  if (inputs.length === 0) return null;
+  return (
+    <ul className="m-0 flex list-none flex-wrap gap-1 px-3 pt-2">
+      {inputs.map((input) => (
+        <InputChip key={input.linkId} input={input} />
+      ))}
+    </ul>
+  );
+}
+
+function InputChip({ input }: { input: LinkInput }) {
+  const title = useCanvasStore((s) => s.nodes.find((n) => n.id === input.sourceId)?.data.title);
+  const name = input.name === 'ans' ? '\\mathrm{ans}' : input.name;
+  return (
+    <li
+      title={`From ${title || 'Math+'}`}
+      className={cn(
+        'flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
+        input.error
+          ? 'border-danger bg-danger/10 text-danger'
+          : input.used
+            ? 'border-accent/40 bg-accent/10 text-accent'
+            : 'border-border text-muted opacity-60',
+      )}
+    >
+      {input.error ? (
+        <>
+          <TriangleAlert className="size-3" /> {input.name}: {input.error}
+        </>
+      ) : (
+        <Tex latex={`${name} = ${input.value}`} />
+      )}
+    </li>
   );
 }
 
