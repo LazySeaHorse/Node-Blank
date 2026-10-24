@@ -110,6 +110,20 @@ test('duplicating a multi-line Math+ node works', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('a command committed from LaTeX mode takes the next key as its argument', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await page.keyboard.type('x+\\hat');
+  await expect.poll(() => field.evaluate((el: HTMLElement & { mode: string }) => el.mode)).toBe('latex');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('U');
+  await expect
+    .poll(() => field.evaluate((el: HTMLElement & { value: string }) => el.value))
+    .toBe('x+\\hat{U}');
+});
+
 test('Ctrl+Z in a text node stops at its own typing instead of undoing a math node', async ({ page }) => {
   await placeNode(page, 'Math', 400, 300);
   const field = nodes(page).locator('math-field');

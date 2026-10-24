@@ -32,6 +32,19 @@ interface MathFieldProps {
   className?: string;
 }
 
+/**
+ * A command with an argument committed from LaTeX mode (`\hat`, `\sqrt`, `\vec`...) arrives with an empty
+ * argument and, through a MathLive slip, the whole command selected instead of the caret inside it: the next
+ * key replaces it or lands beside it. Gives it a placeholder and puts the caret there, as `\frac` gets.
+ */
+function fillEmptyArgument(field: MathfieldElement) {
+  const [range] = field.selection.ranges;
+  if (!range || range[1] !== range[0] + 1) return;
+  const latex = field.getValue(range[0], range[1], 'latex');
+  if (!/^\\[a-zA-Z]+(\{\})+$/.test(latex) || latex.startsWith('\\placeholder')) return;
+  field.insert(latex.replaceAll('{}', '{#?}'), { format: 'latex', selectionMode: 'placeholder' });
+}
+
 /** React wrapper around MathLive's `<math-field>` web component. */
 export function MathField({
   value,
@@ -87,6 +100,14 @@ export function MathField({
     const handleInput = () => emitChange(field.value);
     // Clicking into a field selects its node, so Escape can hand control back to node shortcuts (Ctrl+D, Ctrl+C...).
     const node = () => field.closest<HTMLElement>('.react-flow__node');
+    let mode = field.mode;
+    const handleModeChange = () => {
+      // Committing `\hat` typed in LaTeX mode: MathLive runs this inside the commit, so the microtask
+      // sees the result before the next key.
+      if (mode === 'latex' && field.mode !== 'latex') queueMicrotask(() => fillEmptyArgument(field));
+      mode = field.mode;
+      syncMode();
+    };
     const syncMode = () => setTextMode(field.mode === 'text');
     const handleBlur = () => setFocused(false);
     const handleFocus = () => {
@@ -111,13 +132,13 @@ export function MathField({
     field.addEventListener('input', handleInput);
     field.addEventListener('focus', handleFocus);
     field.addEventListener('blur', handleBlur);
-    field.addEventListener('mode-change', syncMode);
+    field.addEventListener('mode-change', handleModeChange);
     field.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => {
       field.removeEventListener('input', handleInput);
       field.removeEventListener('focus', handleFocus);
       field.removeEventListener('blur', handleBlur);
-      field.removeEventListener('mode-change', syncMode);
+      field.removeEventListener('mode-change', handleModeChange);
       field.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [multiline]);
