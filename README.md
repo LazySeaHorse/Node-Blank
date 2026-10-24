@@ -27,6 +27,7 @@ Most digital study tools require a tablet and stylus. Computational notebooks hi
 - **Search** (Ctrl+F) dims non-matching nodes and flies to the matches.
 - **Context menus**: right-click for add node, paste, copy, duplicate, delete, order, align and per-node actions; math nodes add insert, insert matrix, text colour and background (right-drag still pans).
 - **Organise**: groups nearby nodes and spaces them evenly (one undo step).
+- **Links**: connect nodes with grid-snapped orthogonal pipes (arrow, dot or bar ends, colour, dashed, a label that may contain `$math$`). Turn on linking mode (toolbar button next to Organise, or `L`), drag from one node to another; click a link for its options, double-click it to name it, right-click for the menu. Between two Math+ nodes a link passes the source's result to the target as a variable: name it `k` (a single letter other than `e` or `i`) to use `k`, or leave it as `ans`. See [Links](#links).
 - **AI control**: let a coding agent (Claude Code, Codex, Gemini CLI, …) read and edit the open canvas through a small local bridge, or a browser agent through WebMCP. See [AI control](#ai-control).
 - **Dark mode**, **offline PWA**.
 - **Mobile**: read-only viewer. Pan, zoom and switch canvases; editing is desktop-only.
@@ -45,9 +46,11 @@ Most digital study tools require a tablet and stylus. Computational notebooks hi
 | Zoom | Pinch, or Ctrl/Cmd + scroll |
 | Select | Click, Shift+click, or drag a box on empty canvas |
 | Undo / redo | Ctrl+Z / Ctrl+Shift+Z |
-| Duplicate / delete | Ctrl+D / Delete |
+| Duplicate / delete | Ctrl+D / Delete (nodes and links together) |
 | Copy / paste nodes | Ctrl+C / Ctrl+V (with a node selected, not while typing in one) |
 | Wrap selection in a section | Ctrl+G |
+| Link nodes | `L` (or the toolbar button), then drag from one node to another. Esc or `L` leaves linking mode |
+| Edit a link | Click it for tail, head, colour, dashed, swap and delete; double-click to name it; right-click for the same options as a menu |
 | Select all | Ctrl+A |
 | New line in a math node | Shift+Enter |
 
@@ -74,6 +77,11 @@ npm run lint       # Biome
 npm run build      # typecheck + production build
 ```
 
+### Links
+In linking mode nodes do not move: drag from one node onto another to link them (the link stays on until you leave the mode with Esc or `L`). Links are always orthogonal and follow the dot grid, running from the facing sides of the two nodes; several links between the same two nodes fan out in parallel lanes. A link in the same direction between the same two nodes is refused (the existing one is selected); the other direction is fine. Labels run along the longest stretch of the link in the link's own colour; text between `$` signs is typeset with KaTeX. Delete removes the selected links and nodes as one undo step, and deleting a node removes its links. Links are saved with the canvas, exported (JSON files with links are written as version 2; version 1 files still import), copied with nodes and synced.
+
+**Math+ links.** A link from one Math+ node to another hands the exact result of the source's last line to the target as a variable, named by the link's label when that is a single latin letter (`k` or `$k$`, but not `e` or `i`), otherwise `ans`. The target shows chips above its field (`k = 5`; muted when its formulas do not read the name, red with the reason when the link brings nothing). Linked nodes are evaluated source first, so a source below its target counts earlier; otherwise Math+ nodes still evaluate in reading order. If the target assigns the name itself (`k := 3`), its own value wins from that line on. Loops are allowed (you get a warning): the link that closes the loop is ignored. Links that touch other kinds of node are purely visual.
+
 ### Web node
 Insert a Web node from the toolbar and type an address (`example.com` is fine). The page runs live in the node: click the node to use it, drag its header to move it. Pages far off screen, or on a canvas zoomed far out, are unloaded and come back at the address you left them on.
 
@@ -85,7 +93,7 @@ Off on every page load. Open the AI panel (robot button in the toolbar) and turn
 1. Download and run the bridge for your OS from the latest `bridge-v*` [release](https://github.com/LazySeaHorse/Node-Blank/releases). See [`bridge/README.md`](bridge/README.md).
 2. Add it to your agent once: `claude mcp add --transport http node-blank http://127.0.0.1:47801/mcp` (or `codex mcp add node-blank --url …`, `gemini mcp add --transport http node-blank …`).
 
-Agents get a small fixed-size overview (counts, groups of nearby nodes, the selection), then list, search and read only what they need, using short handles (`n3`, `g2`) instead of ids. Edits are find/replace, cell updates or whole fields; each call is one undo step. While an agent is editing, the canvas is read-only for you (Take over turns AI control off), changed nodes flash, and the panel keeps the session's activity.
+Agents get a small fixed-size overview (counts, groups of nearby nodes, links, the selection), then list, search and read only what they need, using short handles (`n3`, `g2`, `l1`) instead of ids. Edits are find/replace, cell updates or whole fields; each call is one undo step. While an agent is editing, the canvas is read-only for you (Take over turns AI control off), changed nodes flash, and the panel keeps the session's activity.
 
 ### Project Layout
 ```
@@ -94,7 +102,7 @@ src/
   nodes/        one folder per node kind: spec (metadata, defaults, schema) + component + logic
   store/        canvas store (undo), UI store, workspace service (open/save/import/export)
   persistence/  Dexie database, repository, autosave, JSON format
-  canvas/       React Flow canvas, shortcuts, search, insert actions
+  canvas/       React Flow canvas, shortcuts, search, insert actions, links (pipes, toolbar, labels)
   chrome/       toolbar, canvas manager, search bar, zoom controls, mobile bar
   ui/           Radix-based primitives and prompt/confirm dialogs
   lib/          small shared helpers (MathField, Markdown, files, grid, clusters, …)
@@ -125,7 +133,7 @@ Adding a node kind: add its data shape to `model/types.ts`, create `nodes/<kind>
 - [x] **PDF node**
 - [x] **Encrypted cloud saves (JSONBin AES-GCM)**
 - [ ] **Themes!**
-- [ ] **Link 2+ nodes**
+- [x] **Link 2+ nodes**
 - [ ] **Import export via QR**
 - [ ] **Drawings on canvas**
 - [ ] **Export PDF**
