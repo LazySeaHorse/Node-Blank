@@ -60,9 +60,11 @@ export function useSections() {
     const box = marquee.current;
     marquee.current = null;
     if (!box) return;
-    useCanvasStore
-      .getState()
-      .setSelection((n) => !!n.selected && (n.type !== 'section' || encloses(box, nodeRect(n))));
+    // A marquee also grabs every link touching a node it covers; a link stays only when both its ends do.
+    useCanvasStore.getState().setSelection(
+      (n) => !!n.selected && (n.type !== 'section' || encloses(box, nodeRect(n))),
+      (e, picked) => !!e.selected && picked.has(e.source) && picked.has(e.target),
+    );
   }, []);
 
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {

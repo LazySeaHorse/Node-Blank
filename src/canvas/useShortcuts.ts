@@ -5,6 +5,10 @@ import { useUiStore } from '@/store/uiStore';
 import { isTextField, isTyping } from './keyboard';
 import { useWrapInSection } from './useSections';
 
+/** True inside a menu or dialog, where Delete and Backspace belong to that control. */
+const isInOverlay = (target: EventTarget | null) =>
+  target instanceof Element && target.closest('[role="menu"], [role="dialog"]') !== null;
+
 export function useShortcuts(readOnly: boolean) {
   const wrapInSection = useWrapInSection();
   useEffect(() => {
@@ -20,6 +24,10 @@ export function useShortcuts(readOnly: boolean) {
       }
       if (key === 'escape' && ui.searchOpen) {
         ui.closeSearch();
+        return;
+      }
+      if (key === 'escape' && ui.linking) {
+        ui.setLinking(false);
         return;
       }
       if (readOnly) return;
@@ -44,8 +52,16 @@ export function useShortcuts(readOnly: boolean) {
         }
       }
 
+      if (!mod && !event.altKey && !event.shiftKey && key === 'l') {
+        event.preventDefault();
+        ui.setLinking(!ui.linking);
+        return;
+      }
+
       const canvas = useCanvasStore.getState();
-      if (mod && key === 'd') {
+      if ((key === 'delete' || key === 'backspace') && !mod && !isInOverlay(event.target)) {
+        canvas.deleteSelected();
+      } else if (mod && key === 'd') {
         event.preventDefault();
         canvas.duplicateSelected();
       } else if (mod && key === 'g') {
@@ -53,7 +69,10 @@ export function useShortcuts(readOnly: boolean) {
         wrapInSection();
       } else if (mod && key === 'a') {
         event.preventDefault();
-        canvas.setSelection(() => true);
+        canvas.setSelection(
+          () => true,
+          () => true,
+        );
       } else if (key === 'escape') {
         canvas.setSelection(() => false);
       }

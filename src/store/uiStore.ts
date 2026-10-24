@@ -13,11 +13,14 @@ interface UiState {
   searchQuery: string;
   aiPanelOpen: boolean;
   aiTab: AiTab;
+  /** Linking mode: dragging from one node to another links them instead of moving. Never saved. */
+  linking: boolean;
   /** The section whose title is open for editing, if any. */
   renamingSection: string | null;
   /** The node whose own title is open for editing, if any. */
   renamingNode: string | null;
   setTool: (tool: NodeKind) => void;
+  setLinking: (linking: boolean) => void;
   toggleTheme: () => void;
   openSearch: () => void;
   closeSearch: () => void;
@@ -46,9 +49,12 @@ export const useUiStore = create<UiState>()(
       searchQuery: '',
       aiPanelOpen: false,
       aiTab: 'connect',
+      linking: false,
       renamingSection: null,
       renamingNode: null,
-      setTool: (tool) => set({ tool }),
+      // Picking a node to place ends linking, since a double-click on the canvas would otherwise do nothing.
+      setTool: (tool) => set({ tool, linking: false }),
+      setLinking: (linking) => set({ linking }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       openSearch: () => set({ searchOpen: true }),
       closeSearch: () => set({ searchOpen: false, searchQuery: '' }),

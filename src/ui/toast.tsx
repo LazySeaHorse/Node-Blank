@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck } from 'lucide-react';
+import { CircleAlert, CircleCheck, TriangleAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Toaster, toast } from 'sonner';
 import { useUiStore } from '@/store/uiStore';
@@ -15,6 +15,7 @@ const classNames = {
 const icons = {
   success: <CircleCheck className="size-4 text-success" />,
   error: <CircleAlert className="size-4 text-danger" />,
+  warning: <TriangleAlert className="size-4 text-warning" />,
 };
 
 /** App-wide toast host: surface-coloured, at the bottom centre, clear of the AI banner. */

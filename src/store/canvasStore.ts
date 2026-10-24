@@ -224,6 +224,7 @@ export const useCanvasStore = create<CanvasState>()(
         }),
 
       deleteElements: (nodeIds, edgeIds) => {
+        if (nodeIds.length === 0 && edgeIds.length === 0) return;
         const doomed = new Set(nodeIds);
         const doomedEdges = new Set(edgeIds);
         asUndoStep(() =>

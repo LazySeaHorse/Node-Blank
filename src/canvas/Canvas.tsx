@@ -1,6 +1,7 @@
 import {
   Background,
   BackgroundVariant,
+  type Connection,
   ConnectionMode,
   type NodeChange,
   ReactFlow,
@@ -10,8 +11,10 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import { type CSSProperties, type DragEvent, type MouseEvent, useCallback, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import { setAgentView, useAgentStore } from '@/agent';
 import { cn } from '@/lib/cn';
+import { closesMathPlusLoop, findLink } from '@/lib/links';
 import { SECTION_Z } from '@/lib/sections';
 import type { AppNode } from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
@@ -22,6 +25,7 @@ import { useUiStore } from '@/store/uiStore';
 import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
 import { edgeTypes } from './links/LinkEdge';
+import { LinkPreview } from './links/LinkPreview';
 import { GRID, withSnappedResize } from './snap';
 import { useCanvasActions } from './useCanvasActions';
 import { useContextMenu } from './useContextMenu';
@@ -39,7 +43,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   selectionOnDrag: true,
   selectionMode: SelectionMode.Partial,
   panOnDrag: [1, 2],
-  deleteKeyCode: ['Delete', 'Backspace'],
+  // Delete is handled in useShortcuts, so removing nodes and links is one undo step.
+  deleteKeyCode: null,
   // Nodes only connect in linking mode (see below); the invisible handle on each would otherwise take every click.
   nodesConnectable: false,
   multiSelectionKeyCode: 'Shift',
@@ -47,6 +52,14 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
   snapGrid: [GRID, GRID],
   // Arrow keys would otherwise nudge the selected nodes.
   disableKeyboardA11y: true,
+};
+
+/** Linking mode: dragging from a node to another links them, and nodes stay where they are. */
+const linkingProps: Partial<ReactFlowProps<AppNode>> = {
+  nodesConnectable: true,
+  nodesDraggable: false,
+  connectionLineComponent: LinkPreview,
+  isValidConnection: (c) => c.source !== c.target,
 };
 
 /** Mobile: look, don't touch. */
@@ -62,6 +75,17 @@ const readOnlyProps: Partial<ReactFlowProps<AppNode>> = {
   zoomOnPinch: true,
 };
 
+/** Creates the link a drag ended on, or says why it was not made. */
+function connect({ source, target }: Connection) {
+  const { nodes, edges, linkNodes } = useCanvasStore.getState();
+  const existing = findLink(edges, source, target);
+  const loop = closesMathPlusLoop(nodes, edges, source, target);
+  const id = linkNodes(source, target);
+  if (existing) toast('Those two are already linked that way. Selected the existing link.');
+  else if (id && loop)
+    toast.warning('This closes a Math+ loop. One link in the loop is ignored when calculating.');
+}
+
 /** The open canvas. Remount (via `key`) when switching canvases so the stored viewport is applied. */
 export function Canvas({ readOnly }: { readOnly: boolean }) {
   const nodes = useCanvasStore((s) => s.nodes);
@@ -69,6 +93,8 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
   const setViewport = useCanvasStore((s) => s.setViewport);
   const onEdgesChange = useCanvasStore((s) => s.onEdgesChange);
   const theme = useUiStore((s) => s.theme);
+  const linkingOn = useUiStore((s) => s.linking);
+  const linking = linkingOn && !readOnly;
   const touched = useAgentStore((s) => s.touched);
   const searched = useSearchHighlight(nodes);
   const displayEdges = useSearchEdges(edges, nodes);
@@ -110,6 +136,10 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
     });
     return () => setAgentView(null);
   }, [fitView]);
+  // The AI lock (or any other reason to go read-only) ends linking mode rather than pausing it.
+  useEffect(() => {
+    if (readOnly && linkingOn) useUiStore.getState().setLinking(false);
+  }, [readOnly, linkingOn]);
   useShortcuts(readOnly);
   useClipboard(readOnly);
   const { menu, close: closeMenu } = useContextMenu(readOnly);
@@ -158,10 +188,11 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         maxZoom={4}
         colorMode={theme}
         proOptions={proOptions}
-        className={cn(readOnly && 'read-only', multipleSelected && 'multi-select')}
+        onConnect={connect}
+        className={cn(readOnly && 'read-only', multipleSelected && 'multi-select', linking && 'linking')}
         data-zoom={tier}
         style={{ '--tz': scale } as CSSProperties}
-        {...(readOnly ? readOnlyProps : editableProps)}
+        {...(readOnly ? readOnlyProps : linking ? { ...editableProps, ...linkingProps } : editableProps)}
       >
         {/* Offset so the dots sit on the grid lines that nodes snap to. */}
         <Background variant={BackgroundVariant.Dots} gap={GRID} size={DOT} offset={(DOT - GRID) / 2} />

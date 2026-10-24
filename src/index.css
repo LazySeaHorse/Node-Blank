@@ -555,3 +555,31 @@ html.dark *::after {
 .pdf-text-layer ::selection {
   background: rgb(0 90 255 / 0.3);
 }
+
+/* Linking mode: the whole node is a drag handle, so say so; the ends of a drag in progress are outlined. */
+.react-flow.linking .react-flow__node,
+.react-flow.linking .react-flow__handle.link-handle {
+  cursor: crosshair;
+}
+.react-flow__node:has(.link-handle.connectingfrom) .node-tile {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+.react-flow__node:has(.link-handle.connectingto) .node-tile {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.link-preview {
+  color: var(--accent);
+}
+.link-preview path {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.link-preview polygon,
+.link-preview circle {
+  fill: currentColor;
+}

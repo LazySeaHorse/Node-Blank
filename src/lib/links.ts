@@ -84,3 +84,28 @@ export function cloneGraph(
     }),
   };
 }
+
+/**
+ * Whether linking `source` to `target` closes a loop of Math+ links: both are Math+ nodes and `target` already
+ * feeds `source`, directly or through other Math+ nodes. Links that touch other kinds of node never carry a value.
+ */
+export function closesMathPlusLoop(
+  nodes: AppNode[],
+  edges: CanvasEdge[],
+  source: string,
+  target: string,
+): boolean {
+  const math = new Set(nodes.filter((n) => n.type === 'mathPlus').map((n) => n.id));
+  if (!math.has(source) || !math.has(target)) return false;
+  const seen = new Set([target]);
+  const queue = [target];
+  for (let id = queue.pop(); id !== undefined; id = queue.pop()) {
+    if (id === source) return true;
+    for (const e of edges)
+      if (e.source === id && math.has(e.target) && !seen.has(e.target)) {
+        seen.add(e.target);
+        queue.push(e.target);
+      }
+  }
+  return false;
+}

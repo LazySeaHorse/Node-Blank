@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createNode } from '@/nodes/factory';
 import {
   cloneGraph,
+  closesMathPlusLoop,
   findLink,
   internalEdges,
   linkDataSchema,
@@ -84,5 +85,29 @@ describe('links', () => {
   it('rejects a bad link end', () => {
     expect(linkDataSchema.safeParse({ head: 'star' }).success).toBe(false);
     expect(linkDataSchema.safeParse({ head: 'bar', color: 'blue' }).success).toBe(true);
+  });
+});
+
+describe('closesMathPlusLoop', () => {
+  const [a, b, c] = ['mathPlus', 'mathPlus', 'mathPlus'].map((t, i) =>
+    createNode(t as 'mathPlus', { x: i * 100, y: 0 }),
+  );
+  const text = createNode('text', { x: 0, y: 0 });
+  const chain = [e('1', a.id, b.id), e('2', b.id, c.id)];
+
+  it('sees a loop through other Math+ nodes', () => {
+    expect(closesMathPlusLoop([a, b, c], chain, c.id, a.id)).toBe(true);
+    expect(closesMathPlusLoop([a, b, c], chain, b.id, a.id)).toBe(true);
+  });
+
+  it('does not call a forward link or an unrelated one a loop', () => {
+    expect(closesMathPlusLoop([a, b, c], chain, a.id, c.id)).toBe(false);
+    expect(closesMathPlusLoop([a, b, c], [], b.id, a.id)).toBe(false);
+  });
+
+  it('ignores links that touch other kinds of node', () => {
+    const through = [e('1', a.id, text.id), e('2', text.id, b.id)];
+    expect(closesMathPlusLoop([a, b, text], through, b.id, a.id)).toBe(false);
+    expect(closesMathPlusLoop([a, text], [e('1', a.id, text.id)], text.id, a.id)).toBe(false);
   });
 });

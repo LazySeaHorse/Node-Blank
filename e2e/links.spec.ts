@@ -1,0 +1,158 @@
+import { expect, type Page, test } from '@playwright/test';
+import { nodes, openApp, placeNode } from './helpers';
+
+test.beforeEach(async ({ page }) => openApp(page));
+
+const edges = (page: Page) => page.locator('.react-flow__edge');
+const linkButton = (page: Page) => page.getByRole('button', { name: 'Link nodes' });
+
+/** Drags from the middle of one locator to the middle of another. */
+async function dragBetween(page: Page, from: ReturnType<Page['locator']>, to: ReturnType<Page['locator']>) {
+  const a = await from.boundingBox();
+  const b = await to.boundingBox();
+  if (!a || !b) throw new Error('missing box');
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 12 });
+  await page.mouse.up();
+}
+
+/** A text node on the left and a math node on the right, with linking mode on. */
+async function twoNodes(page: Page) {
+  await placeNode(page, 'Text', 300, 300);
+  await placeNode(page, 'Math', 900, 400);
+  await expect(nodes(page)).toHaveCount(2);
+  await page.mouse.click(1300, 800);
+  await page.keyboard.press('l');
+  await expect(linkButton(page)).toHaveAttribute('aria-pressed', 'true');
+  return { text: nodes(page).nth(0), math: nodes(page).nth(1) };
+}
+
+test('linking mode toggles from the button and the L key, and Escape leaves it', async ({ page }) => {
+  await expect(linkButton(page)).toHaveAttribute('aria-pressed', 'false');
+  await linkButton(page).click();
+  await expect(linkButton(page)).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.react-flow.linking')).toHaveCount(1);
+  await linkButton(page).click();
+  await expect(linkButton(page)).toHaveAttribute('aria-pressed', 'false');
+
+  await page.mouse.click(1300, 800);
+  await page.keyboard.press('l');
+  await expect(page.locator('.react-flow.linking')).toHaveCount(1);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.react-flow.linking')).toHaveCount(0);
+});
+
+test('dragging from one node to another links them without moving either, and stays in linking mode', async ({
+  page,
+}) => {
+  const { text, math } = await twoNodes(page);
+  // Position only: the math node's size settles as MathLive loads.
+  const corner = async (n: typeof text) => {
+    const box = await n.boundingBox();
+    return [box?.x, box?.y];
+  };
+  const before = [await corner(text), await corner(math)];
+  await dragBetween(page, text, math);
+  await expect(edges(page)).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge.selected')).toHaveCount(1);
+  expect([await corner(text), await corner(math)]).toEqual(before);
+  await expect(linkButton(page)).toHaveAttribute('aria-pressed', 'true');
+
+  // The same direction again is refused and says so; the reverse is a second link.
+  await dragBetween(page, text, math);
+  await expect(page.getByText(/already linked/)).toBeVisible();
+  await expect(edges(page)).toHaveCount(1);
+  await dragBetween(page, math, text);
+  await expect(edges(page)).toHaveCount(2);
+});
+
+test('a drag inside the same node makes no link', async ({ page }) => {
+  const { text } = await twoNodes(page);
+  const box = await text.boundingBox();
+  if (!box) throw new Error('missing box');
+  await page.mouse.move(box.x + 20, box.y + 40);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 60, box.y + 60, { steps: 5 });
+  await page.mouse.up();
+  await expect(edges(page)).toHaveCount(0);
+});
+
+test('outside linking mode a drag moves the node and creates no link', async ({ page }) => {
+  await placeNode(page, 'Text', 300, 300);
+  await placeNode(page, 'Math', 900, 400);
+  await page.mouse.click(1300, 800);
+  const text = nodes(page).nth(0);
+  const before = await text.boundingBox();
+  await dragBetween(page, text.locator('.prose'), nodes(page).nth(1));
+  await expect(edges(page)).toHaveCount(0);
+  const after = await text.boundingBox();
+  expect(after?.x).toBeGreaterThan((before?.x ?? 0) + 100);
+});
+
+test('a link can end on a live web node and on a section', async ({ page }) => {
+  await page.route('https://web-test.example/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>x</title><h1>hello</h1>' }),
+  );
+  await page.getByRole('button', { name: 'Insert web', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Web address' }).fill('web-test.example');
+  await page.getByRole('button', { name: 'OK' }).click();
+  await page.getByRole('button', { name: 'Load page' }).click();
+  await expect(page.locator('.react-flow__node iframe')).toBeVisible();
+  await placeNode(page, 'Text', 150, 250);
+  await page.mouse.click(1350, 850);
+  await page.keyboard.press('l');
+  const web = nodes(page).filter({ has: page.locator('iframe') });
+  const text = nodes(page).filter({ has: page.locator('.prose') });
+  await dragBetween(page, text, web);
+  await expect(edges(page)).toHaveCount(1);
+
+  // A section around the text node, then a link from the web node to the section.
+  await page.keyboard.press('Escape');
+  await text.click();
+  await page.keyboard.press('ControlOrMeta+g');
+  await page.locator('.react-flow__node-section input').press('Enter');
+  await page.mouse.click(1350, 850);
+  await page.keyboard.press('l');
+  await dragBetween(page, web, page.locator('.react-flow__node-section .node-tab'));
+  await expect(edges(page)).toHaveCount(2);
+});
+
+test('Delete removes a selected link and Ctrl+Z brings it back in one step', async ({ page }) => {
+  const { text, math } = await twoNodes(page);
+  await dragBetween(page, text, math);
+  await expect(edges(page)).toHaveCount(1);
+  await page.keyboard.press('Delete');
+  await expect(edges(page)).toHaveCount(0);
+  await expect(nodes(page)).toHaveCount(2);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(edges(page)).toHaveCount(1);
+  await expect(nodes(page)).toHaveCount(2);
+});
+
+test('deleting a node takes its link with it, and one undo restores both', async ({ page }) => {
+  const { text, math } = await twoNodes(page);
+  await dragBetween(page, text, math);
+  await expect(edges(page)).toHaveCount(1);
+  await page.keyboard.press('Escape'); // leave linking mode
+  await page.mouse.click(1300, 800);
+  await nodes(page)
+    .nth(0)
+    .click({ position: { x: 20, y: 40 } });
+  await page.keyboard.press('Delete');
+  await expect(nodes(page)).toHaveCount(1);
+  await expect(edges(page)).toHaveCount(0);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(nodes(page)).toHaveCount(2);
+  await expect(edges(page)).toHaveCount(1);
+});
+
+test('links survive a reload', async ({ page }) => {
+  const { text, math } = await twoNodes(page);
+  await dragBetween(page, text, math);
+  await expect(edges(page)).toHaveCount(1);
+  await page.waitForTimeout(800); // autosave debounce
+  await page.reload();
+  await expect(edges(page)).toHaveCount(1);
+  await expect(nodes(page)).toHaveCount(2);
+});

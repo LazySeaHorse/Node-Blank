@@ -6,6 +6,7 @@ import {
   FolderOpen,
   LayoutGrid,
   Redo2,
+  Spline,
   Undo2,
   Upload,
 } from 'lucide-react';
@@ -99,7 +100,7 @@ function BrandMenu() {
 export function TopBar() {
   const [managerOpen, setManagerOpen] = useState(false);
   const canvas = useCurrentCanvas();
-  const { tool, setTool } = useUiStore();
+  const { tool, setTool, linking, setLinking } = useUiStore();
   const { insertImage, insertVideo, insertWeb, insertPdf } = useCanvasActions();
   const canUndo = useStore(useCanvasStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useCanvasStore.temporal, (s) => s.futureStates.length > 0);
@@ -155,6 +156,13 @@ export function TopBar() {
           hint="group nearby nodes and space them evenly"
           disabled={!hasNodes}
           onClick={organiseCanvas}
+        />
+        <IconButton
+          icon={Spline}
+          label="Link nodes"
+          hint="L, then drag from one node to another"
+          active={linking}
+          onClick={() => setLinking(!linking)}
         />
       </div>
 
