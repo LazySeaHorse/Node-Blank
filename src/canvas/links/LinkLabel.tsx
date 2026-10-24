@@ -1,5 +1,5 @@
 import { EdgeLabelRenderer, useStore } from '@xyflow/react';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { LABEL_MAX } from '@/lib/links';
 import { Tex } from '@/lib/math/Tex';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -155,6 +155,13 @@ export function LinkLabelEditor({ id, value, geometry }: { id: string; value: st
   const finished = useRef(false);
   const [x, y] = geometry.mid;
   const stop = () => useUiStore.getState().stopRenamingLink(id);
+  const readOnly = useReadOnly();
+  // The AI lock (or any reason to go read-only) ends the edit and throws the text away.
+  useEffect(() => {
+    if (!readOnly) return;
+    finished.current = true;
+    useUiStore.getState().stopRenamingLink(id);
+  }, [readOnly, id]);
   const finish = (text: string | null) => {
     if (finished.current) return;
     finished.current = true;

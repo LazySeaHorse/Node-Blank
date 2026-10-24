@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_VIEWPORT } from '@/model/types';
 import { createNode } from '@/nodes/factory';
 import { getCanvasContent, redo, undo, useCanvasStore } from './canvasStore';
+import { useUiStore } from './uiStore';
 
 const state = () => useCanvasStore.getState();
 
@@ -225,6 +226,27 @@ describe('canvasStore', () => {
       ]);
       expect(state().edges.find((e) => e.id === first)?.selected).toBe(true);
       expect(state().reverseEdge(first)).toBe(false);
+    });
+
+    it('closes the label editor of a link that is deleted, and undo does not reopen it', () => {
+      const [a, b] = three();
+      const id = state().linkNodes(a, b) as string;
+      settle();
+      useUiStore.getState().renameLink(id);
+      state().deleteNodes([b]);
+      expect(useUiStore.getState().renamingLink).toBeNull();
+      undo();
+      expect(state().edges).toHaveLength(1);
+      expect(useUiStore.getState().renamingLink).toBeNull();
+    });
+
+    it('leaves the editor of another link open', () => {
+      const [a, b, c] = three();
+      const keep = state().linkNodes(a, b) as string;
+      const gone = state().linkNodes(b, c) as string;
+      useUiStore.getState().renameLink(keep);
+      state().deleteElements([], [gone]);
+      expect(useUiStore.getState().renamingLink).toBe(keep);
     });
 
     it('load drops dangling links, and an empty canvas has none to save', () => {

@@ -23,6 +23,7 @@ import {
   type NodeKind,
 } from '@/model/types';
 import { newId, stripTransient } from '@/nodes/factory';
+import { useUiStore } from './uiStore';
 
 /** Burst of edits closer together than this collapses into a single undo step. */
 const HISTORY_COALESCE_MS = 400;
@@ -242,6 +243,12 @@ export const useCanvasStore = create<CanvasState>()(
         if (nodeIds.length === 0 && edgeIds.length === 0) return;
         const doomed = new Set(nodeIds);
         const doomedEdges = new Set(edgeIds);
+        // A label editor open on a link that goes would otherwise reopen when undo brings the link back.
+        const renaming = useUiStore.getState().renamingLink;
+        const gone = get().edges.find(
+          (e) => e.id === renaming && (doomedEdges.has(e.id) || doomed.has(e.source) || doomed.has(e.target)),
+        );
+        if (gone) useUiStore.getState().stopRenamingLink(gone.id);
         asUndoStep(() =>
           set({
             nodes: get().nodes.filter((n) => !doomed.has(n.id)),
