@@ -19,7 +19,7 @@ const ownMenu = (target: Element) =>
 
 /** Right-clicks that land on the canvas and want our menu. */
 const onCanvas = (target: Element | null): target is Element =>
-  !!target?.closest?.('.react-flow') && ownMenu(target);
+  !!target?.closest?.('.react-flow') && !target.closest('.link-toolbar') && ownMenu(target);
 
 /**
  * Right-click menus that coexist with right-drag panning. Browsers on Linux and macOS fire `contextmenu`

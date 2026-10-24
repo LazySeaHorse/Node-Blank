@@ -247,3 +247,60 @@ describe('node menus', () => {
     expect(a2.wrapInSection).toHaveBeenCalled();
   });
 });
+
+describe('link menu', () => {
+  const at = { x: 0, y: 0 };
+  const setup = () => {
+    const [a, b] = [createNode('math', { x: 0, y: 0 }), createNode('math', { x: 400, y: 0 })];
+    state().load({ nodes: [{ ...a, selected: true }, b], viewport: DEFAULT_VIEWPORT });
+    const id = state().linkNodes(a.id, b.id) as string;
+    state().setSelection(() => true);
+    const target = element('link');
+    target.dataset.linkId = id;
+    const open = () => menuFor(target, at, actions());
+    return { a, b, id, open };
+  };
+  const pastLength = () => useCanvasStore.temporal.getState().pastStates.length;
+
+  it('selects only that link and offers its options', () => {
+    const { id, open } = setup();
+    const entries = open();
+    expect(state().edges.map((e) => [e.id, !!e.selected])).toEqual([[id, true]]);
+    expect(state().nodes.some((n) => n.selected)).toBe(false);
+    expect(labels(entries)).toEqual(['Head', 'Tail', 'Colour', 'Dashed', 'Swap direction', 'Delete link']);
+    expect(labels(sub(entries, 'Head'))).toEqual(['Arrow', 'Dot', 'Bar', 'None']);
+    expect((find(sub(entries, 'Head'), 'Arrow') as MenuItem).checked).toBe(true);
+    expect(labels(sub(entries, 'Colour'))).toEqual([
+      'Auto',
+      ...SECTION_COLORS.map((c) => c[0].toUpperCase() + c.slice(1)),
+    ]);
+  });
+
+  it('applies each choice as one undo step, storing only non-default fields', () => {
+    const { id, open } = setup();
+    const before = pastLength();
+    run(sub(open(), 'Head'), 'Dot');
+    run(sub(open(), 'Tail'), 'Bar');
+    run(sub(open(), 'Colour'), 'Blue');
+    run(open(), 'Dashed');
+    expect(state().edges[0].data).toEqual({ head: 'dot', tail: 'bar', color: 'blue', dashed: true });
+    expect(pastLength()).toBe(before + 4);
+    run(sub(open(), 'Colour'), 'Auto');
+    run(sub(open(), 'Head'), 'Arrow');
+    expect(state().edges[0].data).toEqual({ tail: 'bar', dashed: true });
+    expect((find(open(), 'Dashed') as MenuItem).checked).toBe(true);
+    undo();
+    expect(state().edges[0].data).toEqual({ head: 'dot', tail: 'bar', dashed: true });
+    expect(state().edges[0].id).toBe(id);
+  });
+
+  it('swaps the direction and deletes the link', () => {
+    const { a, b, open } = setup();
+    run(open(), 'Swap direction');
+    expect(state().edges[0]).toMatchObject({ source: b.id, target: a.id });
+    run(open(), 'Delete link');
+    expect(state().edges).toHaveLength(0);
+    undo();
+    expect(state().edges).toHaveLength(1);
+  });
+});

@@ -156,3 +156,87 @@ test('links survive a reload', async ({ page }) => {
   await expect(edges(page)).toHaveCount(1);
   await expect(nodes(page)).toHaveCount(2);
 });
+
+/** A point on the pipe of the nth link, in page coordinates. */
+async function pointOnLink(page: Page, index = 0) {
+  return page
+    .locator('.react-flow__edge-interaction')
+    .nth(index)
+    .evaluate((path: SVGPathElement) => {
+      const at = path.getPointAtLength(path.getTotalLength() * 0.3);
+      const p = new DOMPoint(at.x, at.y).matrixTransform(path.getScreenCTM() as DOMMatrix);
+      return { x: p.x, y: p.y };
+    });
+}
+
+/** Links the two nodes, leaves linking mode and deselects everything. */
+async function linkedPair(page: Page) {
+  const { text, math } = await twoNodes(page);
+  await dragBetween(page, text, math);
+  await expect(edges(page)).toHaveCount(1);
+  await page.keyboard.press('Escape');
+  await page.mouse.click(1300, 800);
+  await expect(page.locator('.react-flow__edge.selected')).toHaveCount(0);
+  return { text, math };
+}
+
+const toolbar = (page: Page) => page.getByRole('toolbar', { name: 'Link options' });
+
+test('clicking a link shows its options, and each change is one undo step', async ({ page }) => {
+  await linkedPair(page);
+  await expect(toolbar(page)).toHaveCount(0);
+  const p = await pointOnLink(page);
+  await page.mouse.click(p.x, p.y);
+  await expect(page.locator('.react-flow__edge.selected')).toHaveCount(1);
+  await expect(toolbar(page)).toBeVisible();
+
+  await toolbar(page).getByRole('button', { name: 'blue' }).click();
+  await expect(page.locator('.link')).toHaveAttribute('style', /--link-blue/);
+  await toolbar(page).getByRole('button', { name: 'Head: dot' }).click();
+  await expect(page.locator('.link-end circle')).toHaveCount(1);
+  await expect(page.locator('.link-end polygon')).toHaveCount(0);
+  await toolbar(page).getByRole('button', { name: 'Tail: bar' }).click();
+  await expect(page.locator('.link-end line')).toHaveCount(1);
+  await toolbar(page).getByRole('button', { name: 'Dashed' }).click();
+  await expect(page.locator('.link.dashed')).toHaveCount(1);
+
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.locator('.link.dashed')).toHaveCount(0);
+  await expect(page.locator('.link-end line')).toHaveCount(1);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.locator('.link-end line')).toHaveCount(0);
+
+  await page.mouse.click(1300, 800);
+  await expect(toolbar(page)).toHaveCount(0);
+});
+
+test('swapping turns the link round, and the toolbar can delete it', async ({ page }) => {
+  const { text, math } = await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.click(p.x, p.y);
+  const arrow = page.locator('.link-end polygon');
+  const mathBox = await math.boundingBox();
+  const textBox = await text.boundingBox();
+  if (!mathBox || !textBox) throw new Error('missing box');
+  expect((await arrow.boundingBox())?.x).toBeGreaterThan(mathBox.x - 30);
+  await toolbar(page).getByRole('button', { name: 'Swap direction' }).click();
+  expect((await arrow.boundingBox())?.x).toBeLessThan(textBox.x + textBox.width + 30);
+  await toolbar(page).getByRole('button', { name: 'Delete link' }).click();
+  await expect(edges(page)).toHaveCount(0);
+  await expect(toolbar(page)).toHaveCount(0);
+});
+
+test('right-clicking a link opens its menu', async ({ page }) => {
+  await linkedPair(page);
+  const p = await pointOnLink(page);
+  await page.mouse.click(p.x, p.y, { button: 'right' });
+  await expect(page.locator('.react-flow__edge.selected')).toHaveCount(1);
+  await expect(page.getByRole('menuitem', { name: 'Swap direction' })).toBeVisible();
+  await page.getByRole('menuitem', { name: 'Dashed' }).click();
+  await expect(page.locator('.link.dashed')).toHaveCount(1);
+  await page.mouse.click(p.x, p.y, { button: 'right' });
+  await page.getByRole('menuitem', { name: 'Delete link' }).click();
+  await expect(edges(page)).toHaveCount(0);
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(edges(page)).toHaveCount(1);
+});

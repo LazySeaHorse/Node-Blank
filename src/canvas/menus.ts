@@ -8,6 +8,9 @@ import {
   AlignStartHorizontal,
   AlignStartVertical,
   ArrowDownToLine,
+  ArrowLeft,
+  ArrowRight,
+  ArrowRightLeft,
   ArrowUpToLine,
   Calculator,
   Clipboard,
@@ -15,6 +18,7 @@ import {
   CopyPlus,
   Eraser,
   Maximize,
+  Minus,
   Moon,
   MousePointer2,
   PaintBucket,
@@ -31,7 +35,16 @@ import {
 import { copyText } from '@/lib/clipboard';
 import { MAX_TABLE_COLUMNS, MAX_TABLE_ROWS, resizeGrid } from '@/lib/grid';
 import { applyGridOp, applyToAll, columnLabel, GridOpError } from '@/lib/gridOps';
-import { type AppNode, type NodeKind, type NodeOf, SECTION_COLORS, type SectionColor } from '@/model/types';
+import {
+  type AppEdge,
+  type AppNode,
+  LINK_ENDS,
+  type LinkEnd,
+  type NodeKind,
+  type NodeOf,
+  SECTION_COLORS,
+  type SectionColor,
+} from '@/model/types';
 import { nodeSpecs } from '@/nodes/catalog';
 import { mathPlusResultsText } from '@/nodes/mathPlus/useMathPlusResults';
 import { withFill } from '@/nodes/sheet/fills';
@@ -52,6 +65,7 @@ import { useUiStore } from '@/store/uiStore';
 import { askNumbers } from '@/ui/dialogs';
 import type { MenuEntry } from '@/ui/Menu';
 import { copySelection, pasteAt } from './clipboard';
+import { deleteLink, editLink, linkColor, swapLink } from './links/actions';
 import { mathMenu } from './mathMenu';
 
 export interface MenuActions {
@@ -364,6 +378,45 @@ export function sectionMenu(node: NodeOf<'section'>): MenuEntry[] {
   ];
 }
 
+/** What right-clicking a link offers. Every choice is its own undo step. */
+export function linkMenu(edge: AppEdge): MenuEntry[] {
+  const data = edge.data;
+  const ends = (field: 'head' | 'tail', current: LinkEnd): MenuEntry[] =>
+    LINK_ENDS.map((end) => ({
+      label: titleCase(end),
+      checked: end === current,
+      onSelect: () => editLink(edge.id, { [field]: end }),
+    }));
+  return [
+    { label: 'Head', icon: ArrowRight, items: ends('head', data?.head ?? 'arrow') },
+    { label: 'Tail', icon: ArrowLeft, items: ends('tail', data?.tail ?? 'none') },
+    {
+      label: 'Colour',
+      icon: PaintBucket,
+      items: ['auto', ...SECTION_COLORS].map((color) => ({
+        label: titleCase(color),
+        swatch: linkColor(color),
+        checked: color === (data?.color ?? 'auto'),
+        onSelect: () => editLink(edge.id, { color: color === 'auto' ? undefined : (color as SectionColor) }),
+      })),
+    },
+    {
+      label: 'Dashed',
+      icon: Minus,
+      checked: !!data?.dashed,
+      onSelect: () => editLink(edge.id, { dashed: !data?.dashed }),
+    },
+    { label: 'Swap direction', icon: ArrowRightLeft, onSelect: () => swapLink(edge.id) },
+    { separator: true },
+    { label: 'Delete link', icon: Trash2, hint: 'Delete', danger: true, onSelect: () => deleteLink(edge.id) },
+  ];
+}
+
+/** The id of the link an element belongs to (its pipe or, later, its label), if it belongs to one. */
+const linkIdOf = (target: Element | null): string | undefined =>
+  target?.closest<HTMLElement>('[data-link-id]')?.dataset.linkId ??
+  target?.closest<HTMLElement>('.react-flow__edge')?.dataset.id;
+
 const alignItems: { edge: AlignEdge; label: string; icon: typeof AlignStartVertical }[] = [
   { edge: 'left', label: 'Left', icon: AlignStartVertical },
   { edge: 'center', label: 'Centre horizontally', icon: AlignCenterVertical },
@@ -400,6 +453,15 @@ export function selectionMenu(actions: MenuActions): MenuEntry[] {
  */
 export function menuFor(target: Element | null, at: XYPosition, actions: MenuActions): MenuEntry[] {
   if (target?.closest('.react-flow__nodesselection-rect')) return selectionMenu(actions);
+  const link = useCanvasStore.getState().edges.find((e) => e.id === linkIdOf(target));
+  if (link) {
+    // Select only this link, as a click on it would.
+    useCanvasStore.getState().setSelection(
+      () => false,
+      (e) => e.id === link.id,
+    );
+    return linkMenu(link);
+  }
   const id = target?.closest<HTMLElement>('.react-flow__node')?.dataset.id;
   const hit = useCanvasStore.getState().nodes.find((n) => n.id === id);
   if (!hit) return canvasMenu(at, actions);

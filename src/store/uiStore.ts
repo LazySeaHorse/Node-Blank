@@ -19,6 +19,8 @@ interface UiState {
   renamingSection: string | null;
   /** The node whose own title is open for editing, if any. */
   renamingNode: string | null;
+  /** The link whose label is open for editing, if any. */
+  renamingLink: string | null;
   setTool: (tool: NodeKind) => void;
   setLinking: (linking: boolean) => void;
   toggleTheme: () => void;
@@ -35,6 +37,9 @@ interface UiState {
   renameNode: (id: string) => void;
   /** Closes the title editor of node `id`, unless another node has taken over since. */
   stopRenamingNode: (id: string) => void;
+  renameLink: (id: string) => void;
+  /** Closes the label editor of link `id`, unless another link has taken over since. */
+  stopRenamingLink: (id: string) => void;
 }
 
 const systemTheme = (): Theme =>
@@ -52,6 +57,7 @@ export const useUiStore = create<UiState>()(
       linking: false,
       renamingSection: null,
       renamingNode: null,
+      renamingLink: null,
       // Picking a node to place ends linking, since a double-click on the canvas would otherwise do nothing.
       setTool: (tool) => set({ tool, linking: false }),
       setLinking: (linking) => set({ linking }),
@@ -66,6 +72,8 @@ export const useUiStore = create<UiState>()(
       stopRenaming: (id) => set((s) => (s.renamingSection === id ? { renamingSection: null } : s)),
       renameNode: (id) => set({ renamingNode: id }),
       stopRenamingNode: (id) => set((s) => (s.renamingNode === id ? { renamingNode: null } : s)),
+      renameLink: (id) => set({ renamingLink: id }),
+      stopRenamingLink: (id) => set((s) => (s.renamingLink === id ? { renamingLink: null } : s)),
     }),
     { name: 'node-blank-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
   ),

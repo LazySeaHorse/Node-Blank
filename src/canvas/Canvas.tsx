@@ -26,6 +26,7 @@ import { ContextMenu } from '@/ui/ContextMenu';
 import { useClipboard } from './clipboard';
 import { edgeTypes } from './links/LinkEdge';
 import { LinkPreview } from './links/LinkPreview';
+import { LinkToolbar } from './links/LinkToolbar';
 import { GRID, withSnappedResize } from './snap';
 import { useCanvasActions } from './useCanvasActions';
 import { useContextMenu } from './useContextMenu';
@@ -195,6 +196,7 @@ export function Canvas({ readOnly }: { readOnly: boolean }) {
         {...(readOnly ? readOnlyProps : linking ? { ...editableProps, ...linkingProps } : editableProps)}
       >
         {/* Offset so the dots sit on the grid lines that nodes snap to. */}
+        {!readOnly && <LinkToolbar />}
         <Background variant={BackgroundVariant.Dots} gap={GRID} size={DOT} offset={(DOT - GRID) / 2} />
       </ReactFlow>
       <ContextMenu at={menu?.at ?? null} items={menu?.items ?? []} onClose={closeMenu} />

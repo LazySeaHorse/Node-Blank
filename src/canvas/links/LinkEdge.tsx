@@ -1,9 +1,9 @@
-import { BaseEdge, type EdgeProps, type EdgeTypes, useInternalNode } from '@xyflow/react';
-import { memo, useMemo } from 'react';
+import { BaseEdge, type EdgeProps, type EdgeTypes } from '@xyflow/react';
+import { memo } from 'react';
 import { cn } from '@/lib/cn';
 import type { AppEdge, LinkEnd } from '@/model/types';
-import { useCanvasStore } from '@/store/canvasStore';
-import { type Box, endPlacement, lanesOf, type Pt, roundedPath, route, tileRect } from './geometry';
+import { endPlacement, type Pt, roundedPath } from './geometry';
+import { useLinkRoute } from './useLinkRoute';
 
 /** Width of the invisible strip around a link that takes clicks, in screen pixels. */
 const HIT_WIDTH = 14;
@@ -25,27 +25,12 @@ function EndShape({ kind, to, from }: { kind: LinkEnd; to: Pt; from: Pt }) {
   );
 }
 
-function useTile(id: string): Box | null {
-  const node = useInternalNode(id);
-  const width = node?.measured.width;
-  const height = node?.measured.height;
-  const x = node?.internals.positionAbsolute.x;
-  const y = node?.internals.positionAbsolute.y;
-  return useMemo(
-    () => (width && height && x !== undefined && y !== undefined ? tileRect(x, y, width, height) : null),
-    [width, height, x, y],
-  );
-}
-
 /**
  * A link between two nodes. React Flow only supplies the ids and selection: the pipe is routed here from the
  * two nodes' boxes, so it ignores the handle positions React Flow computed.
  */
 export const LinkEdge = memo(function LinkEdge({ id, source, target, data, selected }: EdgeProps<AppEdge>) {
-  const from = useTile(source);
-  const to = useTile(target);
-  const lane = useCanvasStore((s) => lanesOf(s.edges).get(id) ?? 0);
-  const pts = useMemo(() => (from && to ? route(from, to, lane) : null), [from, to, lane]);
+  const pts = useLinkRoute(id, source, target);
   if (!pts) return null;
 
   const head = data?.head ?? 'arrow';
