@@ -1,5 +1,6 @@
 import { Grid3x3, PaintBucket, Palette, SquareFunction } from 'lucide-react';
 import type { MathfieldElement } from 'mathlive';
+import { mathFieldOf } from '@/lib/math/fields';
 import { type NodeOf, SECTION_COLORS } from '@/model/types';
 import { useCanvasStore } from '@/store/canvasStore';
 import type { MenuEntry } from '@/ui/Menu';
@@ -61,9 +62,7 @@ const matrix = (rows: number, cols: number) =>
  * insert a template or matrix, colour the selected math. Plus a background tint for the node itself.
  */
 export function mathMenu(node: NodeOf<'math' | 'mathPlus'>): MenuEntry[] {
-  const field = document.querySelector<MathfieldElement>(
-    `.react-flow__node[data-id="${node.id}"] math-field`,
-  );
+  const field = mathFieldOf(node.id);
   // The menu took focus; give it back so the edit lands at the caret and the user can carry on typing.
   const edit = (fn: (field: MathfieldElement) => void) => () => {
     if (!field) return;

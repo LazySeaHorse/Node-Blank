@@ -19,6 +19,7 @@ export default function MathNode({ id, data, selected }: NodeProps<NodeOf<'math'
       <MathField
         value={data.latex}
         onChange={(latex) => update({ latex })}
+        menuNodeId={id}
         readOnly={readOnly}
         multiline
         placeholder="\text{math}"

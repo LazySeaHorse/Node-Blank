@@ -5,6 +5,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { useCanvasStore } from '@/store/canvasStore';
 import { WithTooltip } from '@/ui/Button';
+import { registerMathField } from './fields';
 import { inkBackground, inkColor } from './ink';
 import { flattenDisplaylines } from './normalize';
 
@@ -29,6 +30,8 @@ interface MathFieldProps {
   placeholder?: string;
   /** While focused and empty, shows a button that switches the field between math and text (the `"` key). */
   modeToggle?: boolean;
+  /** The node whose context menu acts on this field (canvas/mathMenu.ts): a node's one field, not a cell's. */
+  menuNodeId?: string;
   className?: string;
 }
 
@@ -40,6 +43,7 @@ export function MathField({
   multiline = false,
   placeholder,
   modeToggle = false,
+  menuNodeId,
   className,
 }: MathFieldProps) {
   const ref = useRef<MathfieldElement>(null);
@@ -68,6 +72,11 @@ export function MathField({
     field.menuItems = [];
     if (placeholder) field.placeholder = placeholder;
   }, [readOnly, placeholder]);
+
+  useEffect(() => {
+    const field = ref.current;
+    if (field && menuNodeId) return registerMathField(menuNodeId, field);
+  }, [menuNodeId]);
 
   useEffect(() => {
     const field = ref.current;
