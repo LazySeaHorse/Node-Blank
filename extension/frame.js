@@ -1,8 +1,8 @@
-// Runs in every frame, but only does anything in a page that is a direct child of Node-Blank, i.e. the
+// Runs in every frame, but only does anything in a page that is a direct child of Unlined, i.e. the
 // page shown by a Web node. It reports where the page is (the address bar, title and favicon of the
 // node) and obeys back, forward, reload and grab (a picture of the video's current frame).
 (() => {
-  const { SOURCE, isAppOrigin } = globalThis.NodeBlankWeb;
+  const { SOURCE, isAppOrigin } = globalThis.UnlinedWeb;
 
   // Chrome lists the origins of all ancestors, nearest first. A page nested deeper in the framed site has
   // the framed site as its nearest ancestor and is left alone.

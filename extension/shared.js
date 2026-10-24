@@ -1,10 +1,10 @@
 // Loaded first by every content script and by the service worker (importScripts), so they agree on
-// which pages are Node-Blank and on the message shape.
-globalThis.NodeBlankWeb = {
+// which pages are Unlined and on the message shape.
+globalThis.UnlinedWeb = {
   /** Tag on every message between the app and a framed page. */
-  SOURCE: 'node-blank-web',
+  SOURCE: 'unlined-web',
 
-  /** Whether `origin` (e.g. "http://localhost:5173") serves Node-Blank: the live site or a local dev server. */
+  /** Whether `origin` (e.g. "http://localhost:5173") serves Unlined: the live site or a local dev server. */
   isAppOrigin(origin) {
     let url;
     try {
@@ -12,7 +12,7 @@ globalThis.NodeBlankWeb = {
     } catch {
       return false;
     }
-    if (url.protocol === 'https:') return url.hostname === 'blank.lazycatto.tech';
+    if (url.protocol === 'https:') return url.hostname === 'unlined.1azy.ink';
     return url.protocol === 'http:' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
   },
 };
