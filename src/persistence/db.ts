@@ -11,7 +11,7 @@ export interface PdfFileRow {
 }
 
 /** Metadata and content live in separate tables so listing canvases never loads their (possibly large) nodes. */
-export const db = new Dexie('node-blank') as Dexie & {
+export const db = new Dexie('unlined') as Dexie & {
   canvases: EntityTable<CanvasMeta, 'id'>;
   contents: EntityTable<CanvasContentRow, 'id'>;
   pdfFiles: EntityTable<PdfFileRow, 'id'>;

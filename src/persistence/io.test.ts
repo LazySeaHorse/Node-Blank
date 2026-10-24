@@ -54,7 +54,7 @@ describe('io', () => {
 
   it('rejects files from other apps or versions', () => {
     expect(() => parseExportFile(JSON.stringify({ version: 4, fields: [] }))).toThrow(
-      /Not a Node-Blank export/,
+      /Not an Unlined export/,
     );
     expect(() => parseExportFile(JSON.stringify({ ...exportNodes([]), version: 3 }))).toThrow(ImportError);
   });

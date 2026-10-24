@@ -25,7 +25,7 @@ export const useSyncSettings = create<SyncSettings>()(
       forget: () => set(BLANK),
     }),
     {
-      name: 'node-blank-sync',
+      name: 'unlined-sync',
       partialize: ({ key, keyKind, manifestId, password }) => ({ key, keyKind, manifestId, password }),
     },
   ),

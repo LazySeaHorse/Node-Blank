@@ -34,7 +34,7 @@ describe('Cloud', () => {
     expect(error.kind).toBe('password');
   });
 
-  it('refuses a bin that is not a Node-Blank save', async () => {
+  it('refuses a bin that is not an Unlined save', async () => {
     const id = await store.create({ hello: 'world' });
     const error = await Cloud.connect(store, id, 'pw').catch((e) => e);
     expect(error.kind).toBe('format');

@@ -8,7 +8,9 @@ import { stripTransient } from '@/nodes/factory';
  * JSON import/export format. Bump `version` (and add a migration) if the shape ever changes.
  * Version 2 added links; files without any are still written as version 1 so older builds can open them.
  */
-const APP_TAG = 'node-blank';
+const APP_TAG = 'unlined';
+/** Files written before the rename carry this tag; they still import. */
+const LEGACY_APP_TAG = 'node-blank';
 const VERSION = 1;
 const LINKS_VERSION = 2;
 
@@ -30,7 +32,10 @@ const nodeSchema = z.discriminatedUnion(
   ) as unknown as [z.ZodObject, ...z.ZodObject[]],
 ) as unknown as z.ZodType<AppNode>;
 
-const header = { app: z.literal(APP_TAG), version: z.union([z.literal(VERSION), z.literal(LINKS_VERSION)]) };
+const header = {
+  app: z.enum([APP_TAG, LEGACY_APP_TAG]),
+  version: z.union([z.literal(VERSION), z.literal(LINKS_VERSION)]),
+};
 
 const exportFileSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -92,7 +97,7 @@ export function parseExportFile(text: string): ExportFile {
   const result = exportFileSchema.safeParse(json);
   if (!result.success) {
     const issue = result.error.issues[0];
-    throw new ImportError(`Not a Node-Blank export (${issue.path.join('.') || 'root'}: ${issue.message}).`);
+    throw new ImportError(`Not an Unlined export (${issue.path.join('.') || 'root'}: ${issue.message}).`);
   }
   return result.data;
 }
