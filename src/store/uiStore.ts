@@ -43,7 +43,9 @@ interface UiState {
 }
 
 const systemTheme = (): Theme =>
-  window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 
 export const useUiStore = create<UiState>()(
   persist(
