@@ -59,6 +59,8 @@ const editableProps: Partial<ReactFlowProps<AppNode>> = {
 const linkingProps: Partial<ReactFlowProps<AppNode>> = {
   nodesConnectable: true,
   nodesDraggable: false,
+  // A plain click would otherwise arm a hidden link that outlives linking mode.
+  connectOnClick: false,
   connectionLineComponent: LinkPreview,
   isValidConnection: (c) => c.source !== c.target,
 };

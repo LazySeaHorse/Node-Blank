@@ -344,3 +344,44 @@ test('a link between Math+ nodes passes the result on as a variable named by its
   await expect(nodes(page).nth(1).locator('ol')).toContainText('11');
   await expect(nodes(page).nth(1).locator('ol')).not.toContainText('2k+1');
 });
+
+test('a plain click in linking mode does not arm a link that outlives it', async ({ page }) => {
+  await placeNode(page, 'Text', 200, 250);
+  await placeNode(page, 'Math', 700, 250);
+  await placeNode(page, 'Text', 700, 550);
+  await page.mouse.click(1300, 800);
+  const [a, , c] = [nodes(page).nth(0), nodes(page).nth(1), nodes(page).nth(2)];
+  await page.keyboard.press('l');
+  await a.click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.react-flow.linking')).toHaveCount(0);
+  await page.keyboard.press('l');
+  await c.click();
+  await expect(edges(page)).toHaveCount(0);
+});
+
+test('a click followed by a drag elsewhere makes no link from the clicked node', async ({ page }) => {
+  await placeNode(page, 'Text', 200, 250);
+  await placeNode(page, 'Math', 700, 250);
+  await placeNode(page, 'Text', 700, 550);
+  await placeNode(page, 'Text', 200, 600);
+  await page.mouse.click(1300, 800);
+  await page.keyboard.press('l');
+  await nodes(page).nth(0).click();
+  await dragBetween(page, nodes(page).nth(1), nodes(page).nth(2));
+  await expect(edges(page)).toHaveCount(1);
+  await nodes(page).nth(3).click();
+  await expect(edges(page)).toHaveCount(1);
+});
+
+test('Escape in the label field cancels the edit and leaves linking mode on', async ({ page }) => {
+  const { text, math } = await twoNodes(page);
+  await dragBetween(page, text, math);
+  const p = await pointOnLink(page);
+  await page.mouse.dblclick(p.x, p.y);
+  await labelInput(page).fill('draft');
+  await labelInput(page).press('Escape');
+  await expect(labelInput(page)).toHaveCount(0);
+  await expect(page.locator('.link-label:not(.link-label-halo)')).toHaveCount(0);
+  await expect(page.locator('.react-flow.linking')).toHaveCount(1);
+});

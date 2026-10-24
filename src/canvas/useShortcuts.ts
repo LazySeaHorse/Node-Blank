@@ -26,7 +26,8 @@ export function useShortcuts(readOnly: boolean) {
         ui.closeSearch();
         return;
       }
-      if (key === 'escape' && ui.linking) {
+      // Not while a field or menu has the key: the label field's Escape cancels its edit and nothing more.
+      if (key === 'escape' && ui.linking && !isTyping(event.target) && !isInOverlay(event.target)) {
         ui.setLinking(false);
         return;
       }
