@@ -1,4 +1,4 @@
-import { MathfieldElement } from 'mathlive';
+import { type Keybinding, MathfieldElement } from 'mathlive';
 import 'mathlive/fonts.css';
 import { Sigma, Type } from 'lucide-react';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -52,9 +52,6 @@ export function MathField({
     // Stored values are flattened (see emitChange), so compare like with like or the caret would jump.
     if (!field || flattenDisplaylines(field.value) === value) return;
     try {
-      // The value came from outside (canvas undo, the AI...): the field's own undo must not step back past it.
-      // Emptied first, setValue starts the field's history afresh at the new value.
-      field.resetUndo();
       field.setValue(value, { silenceNotifications: true });
     } catch (error) {
       // A value MathLive cannot parse must not take the whole canvas down with this one node.
@@ -79,6 +76,9 @@ export function MathField({
     const backgroundColorMap = field.backgroundColorMap;
     field.colorMap = (name) => inkColor(name) ?? colorMap(name);
     field.backgroundColorMap = (name) => inkBackground(name) ?? backgroundColorMap(name);
+    // Undo is the canvas's (canvas-history): one history for every edit, in the order they were made.
+    const command = (k: Keybinding) => (Array.isArray(k.command) ? k.command[0] : k.command);
+    field.keybindings = field.keybindings.filter((k) => command(k) !== 'undo' && command(k) !== 'redo');
   }, []);
 
   useEffect(() => {
@@ -122,7 +122,9 @@ export function MathField({
     };
   }, [multiline]);
 
-  const field = <math-field ref={ref} className={cn('nodrag nopan nowheel nokey', className)} />;
+  const field = (
+    <math-field ref={ref} className={cn('nodrag nopan nowheel nokey canvas-history', className)} />
+  );
   if (!modeToggle) return field;
 
   const toggleMode = () => {

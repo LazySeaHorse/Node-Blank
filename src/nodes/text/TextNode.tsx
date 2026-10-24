@@ -34,7 +34,7 @@ export function TextNode({ id, data, selected }: NodeProps<NodeOf<'text'>>) {
             if (node) node.focus();
             else e.currentTarget.blur();
           }}
-          className="nodrag nowheel nokey min-h-32 w-[32rem] max-w-full resize-none bg-surface p-4 font-mono text-sm leading-relaxed text-fg outline-none [field-sizing:content]"
+          className="nodrag nowheel nokey canvas-history min-h-32 w-[32rem] max-w-full resize-none bg-surface p-4 font-mono text-sm leading-relaxed text-fg outline-none [field-sizing:content]"
         />
       ) : (
         <>

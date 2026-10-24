@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { kindForNumberKey } from '@/nodes/catalog';
 import { redo, undo, useCanvasStore } from '@/store/canvasStore';
 import { useUiStore } from '@/store/uiStore';
-import { isTextField, isTyping } from './keyboard';
+import { editsCanvas, isTextField, isTyping } from './keyboard';
 import { useWrapInSection } from './useSections';
 
 /** True inside a menu or dialog, where Delete and Backspace belong to that control. */
@@ -33,10 +33,11 @@ export function useShortcuts(readOnly: boolean) {
       }
       if (readOnly) return;
 
-      // A field being edited keeps its own history. Anything else, even inside a node that swallows
-      // other canvas keys (a spreadsheet with a cell selected), steps back through the canvas.
+      // A draft being typed (a title, an address) keeps its own history until it is committed. Anything else,
+      // fields that save as you type and nodes that swallow other canvas keys (a spreadsheet with a cell
+      // selected) alike, steps back through the canvas.
       if (mod && (key === 'z' || key === 'y')) {
-        if (isTextField(event.target)) return;
+        if (isTextField(event.target) && !editsCanvas(event.target)) return;
         event.preventDefault();
         if (key === 'y' || event.shiftKey) redo();
         else undo();

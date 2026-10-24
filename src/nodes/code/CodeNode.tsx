@@ -81,9 +81,10 @@ export default function CodeNode({ id, data, selected }: NodeProps<NodeOf<'code'
         extensions={extensions}
         theme={dark ? darkTheme : lightTheme}
         editable={!readOnly}
-        basicSetup={{ foldGutter: false }}
+        // Undo is the canvas's (canvas-history), so the code's edits interleave with the rest in one history.
+        basicSetup={{ foldGutter: false, history: false, historyKeymap: false }}
         height="100%"
-        className="nodrag nowheel nokey min-h-0 flex-1 overflow-hidden text-[13px]"
+        className="nodrag nowheel nokey canvas-history min-h-0 flex-1 overflow-hidden text-[13px]"
       />
       <div
         ref={outputRef}
