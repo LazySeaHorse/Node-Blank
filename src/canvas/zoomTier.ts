@@ -1,6 +1,6 @@
 import { useStore } from '@xyflow/react';
 
-/** How much a node shows at a zoom level: everything, or readable tabs. */
+/** How much a node shows at a zoom level: everything, or hidden controls. */
 export type ZoomTier = 'near' | 'mid';
 
 const MID_BELOW = 0.72;
@@ -8,7 +8,7 @@ const MID_BELOW = 0.72;
 export const zoomTier = (zoom: number): ZoomTier => (zoom < MID_BELOW ? 'mid' : 'near');
 
 /**
- * How much to scale a node's tab up so it keeps its on-screen size while the
+ * How much to scale an on-canvas label up so it keeps its on-screen size while the
  * canvas shrinks. Rounded to quarters, so the page restyles a few dozen times across a zoom, not on every tick.
  */
 export const counterScale = (zoom: number) => (zoom >= 1 ? 1 : Math.round(4 / zoom) / 4);
