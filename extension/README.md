@@ -1,3 +1,5 @@
+<p align="center"><img src="icons/icon-128.png" alt="Unlined" width="96" /></p>
+
 # Unlined Web
 
 A small Chrome extension that lets the Web node in Unlined show sites that normally refuse to be embedded, such as `https://gemini.google.com/app`.
@@ -8,9 +10,10 @@ Such sites send `X-Frame-Options` or a `Content-Security-Policy` with `frame-anc
 
 Chrome, Edge, Brave or any Chromium browser with Manifest V3 support (Chrome 116+):
 
-1. Open `chrome://extensions` and turn on Developer mode.
-2. Choose Load unpacked and select this `extension/` folder.
-3. Reload any open Unlined tab. The Web node stops showing its "extension" hint once the page sees it.
+1. Download `unlined-web-extension.zip` from the latest `extension-v*` [release](https://github.com/LazySeaHorse/Unlined/releases) and unzip it (or use this `extension/` folder from a clone).
+2. Open `chrome://extensions` and turn on Developer mode.
+3. Choose Load unpacked and select the unzipped folder.
+4. Reload any open Unlined tab. The Web node stops showing its "extension" hint once the page sees it.
 
 After editing the files, press the reload icon on the extension's card.
 

@@ -1,0 +1,34 @@
+name: Release extension
+
+# Manual only: the extension has no build step, so the release is the folder zipped.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag, e.g. extension-v1.1.0 (leave empty to only build the artifact)
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zip
+        run: |
+          mkdir -p dist-extension
+          (cd extension && zip -r ../dist-extension/unlined-web-extension.zip . -x '*.md')
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unlined-web-extension
+          path: dist-extension/*
+
+      - name: Publish release
+        if: inputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ inputs.version }}" dist-extension/* --title "Extension ${{ inputs.version }}" --notes "Unlined Web extension. Unzip, open chrome://extensions, turn on Developer mode and choose Load unpacked. See extension/README.md."
