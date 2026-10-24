@@ -3,7 +3,6 @@ import 'mathlive/fonts.css';
 import { Sigma, Type } from 'lucide-react';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import { useCanvasStore } from '@/store/canvasStore';
 import { WithTooltip } from '@/ui/Button';
 import { registerMathField } from './fields';
 import { inkBackground, inkColor } from './ink';
@@ -94,15 +93,13 @@ export function MathField({
     const field = ref.current;
     if (!field) return;
     const handleInput = () => emitChange(field.value);
-    // Clicking into a field selects its node, so Escape can hand control back to node shortcuts (Ctrl+D, Ctrl+C...).
+    // Typing in a field selects its node (NodeShell), so Escape hands the keys back to it (Ctrl+D, Ctrl+C...).
     const node = () => field.closest<HTMLElement>('.react-flow__node');
     const syncMode = () => setTextMode(field.mode === 'text');
     const handleBlur = () => setFocused(false);
     const handleFocus = () => {
       setFocused(true);
       syncMode();
-      const id = node()?.dataset.id;
-      if (id) useCanvasStore.getState().setSelection((n) => n.id === id);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && field.mode !== 'latex') {

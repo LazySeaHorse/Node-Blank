@@ -1,6 +1,7 @@
 import { useNodeId } from '@xyflow/react';
 import { Popover } from 'radix-ui';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, FocusEvent, ReactNode } from 'react';
+import { isTextField } from '@/canvas/keyboard';
 import { useReadOnly } from '@/canvas/readOnly';
 import { cn } from '@/lib/cn';
 import type { NodeKind, SectionColor } from '@/model/types';
@@ -56,7 +57,12 @@ export function NodeShell({
   children,
 }: NodeShellProps) {
   const readOnly = useReadOnly();
+  const id = useNodeId();
   const { icon: Icon, label } = nodeSpecs[kind];
+  // Typing into a node's field selects the node, so Escape can hand the keys back to it (Ctrl+D, Ctrl+C...).
+  const selectOnFocus = (event: FocusEvent) => {
+    if (id && isTextField(event.target)) useCanvasStore.getState().setSelection((n) => n.id === id);
+  };
   const tone = tint ? `color-mix(in srgb, ${swatch(tint)} 35%, var(--surface))` : 'var(--surface)';
   return (
     <>
@@ -76,7 +82,10 @@ export function NodeShell({
             <div className="node-actions nodrag ml-auto flex items-center gap-1 self-center">{actions}</div>
           )}
         </div>
-        <div className={cn('node-tile flex min-h-0 flex-1 flex-col', className)}>
+        <div
+          className={cn('node-tile flex min-h-0 flex-1 flex-col', className)}
+          onFocusCapture={selectOnFocus}
+        >
           {toolbar && (
             <header className="nodrag nokey flex h-9 shrink-0 items-center gap-1 px-2">{toolbar}</header>
           )}
