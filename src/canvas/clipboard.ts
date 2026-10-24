@@ -11,7 +11,7 @@ import { useCanvasStore } from '@/store/canvasStore';
 import { pasteNodes } from '@/store/workspace';
 import { isTyping } from './keyboard';
 
-const MIME = 'application/x-node-blank+json';
+const MIME = 'application/x-unlined+json';
 /** Repeated pastes in the same spot step down-right by this much so copies do not hide each other. */
 const PASTE_STEP = 30;
 

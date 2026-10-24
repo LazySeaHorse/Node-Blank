@@ -111,7 +111,7 @@ export function useCanvasActions() {
       const name = file.kind === 'canvases' ? (file.canvases[0]?.name ?? 'canvas') : 'canvas';
       downloadJson(`${slugify(name)}-${date}.json`, file);
     } else {
-      downloadJson(`node-blank-${date}.json`, await workspace.exportAllCanvases());
+      downloadJson(`unlined-${date}.json`, await workspace.exportAllCanvases());
     }
   };
 

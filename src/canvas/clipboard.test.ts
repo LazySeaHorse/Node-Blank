@@ -49,7 +49,7 @@ describe('clipboard', () => {
 
   it('still reads clipboards from before links existed', () => {
     const old = JSON.stringify({
-      app: 'node-blank',
+      app: 'unlined',
       version: 1,
       kind: 'nodes',
       nodes: [createNode('math', at(0, 0))],
@@ -101,7 +101,7 @@ describe('pasteNodes', () => {
     const a = createNode('math', at(0, 0));
     const b = createNode('math', at(200, 0));
     const text = JSON.stringify({
-      app: 'node-blank',
+      app: 'unlined',
       version: 2,
       kind: 'nodes',
       nodes: [a, b],

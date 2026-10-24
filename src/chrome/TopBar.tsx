@@ -31,7 +31,7 @@ import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
 import { useCurrentCanvas } from './useCurrentCanvas';
 
-const REPO_URL = 'https://github.com/LazySeaHorse/Node-Blank';
+const REPO_URL = 'https://github.com/LazySeaHorse/Unlined';
 
 function BrandMenu() {
   const working = useAgentStore((s) => s.locked);
@@ -49,7 +49,7 @@ function BrandMenu() {
         <div className="flex items-center gap-3 px-2.5 pt-2.5 pb-2">
           <Mascot mood={working ? 'working' : 'idle'} className="size-11 shrink-0" />
           <div className="min-w-0">
-            <div className="text-sm leading-tight font-semibold">Node-Blank</div>
+            <div className="text-sm leading-tight font-semibold">Unlined</div>
             <Badge variant="info" size="sm" className="mt-1">
               Saved in this browser
             </Badge>
@@ -82,14 +82,14 @@ function BrandMenu() {
       trigger={
         <button
           type="button"
-          aria-label="Node-Blank menu"
+          aria-label="Unlined menu"
           className="group flex h-10 cursor-pointer items-center gap-2 rounded-xl pr-2 pl-1.5 text-sm font-semibold tracking-tight transition-colors hover:bg-accent/10 hover:text-accent data-[state=open]:bg-accent/10 data-[state=open]:text-accent"
         >
           <Mascot
             mood={working ? 'working' : 'idle'}
             className="size-8 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:-rotate-3"
           />
-          <span className="hidden whitespace-nowrap xl:inline">Node-Blank</span>
+          <span className="hidden whitespace-nowrap xl:inline">Unlined</span>
           <ChevronDown className="size-3.5 opacity-50 transition-transform group-data-[state=open]:rotate-180" />
         </button>
       }

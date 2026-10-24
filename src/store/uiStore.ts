@@ -77,6 +77,6 @@ export const useUiStore = create<UiState>()(
       renameLink: (id) => set({ renamingLink: id }),
       stopRenamingLink: (id) => set((s) => (s.renamingLink === id ? { renamingLink: null } : s)),
     }),
-    { name: 'node-blank-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
+    { name: 'unlined-ui', partialize: ({ tool, theme }) => ({ tool, theme }) },
   ),
 );

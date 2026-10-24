@@ -25,11 +25,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/Tabs';
 import { Panel } from './Panel';
 
 const MCP_URL = 'http://127.0.0.1:47801/mcp';
-const RELEASES_URL = 'https://github.com/LazySeaHorse/Node-Blank/releases';
+const RELEASES_URL = 'https://github.com/LazySeaHorse/Unlined/releases';
 const SETUP_COMMANDS = [
-  ['Claude Code', `claude mcp add --transport http node-blank ${MCP_URL}`],
-  ['Codex', `codex mcp add node-blank --url ${MCP_URL}`],
-  ['Gemini CLI', `gemini mcp add --transport http node-blank ${MCP_URL}`],
+  ['Claude Code', `claude mcp add --transport http unlined ${MCP_URL}`],
+  ['Codex', `codex mcp add unlined --url ${MCP_URL}`],
+  ['Gemini CLI', `gemini mcp add --transport http unlined ${MCP_URL}`],
 ] as const;
 
 /** Asks first, organises the canvas so agents can find their way around, then turns AI control on. */

@@ -238,7 +238,7 @@ export function WebNode({ id, data, selected, dragging }: NodeProps<NodeOf<'web'
           {!extension && !readOnly && !noticeDismissed && (
             <div className="nodrag nokey flex shrink-0 items-center gap-2 border-b border-border bg-surface-2 px-3 py-1 text-xs text-muted">
               <p className="min-w-0 flex-1 truncate">
-                Most sites refuse to load here. The Node-Blank Web extension lets them.
+                Most sites refuse to load here. The Unlined Web extension lets them.
               </p>
               <button
                 type="button"

@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { WEB_SOURCE } from './frameMessages';
 
 /** The extension's content script marks the page with its version before the app runs. */
-const read = () => document.documentElement.dataset.nodeBlankWeb ?? null;
+const read = () => document.documentElement.dataset.unlinedWeb ?? null;
 
 function subscribe(onChange: () => void) {
   // The script also announces itself, in case it was injected after the app started.
@@ -14,7 +14,7 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener('message', onMessage);
 }
 
-/** Version of the Node-Blank Web extension in this browser, or null when it is not installed (or the page predates it). */
+/** Version of the Unlined Web extension in this browser, or null when it is not installed (or the page predates it). */
 export const useWebExtension = () => useSyncExternalStore(subscribe, read, () => null);
 
 /** Whether this version of the extension can send back a video's current frame (1.1 and later). */

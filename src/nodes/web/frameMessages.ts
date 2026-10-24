@@ -1,7 +1,7 @@
 import { normaliseWebUrl } from './url';
 
 /** Tag on every message between the app and the extension's script inside a framed page (see extension/). */
-export const WEB_SOURCE = 'node-blank-web';
+export const WEB_SOURCE = 'unlined-web';
 
 /** What a framed page reports about itself. */
 export interface FrameState {

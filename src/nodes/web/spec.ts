@@ -5,8 +5,7 @@ import { colorField, type NodeSpec, titleField } from '../spec';
 export const webSpec: NodeSpec<'web'> = {
   kind: 'web',
   label: 'Web',
-  description:
-    'Browse a website inside the canvas, e.g. Gemini (most sites need the Node-Blank Web extension)',
+  description: 'Browse a website inside the canvas, e.g. Gemini (most sites need the Unlined Web extension)',
   icon: Globe,
   placement: 'insert',
   schema: z.object({
