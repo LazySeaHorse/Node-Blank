@@ -48,6 +48,17 @@
   --node-muted: #565a62;
   /* A node taken over by the page or video in it. */
   --live: #0b7f51;
+  /* The neutral named colours math can be written in (\textcolor{black}...); dark mode flips them. */
+  --ink-black: #000000;
+  --ink-dark-grey: #666666;
+  --ink-grey: #a6a6a6;
+  --ink-light-grey: #d4d5d2;
+  --ink-white: #ffffff;
+  --ink-bg-black: #353535;
+  --ink-bg-dark-grey: #8c8c8c;
+  --ink-bg-grey: #d0d0d0;
+  --ink-bg-light-grey: #f0f0f0;
+  --ink-bg-white: #ffffff;
 }
 
 /* Neutral greys: no blue tint in dark mode. */
@@ -81,6 +92,16 @@
   --dot: #2b2d32;
   --node-muted: #a8a9ae;
   --live: #3ddc97;
+  --ink-black: #ffffff;
+  --ink-dark-grey: #999999;
+  --ink-grey: #595959;
+  --ink-light-grey: #2b2a2d;
+  --ink-white: #000000;
+  --ink-bg-black: #cacaca;
+  --ink-bg-dark-grey: #737373;
+  --ink-bg-grey: #2f2f2f;
+  --ink-bg-light-grey: #0f0f0f;
+  --ink-bg-white: #000000;
   color-scheme: dark;
 }
 
@@ -299,7 +320,6 @@ math-field::part(menu-toggle),
 math-field::part(virtual-keyboard-toggle) {
   display: none;
 }
-
 /* Mafs */
 .react-flow .MafsView {
   --mafs-bg: transparent;

@@ -35,7 +35,7 @@ const MATRIX_SIZES = [
   [3, 1],
 ] as const;
 
-/** MathLive's named text colours, with the swatches its own menu shows. */
+/** MathLive's named text colours, with the swatches its own menu shows. The neutrals follow the theme (lib/math/ink.ts). */
 const TEXT_COLORS = {
   red: '#d7170b',
   orange: '#fe8a2b',
@@ -48,9 +48,9 @@ const TEXT_COLORS = {
   indigo: '#63c',
   purple: '#a219e6',
   magenta: '#eb4799',
-  black: '#000',
-  'dark-grey': '#666',
-  grey: '#A6A6A6',
+  black: 'var(--ink-black)',
+  'dark-grey': 'var(--ink-dark-grey)',
+  grey: 'var(--ink-grey)',
 } as const;
 
 const matrix = (rows: number, cols: number) =>

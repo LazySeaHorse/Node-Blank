@@ -3,10 +3,11 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import { cn } from './cn';
+import { rehypeInk } from './math/ink';
 import remarkObsidianMath from './remarkObsidianMath';
 
 const remarkPlugins = [remarkGfm, remarkObsidianMath];
-const rehypePlugins = [rehypeKatex];
+const rehypePlugins = [rehypeKatex, rehypeInk];
 const components: Components = {
   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />,
 };

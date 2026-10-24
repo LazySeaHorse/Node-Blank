@@ -5,6 +5,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { useCanvasStore } from '@/store/canvasStore';
 import { WithTooltip } from '@/ui/Button';
+import { inkBackground, inkColor } from './ink';
 import { flattenDisplaylines } from './normalize';
 
 // Fonts come from the bundled CSS above; no keyboard click sounds.
@@ -67,6 +68,15 @@ export function MathField({
     field.menuItems = [];
     if (placeholder) field.placeholder = placeholder;
   }, [readOnly, placeholder]);
+
+  useEffect(() => {
+    const field = ref.current;
+    if (!field) return;
+    const colorMap = field.colorMap;
+    const backgroundColorMap = field.backgroundColorMap;
+    field.colorMap = (name) => inkColor(name) ?? colorMap(name);
+    field.backgroundColorMap = (name) => inkBackground(name) ?? backgroundColorMap(name);
+  }, []);
 
   useEffect(() => {
     const field = ref.current;

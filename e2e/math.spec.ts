@@ -109,3 +109,22 @@ test('duplicating a multi-line Math+ node works', async ({ page }) => {
   await expect(nodes(page).locator('math-field')).toHaveCount(2);
   expect(errors).toEqual([]);
 });
+
+test('math written in black turns light in dark mode', async ({ page }) => {
+  await placeNode(page, 'Math');
+  const field = nodes(page).locator('math-field');
+  await field.click();
+  await expect(field).toBeFocused();
+  await field.evaluate((el: HTMLElement & { setValue: (v: string) => void }) =>
+    el.setValue('\\textcolor{black}{B}'),
+  );
+  await page.keyboard.press('Escape');
+  const color = () =>
+    field.evaluate((el) => {
+      const atom = el.shadowRoot?.querySelector<HTMLElement>('[style*="color"]');
+      return atom ? getComputedStyle(atom).color : null;
+    });
+  await expect.poll(color).toBe('rgb(0, 0, 0)');
+  await page.getByRole('button', { name: 'Dark mode', exact: true }).click();
+  await expect.poll(color).toBe('rgb(255, 255, 255)');
+});
